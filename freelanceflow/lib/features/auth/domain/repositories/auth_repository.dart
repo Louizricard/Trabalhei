@@ -1,0 +1,19 @@
+import '../entities/user_profile.dart';
+
+abstract class AuthRepository {
+  Stream<UserProfile?> get authStateChanges;
+  Future<UserProfile?> getCurrentUser();
+  Future<UserProfile> signInWithEmailPassword({
+    required String email,
+    required String password,
+  });
+  Future<UserProfile> signUpWithEmailPassword({
+    required String email,
+    required String password,
+    required String fullName,
+    required UserRole role,
+  });
+  Future<void> sendPasswordReset(String email);
+  Future<void> signOut();
+  Future<UserProfile> updateProfile(UserProfile profile);
+}
