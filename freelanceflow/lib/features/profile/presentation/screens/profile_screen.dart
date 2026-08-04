@@ -10,11 +10,65 @@ import '../../../auth/domain/entities/user_profile.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../providers/profile_provider.dart';
 
-class ProfileScreen extends ConsumerWidget {
+import 'package:image_picker/image_picker.dart';
+import '../widgets/edit_profile_modal.dart';
+
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  bool _isUploadingAvatar = false;
+
+  Future<void> _pickAndUploadAvatar() async {
+    try {
+      final picker = ImagePicker();
+      final image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 600,
+        maxHeight: 600,
+        imageQuality: 80,
+      );
+
+      if (image == null) return;
+
+      setState(() => _isUploadingAvatar = true);
+
+      final bytes = await image.readAsBytes();
+      final ext = image.name.split('.').last.toLowerCase();
+
+      final uploadFn = ref.read(uploadAvatarProvider);
+      await uploadFn(bytes, ext.isEmpty ? 'jpg' : ext);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Foto de perfil atualizada com sucesso!'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao enviar foto: ${e.toString().replaceAll("Exception: ", "")}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isUploadingAvatar = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(authProvider).value;
     final reviewsAsync = ref.watch(userReviewsProvider);
     final isFreelancer = user?.role == UserRole.freelancer;
@@ -44,13 +98,57 @@ class ProfileScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 36,
-                      backgroundColor: AppColors.primary,
-                      child: Text(
-                        (user?.fullName.isNotEmpty ?? false) ? user!.fullName[0].toUpperCase() : 'U',
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
+                    Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        CircleAvatar(
+                          radius: 42,
+                          backgroundColor: AppColors.primary,
+                          backgroundImage: (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty)
+                              ? NetworkImage(user.avatarUrl!)
+                              : null,
+                          child: (user?.avatarUrl == null || user!.avatarUrl!.isEmpty)
+                              ? Text(
+                                  (user?.fullName.isNotEmpty ?? false) ? user!.fullName[0].toUpperCase() : 'U',
+                                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                                )
+                              : null,
+                        ),
+                        if (_isUploadingAvatar)
+                          const Positioned.fill(
+                            child: CircleAvatar(
+                              backgroundColor: Colors.black54,
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          )
+                        else
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: _pickAndUploadAvatar,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.camera_alt_rounded,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -85,16 +183,38 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    CustomButton(
-                      text: isFreelancer ? 'Alternar para Modo Contratante' : 'Alternar para Modo Freelancer',
-                      variant: ButtonVariant.secondary,
-                      icon: Icons.swap_horiz_rounded,
-                      onPressed: () {
-                        ref.read(authProvider.notifier).switchRole(
-                              isFreelancer ? UserRole.client : UserRole.freelancer,
-                            );
-                        context.go(isFreelancer ? '/dashboard/client' : '/jobs');
-                      },
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomButton(
+                            text: 'Editar Perfil',
+                            icon: Icons.edit_rounded,
+                            onPressed: () {
+                              if (user == null) return;
+                              showModalBottomSheet(
+                                context: context,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                builder: (_) => EditProfileModal(user: user),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: CustomButton(
+                            text: isFreelancer ? 'Modo Contratante' : 'Modo Freelancer',
+                            variant: ButtonVariant.secondary,
+                            icon: Icons.swap_horiz_rounded,
+                            onPressed: () {
+                              ref.read(authProvider.notifier).switchRole(
+                                    isFreelancer ? UserRole.client : UserRole.freelancer,
+                                  );
+                              context.go(isFreelancer ? '/dashboard/client' : '/jobs');
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -188,6 +308,15 @@ class ProfileScreen extends ConsumerWidget {
                   );
                 },
               ),
+              const SizedBox(height: 24),
+              Center(
+                child: TextButton.icon(
+                  icon: const Icon(Icons.policy_outlined, size: 16, color: AppColors.textMutedDark),
+                  label: const Text('Termos de Uso e Política de Privacidade', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                  onPressed: () => context.push('/terms'),
+                ),
+              ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
