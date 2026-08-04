@@ -76,7 +76,7 @@ class Proposal {
               ?.map((e) => ProposedMilestone.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      status: _parseStatus(json['status'] as String?),
+      status: parseStatus(json['status'] as String?),
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
@@ -89,14 +89,16 @@ class Proposal {
       'job_id': jobId,
       'freelancer_id': freelancerId,
       'bid_amount': bidAmount,
+      'amount': bidAmount,
       'estimated_days': estimatedDays,
       'cover_letter': coverLetter,
+      'message': coverLetter,
       'proposed_milestones': proposedMilestones.map((m) => m.toJson()).toList(),
-      'status': _statusToString(status),
+      'status': statusToString(status),
     };
   }
 
-  static String _statusToString(ProposalStatus s) {
+  static String statusToString(ProposalStatus s) {
     switch (s) {
       case ProposalStatus.accepted:
         return 'accepted';
@@ -109,7 +111,7 @@ class Proposal {
     }
   }
 
-  static ProposalStatus _parseStatus(String? status) {
+  static ProposalStatus parseStatus(String? status) {
     switch (status) {
       case 'accepted':
         return ProposalStatus.accepted;

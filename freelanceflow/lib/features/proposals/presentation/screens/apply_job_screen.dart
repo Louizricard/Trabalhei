@@ -27,11 +27,48 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
   final _daysController = TextEditingController(text: '15');
   final _coverLetterController = TextEditingController();
   bool _isLoading = false;
+  bool _isEditing = false;
+  String? _existingProposalId;
+  bool _initializedFromExisting = false;
 
-  final List<ProposedMilestone> _milestones = [
+  List<ProposedMilestone> _milestones = [
     const ProposedMilestone(title: 'Estrutura base & Telas iniciais', amount: 1500, days: 7),
     const ProposedMilestone(title: 'Integrações, Testes e Entrega', amount: 1500, days: 8),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _checkExistingProposal();
+  }
+
+  Future<void> _checkExistingProposal() async {
+    final user = ref.read(authProvider).value;
+    if (user == null) return;
+
+    try {
+      final repository = ref.read(proposalRepositoryProvider);
+      final list = await repository.getFreelancerProposals(user.id);
+      final match = list.where((p) => p.jobId == widget.jobId).toList();
+
+      if (match.isNotEmpty && mounted && !_initializedFromExisting) {
+        final prop = match.first;
+        setState(() {
+          _isEditing = true;
+          _existingProposalId = prop.id;
+          _bidController.text = prop.bidAmount.toStringAsFixed(2);
+          _daysController.text = prop.estimatedDays.toString();
+          _coverLetterController.text = prop.coverLetter;
+          if (prop.proposedMilestones.isNotEmpty) {
+            _milestones = List.from(prop.proposedMilestones);
+          }
+          _initializedFromExisting = true;
+        });
+      }
+    } catch (_) {
+      // Caso não consiga carregar previamente, segue com formulário padrão
+    }
+  }
 
   @override
   void dispose() {
@@ -60,7 +97,7 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
 
     try {
       final proposal = Proposal(
-        id: '',
+        id: _existingProposalId ?? '',
         jobId: widget.jobId,
         freelancerId: user.id,
         freelancerName: user.fullName,
@@ -74,11 +111,13 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
 
       await ref.read(proposalRepositoryProvider).submitProposal(proposal);
       ref.invalidate(jobProposalsProvider(widget.jobId));
+      ref.invalidate(freelancerProposalsProvider(user.id));
+      ref.invalidate(jobDetailProvider(widget.jobId));
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Proposta enviada com sucesso! O cliente foi notificado.'),
+          SnackBar(
+            content: Text(_isEditing ? 'Proposta atualizada com sucesso!' : 'Proposta enviada com sucesso! O cliente foi notificado.'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -87,9 +126,13 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
+        final errText = e.toString().contains('duplicate key')
+            ? 'Você já enviou uma proposta para esta vaga. Os dados foram sincronizados.'
+            : 'Falha ao processar proposta: ${e.toString().replaceAll("Exception: ", "")}';
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Falha ao enviar proposta: ${e.toString().replaceAll("Exception: ", "")}'),
+            content: Text(errText),
             backgroundColor: AppColors.error,
           ),
         );
@@ -103,7 +146,7 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Enviar Proposta'),
+        title: Text(_isEditing ? 'Editar Proposta' : 'Enviar Proposta'),
         leading: IconButton(icon: const Icon(Icons.arrow_back_rounded), onPressed: () => context.pop()),
       ),
       body: ResponsiveLayout(
@@ -115,6 +158,29 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (_isEditing) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryDark.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.4)),
+                    ),
+                    child: Row(
+                      children: const [
+                        Icon(Icons.info_outline_rounded, color: AppColors.primaryLight, size: 20),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Você já enviou uma proposta para esta vaga. Você pode atualizar os valores e condições abaixo.',
+                            style: TextStyle(fontSize: 12, color: AppColors.textPrimaryDark),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 if (job != null) ...[
                   GlassCard(
                     padding: const EdgeInsets.all(16),
@@ -214,8 +280,8 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                 ),
                 const SizedBox(height: 24),
                 CustomButton(
-                  text: 'Confirmar e Enviar Proposta',
-                  icon: Icons.send_rounded,
+                  text: _isEditing ? 'Atualizar Minha Proposta' : 'Confirmar e Enviar Proposta',
+                  icon: _isEditing ? Icons.save_rounded : Icons.send_rounded,
                   isLoading: _isLoading,
                   width: double.infinity,
                   onPressed: _submitProposal,

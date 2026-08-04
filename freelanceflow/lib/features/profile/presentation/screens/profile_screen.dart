@@ -22,6 +22,39 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _isUploadingAvatar = false;
+  bool _isSwitchingRole = false;
+
+  Future<void> _handleSwitchRole(bool isFreelancer) async {
+    final targetRole = isFreelancer ? UserRole.client : UserRole.freelancer;
+    setState(() => _isSwitchingRole = true);
+
+    try {
+      await ref.read(authProvider.notifier).switchRole(targetRole);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Alternado para ${targetRole.label} com sucesso!'),
+            backgroundColor: AppColors.success,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        context.go(targetRole == UserRole.client ? '/dashboard/client' : '/jobs');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Falha ao alternar modo: ${e.toString().replaceAll("Exception: ", "")}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSwitchingRole = false);
+      }
+    }
+  }
 
   Future<void> _pickAndUploadAvatar() async {
     try {
@@ -206,12 +239,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             text: isFreelancer ? 'Modo Contratante' : 'Modo Freelancer',
                             variant: ButtonVariant.secondary,
                             icon: Icons.swap_horiz_rounded,
-                            onPressed: () {
-                              ref.read(authProvider.notifier).switchRole(
-                                    isFreelancer ? UserRole.client : UserRole.freelancer,
-                                  );
-                              context.go(isFreelancer ? '/dashboard/client' : '/jobs');
-                            },
+                            isLoading: _isSwitchingRole,
+                            onPressed: _isSwitchingRole ? null : () => _handleSwitchRole(isFreelancer),
                           ),
                         ),
                       ],

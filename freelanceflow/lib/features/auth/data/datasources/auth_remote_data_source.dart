@@ -137,7 +137,21 @@ class AuthRemoteDataSource {
   }
 
   Future<UserProfile> updateProfile(UserProfile profile) async {
-    await _supabase.from('profiles').upsert(profile.toJson());
+    final payload = profile.toJson();
+    payload['updated_at'] = DateTime.now().toIso8601String();
+    await _supabase.from('profiles').upsert(payload);
+
+    try {
+      await _supabase.auth.updateUser(
+        UserAttributes(
+          data: {
+            'full_name': profile.fullName,
+            'role': profile.role.toDbString(),
+          },
+        ),
+      );
+    } catch (_) {}
+
     return profile;
   }
 

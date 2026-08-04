@@ -66,8 +66,23 @@ void main() {
 
       final json = proposal.toJson();
       expect(json['bid_amount'], 4000.0);
+      expect(json['amount'], 4000.0);
+      expect(json['cover_letter'], 'Experiência comprovada em Flutter e Supabase');
+      expect(json['message'], 'Experiência comprovada em Flutter e Supabase');
       expect(json['estimated_days'], 10);
       expect((json['proposed_milestones'] as List).length, 2);
+
+      // Verify fromJson works when database returns 'amount' and 'message'
+      final parsed = Proposal.fromJson({
+        'id': 'prop-2',
+        'job_id': 'job-1',
+        'freelancer_id': 'user-1',
+        'amount': 3500.0,
+        'message': 'Mensagem da proposta',
+        'estimated_days': 7,
+      });
+      expect(parsed.bidAmount, 3500.0);
+      expect(parsed.coverLetter, 'Mensagem da proposta');
     });
 
     test('ChatMessage parses types correctly', () {
@@ -184,5 +199,76 @@ void main() {
       });
       expect(debit.isCredit, isFalse);
     });
+
+    test('Proposal parses payload from v_job_proposals view seamlessly', () {
+      final viewData = {
+        'id': 'prop-v1',
+        'job_id': 'job-456',
+        'freelancer_id': 'free-789',
+        'freelancer_name': 'Ana Silva',
+        'freelancer_rating': 4.9,
+        'bid_amount': 2800.0,
+        'amount': 2800.0,
+        'estimated_days': 15,
+        'cover_letter': 'Desenvolvedora Flutter Sênior',
+        'message': 'Desenvolvedora Flutter Sênior',
+        'status': 'pending',
+        'proposed_milestones': [
+          {'title': 'MVP 1', 'amount': 1400.0, 'days': 7},
+          {'title': 'MVP 2', 'amount': 1400.0, 'days': 8},
+        ],
+        'created_at': '2026-08-04T12:00:00Z',
+      };
+
+      final proposal = Proposal.fromJson(viewData);
+      expect(proposal.id, 'prop-v1');
+      expect(proposal.freelancerName, 'Ana Silva');
+      expect(proposal.freelancerRating, 4.9);
+      expect(proposal.bidAmount, 2800.0);
+      expect(proposal.estimatedDays, 15);
+      expect(proposal.coverLetter, 'Desenvolvedora Flutter Sênior');
+      expect(proposal.status, ProposalStatus.pending);
+      expect(proposal.proposedMilestones.length, 2);
+    });
+
+    test('Proposal status conversions and parseStatus work bidirectionally', () {
+      expect(Proposal.statusToString(ProposalStatus.accepted), 'accepted');
+      expect(Proposal.statusToString(ProposalStatus.rejected), 'rejected');
+      expect(Proposal.statusToString(ProposalStatus.counterOffered), 'counter_offered');
+      expect(Proposal.statusToString(ProposalStatus.pending), 'pending');
+
+      expect(Proposal.parseStatus('accepted'), ProposalStatus.accepted);
+      expect(Proposal.parseStatus('rejected'), ProposalStatus.rejected);
+      expect(Proposal.parseStatus('counter_offered'), ProposalStatus.counterOffered);
+      expect(Proposal.parseStatus('pending'), ProposalStatus.pending);
+      expect(Proposal.parseStatus(null), ProposalStatus.pending);
+    });
+
+    test('Proposal serializes into Supabase-compatible payload with amount and cover_letter', () {
+      final p = Proposal(
+        id: 'prop-uuid-123',
+        jobId: 'job-uuid-456',
+        freelancerId: 'free-uuid-789',
+        freelancerName: 'Carlos Dev',
+        freelancerRating: 4.8,
+        bidAmount: 1500.0,
+        estimatedDays: 10,
+        coverLetter: 'Experiência comprovada em Flutter e Supabase',
+        proposedMilestones: const [
+          ProposedMilestone(title: 'Sprint 1', amount: 750, days: 5),
+          ProposedMilestone(title: 'Sprint 2', amount: 750, days: 5),
+        ],
+        createdAt: DateTime(2026, 8, 4),
+      );
+
+      final json = p.toJson();
+      expect(json['job_id'], 'job-uuid-456');
+      expect(json['freelancer_id'], 'free-uuid-789');
+      expect(json['bid_amount'], 1500.0);
+      expect(json['estimated_days'], 10);
+      expect(json['cover_letter'], 'Experiência comprovada em Flutter e Supabase');
+      expect(json['status'], 'pending');
+    });
   });
 }
+

@@ -17,6 +17,9 @@ class ChatRemoteDataSource {
         .from('conversations')
         .select('''
           id,
+          job_id,
+          client_id,
+          freelancer_id,
           contract_id,
           participant_a,
           participant_b,
@@ -31,7 +34,7 @@ class ChatRemoteDataSource {
           ),
           messages (content, is_read, sender_id, created_at)
         ''')
-        .or('participant_a.eq.$currentUserId,participant_b.eq.$currentUserId')
+        .or('participant_a.eq.$currentUserId,participant_b.eq.$currentUserId,client_id.eq.$currentUserId,freelancer_id.eq.$currentUserId')
         .order('last_message_at', ascending: false);
 
     final List<dynamic> data = response as List<dynamic>;
@@ -46,6 +49,9 @@ class ChatRemoteDataSource {
         .from('conversations')
         .select('''
           id,
+          job_id,
+          client_id,
+          freelancer_id,
           contract_id,
           participant_a,
           participant_b,
@@ -65,6 +71,87 @@ class ChatRemoteDataSource {
 
     if (response == null) return null;
     return _mapToConversation(response, currentUserId);
+  }
+
+  Future<Conversation> getOrCreateConversation({
+    required String jobId,
+    required String freelancerId,
+    required String clientId,
+    String? contractId,
+  }) async {
+    final currentUserId = _supabase.auth.currentUser?.id;
+    if (currentUserId == null) throw Exception('Usuário não autenticado.');
+
+    // 1. Verificar se já existe conversa entre estes participantes para este job
+    final response = await _supabase
+        .from('conversations')
+        .select('''
+          id,
+          job_id,
+          client_id,
+          freelancer_id,
+          contract_id,
+          participant_a,
+          participant_b,
+          last_message_at,
+          created_at,
+          jobs (title),
+          participant_a_profile:profiles!participant_a (id, full_name, avatar_url),
+          participant_b_profile:profiles!participant_b (id, full_name, avatar_url),
+          contracts:contract_id (
+            id,
+            milestones (id, contract_id, title, description, amount, status, due_date)
+          ),
+          messages (content, is_read, sender_id, created_at)
+        ''')
+        .eq('job_id', jobId);
+
+    final List<dynamic> existing = response as List<dynamic>;
+    for (final item in existing) {
+      final map = item as Map<String, dynamic>;
+      final partA = (map['participant_a'] ?? map['client_id']) as String?;
+      final partB = (map['participant_b'] ?? map['freelancer_id']) as String?;
+      final match = (partA == clientId && partB == freelancerId) || (partA == freelancerId && partB == clientId);
+      if (match) {
+        if (contractId != null && map['contract_id'] == null) {
+          await _supabase.from('conversations').update({'contract_id': contractId}).eq('id', map['id'] as String);
+          return (await getConversationById(map['id'] as String)) ?? _mapToConversation(map, currentUserId);
+        }
+        return _mapToConversation(map, currentUserId);
+      }
+    }
+
+    // 2. Criar nova conversa
+    final insertPayload = <String, dynamic>{
+      'job_id': jobId,
+      'client_id': clientId,
+      'freelancer_id': freelancerId,
+      'participant_a': clientId,
+      'participant_b': freelancerId,
+      'last_message_at': DateTime.now().toIso8601String(),
+    };
+    if (contractId != null) {
+      insertPayload['contract_id'] = contractId;
+    }
+
+    final inserted = await _supabase.from('conversations').insert(insertPayload).select('id').single();
+    final newId = inserted['id'] as String;
+
+    final conv = await getConversationById(newId);
+    if (conv != null) return conv;
+
+    return Conversation(
+      id: newId,
+      contractId: contractId,
+      jobTitle: 'Projeto',
+      otherParticipantId: currentUserId == clientId ? freelancerId : clientId,
+      otherParticipantName: 'Usuário',
+      otherParticipantAvatar: null,
+      lastMessage: 'Conversa iniciada',
+      lastMessageAt: DateTime.now(),
+      unreadCount: 0,
+      milestones: [],
+    );
   }
 
   Stream<List<ChatMessage>> getMessagesStream(String conversationId) {
@@ -127,14 +214,15 @@ class ChatRemoteDataSource {
   }
 
   Conversation _mapToConversation(Map<String, dynamic> json, String currentUserId) {
-    final partAId = json['participant_a'] as String?;
+    final partAId = (json['participant_a'] ?? json['client_id']) as String?;
+    final partBId = (json['participant_b'] ?? json['freelancer_id']) as String?;
     final isPartA = partAId == currentUserId;
 
     final otherProfile = isPartA
         ? json['participant_b_profile'] as Map<String, dynamic>?
         : json['participant_a_profile'] as Map<String, dynamic>?;
 
-    final otherId = isPartA ? json['participant_b'] as String? ?? '' : json['participant_a'] as String? ?? '';
+    final otherId = isPartA ? (partBId ?? '') : (partAId ?? '');
     final otherName = otherProfile?['full_name'] as String? ?? 'Usuário';
     final otherAvatar = otherProfile?['avatar_url'] as String?;
 

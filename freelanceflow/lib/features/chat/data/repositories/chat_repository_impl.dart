@@ -19,6 +19,21 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<Conversation> getOrCreateConversation({
+    required String jobId,
+    required String freelancerId,
+    required String clientId,
+    String? contractId,
+  }) {
+    return _remoteDataSource.getOrCreateConversation(
+      jobId: jobId,
+      freelancerId: freelancerId,
+      clientId: clientId,
+      contractId: contractId,
+    );
+  }
+
+  @override
   Stream<List<ChatMessage>> getMessagesStream(String conversationId) {
     return _remoteDataSource.getMessagesStream(conversationId);
   }

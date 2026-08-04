@@ -18,6 +18,7 @@ import '../../features/payments/presentation/screens/payments_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/terms_and_privacy_screen.dart';
 import '../../features/proposals/presentation/screens/apply_job_screen.dart';
+import '../../features/proposals/presentation/screens/job_proposals_screen.dart';
 import '../widgets/app_scaffold.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -97,6 +98,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/jobs/:id',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => JobDetailScreen(jobId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/jobs/:id/proposals',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => JobProposalsScreen(jobId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/jobs/:id/apply',

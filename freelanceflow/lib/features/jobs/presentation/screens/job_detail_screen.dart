@@ -12,6 +12,8 @@ import 'package:freelanceflow/features/auth/domain/entities/user_profile.dart';
 import 'package:freelanceflow/features/auth/presentation/providers/auth_state_provider.dart';
 import 'package:freelanceflow/features/jobs/domain/entities/job.dart';
 import 'package:freelanceflow/features/jobs/presentation/providers/jobs_provider.dart';
+import 'package:freelanceflow/features/proposals/domain/entities/proposal.dart';
+import 'package:freelanceflow/features/proposals/presentation/providers/proposals_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class JobDetailScreen extends ConsumerWidget {
@@ -23,6 +25,13 @@ class JobDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final jobAsync = ref.watch(jobDetailProvider(jobId));
     final currentUser = ref.watch(authProvider).value;
+    final proposalsAsync = currentUser != null
+        ? ref.watch(freelancerProposalsProvider(currentUser.id))
+        : const AsyncValue<List<Proposal>>.data([]);
+    final hasApplied = proposalsAsync.maybeWhen(
+      data: (list) => list.any((p) => p.jobId == jobId),
+      orElse: () => false,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -160,12 +169,12 @@ class JobDetailScreen extends ConsumerWidget {
                       text: 'Ver Propostas Recebidas (${job.proposalsCount})',
                       icon: Icons.list_alt_rounded,
                       width: double.infinity,
-                      onPressed: () => context.push('/chat'),
+                      onPressed: () => context.push('/jobs/${job.id}/proposals'),
                     ),
                   ] else ...[
                     CustomButton(
-                      text: 'Enviar Proposta para esta Vaga',
-                      icon: Icons.send_rounded,
+                      text: hasApplied ? 'Editar Minha Proposta Enviada' : 'Enviar Proposta para esta Vaga',
+                      icon: hasApplied ? Icons.edit_note_rounded : Icons.send_rounded,
                       width: double.infinity,
                       onPressed: () => context.push('/jobs/${job.id}/apply'),
                     ),
