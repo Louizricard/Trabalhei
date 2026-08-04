@@ -103,12 +103,25 @@ class Job {
       'budget_max': budgetMax,
       'deadline_days': deadlineDays,
       'experience_level': experienceLevel.name,
-      'status': status.name,
+      'status': _jobStatusToString(status),
       'is_featured': isFeatured,
       'is_urgent': isUrgent,
       'skills_required': skillsRequired,
       'screening_questions': screeningQuestions,
     };
+  }
+
+  static String _jobStatusToString(JobStatus s) {
+    switch (s) {
+      case JobStatus.inProgress:
+        return 'in_progress';
+      case JobStatus.completed:
+        return 'completed';
+      case JobStatus.cancelled:
+        return 'cancelled';
+      case JobStatus.open:
+        return 'open';
+    }
   }
 
   static ExperienceLevel _parseExpLevel(String? level) {

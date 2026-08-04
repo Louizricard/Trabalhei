@@ -92,8 +92,21 @@ class Proposal {
       'estimated_days': estimatedDays,
       'cover_letter': coverLetter,
       'proposed_milestones': proposedMilestones.map((m) => m.toJson()).toList(),
-      'status': status.name,
+      'status': _statusToString(status),
     };
+  }
+
+  static String _statusToString(ProposalStatus s) {
+    switch (s) {
+      case ProposalStatus.accepted:
+        return 'accepted';
+      case ProposalStatus.rejected:
+        return 'rejected';
+      case ProposalStatus.counterOffered:
+        return 'counter_offered';
+      case ProposalStatus.pending:
+        return 'pending';
+    }
   }
 
   static ProposalStatus _parseStatus(String? status) {

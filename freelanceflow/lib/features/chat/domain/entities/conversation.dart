@@ -37,8 +37,23 @@ class ContractMilestone {
         'title': title,
         'description': description,
         'amount': amount,
-        'status': status.name,
+        'status': _statusToDb(status),
       };
+
+  static String _statusToDb(MilestoneStatus s) {
+    switch (s) {
+      case MilestoneStatus.fundedInEscrow:
+        return 'funded_in_escrow';
+      case MilestoneStatus.submitted:
+        return 'submitted';
+      case MilestoneStatus.approvedAndReleased:
+        return 'approved_and_released';
+      case MilestoneStatus.disputed:
+        return 'disputed';
+      case MilestoneStatus.pending:
+        return 'pending';
+    }
+  }
 
   ContractMilestone copyWith({MilestoneStatus? status}) {
     return ContractMilestone(
