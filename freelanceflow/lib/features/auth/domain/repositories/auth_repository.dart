@@ -14,6 +14,7 @@ abstract class AuthRepository {
     required UserRole role,
   });
   Future<void> sendPasswordReset(String email);
+  Future<void> updatePassword(String newPassword);
   Future<void> signOut();
   Future<UserProfile> updateProfile(UserProfile profile);
 }

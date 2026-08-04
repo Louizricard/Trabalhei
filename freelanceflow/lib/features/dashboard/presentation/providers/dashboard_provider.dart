@@ -52,6 +52,9 @@ final freelancerStatsProvider = FutureProvider<FreelancerDashboardStats>((ref) a
         }
       }
     }
+    if (user.walletBalance > 0) {
+      availableBalance = user.walletBalance;
+    }
   } catch (_) {}
 
   double escrowBalance = 0.0;

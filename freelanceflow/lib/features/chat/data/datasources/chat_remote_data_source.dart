@@ -104,13 +104,21 @@ class ChatRemoteDataSource {
     if (status == MilestoneStatus.approvedAndReleased) dbStatus = 'approved_and_released';
     if (status == MilestoneStatus.disputed) dbStatus = 'disputed';
 
-    await _supabase.from('milestones').update({'status': dbStatus}).eq('id', milestoneId);
+    if (status == MilestoneStatus.approvedAndReleased) {
+      try {
+        await _supabase.rpc('release_escrow_milestone', params: {'p_milestone_id': milestoneId});
+      } catch (_) {
+        await _supabase.from('milestones').update({'status': 'approved_and_released'}).eq('id', milestoneId);
+      }
+    } else {
+      await _supabase.from('milestones').update({'status': dbStatus}).eq('id', milestoneId);
+    }
 
     String statusText;
     if (status == MilestoneStatus.submitted) {
       statusText = '📦 O marco de entrega foi enviado pelo freelancer para aprovação.';
     } else if (status == MilestoneStatus.approvedAndReleased) {
-      statusText = '🎉 Marco aprovado pelo cliente! O pagamento foi liberado do Escrow.';
+      statusText = '🎉 Marco aprovado pelo cliente! O pagamento foi liberado do Escrow para a carteira.';
     } else {
       statusText = '⚠️ Status do Marco atualizado para: ${status.name}';
     }

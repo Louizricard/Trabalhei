@@ -67,8 +67,7 @@ class AuthRemoteDataSource {
     } on AuthException catch (e) {
       throw Exception(_mapAuthErrorMessage(e.message));
     } catch (e) {
-      if (e is Exception) rethrow;
-      throw Exception('Erro inesperado ao realizar login.');
+      throw Exception(_mapAuthErrorMessage(e.toString()));
     }
   }
 
@@ -107,8 +106,7 @@ class AuthRemoteDataSource {
     } on AuthException catch (e) {
       throw Exception(_mapAuthErrorMessage(e.message));
     } catch (e) {
-      if (e is Exception) rethrow;
-      throw Exception('Erro inesperado ao realizar cadastro.');
+      throw Exception(_mapAuthErrorMessage(e.toString()));
     }
   }
 
@@ -118,7 +116,19 @@ class AuthRemoteDataSource {
     } on AuthException catch (e) {
       throw Exception(_mapAuthErrorMessage(e.message));
     } catch (e) {
-      throw Exception('Falha ao solicitar recuperação de senha.');
+      throw Exception(_mapAuthErrorMessage(e.toString()));
+    }
+  }
+
+  Future<void> updatePassword(String newPassword) async {
+    try {
+      await _supabase.auth.updateUser(
+        UserAttributes(password: newPassword),
+      );
+    } on AuthException catch (e) {
+      throw Exception(_mapAuthErrorMessage(e.message));
+    } catch (e) {
+      throw Exception(_mapAuthErrorMessage(e.toString()));
     }
   }
 
@@ -133,10 +143,16 @@ class AuthRemoteDataSource {
 
   String _mapAuthErrorMessage(String msg) {
     final lower = msg.toLowerCase();
+    if (lower.contains('socketexception') ||
+        lower.contains('failed host lookup') ||
+        lower.contains('network is unreachable') ||
+        lower.contains('no address associated with hostname')) {
+      return 'Sem conexão com a internet ou servidor inacessível. Reinstale o APK com as permissões de rede.';
+    }
     if (lower.contains('invalid login credentials') || lower.contains('invalid credentials')) {
       return 'E-mail ou senha incorretos.';
     }
-    if (lower.contains('user already registered')) {
+    if (lower.contains('user already registered') || lower.contains('already registered')) {
       return 'Este e-mail já está cadastrado no sistema.';
     }
     if (lower.contains('password should be at least')) {
@@ -145,6 +161,6 @@ class AuthRemoteDataSource {
     if (lower.contains('rate limit')) {
       return 'Muitas tentativas. Aguarde alguns instantes e tente novamente.';
     }
-    return msg;
+    return msg.replaceAll('Exception: ', '');
   }
 }

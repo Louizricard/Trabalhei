@@ -52,6 +52,8 @@ class UserProfile {
   final int completedJobsCount;
   final String availabilityStatus;
   final bool isVerified;
+  final double walletBalance;
+  final double escrowBalance;
   final DateTime createdAt;
 
   const UserProfile({
@@ -69,6 +71,8 @@ class UserProfile {
     this.completedJobsCount = 0,
     this.availabilityStatus = 'available',
     this.isVerified = false,
+    this.walletBalance = 0.0,
+    this.escrowBalance = 0.0,
     required this.createdAt,
   });
 
@@ -85,6 +89,8 @@ class UserProfile {
     int? completedJobsCount,
     String? availabilityStatus,
     bool? isVerified,
+    double? walletBalance,
+    double? escrowBalance,
   }) {
     return UserProfile(
       id: id,
@@ -101,6 +107,8 @@ class UserProfile {
       completedJobsCount: completedJobsCount ?? this.completedJobsCount,
       availabilityStatus: availabilityStatus ?? this.availabilityStatus,
       isVerified: isVerified ?? this.isVerified,
+      walletBalance: walletBalance ?? this.walletBalance,
+      escrowBalance: escrowBalance ?? this.escrowBalance,
       createdAt: createdAt,
     );
   }
@@ -121,6 +129,8 @@ class UserProfile {
       completedJobsCount: json['completed_jobs_count'] as int? ?? 0,
       availabilityStatus: json['availability_status'] as String? ?? 'available',
       isVerified: json['is_verified'] as bool? ?? false,
+      walletBalance: (json['wallet_balance'] as num?)?.toDouble() ?? 0.0,
+      escrowBalance: (json['escrow_balance'] as num?)?.toDouble() ?? 0.0,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : DateTime.now(),
     );
   }
@@ -141,6 +151,8 @@ class UserProfile {
       'completed_jobs_count': completedJobsCount,
       'availability_status': availabilityStatus,
       'is_verified': isVerified,
+      'wallet_balance': walletBalance,
+      'escrow_balance': escrowBalance,
     };
   }
 }

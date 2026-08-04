@@ -77,6 +77,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
     await _repository.sendPasswordReset(email);
   }
 
+  Future<void> updatePassword(String newPassword) async {
+    await _repository.updatePassword(newPassword);
+  }
+
   Future<void> switchRole(UserRole newRole) async {
     final current = state.value;
     if (current == null) return;

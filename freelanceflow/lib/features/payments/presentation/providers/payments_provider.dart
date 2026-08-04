@@ -29,17 +29,28 @@ class WalletSummary {
 }
 
 final walletSummaryProvider = FutureProvider<WalletSummary>((ref) async {
-  final transactions = await ref.watch(transactionsListProvider.future);
   final supabase = ref.watch(supabaseClientProvider);
   final user = supabase.auth.currentUser;
 
   double balance = 0.0;
-  for (final tx in transactions) {
-    if (tx.status == TransactionStatus.completed) {
-      if (tx.isCredit) {
-        balance += tx.amount;
-      } else {
-        balance -= tx.amount;
+  if (user != null) {
+    try {
+      final profile = await supabase.from('profiles').select('wallet_balance').eq('id', user.id).maybeSingle();
+      if (profile != null && profile['wallet_balance'] != null) {
+        balance = (profile['wallet_balance'] as num).toDouble();
+      }
+    } catch (_) {}
+  }
+
+  if (balance == 0.0) {
+    final transactions = await ref.watch(transactionsListProvider.future);
+    for (final tx in transactions) {
+      if (tx.status == TransactionStatus.completed) {
+        if (tx.isCredit) {
+          balance += tx.amount;
+        } else {
+          balance -= tx.amount;
+        }
       }
     }
   }

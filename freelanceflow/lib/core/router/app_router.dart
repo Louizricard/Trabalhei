@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/domain/entities/user_profile.dart';
 import '../../features/auth/presentation/providers/auth_state_provider.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
+import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/chat/presentation/screens/chat_list_screen.dart';
@@ -15,6 +16,7 @@ import '../../features/jobs/presentation/screens/job_detail_screen.dart';
 import '../../features/jobs/presentation/screens/jobs_list_screen.dart';
 import '../../features/payments/presentation/screens/payments_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/profile/presentation/screens/terms_and_privacy_screen.dart';
 import '../../features/proposals/presentation/screens/apply_job_screen.dart';
 import '../widgets/app_scaffold.dart';
 
@@ -45,7 +47,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authProvider);
       final isLoggedIn = authState.value != null;
       final loc = state.matchedLocation;
-      final isAuthRoute = loc == '/login' || loc == '/register' || loc == '/forgot-password';
+      final isAuthRoute = loc == '/login' || loc == '/register' || loc == '/forgot-password' || loc == '/reset-password' || loc == '/terms';
 
       if (authState.isLoading) return null;
 
@@ -53,7 +55,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return '/login';
       }
 
-      if (isLoggedIn && isAuthRoute) {
+      if (isLoggedIn && (loc == '/login' || loc == '/register')) {
         return '/jobs';
       }
 
@@ -71,6 +73,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/forgot-password',
         builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/reset-password',
+        builder: (context, state) => const ResetPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/terms',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const TermsAndPrivacyScreen(),
       ),
       GoRoute(
         path: '/payments',

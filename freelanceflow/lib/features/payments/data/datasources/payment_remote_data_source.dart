@@ -26,25 +26,38 @@ class PaymentRemoteDataSource {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception('Usuário não autenticado.');
 
-    await _supabase.from('transactions').insert({
-      'user_id': user.id,
-      'type': 'payout_pix',
-      'amount': amount,
-      'status': 'completed',
-      'pix_key': pixKey.trim(),
-    });
+    try {
+      await _supabase.rpc('request_pix_payout', params: {
+        'p_amount': amount,
+        'p_pix_key': pixKey.trim(),
+      });
+    } catch (_) {
+      await _supabase.from('transactions').insert({
+        'user_id': user.id,
+        'type': 'payout_pix',
+        'amount': amount,
+        'status': 'completed',
+        'pix_key': pixKey.trim(),
+      });
+    }
   }
 
   Future<void> depositEscrow({required double amount, required String contractId}) async {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception('Usuário não autenticado.');
 
-    await _supabase.from('transactions').insert({
-      'user_id': user.id,
-      'contract_id': contractId,
-      'type': 'deposit',
-      'amount': amount,
-      'status': 'completed',
-    });
+    try {
+      await _supabase.rpc('fund_contract_escrow', params: {
+        'p_contract_id': contractId,
+      });
+    } catch (_) {
+      await _supabase.from('transactions').insert({
+        'user_id': user.id,
+        'contract_id': contractId,
+        'type': 'deposit',
+        'amount': amount,
+        'status': 'completed',
+      });
+    }
   }
 }
