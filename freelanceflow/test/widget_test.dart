@@ -104,6 +104,67 @@ void main() {
       expect(milestone.amount, 1200.0);
     });
 
+    test('Job entity serializes status to snake_case for PostgreSQL compatibility', () {
+      final job = Job(
+        id: 'job-1',
+        clientId: 'client-1',
+        clientName: 'Cliente',
+        title: 'Vaga Teste',
+        category: 'Mobile',
+        description: 'Descrição',
+        budgetMin: 1000,
+        budgetMax: 2000,
+        status: JobStatus.inProgress,
+        createdAt: DateTime.now(),
+      );
+
+      final json = job.toJson();
+      expect(json['status'], 'in_progress');
+    });
+
+    test('ContractMilestone serializes status to snake_case for PostgreSQL compatibility', () {
+      const milestone = ContractMilestone(
+        id: 'ms-1',
+        contractId: 'c-1',
+        title: 'Entrega Final',
+        amount: 2500.0,
+        status: MilestoneStatus.approvedAndReleased,
+      );
+
+      final json = milestone.toJson();
+      expect(json['status'], 'approved_and_released');
+    });
+
+    test('UserProfile handles wallet_balance and escrow_balance properly', () {
+      final user = UserProfile.fromJson({
+        'id': 'user-123',
+        'email': 'dev@test.com',
+        'full_name': 'Dev Freelance',
+        'role': 'freelancer',
+        'wallet_balance': 3450.50,
+        'escrow_balance': 1200.00,
+      });
+
+      expect(user.walletBalance, 3450.50);
+      expect(user.escrowBalance, 1200.00);
+
+      final json = user.toJson();
+      expect(json['wallet_balance'], 3450.50);
+      expect(json['escrow_balance'], 1200.00);
+    });
+
+    test('Avatar safe initial extractor handles empty and spaces gracefully', () {
+      String getInitial(String? name) {
+        return (name != null && name.trim().isNotEmpty) ? name.trim()[0].toUpperCase() : 'U';
+      }
+
+      expect(getInitial(''), 'U');
+      expect(getInitial('   '), 'U');
+      expect(getInitial(null), 'U');
+      expect(getInitial('Luiz'), 'L');
+      expect(getInitial(' carlos'), 'C');
+    });
+
     test('WalletTransaction parses credit/debit correctly', () {
       final credit = WalletTransaction.fromJson({
         'id': 'tx-1',

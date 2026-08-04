@@ -10,6 +10,8 @@ import 'package:freelanceflow/features/auth/presentation/providers/auth_state_pr
 import 'package:freelanceflow/features/chat/domain/entities/conversation.dart';
 import 'package:freelanceflow/features/chat/presentation/providers/chat_provider.dart';
 
+import 'review_contract_modal.dart';
+
 class ContractMilestoneSheet extends ConsumerWidget {
   final Conversation conversation;
 
@@ -117,6 +119,22 @@ class ContractMilestoneSheet extends ConsumerWidget {
               );
             }),
             const SizedBox(height: 12),
+            if (conversation.milestones.any((m) => m.status == MilestoneStatus.approvedAndReleased)) ...[
+              CustomButton(
+                text: 'Avaliar Profissional',
+                icon: Icons.star_rate_rounded,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: Colors.transparent,
+                    isScrollControlled: true,
+                    builder: (_) => ReviewContractModal(conversation: conversation),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+            ],
             OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.error,

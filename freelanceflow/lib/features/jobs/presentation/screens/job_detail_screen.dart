@@ -125,7 +125,10 @@ class JobDetailScreen extends ConsumerWidget {
                         CircleAvatar(
                           radius: 22,
                           backgroundColor: AppColors.primary,
-                          child: Text(job.clientName.substring(0, 1).toUpperCase(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          child: Text(
+                            job.clientName.trim().isNotEmpty ? job.clientName.trim()[0].toUpperCase() : 'C',
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
                         ),
                         const SizedBox(width: 14),
                         Column(

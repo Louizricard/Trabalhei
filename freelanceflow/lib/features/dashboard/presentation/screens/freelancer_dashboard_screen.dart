@@ -52,7 +52,9 @@ class FreelancerDashboardScreen extends ConsumerWidget {
                           radius: 26,
                           backgroundColor: AppColors.primary,
                           child: Text(
-                            user?.fullName.substring(0, 1).toUpperCase() ?? 'F',
+                            (user?.fullName.trim().isNotEmpty ?? false)
+                                ? user!.fullName.trim()[0].toUpperCase()
+                                : 'F',
                             style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                           ),
                         ),

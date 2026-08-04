@@ -66,5 +66,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>O FreelanceFlow precisa de acesso à sua biblioteca de fotos para atualizar seu avatar e anexar imagens.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>O FreelanceFlow precisa de acesso à câmera para tirar uma nova foto de perfil ou enviar anexos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>O FreelanceFlow precisa de acesso ao microfone para envio de mensagens com mídia.</string>
 </dict>
 </plist>

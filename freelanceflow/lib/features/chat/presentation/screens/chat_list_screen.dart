@@ -51,7 +51,9 @@ class ChatListScreen extends ConsumerWidget {
                         radius: 24,
                         backgroundColor: AppColors.primary,
                         child: Text(
-                          conv.otherParticipantName.substring(0, 1).toUpperCase(),
+                          conv.otherParticipantName.trim().isNotEmpty
+                              ? conv.otherParticipantName.trim()[0].toUpperCase()
+                              : 'U',
                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                       ),
