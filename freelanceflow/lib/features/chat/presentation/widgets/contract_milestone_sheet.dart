@@ -127,7 +127,7 @@ class ContractMilestoneSheet extends ConsumerWidget {
                   Navigator.of(context).pop();
                   showModalBottomSheet(
                     context: context,
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: AppColors.transparent,
                     isScrollControlled: true,
                     builder: (_) => ReviewContractModal(conversation: conversation),
                   );

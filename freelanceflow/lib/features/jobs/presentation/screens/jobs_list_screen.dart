@@ -96,12 +96,12 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                     selectedColor: AppColors.primary,
                     backgroundColor: AppColors.surfaceElevatedDark,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : AppColors.textSecondaryDark,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? AppColors.onPrimary : AppColors.textSecondaryDark,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                       fontSize: 12,
                     ),
                     side: BorderSide(
-                      color: isSelected ? AppColors.primaryLight : AppColors.borderDark,
+                      color: isSelected ? AppColors.primary : AppColors.borderDark,
                     ),
                   );
                 },

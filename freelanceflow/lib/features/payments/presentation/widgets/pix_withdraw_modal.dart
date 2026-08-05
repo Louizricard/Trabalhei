@@ -96,7 +96,7 @@ class _PixWithdrawModalState extends ConsumerState<PixWithdrawModal> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
-        color: AppColors.surfaceDark,
+        color: AppColors.cardDark,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(

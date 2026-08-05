@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Freelanceflow</string>
+	<string>Trabalhei</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>freelanceflow</string>
+	<string>trabalhei</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -67,10 +67,10 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>O FreelanceFlow precisa de acesso à sua biblioteca de fotos para atualizar seu avatar e anexar imagens.</string>
+	<string>O Trabalhei precisa de acesso à sua biblioteca de fotos para atualizar seu avatar e anexar imagens.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>O FreelanceFlow precisa de acesso à câmera para tirar uma nova foto de perfil ou enviar anexos.</string>
+	<string>O Trabalhei precisa de acesso à câmera para tirar uma nova foto de perfil ou enviar anexos.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>O FreelanceFlow precisa de acesso ao microfone para envio de mensagens com mídia.</string>
+	<string>O Trabalhei precisa de acesso ao microfone para envio de mensagens com mídia.</string>
 </dict>
 </plist>

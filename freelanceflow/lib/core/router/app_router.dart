@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/domain/entities/user_profile.dart';
 import '../../features/auth/presentation/providers/auth_state_provider.dart';
+import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
@@ -42,13 +43,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/jobs',
+    initialLocation: '/splash',
     refreshListenable: notifier,
     redirect: (context, state) {
       final authState = ref.read(authProvider);
       final isLoggedIn = authState.value != null;
       final loc = state.matchedLocation;
-      final isAuthRoute = loc == '/login' || loc == '/register' || loc == '/forgot-password' || loc == '/reset-password' || loc == '/terms';
+      final isAuthRoute = loc == '/splash' ||
+          loc == '/login' ||
+          loc == '/register' ||
+          loc == '/forgot-password' ||
+          loc == '/reset-password' ||
+          loc == '/terms';
+
+      if (loc == '/splash') return null;
 
       if (authState.isLoading) return null;
 
@@ -63,6 +71,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),

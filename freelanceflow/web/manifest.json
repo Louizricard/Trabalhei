@@ -1,11 +1,11 @@
 {
-    "name": "freelanceflow",
-    "short_name": "freelanceflow",
+    "name": "Trabalhei",
+    "short_name": "Trabalhei",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#081A2F",
+    "theme_color": "#19E6A7",
+    "description": "Trabalhei — Plataforma de Conexão entre Clientes e Freelancers.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

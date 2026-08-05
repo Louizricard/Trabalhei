@@ -56,6 +56,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.bgDark,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -70,36 +71,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     Center(
                       child: Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withAlpha(30),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.primary.withAlpha(60)),
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(color: AppColors.borderDark, width: 1.5),
+                          color: AppColors.cardDark,
                         ),
-                        child: const Icon(
-                          Icons.rocket_launch_rounded,
-                          color: AppColors.primary,
-                          size: 38,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: Image.asset(
+                            'assets/icons/app_logo.png',
+                            width: 64,
+                            height: 64,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
                     const Text(
-                      'FreelanceFlow',
+                      'Trabalhei',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.textPrimaryDark,
-                        letterSpacing: -0.5,
+                        letterSpacing: -0.6,
                       ),
                     ),
                     const SizedBox(height: 6),
                     const Text(
-                      'Conectando clientes aos melhores freelancers.',
+                      'Trabalho • Conexão • Oportunidades',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
+                        fontWeight: FontWeight.w400,
                         color: AppColors.textSecondaryDark,
                       ),
                     ),
@@ -127,7 +133,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             obscureText: true,
                             validator: (v) => v != null && v.length >= 6 ? null : 'Mínimo 6 caracteres',
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 12),
                           Align(
                             alignment: Alignment.centerRight,
                             child: GestureDetector(
@@ -136,13 +142,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 'Esqueceu a senha?',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: AppColors.primaryLight,
-                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 24),
                           CustomButton(
                             text: 'Entrar na Plataforma',
                             isLoading: _isLoading,
@@ -151,7 +157,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -164,8 +170,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: const Text(
                             'Cadastre-se',
                             style: TextStyle(
-                              color: AppColors.primaryLight,
-                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w700,
                               fontSize: 14,
                             ),
                           ),

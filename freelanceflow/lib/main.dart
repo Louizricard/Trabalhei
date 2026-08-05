@@ -51,18 +51,18 @@ void main() async {
   };
 
   await SupabaseInit.initialize();
-  runApp(const ProviderScope(child: FreelanceFlowApp()));
+  runApp(const ProviderScope(child: TrabalheiApp()));
 }
 
-class FreelanceFlowApp extends ConsumerWidget {
-  const FreelanceFlowApp({super.key});
+class TrabalheiApp extends ConsumerWidget {
+  const TrabalheiApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
-      title: 'FreelanceFlow',
+      title: 'Trabalhei',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       routerConfig: router,

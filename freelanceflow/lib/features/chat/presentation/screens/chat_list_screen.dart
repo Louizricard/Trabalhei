@@ -54,7 +54,7 @@ class ChatListScreen extends ConsumerWidget {
                           conv.otherParticipantName.trim().isNotEmpty
                               ? conv.otherParticipantName.trim()[0].toUpperCase()
                               : 'U',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(color: AppColors.onPrimary, fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                       ),
                       const SizedBox(width: 14),
@@ -105,7 +105,7 @@ class ChatListScreen extends ConsumerWidget {
                           ),
                           child: Text(
                             '${conv.unreadCount}',
-                            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                            style: const TextStyle(color: AppColors.onPrimary, fontSize: 11, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],

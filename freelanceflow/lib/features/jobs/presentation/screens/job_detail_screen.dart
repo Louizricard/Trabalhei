@@ -136,7 +136,7 @@ class JobDetailScreen extends ConsumerWidget {
                           backgroundColor: AppColors.primary,
                           child: Text(
                             job.clientName.trim().isNotEmpty ? job.clientName.trim()[0].toUpperCase() : 'C',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            style: const TextStyle(color: AppColors.onPrimary, fontWeight: FontWeight.w700),
                           ),
                         ),
                         const SizedBox(width: 14),

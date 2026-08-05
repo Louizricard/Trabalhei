@@ -55,6 +55,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.bgDark,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
@@ -76,9 +77,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withAlpha(30),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.primary.withAlpha(60)),
+                          color: AppColors.primaryContainer,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.borderDark),
                         ),
                         child: const Icon(
                           Icons.lock_reset_rounded,
@@ -87,19 +88,20 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
                     const Text(
                       'Recuperação de Senha',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.textPrimaryDark,
+                        letterSpacing: -0.4,
                       ),
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Informe seu e-mail cadastrado para receber instruções de recuperação.',
+                      'Informe seu e-mail cadastrado para receber as instruções.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 14, color: AppColors.textSecondaryDark),
                     ),
@@ -110,12 +112,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         child: Column(
                           children: [
                             const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 48),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 14),
                             const Text(
                               'E-mail enviado com sucesso!',
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                                 color: AppColors.textPrimaryDark,
                               ),
                             ),
@@ -125,7 +127,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                               textAlign: TextAlign.center,
                               style: const TextStyle(color: AppColors.textSecondaryDark, fontSize: 13),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 22),
                             CustomButton(
                               text: 'Voltar ao Login',
                               onPressed: () => context.go('/login'),

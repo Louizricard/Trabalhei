@@ -44,7 +44,7 @@ class TermsAndPrivacyScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'O FreelanceFlow é um ecossistema digital que conecta clientes contratantes a profissionais freelancers independentes para prestação de serviços de tecnologia, design e desenvolvimento.',
+                      'O Trabalhei é um ecossistema digital que conecta clientes contratantes a profissionais freelancers independentes para prestação de serviços de tecnologia, design e desenvolvimento.',
                       style: TextStyle(fontSize: 13, height: 1.6, color: AppColors.textSecondaryDark),
                     ),
                     SizedBox(height: 16),
@@ -74,7 +74,7 @@ class TermsAndPrivacyScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Em caso de divergências na entrega dos marcos de um projeto, qualquer uma das partes poderá acionar o botão "Abrir Mediação" para intervenção imparcial da equipe de suporte do FreelanceFlow.',
+                      'Em caso de divergências na entrega dos marcos de um projeto, qualquer uma das partes poderá acionar o botão "Abrir Mediação" para intervenção imparcial da equipe de suporte do Trabalhei.',
                       style: TextStyle(fontSize: 13, height: 1.6, color: AppColors.textSecondaryDark),
                     ),
                   ],

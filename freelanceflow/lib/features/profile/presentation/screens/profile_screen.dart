@@ -143,20 +143,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           child: (user?.avatarUrl == null || user!.avatarUrl!.isEmpty)
                               ? Text(
                                   (user?.fullName.isNotEmpty ?? false) ? user!.fullName[0].toUpperCase() : 'U',
-                                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.onPrimary),
                                 )
                               : null,
                         ),
                         if (_isUploadingAvatar)
-                          const Positioned.fill(
+                          Positioned.fill(
                             child: CircleAvatar(
-                              backgroundColor: Colors.black54,
-                              child: SizedBox(
+                              backgroundColor: AppColors.bgDark.withAlpha(180),
+                              child: const SizedBox(
                                 width: 24,
                                 height: 24,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.white,
+                                  color: AppColors.primary,
                                 ),
                               ),
                             ),
@@ -176,7 +176,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 child: const Icon(
                                   Icons.camera_alt_rounded,
                                   size: 16,
-                                  color: Colors.white,
+                                  color: AppColors.onPrimary,
                                 ),
                               ),
                             ),
@@ -189,11 +189,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       children: [
                         Text(
                           user?.fullName ?? 'Usuário',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimaryDark),
                         ),
                         if (user?.isVerified ?? false) ...[
                           const SizedBox(width: 6),
-                          const Icon(Icons.verified, size: 18, color: AppColors.primaryLight),
+                          const Icon(Icons.verified, size: 18, color: AppColors.primary),
                         ],
                       ],
                     ),
@@ -206,13 +206,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(30),
+                        color: AppColors.primaryContainer,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: AppColors.primary.withAlpha(60)),
                       ),
                       child: Text(
                         user?.role.label ?? 'Freelancer',
-                        style: const TextStyle(color: AppColors.primaryLight, fontSize: 12, fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w700),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -226,7 +226,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               if (user == null) return;
                               showModalBottomSheet(
                                 context: context,
-                                backgroundColor: Colors.transparent,
+                                backgroundColor: AppColors.transparent,
                                 isScrollControlled: true,
                                 builder: (_) => EditProfileModal(user: user),
                               );

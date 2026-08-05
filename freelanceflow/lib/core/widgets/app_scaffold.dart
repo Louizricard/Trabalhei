@@ -52,19 +52,38 @@ class AppScaffold extends ConsumerWidget {
                     initialLocation: index == navigationShell.currentIndex,
                   ),
                   backgroundColor: AppColors.surfaceDark,
-                  selectedIconTheme: const IconThemeData(color: AppColors.primaryLight),
-                  selectedLabelTextStyle: const TextStyle(color: AppColors.primaryLight, fontWeight: FontWeight.bold),
-                  unselectedLabelTextStyle: const TextStyle(color: AppColors.textSecondaryDark),
+                  selectedIconTheme: const IconThemeData(color: AppColors.primary),
+                  selectedLabelTextStyle: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  unselectedLabelTextStyle: const TextStyle(
+                    color: AppColors.textMutedDark,
+                    fontWeight: FontWeight.w500,
+                  ),
                   leading: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.rocket_launch_rounded, color: AppColors.primary, size: 28),
-                        SizedBox(width: 8),
-                        Text(
-                          'FreelanceFlow',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimaryDark),
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.asset(
+                            'assets/icons/app_logo.png',
+                            width: 30,
+                            height: 30,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Trabalhei',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 17,
+                            color: AppColors.textPrimaryDark,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                       ],
                     ),
@@ -78,7 +97,11 @@ class AppScaffold extends ConsumerWidget {
                           ))
                       .toList(),
                 ),
-                const VerticalDivider(thickness: 1, width: 1),
+                const VerticalDivider(
+                  thickness: 1,
+                  width: 1,
+                  color: AppColors.borderDark,
+                ),
                 Expanded(child: navigationShell),
               ],
             ),
@@ -95,7 +118,7 @@ class AppScaffold extends ConsumerWidget {
               initialLocation: index == navigationShell.currentIndex,
             ),
             backgroundColor: AppColors.surfaceDark,
-            indicatorColor: AppColors.primary.withAlpha(50),
+            indicatorColor: AppColors.primaryContainer,
             destinations: navItems,
           ),
         );

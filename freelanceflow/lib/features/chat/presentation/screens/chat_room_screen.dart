@@ -91,7 +91,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: AppColors.transparent,
                     isScrollControlled: true,
                     builder: (_) => ContractMilestoneSheet(conversation: conversation),
                   );
@@ -215,7 +215,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             Text(
               msg.content,
               style: TextStyle(
-                color: isMe ? Colors.white : AppColors.textPrimaryDark,
+                color: isMe ? AppColors.onPrimary : AppColors.textPrimaryDark,
                 fontSize: 14,
               ),
             ),
@@ -224,7 +224,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               DateFormatter.timeOnly(msg.createdAt),
               style: TextStyle(
                 fontSize: 10,
-                color: isMe ? Colors.white70 : AppColors.textMutedDark,
+                color: isMe ? AppColors.onPrimary.withAlpha(200) : AppColors.textMutedDark,
               ),
             ),
           ],

@@ -62,6 +62,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.bgDark,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
@@ -82,9 +83,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     const Text(
                       'Criar Nova Conta',
                       style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.textPrimaryDark,
+                        letterSpacing: -0.5,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -96,10 +98,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                     // Role selector tabs
                     Container(
-                      padding: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceElevatedDark,
-                        borderRadius: BorderRadius.circular(12),
+                        color: AppColors.cardDark,
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: AppColors.borderDark),
                       ),
                       child: Row(
@@ -196,29 +198,35 @@ class _RoleTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+          color: isSelected ? AppColors.primary : AppColors.transparent,
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           children: [
-            Icon(icon, size: 20, color: isSelected ? Colors.white : AppColors.textSecondaryDark),
+            Icon(
+              icon,
+              size: 20,
+              color: isSelected ? AppColors.onPrimary : AppColors.textSecondaryDark,
+            ),
             const SizedBox(height: 4),
             Text(
               title,
               style: TextStyle(
-                color: isSelected ? Colors.white : AppColors.textPrimaryDark,
-                fontWeight: FontWeight.bold,
+                color: isSelected ? AppColors.onPrimary : AppColors.textPrimaryDark,
+                fontWeight: FontWeight.w700,
                 fontSize: 13,
               ),
             ),
             Text(
               subtitle,
               style: TextStyle(
-                color: isSelected ? Colors.white70 : AppColors.textMutedDark,
+                color: isSelected ? AppColors.onPrimary.withAlpha(200) : AppColors.textMutedDark,
                 fontSize: 11,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],

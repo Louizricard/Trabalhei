@@ -107,7 +107,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.success,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.pureWhite,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () => Navigator.pop(ctx, true),
@@ -215,7 +215,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.pureWhite,
             ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Recusar'),
@@ -378,9 +378,9 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
               ),
               if (_isProcessing)
                 Container(
-                  color: Colors.black54,
+                  color: AppColors.bgDark.withAlpha(180),
                   child: const Center(
-                    child: CircularProgressIndicator(color: AppColors.primaryLight),
+                    child: CircularProgressIndicator(color: AppColors.primary),
                   ),
                 ),
             ],
@@ -452,7 +452,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                 backgroundColor: AppColors.primaryDark,
                 child: Text(
                   proposal.freelancerName.isNotEmpty ? proposal.freelancerName[0].toUpperCase() : 'F',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onPrimary),
                 ),
               ),
               const SizedBox(width: 12),
@@ -590,7 +590,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.success,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.pureWhite,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),

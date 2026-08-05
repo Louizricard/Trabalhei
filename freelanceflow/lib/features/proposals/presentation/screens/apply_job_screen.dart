@@ -242,7 +242,7 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('Taxa de serviço FreelanceFlow (10%)', style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark)),
+                                const Text('Taxa de serviço Trabalhei (10%)', style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark)),
                                 Text('- ${CurrencyFormatter.format(_platformFee)}', style: const TextStyle(fontSize: 13, color: AppColors.error)),
                               ],
                             ),

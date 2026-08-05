@@ -17,42 +17,42 @@ class StatusBadge extends StatelessWidget {
 
   factory StatusBadge.open() => const StatusBadge(
         label: 'Aberto',
-        backgroundColor: Color(0xFF064E3B),
+        backgroundColor: AppColors.successBg,
         textColor: AppColors.success,
-        icon: Icons.check_circle_outline,
+        icon: Icons.check_circle_outline_rounded,
       );
 
   factory StatusBadge.inProgress() => const StatusBadge(
         label: 'Em Andamento',
-        backgroundColor: Color(0xFF0C4A6E),
+        backgroundColor: AppColors.infoBg,
         textColor: AppColors.info,
-        icon: Icons.sync,
+        icon: Icons.sync_rounded,
       );
 
   factory StatusBadge.completed() => const StatusBadge(
         label: 'Concluído',
-        backgroundColor: Color(0xFF1E1B4B),
-        textColor: AppColors.primaryLight,
-        icon: Icons.verified,
+        backgroundColor: AppColors.primaryContainer,
+        textColor: AppColors.primary,
+        icon: Icons.verified_rounded,
       );
 
   factory StatusBadge.escrowHold() => const StatusBadge(
         label: 'Escrow Garantido',
-        backgroundColor: Color(0xFF1E3A8A),
-        textColor: Color(0xFF60A5FA),
+        backgroundColor: AppColors.escrowBg,
+        textColor: AppColors.escrow,
         icon: Icons.shield_outlined,
       );
 
   factory StatusBadge.urgent() => const StatusBadge(
         label: 'Urgente',
-        backgroundColor: Color(0xFF7F1D1D),
+        backgroundColor: AppColors.errorBg,
         textColor: AppColors.error,
-        icon: Icons.local_fire_department,
+        icon: Icons.local_fire_department_rounded,
       );
 
   factory StatusBadge.featured() => const StatusBadge(
         label: 'Destaque',
-        backgroundColor: Color(0xFF78350F),
+        backgroundColor: AppColors.warningBg,
         textColor: AppColors.warning,
         icon: Icons.star_rounded,
       );
@@ -64,7 +64,7 @@ class StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: textColor.withAlpha(50), width: 1),
+        border: Border.all(color: textColor.withAlpha(60), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

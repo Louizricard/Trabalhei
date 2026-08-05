@@ -85,7 +85,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Vaga publicada com sucesso no FreelanceFlow!'),
+            content: Text('Vaga publicada com sucesso no Trabalhei!'),
             backgroundColor: AppColors.success,
           ),
         );

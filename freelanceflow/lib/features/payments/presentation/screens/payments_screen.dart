@@ -56,7 +56,7 @@ class PaymentsScreen extends ConsumerWidget {
                           onPressed: () {
                             showModalBottomSheet(
                               context: context,
-                              backgroundColor: Colors.transparent,
+                              backgroundColor: AppColors.transparent,
                               isScrollControlled: true,
                               builder: (_) => PixWithdrawModal(
                                 availableBalance: availableBalance,

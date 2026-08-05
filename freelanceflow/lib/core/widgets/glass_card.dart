@@ -7,6 +7,7 @@ class GlassCard extends StatelessWidget {
   final VoidCallback? onTap;
   final Color? borderColor;
   final Color? backgroundColor;
+  final double borderRadius;
 
   const GlassCard({
     super.key,
@@ -15,6 +16,7 @@ class GlassCard extends StatelessWidget {
     this.onTap,
     this.borderColor,
     this.backgroundColor,
+    this.borderRadius = 18.0,
   });
 
   @override
@@ -22,8 +24,8 @@ class GlassCard extends StatelessWidget {
     Widget content = Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: backgroundColor ?? AppColors.surfaceDark,
-        borderRadius: BorderRadius.circular(16),
+        color: backgroundColor ?? AppColors.cardDark,
+        borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
           color: borderColor ?? AppColors.borderDark,
           width: 1,
@@ -33,10 +35,16 @@ class GlassCard extends StatelessWidget {
     );
 
     if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: content,
+      return Material(
+        color: AppColors.transparent,
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(borderRadius),
+          splashColor: AppColors.primaryContainer,
+          highlightColor: AppColors.primaryContainer.withAlpha(20),
+          child: content,
+        ),
       );
     }
 

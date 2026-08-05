@@ -48,7 +48,7 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
-        color: AppColors.surfaceDark,
+        color: AppColors.cardDark,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(
@@ -61,11 +61,11 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
               children: [
                 const Text(
                   'Filtros de Vagas',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimaryDark),
                 ),
                 TextButton(
                   onPressed: _resetFilter,
-                  child: const Text('Limpar', style: TextStyle(color: AppColors.primaryLight)),
+                  child: const Text('Limpar', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
                 ),
               ],
             ),
@@ -85,8 +85,8 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
                   selectedColor: AppColors.primary,
                   backgroundColor: AppColors.surfaceElevatedDark,
                   labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.textSecondaryDark,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? AppColors.onPrimary : AppColors.textSecondaryDark,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   ),
                 );
               }).toList(),
@@ -139,7 +139,10 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
       onSelected: (_) => setState(() => _selectedExp = level),
       selectedColor: AppColors.primary,
       backgroundColor: AppColors.surfaceElevatedDark,
-      labelStyle: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondaryDark),
+      labelStyle: TextStyle(
+        color: isSelected ? AppColors.onPrimary : AppColors.textSecondaryDark,
+        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+      ),
     );
   }
 
@@ -151,7 +154,10 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
       onSelected: (_) => setState(() => _selectedSort = sort),
       selectedColor: AppColors.primary,
       backgroundColor: AppColors.surfaceElevatedDark,
-      labelStyle: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondaryDark),
+      labelStyle: TextStyle(
+        color: isSelected ? AppColors.onPrimary : AppColors.textSecondaryDark,
+        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+      ),
     );
   }
 }
