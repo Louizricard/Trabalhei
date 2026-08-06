@@ -9,6 +9,12 @@ class WalletTransaction {
   final double amount;
   final TransactionStatus status;
   final String? pixKey;
+  final String? gatewayProvider;
+  final String? gatewayRef;
+  final String? gatewayStatus;
+  final String? qrCode;
+  final String? qrCodeBase64;
+  final String? paymentMethod;
   final DateTime createdAt;
 
   const WalletTransaction({
@@ -19,6 +25,12 @@ class WalletTransaction {
     required this.amount,
     this.status = TransactionStatus.completed,
     this.pixKey,
+    this.gatewayProvider,
+    this.gatewayRef,
+    this.gatewayStatus,
+    this.qrCode,
+    this.qrCodeBase64,
+    this.paymentMethod,
     required this.createdAt,
   });
 
@@ -39,6 +51,12 @@ class WalletTransaction {
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       status: _parseStatus(json['status'] as String?),
       pixKey: json['pix_key'] as String?,
+      gatewayProvider: json['gateway_provider'] as String?,
+      gatewayRef: json['gateway_ref']?.toString(),
+      gatewayStatus: json['gateway_status'] as String?,
+      qrCode: json['qr_code'] as String?,
+      qrCodeBase64: json['qr_code_base64'] as String?,
+      paymentMethod: json['payment_method'] as String?,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
@@ -52,6 +70,12 @@ class WalletTransaction {
         'amount': amount,
         'status': status.name,
         'pix_key': pixKey,
+        'gateway_provider': gatewayProvider,
+        'gateway_ref': gatewayRef,
+        'gateway_status': gatewayStatus,
+        'qr_code': qrCode,
+        'qr_code_base64': qrCodeBase64,
+        'payment_method': paymentMethod,
       };
 
   String get typeLabel {

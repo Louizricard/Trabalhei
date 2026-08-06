@@ -18,6 +18,11 @@ final transactionsListProvider = FutureProvider<List<WalletTransaction>>((ref) a
   return repository.getTransactions();
 });
 
+final transactionStatusStreamProvider = StreamProvider.family<WalletTransaction?, String>((ref, txId) {
+  final repository = ref.watch(paymentRepositoryProvider);
+  return repository.listenToTransaction(txId);
+});
+
 class WalletSummary {
   final double availableBalance;
   final double escrowBalance;
