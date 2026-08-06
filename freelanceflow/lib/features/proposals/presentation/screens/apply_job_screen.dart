@@ -29,6 +29,7 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
   bool _isLoading = false;
   bool _isEditing = false;
   String? _existingProposalId;
+  Proposal? _existingProposal;
   bool _initializedFromExisting = false;
 
   List<ProposedMilestone> _milestones = [
@@ -55,6 +56,7 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
         final prop = match.first;
         setState(() {
           _isEditing = true;
+          _existingProposal = prop;
           _existingProposalId = prop.id;
           _bidController.text = prop.bidAmount.toStringAsFixed(2);
           _daysController.text = prop.estimatedDays.toString();
@@ -81,6 +83,40 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
   double get _bidAmount => double.tryParse(_bidController.text) ?? 0.0;
   double get _platformFee => _bidAmount * 0.10;
   double get _netEarnings => _bidAmount - _platformFee;
+
+  Future<void> _handleAcceptCounterOffer() async {
+    if (_existingProposalId == null) return;
+
+    setState(() => _isLoading = true);
+    try {
+      final repo = ref.read(proposalRepositoryProvider);
+      await repo.acceptCounterOffer(_existingProposalId!);
+
+      final user = ref.read(authProvider).value;
+      if (user != null) {
+        ref.invalidate(freelancerProposalsProvider(user.id));
+      }
+      ref.invalidate(jobProposalsProvider(widget.jobId));
+      ref.invalidate(jobDetailProvider(widget.jobId));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('🎉 Contraproposta aceita! O contrato foi criado e o Escrow inicializado.'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao aceitar contraproposta: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
+  }
 
   Future<void> _submitProposal() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -158,7 +194,53 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (_isEditing) ...[
+                // Banner de Contraproposta Recebida
+                if (_existingProposal != null && _existingProposal!.hasActiveCounterOffer) ...[
+                  GlassCard(
+                    padding: const EdgeInsets.all(16),
+                    backgroundColor: AppColors.warning.withAlpha(25),
+                    borderColor: AppColors.warning.withAlpha(80),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.handshake_rounded, color: AppColors.warning, size: 22),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'O Cliente Enviou uma Contraproposta!',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.warning),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Novo Valor Ofertado: ${CurrencyFormatter.format(_existingProposal!.counterPrice!)}'
+                          '${_existingProposal!.counterEstimatedDays != null ? " em ${_existingProposal!.counterEstimatedDays} dias" : ""}',
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                        ),
+                        if (_existingProposal!.counterMessage != null && _existingProposal!.counterMessage!.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            'Mensagem do Cliente: "${_existingProposal!.counterMessage}"',
+                            style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: AppColors.textSecondaryDark),
+                          ),
+                        ],
+                        const SizedBox(height: 14),
+                        CustomButton(
+                          text: 'Aceitar Contraproposta & Iniciar Contrato',
+                          icon: Icons.check_circle_rounded,
+                          isLoading: _isLoading,
+                          width: double.infinity,
+                          onPressed: _handleAcceptCounterOffer,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ] else if (_isEditing) ...[
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     margin: const EdgeInsets.only(bottom: 16),
@@ -167,8 +249,8 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.4)),
                     ),
-                    child: Row(
-                      children: const [
+                    child: const Row(
+                      children: [
                         Icon(Icons.info_outline_rounded, color: AppColors.primaryLight, size: 20),
                         SizedBox(width: 10),
                         Expanded(

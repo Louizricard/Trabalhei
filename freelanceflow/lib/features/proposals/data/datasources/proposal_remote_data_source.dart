@@ -99,96 +99,79 @@ class ProposalRemoteDataSource {
     return Proposal.fromJson(response);
   }
 
+  Future<Map<String, dynamic>> acceptProposal(String proposalId) async {
+    final response = await _supabase.rpc(
+      'accept_proposal_and_create_contract',
+      params: {'p_proposal_id': proposalId},
+    );
+    if (response is Map<String, dynamic>) {
+      return response;
+    }
+    return Map<String, dynamic>.from(response as Map);
+  }
+
   Future<void> updateStatus(String proposalId, ProposalStatus status) async {
+    if (status == ProposalStatus.accepted) {
+      await acceptProposal(proposalId);
+      return;
+    }
     final statusStr = Proposal.statusToString(status);
     await _supabase.from('proposals').update({'status': statusStr}).eq('id', proposalId);
+  }
 
-    if (status == ProposalStatus.accepted) {
-      final propData = await _supabase
-          .from('proposals')
-          .select('*, jobs!job_id(client_id, title, budget_max)')
-          .eq('id', proposalId)
-          .maybeSingle();
+  Future<void> makeCounterOffer({
+    required String proposalId,
+    required double counterPrice,
+    required int counterEstimatedDays,
+    String? counterMessage,
+  }) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) throw Exception('Usuário não autenticado.');
 
-      if (propData != null) {
-        final jobId = propData['job_id'] as String;
-        final freelancerId = propData['freelancer_id'] as String;
-        final clientId = propData['jobs']?['client_id'] as String? ?? _supabase.auth.currentUser?.id;
-        final totalAmount = (propData['bid_amount'] ?? propData['amount'] as num?)?.toDouble() ?? 0.0;
-        final platformFee = totalAmount * 0.10;
+    // 1. Atualizar proposta com a contraproposta
+    await _supabase.from('proposals').update({
+      'status': 'counter_offered',
+      'counter_price': counterPrice,
+      'counter_estimated_days': counterEstimatedDays,
+      'counter_message': counterMessage?.trim(),
+      'counter_by_user_id': user.id,
+      'counter_created_at': DateTime.now().toIso8601String(),
+    }).eq('id', proposalId);
 
-        if (clientId != null) {
-          // 1. Criar contrato
-          final contractResponse = await _supabase.from('contracts').insert({
-            'job_id': jobId,
-            'proposal_id': proposalId,
-            'client_id': clientId,
-            'freelancer_id': freelancerId,
-            'total_amount': totalAmount,
-            'platform_fee': platformFee,
-            'escrow_amount': totalAmount,
-            'status': 'active',
-          }).select().single();
+    // 2. Registrar no histórico de contrapropostas
+    try {
+      await _supabase.from('proposal_counter_offers').insert({
+        'proposal_id': proposalId,
+        'offered_by': user.id,
+        'amount': counterPrice,
+        'estimated_days': counterEstimatedDays,
+        'message': counterMessage?.trim(),
+      });
+    } catch (_) {}
+  }
 
-          final contractId = contractResponse['id'] as String;
+  Future<void> acceptCounterOffer(String proposalId) async {
+    final prop = await _supabase.from('proposals').select('*').eq('id', proposalId).single();
+    final counterPrice = (prop['counter_price'] as num?)?.toDouble() ?? (prop['bid_amount'] as num?)?.toDouble() ?? 0.0;
+    final counterDays = (prop['counter_estimated_days'] as num?)?.toInt() ?? (prop['estimated_days'] as num?)?.toInt() ?? 14;
 
-          // 2. Inserir marcos de entrega
-          final rawMilestones = propData['proposed_milestones'] as List<dynamic>? ?? [];
-          for (final m in rawMilestones) {
-            if (m is Map<String, dynamic>) {
-              await _supabase.from('milestones').insert({
-                'contract_id': contractId,
-                'title': m['title'] ?? 'Marco',
-                'amount': (m['amount'] as num?)?.toDouble() ?? (totalAmount / (rawMilestones.isNotEmpty ? rawMilestones.length : 1)),
-                'status': 'funded_in_escrow',
-              });
-            }
-          }
+    // Atualizar valores da proposta e aceitar
+    await _supabase.from('proposals').update({
+      'bid_amount': counterPrice,
+      'amount': counterPrice,
+      'estimated_days': counterDays,
+      'status': 'accepted',
+    }).eq('id', proposalId);
 
-          // 3. Atualizar status da vaga
-          await _supabase.from('jobs').update({'status': 'in_progress'}).eq('id', jobId);
+    await updateStatus(proposalId, ProposalStatus.accepted);
+  }
 
-          // 4. Criar ou vincular conversa no chat
-          final convQuery = await _supabase
-              .from('conversations')
-              .select('id')
-              .eq('job_id', jobId);
-          final List<dynamic> existingConvs = convQuery as List<dynamic>;
-          String? convId;
-
-          if (existingConvs.isNotEmpty) {
-            convId = existingConvs.first['id'] as String;
-            await _supabase.from('conversations').update({
-              'contract_id': contractId,
-              'client_id': clientId,
-              'freelancer_id': freelancerId,
-              'participant_a': clientId,
-              'participant_b': freelancerId,
-              'last_message_at': DateTime.now().toIso8601String(),
-            }).eq('id', convId);
-          } else {
-            final newConv = await _supabase.from('conversations').insert({
-              'job_id': jobId,
-              'contract_id': contractId,
-              'client_id': clientId,
-              'freelancer_id': freelancerId,
-              'participant_a': clientId,
-              'participant_b': freelancerId,
-              'last_message_at': DateTime.now().toIso8601String(),
-            }).select('id').single();
-            convId = newConv['id'] as String;
-          }
-
-          // 5. Enviar mensagem de boas-vindas do sistema no chat
-          await _supabase.from('messages').insert({
-            'conversation_id': convId,
-            'sender_id': clientId,
-            'content': '🎉 Proposta aceita! O contrato foi iniciado e o valor total está protegido no Escrow.',
-            'message_type': 'system_event',
-            'is_read': false,
-          });
-        }
-      }
-    }
+  Future<void> rejectCounterOffer(String proposalId) async {
+    await _supabase.from('proposals').update({
+      'status': 'pending',
+      'counter_price': null,
+      'counter_estimated_days': null,
+      'counter_message': null,
+    }).eq('id', proposalId);
   }
 }

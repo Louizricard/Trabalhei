@@ -31,6 +31,11 @@ class Proposal {
   final String coverLetter;
   final List<ProposedMilestone> proposedMilestones;
   final ProposalStatus status;
+  final double? counterPrice;
+  final int? counterEstimatedDays;
+  final String? counterMessage;
+  final String? counterByUserId;
+  final DateTime? counterCreatedAt;
   final DateTime createdAt;
 
   const Proposal({
@@ -44,8 +49,54 @@ class Proposal {
     required this.coverLetter,
     this.proposedMilestones = const [],
     this.status = ProposalStatus.pending,
+    this.counterPrice,
+    this.counterEstimatedDays,
+    this.counterMessage,
+    this.counterByUserId,
+    this.counterCreatedAt,
     required this.createdAt,
   });
+
+  bool get hasActiveCounterOffer =>
+      status == ProposalStatus.counterOffered && counterPrice != null;
+
+  Proposal copyWith({
+    String? id,
+    String? jobId,
+    String? freelancerId,
+    String? freelancerName,
+    double? freelancerRating,
+    double? bidAmount,
+    int? estimatedDays,
+    String? coverLetter,
+    List<ProposedMilestone>? proposedMilestones,
+    ProposalStatus? status,
+    double? counterPrice,
+    int? counterEstimatedDays,
+    String? counterMessage,
+    String? counterByUserId,
+    DateTime? counterCreatedAt,
+    DateTime? createdAt,
+  }) {
+    return Proposal(
+      id: id ?? this.id,
+      jobId: jobId ?? this.jobId,
+      freelancerId: freelancerId ?? this.freelancerId,
+      freelancerName: freelancerName ?? this.freelancerName,
+      freelancerRating: freelancerRating ?? this.freelancerRating,
+      bidAmount: bidAmount ?? this.bidAmount,
+      estimatedDays: estimatedDays ?? this.estimatedDays,
+      coverLetter: coverLetter ?? this.coverLetter,
+      proposedMilestones: proposedMilestones ?? this.proposedMilestones,
+      status: status ?? this.status,
+      counterPrice: counterPrice ?? this.counterPrice,
+      counterEstimatedDays: counterEstimatedDays ?? this.counterEstimatedDays,
+      counterMessage: counterMessage ?? this.counterMessage,
+      counterByUserId: counterByUserId ?? this.counterByUserId,
+      counterCreatedAt: counterCreatedAt ?? this.counterCreatedAt,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 
   factory Proposal.fromJson(Map<String, dynamic> json) {
     String freelancerName = 'Freelancer';
@@ -77,6 +128,13 @@ class Proposal {
               .toList() ??
           [],
       status: parseStatus(json['status'] as String?),
+      counterPrice: (json['counter_price'] as num?)?.toDouble(),
+      counterEstimatedDays: (json['counter_estimated_days'] as num?)?.toInt(),
+      counterMessage: json['counter_message'] as String?,
+      counterByUserId: json['counter_by_user_id'] as String?,
+      counterCreatedAt: json['counter_created_at'] != null
+          ? DateTime.tryParse(json['counter_created_at'] as String)
+          : null,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
@@ -95,6 +153,11 @@ class Proposal {
       'message': coverLetter,
       'proposed_milestones': proposedMilestones.map((m) => m.toJson()).toList(),
       'status': statusToString(status),
+      'counter_price': counterPrice,
+      'counter_estimated_days': counterEstimatedDays,
+      'counter_message': counterMessage,
+      'counter_by_user_id': counterByUserId,
+      'counter_created_at': counterCreatedAt?.toIso8601String(),
     };
   }
 
@@ -118,6 +181,7 @@ class Proposal {
       case 'rejected':
         return ProposalStatus.rejected;
       case 'counter_offered':
+      case 'counterOffered':
         return ProposalStatus.counterOffered;
       default:
         return ProposalStatus.pending;

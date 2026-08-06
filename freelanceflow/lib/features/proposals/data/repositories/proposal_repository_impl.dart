@@ -23,12 +23,37 @@ class ProposalRepositoryImpl implements ProposalRepository {
   }
 
   @override
-  Future<void> acceptProposal(String proposalId) {
-    return _remoteDataSource.updateStatus(proposalId, ProposalStatus.accepted);
+  Future<Map<String, dynamic>> acceptProposal(String proposalId) {
+    return _remoteDataSource.acceptProposal(proposalId);
   }
 
   @override
   Future<void> rejectProposal(String proposalId) {
     return _remoteDataSource.updateStatus(proposalId, ProposalStatus.rejected);
+  }
+
+  @override
+  Future<void> makeCounterOffer({
+    required String proposalId,
+    required double counterPrice,
+    required int counterEstimatedDays,
+    String? counterMessage,
+  }) {
+    return _remoteDataSource.makeCounterOffer(
+      proposalId: proposalId,
+      counterPrice: counterPrice,
+      counterEstimatedDays: counterEstimatedDays,
+      counterMessage: counterMessage,
+    );
+  }
+
+  @override
+  Future<void> acceptCounterOffer(String proposalId) {
+    return _remoteDataSource.acceptCounterOffer(proposalId);
+  }
+
+  @override
+  Future<void> rejectCounterOffer(String proposalId) {
+    return _remoteDataSource.rejectCounterOffer(proposalId);
   }
 }

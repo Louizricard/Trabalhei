@@ -8,8 +8,10 @@ import '../../../../core/widgets/glass_card.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../../chat/presentation/providers/chat_provider.dart';
 import '../../../jobs/presentation/providers/jobs_provider.dart';
+import '../../../payments/presentation/widgets/payment_method_selector_modal.dart';
 import '../../domain/entities/proposal.dart';
 import '../providers/proposals_provider.dart';
+import '../widgets/counter_offer_modal.dart';
 
 class JobProposalsScreen extends ConsumerStatefulWidget {
   final String jobId;
@@ -24,144 +26,62 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
   bool _isProcessing = false;
 
   Future<void> _handleAcceptProposal(Proposal proposal, String? clientId) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceDark,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.borderDark),
-        ),
-        title: Row(
-          children: const [
-            Icon(Icons.verified_user_rounded, color: AppColors.success, size: 24),
-            SizedBox(width: 8),
-            Text(
-              'Aceitar Proposta & Contratar',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Você está prestes a contratar ${proposal.freelancerName} para este projeto.',
-              style: const TextStyle(fontSize: 14, color: AppColors.textSecondaryDark),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceElevatedDark,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.borderDark),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Valor da Proposta:', style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark)),
-                      Text(
-                        CurrencyFormatter.format(proposal.bidAmount),
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Prazo Estimado:', style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark)),
-                      Text(
-                        '${proposal.estimatedDays} dias',
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimaryDark),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 16, color: AppColors.borderDark),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('Garantia Escrow:', style: TextStyle(fontSize: 13, color: AppColors.primaryLight)),
-                      Text('100% Protegido', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primaryLight)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'O contrato será ativado imediatamente e uma sala de chat segura será aberta.',
-              style: TextStyle(fontSize: 12, color: AppColors.textMutedDark),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar', style: TextStyle(color: AppColors.textSecondaryDark)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.success,
-              foregroundColor: AppColors.pureWhite,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Confirmar & Contratar'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true || !mounted) return;
-
     setState(() => _isProcessing = true);
     try {
       final repository = ref.read(proposalRepositoryProvider);
-      await repository.acceptProposal(proposal.id);
+      // 1. Cria o contrato atômico em 'awaiting_payment'
+      final contractResult = await repository.acceptProposal(proposal.id);
+      final contractId = contractResult['contract_id'] as String?;
+      final totalAmount = (contractResult['total_amount'] as num?)?.toDouble() ?? proposal.bidAmount;
 
-      if (mounted) {
-        ref.invalidate(jobProposalsProvider(widget.jobId));
-        ref.invalidate(jobDetailProvider(widget.jobId));
-        ref.invalidate(jobsListProvider);
-        ref.invalidate(conversationsListProvider);
+      if (!mounted) return;
+      setState(() => _isProcessing = false);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('🎉 Contrato iniciado com sucesso com ${proposal.freelancerName}!'),
-            backgroundColor: AppColors.success,
-          ),
-        );
+      // Invalida estados para atualizar UI
+      ref.invalidate(jobProposalsProvider(widget.jobId));
+      ref.invalidate(jobDetailProvider(widget.jobId));
+      ref.invalidate(jobsListProvider);
+      ref.invalidate(conversationsListProvider);
 
-        // Abrir chat com o freelancer
-        final cId = clientId ?? ref.read(authProvider).value?.id;
-        if (cId != null) {
-          final chatRepo = ref.read(chatRepositoryProvider);
-          final conv = await chatRepo.getOrCreateConversation(
-            jobId: widget.jobId,
-            freelancerId: proposal.freelancerId,
-            clientId: cId,
+      // 2. Abre o checkout de custódia (Escrow) com o contractId
+      await PaymentMethodSelectorModal.show(
+        context,
+        amount: totalAmount,
+        contractId: contractId,
+        title: 'Garantia de Custódia (Escrow) - ${proposal.freelancerName}',
+        onPaymentSuccess: () async {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('🎉 Pagamento confirmado! O contrato está ativo e protegido no Escrow.'),
+              backgroundColor: AppColors.success,
+            ),
           );
-          if (mounted) {
-            context.push('/chat/${conv.id}');
+
+          final cId = clientId ?? ref.read(authProvider).value?.id;
+          if (cId != null) {
+            final chatRepo = ref.read(chatRepositoryProvider);
+            final conv = await chatRepo.getOrCreateConversation(
+              jobId: widget.jobId,
+              freelancerId: proposal.freelancerId,
+              clientId: cId,
+            );
+            if (mounted) {
+              context.push('/chat/${conv.id}');
+            }
           }
-        }
-      }
+        },
+      );
     } catch (e) {
       if (mounted) {
+        setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao aceitar proposta: $e'),
+            content: Text('Erro ao aceitar proposta: ${e.toString().replaceAll("Exception: ", "")}'),
             backgroundColor: AppColors.error,
           ),
         );
       }
-    } finally {
-      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
@@ -447,40 +367,56 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: AppColors.primaryDark,
-                child: Text(
-                  proposal.freelancerName.isNotEmpty ? proposal.freelancerName[0].toUpperCase() : 'F',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onPrimary),
+              InkWell(
+                borderRadius: BorderRadius.circular(24),
+                onTap: () => context.push('/profile/${proposal.freelancerId}'),
+                child: CircleAvatar(
+                  radius: 24,
+                  backgroundColor: AppColors.primaryDark,
+                  child: Text(
+                    proposal.freelancerName.isNotEmpty ? proposal.freelancerName[0].toUpperCase() : 'F',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onPrimary),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      proposal.freelancerName,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.star_rounded, size: 16, color: AppColors.warning),
-                        const SizedBox(width: 4),
-                        Text(
-                          proposal.freelancerRating.toStringAsFixed(1),
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimaryDark),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '• ${proposal.estimatedDays} dias de prazo',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
-                        ),
-                      ],
-                    ),
-                  ],
+                child: InkWell(
+                  onTap: () => context.push('/profile/${proposal.freelancerId}'),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              proposal.freelancerName,
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.open_in_new_rounded, size: 14, color: AppColors.primaryLight),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.star_rounded, size: 16, color: AppColors.warning),
+                          const SizedBox(width: 4),
+                          Text(
+                            proposal.freelancerRating.toStringAsFixed(1),
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimaryDark),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '• ${proposal.estimatedDays} dias de prazo',
+                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               _buildStatusBadge(proposal.status),
@@ -579,6 +515,50 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
             ),
           ],
 
+          // Banner de Contraproposta Ativa
+          if (proposal.status == ProposalStatus.counterOffered && proposal.counterPrice != null) ...[
+            const SizedBox(height: 12),
+            GlassCard(
+              padding: const EdgeInsets.all(12),
+              backgroundColor: AppColors.info.withAlpha(20),
+              borderColor: AppColors.info.withAlpha(60),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.handshake_rounded, size: 16, color: AppColors.info),
+                      const SizedBox(width: 6),
+                      const Text(
+                        'Contraproposta Enviada ao Freelancer',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.info),
+                      ),
+                      const Spacer(),
+                      Text(
+                        CurrencyFormatter.format(proposal.counterPrice!),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.info),
+                      ),
+                    ],
+                  ),
+                  if (proposal.counterEstimatedDays != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Prazo proposto: ${proposal.counterEstimatedDays} dias',
+                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryDark),
+                    ),
+                  ],
+                  if (proposal.counterMessage != null && proposal.counterMessage!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Mensagem: "${proposal.counterMessage}"',
+                      style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppColors.textSecondaryDark),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+
           const SizedBox(height: 16),
 
           // Botões de Ação
@@ -595,11 +575,36 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
-                    label: const Text(
-                      'Aceitar & Contratar',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    label: Text(
+                      proposal.status == ProposalStatus.counterOffered ? 'Contratar' : 'Aceitar & Contratar',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                     onPressed: () => _handleAcceptProposal(proposal, clientId),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 2,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.warning,
+                      side: const BorderSide(color: AppColors.warning),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    icon: const Icon(Icons.handshake_outlined, size: 16),
+                    label: const Text(
+                      'Negociar',
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: AppColors.transparent,
+                        isScrollControlled: true,
+                        builder: (_) => CounterOfferModal(proposal: proposal),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -612,17 +617,17 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    icon: const Icon(Icons.chat_outlined, size: 18),
+                    icon: const Icon(Icons.chat_outlined, size: 16),
                     label: const Text(
                       'Chat',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
                     ),
                     onPressed: () => _handleStartChat(proposal, clientId),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded, color: AppColors.textSecondaryDark),
+                  icon: const Icon(Icons.close_rounded, color: AppColors.textSecondaryDark, size: 20),
                   tooltip: 'Recusar Proposta',
                   onPressed: () => _handleRejectProposal(proposal),
                 ),
