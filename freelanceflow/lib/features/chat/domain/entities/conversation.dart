@@ -1,4 +1,11 @@
-enum MilestoneStatus { pending, fundedInEscrow, submitted, approvedAndReleased, disputed }
+enum MilestoneStatus {
+  pending,
+  fundedInEscrow,
+  submitted,
+  inRevision,
+  approvedAndReleased,
+  disputed,
+}
 
 class ContractMilestone {
   final String id;
@@ -8,6 +15,10 @@ class ContractMilestone {
   final double amount;
   final MilestoneStatus status;
   final DateTime? dueDate;
+  final String? deliverableNotes;
+  final List<Map<String, dynamic>> deliverableAttachments;
+  final DateTime? submittedAt;
+  final int revisionCount;
 
   const ContractMilestone({
     required this.id,
@@ -17,9 +28,21 @@ class ContractMilestone {
     required this.amount,
     this.status = MilestoneStatus.pending,
     this.dueDate,
+    this.deliverableNotes,
+    this.deliverableAttachments = const [],
+    this.submittedAt,
+    this.revisionCount = 0,
   });
 
   factory ContractMilestone.fromJson(Map<String, dynamic> json) {
+    List<Map<String, dynamic>> parsedAttachments = [];
+    if (json['deliverable_attachments'] is List) {
+      parsedAttachments = (json['deliverable_attachments'] as List)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+
     return ContractMilestone(
       id: json['id'] as String,
       contractId: json['contract_id'] as String? ?? '',
@@ -28,6 +51,10 @@ class ContractMilestone {
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       status: _parseStatus(json['status'] as String?),
       dueDate: json['due_date'] != null ? DateTime.tryParse(json['due_date'] as String) : null,
+      deliverableNotes: json['deliverable_notes'] as String?,
+      deliverableAttachments: parsedAttachments,
+      submittedAt: json['submitted_at'] != null ? DateTime.tryParse(json['submitted_at'] as String) : null,
+      revisionCount: (json['revision_count'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -38,6 +65,10 @@ class ContractMilestone {
         'description': description,
         'amount': amount,
         'status': _statusToDb(status),
+        'deliverable_notes': deliverableNotes,
+        'deliverable_attachments': deliverableAttachments,
+        'submitted_at': submittedAt?.toIso8601String(),
+        'revision_count': revisionCount,
       };
 
   static String _statusToDb(MilestoneStatus s) {
@@ -46,6 +77,8 @@ class ContractMilestone {
         return 'funded_in_escrow';
       case MilestoneStatus.submitted:
         return 'submitted';
+      case MilestoneStatus.inRevision:
+        return 'in_revision';
       case MilestoneStatus.approvedAndReleased:
         return 'approved_and_released';
       case MilestoneStatus.disputed:
@@ -55,7 +88,13 @@ class ContractMilestone {
     }
   }
 
-  ContractMilestone copyWith({MilestoneStatus? status}) {
+  ContractMilestone copyWith({
+    MilestoneStatus? status,
+    String? deliverableNotes,
+    List<Map<String, dynamic>>? deliverableAttachments,
+    DateTime? submittedAt,
+    int? revisionCount,
+  }) {
     return ContractMilestone(
       id: id,
       contractId: contractId,
@@ -64,6 +103,10 @@ class ContractMilestone {
       amount: amount,
       status: status ?? this.status,
       dueDate: dueDate,
+      deliverableNotes: deliverableNotes ?? this.deliverableNotes,
+      deliverableAttachments: deliverableAttachments ?? this.deliverableAttachments,
+      submittedAt: submittedAt ?? this.submittedAt,
+      revisionCount: revisionCount ?? this.revisionCount,
     );
   }
 
@@ -74,6 +117,9 @@ class ContractMilestone {
         return MilestoneStatus.fundedInEscrow;
       case 'submitted':
         return MilestoneStatus.submitted;
+      case 'in_revision':
+      case 'inRevision':
+        return MilestoneStatus.inRevision;
       case 'approved_and_released':
       case 'approvedAndReleased':
         return MilestoneStatus.approvedAndReleased;
@@ -88,6 +134,8 @@ class ContractMilestone {
 class Conversation {
   final String id;
   final String? contractId;
+  final String? clientId;
+  final String? freelancerId;
   final String jobTitle;
   final String otherParticipantId;
   final String otherParticipantName;
@@ -100,6 +148,8 @@ class Conversation {
   const Conversation({
     required this.id,
     this.contractId,
+    this.clientId,
+    this.freelancerId,
     required this.jobTitle,
     required this.otherParticipantId,
     required this.otherParticipantName,
@@ -110,3 +160,4 @@ class Conversation {
     this.milestones = const [],
   });
 }
+

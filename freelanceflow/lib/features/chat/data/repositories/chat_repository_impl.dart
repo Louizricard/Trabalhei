@@ -1,3 +1,4 @@
+import '../../../../core/services/storage_service.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/repositories/chat_repository.dart';
@@ -39,12 +40,78 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<void> sendMessage(String conversationId, String content, {MessageType type = MessageType.text}) {
-    return _remoteDataSource.sendMessage(conversationId, content, type: type);
+  Future<void> sendMessage(
+    String conversationId,
+    String content, {
+    MessageType type = MessageType.text,
+    String? attachmentUrl,
+    String? attachmentName,
+    int? attachmentSize,
+    String? attachmentMime,
+  }) {
+    return _remoteDataSource.sendMessage(
+      conversationId,
+      content,
+      type: type,
+      attachmentUrl: attachmentUrl,
+      attachmentName: attachmentName,
+      attachmentSize: attachmentSize,
+      attachmentMime: attachmentMime,
+    );
+  }
+
+  @override
+  Future<void> sendAttachmentMessage({
+    required String conversationId,
+    required AppAttachment attachment,
+    String? caption,
+  }) {
+    return _remoteDataSource.sendAttachmentMessage(
+      conversationId: conversationId,
+      attachment: attachment,
+      caption: caption,
+    );
   }
 
   @override
   Future<void> updateMilestoneStatus(String conversationId, String milestoneId, MilestoneStatus status) {
     return _remoteDataSource.updateMilestoneStatus(conversationId, milestoneId, status);
+  }
+
+  @override
+  Future<void> submitMilestoneDeliverable({
+    required String conversationId,
+    required String milestoneId,
+    required String notes,
+    List<Map<String, dynamic>> attachments = const [],
+  }) {
+    return _remoteDataSource.submitMilestoneDeliverable(
+      conversationId: conversationId,
+      milestoneId: milestoneId,
+      notes: notes,
+      attachments: attachments,
+    );
+  }
+
+  @override
+  Future<void> requestMilestoneRevision({
+    required String conversationId,
+    required String milestoneId,
+    required String contractId,
+    required String comment,
+    List<Map<String, dynamic>> attachments = const [],
+  }) {
+    return _remoteDataSource.requestMilestoneRevision(
+      conversationId: conversationId,
+      milestoneId: milestoneId,
+      contractId: contractId,
+      comment: comment,
+      attachments: attachments,
+    );
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getMilestoneRevisions(String milestoneId) {
+    return _remoteDataSource.getMilestoneRevisions(milestoneId);
   }
 }

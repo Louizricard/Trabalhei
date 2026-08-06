@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../../core/services/storage_service.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/conversation.dart';
 
@@ -30,7 +31,7 @@ class ChatRemoteDataSource {
           participant_b_profile:profiles!participant_b (id, full_name, avatar_url),
           contracts:contract_id (
             id,
-            milestones (id, contract_id, title, description, amount, status, due_date)
+            milestones (id, contract_id, title, description, amount, status, due_date, deliverable_notes, deliverable_attachments, submitted_at, revision_count)
           ),
           messages (content, is_read, sender_id, created_at)
         ''')
@@ -62,7 +63,7 @@ class ChatRemoteDataSource {
           participant_b_profile:profiles!participant_b (id, full_name, avatar_url),
           contracts:contract_id (
             id,
-            milestones (id, contract_id, title, description, amount, status, due_date)
+            milestones (id, contract_id, title, description, amount, status, due_date, deliverable_notes, deliverable_attachments, submitted_at, revision_count)
           ),
           messages (content, is_read, sender_id, created_at)
         ''')
@@ -100,7 +101,7 @@ class ChatRemoteDataSource {
           participant_b_profile:profiles!participant_b (id, full_name, avatar_url),
           contracts:contract_id (
             id,
-            milestones (id, contract_id, title, description, amount, status, due_date)
+            milestones (id, contract_id, title, description, amount, status, due_date, deliverable_notes, deliverable_attachments, submitted_at, revision_count)
           ),
           messages (content, is_read, sender_id, created_at)
         ''')
@@ -163,31 +164,69 @@ class ChatRemoteDataSource {
         .map((list) => list.map((json) => ChatMessage.fromJson(json)).toList());
   }
 
-  Future<void> sendMessage(String conversationId, String content, {MessageType type = MessageType.text}) async {
+  Future<void> sendMessage(
+    String conversationId,
+    String content, {
+    MessageType type = MessageType.text,
+    String? attachmentUrl,
+    String? attachmentName,
+    int? attachmentSize,
+    String? attachmentMime,
+  }) async {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception('Usuário não autenticado.');
 
     String dbType = 'text';
     if (type == MessageType.systemEvent) dbType = 'system_event';
     if (type == MessageType.milestoneUpdate) dbType = 'milestone_update';
+    if (type == MessageType.image) dbType = 'image';
+    if (type == MessageType.file || type == MessageType.document) dbType = 'file';
 
-    await _supabase.from('messages').insert({
+    final payload = <String, dynamic>{
       'conversation_id': conversationId,
       'sender_id': user.id,
       'content': content.trim(),
       'message_type': dbType,
       'is_read': false,
-    });
+    };
+
+    if (attachmentUrl != null) payload['attachment_url'] = attachmentUrl;
+    if (attachmentName != null) payload['attachment_name'] = attachmentName;
+    if (attachmentSize != null) payload['attachment_size'] = attachmentSize;
+    if (attachmentMime != null) payload['attachment_mime'] = attachmentMime;
+
+    await _supabase.from('messages').insert(payload);
 
     await _supabase.from('conversations').update({
       'last_message_at': DateTime.now().toIso8601String(),
     }).eq('id', conversationId);
   }
 
+  Future<void> sendAttachmentMessage({
+    required String conversationId,
+    required AppAttachment attachment,
+    String? caption,
+  }) async {
+    final isImg = attachment.mimeType.startsWith('image/');
+    final msgType = isImg ? MessageType.image : MessageType.file;
+    final text = (caption != null && caption.trim().isNotEmpty) ? caption.trim() : attachment.name;
+
+    await sendMessage(
+      conversationId,
+      text,
+      type: msgType,
+      attachmentUrl: attachment.url,
+      attachmentName: attachment.name,
+      attachmentSize: attachment.size,
+      attachmentMime: attachment.mimeType,
+    );
+  }
+
   Future<void> updateMilestoneStatus(String conversationId, String milestoneId, MilestoneStatus status) async {
     String dbStatus = 'pending';
     if (status == MilestoneStatus.fundedInEscrow) dbStatus = 'funded_in_escrow';
     if (status == MilestoneStatus.submitted) dbStatus = 'submitted';
+    if (status == MilestoneStatus.inRevision) dbStatus = 'in_revision';
     if (status == MilestoneStatus.approvedAndReleased) dbStatus = 'approved_and_released';
     if (status == MilestoneStatus.disputed) dbStatus = 'disputed';
 
@@ -204,6 +243,8 @@ class ChatRemoteDataSource {
     String statusText;
     if (status == MilestoneStatus.submitted) {
       statusText = '📦 O marco de entrega foi enviado pelo freelancer para aprovação.';
+    } else if (status == MilestoneStatus.inRevision) {
+      statusText = '🔄 O cliente solicitou revisão na entrega do marco.';
     } else if (status == MilestoneStatus.approvedAndReleased) {
       statusText = '🎉 Marco aprovado pelo cliente! O pagamento foi liberado do Escrow para a carteira.';
     } else {
@@ -213,9 +254,71 @@ class ChatRemoteDataSource {
     await sendMessage(conversationId, statusText, type: MessageType.systemEvent);
   }
 
+  Future<void> submitMilestoneDeliverable({
+    required String conversationId,
+    required String milestoneId,
+    required String notes,
+    List<Map<String, dynamic>> attachments = const [],
+  }) async {
+    await _supabase.from('milestones').update({
+      'status': 'submitted',
+      'deliverable_notes': notes.trim(),
+      'deliverable_attachments': attachments,
+      'submitted_at': DateTime.now().toIso8601String(),
+    }).eq('id', milestoneId);
+
+    final text = '📦 Entrega enviada pelo Freelancer:\n\n"$notes"${attachments.isNotEmpty ? '\n(${attachments.length} arquivo(s) anexado(s))' : ''}';
+    await sendMessage(conversationId, text, type: MessageType.systemEvent);
+  }
+
+  Future<void> requestMilestoneRevision({
+    required String conversationId,
+    required String milestoneId,
+    required String contractId,
+    required String comment,
+    List<Map<String, dynamic>> attachments = const [],
+  }) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) throw Exception('Usuário não autenticado.');
+
+    // 1. Criar registro de revisão
+    await _supabase.from('milestone_revisions').insert({
+      'milestone_id': milestoneId,
+      'contract_id': contractId,
+      'requested_by': user.id,
+      'comment': comment.trim(),
+      'attachments': attachments,
+      'status': 'open',
+    });
+
+    // 2. Incrementar contagem e atualizar status do marco
+    await _supabase.from('milestones').update({
+      'status': 'in_revision',
+    }).eq('id', milestoneId);
+
+    // 3. Notificar no chat
+    final text = '🔄 Revisão Solicitada pelo Cliente:\n\n"$comment"${attachments.isNotEmpty ? '\n(${attachments.length} anexo(s))' : ''}';
+    await sendMessage(conversationId, text, type: MessageType.systemEvent);
+  }
+
+  Future<List<Map<String, dynamic>>> getMilestoneRevisions(String milestoneId) async {
+    try {
+      final response = await _supabase
+          .from('milestone_revisions')
+          .select('*')
+          .eq('milestone_id', milestoneId)
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(response as List);
+    } catch (_) {
+      return [];
+    }
+  }
+
   Conversation _mapToConversation(Map<String, dynamic> json, String currentUserId) {
-    final partAId = (json['participant_a'] ?? json['client_id']) as String?;
-    final partBId = (json['participant_b'] ?? json['freelancer_id']) as String?;
+    final clientId = (json['client_id'] ?? json['participant_a']) as String?;
+    final freelancerId = (json['freelancer_id'] ?? json['participant_b']) as String?;
+    final partAId = (json['participant_a'] ?? clientId) as String?;
+    final partBId = (json['participant_b'] ?? freelancerId) as String?;
     final isPartA = partAId == currentUserId;
 
     final otherProfile = isPartA
@@ -247,8 +350,8 @@ class ChatRemoteDataSource {
     final List<ContractMilestone> milestones = [];
     if (json['contracts'] is Map && (json['contracts']['milestones'] is List)) {
       for (final m in json['contracts']['milestones'] as List) {
-        if (m is Map<String, dynamic>) {
-          milestones.add(ContractMilestone.fromJson(m));
+        if (m is Map) {
+          milestones.add(ContractMilestone.fromJson(Map<String, dynamic>.from(m)));
         }
       }
     }
@@ -256,6 +359,8 @@ class ChatRemoteDataSource {
     return Conversation(
       id: json['id'] as String,
       contractId: json['contract_id'] as String?,
+      clientId: clientId,
+      freelancerId: freelancerId,
       jobTitle: jobTitle,
       otherParticipantId: otherId,
       otherParticipantName: otherName,
@@ -267,3 +372,4 @@ class ChatRemoteDataSource {
     );
   }
 }
+

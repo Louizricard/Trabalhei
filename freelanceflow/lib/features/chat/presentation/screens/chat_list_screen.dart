@@ -86,12 +86,42 @@ class ChatListScreen extends ConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 4),
-                            Text(
-                              conv.lastMessage,
-                              style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            if (conv.lastMessage.contains('Entrega') || conv.lastMessage.contains('📦')) ...[
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withAlpha(30),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: AppColors.primaryLight.withAlpha(80)),
+                                ),
+                                child: const Text(
+                                  '📦 Entrega de marco para análise',
+                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryLight),
+                                ),
+                              ),
+                            ] else if (conv.lastMessage.contains('Revisão') || conv.lastMessage.contains('🔄')) ...[
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.warning.withAlpha(30),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: AppColors.warning.withAlpha(80)),
+                                ),
+                                child: const Text(
+                                  '🔄 Revisão / Ajustes solicitados',
+                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.warning),
+                                ),
+                              ),
+                            ] else ...[
+                              Text(
+                                conv.lastMessage,
+                                style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ],
                         ),
                       ),
