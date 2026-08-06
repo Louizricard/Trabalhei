@@ -25,4 +25,8 @@ class DateFormatter {
   static String timeOnly(DateTime dateTime) {
     return DateFormat('HH:mm').format(dateTime);
   }
+
+  static String dateTime(DateTime dateTime) {
+    return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
+  }
 }

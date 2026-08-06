@@ -12,11 +12,15 @@ import '../../features/chat/presentation/screens/chat_list_screen.dart';
 import '../../features/chat/presentation/screens/chat_room_screen.dart';
 import '../../features/dashboard/presentation/screens/client_dashboard_screen.dart';
 import '../../features/dashboard/presentation/screens/freelancer_dashboard_screen.dart';
+import '../../features/disputes/presentation/screens/dispute_detail_screen.dart';
 import '../../features/jobs/presentation/screens/create_job_screen.dart';
 import '../../features/jobs/presentation/screens/job_detail_screen.dart';
 import '../../features/jobs/presentation/screens/jobs_list_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/payments/presentation/screens/payments_screen.dart';
+import '../../features/profile/presentation/screens/freelancers_search_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/profile/presentation/screens/public_profile_screen.dart';
 import '../../features/profile/presentation/screens/terms_and_privacy_screen.dart';
 import '../../features/proposals/presentation/screens/apply_job_screen.dart';
 import '../../features/proposals/presentation/screens/job_proposals_screen.dart';
@@ -97,9 +101,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const TermsAndPrivacyScreen(),
       ),
       GoRoute(
+        path: '/notifications',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
         path: '/payments',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const PaymentsScreen(),
+      ),
+      GoRoute(
+        path: '/freelancers',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const FreelancersSearchScreen(),
       ),
       GoRoute(
         path: '/jobs/create',
@@ -122,9 +136,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => ApplyJobScreen(jobId: state.pathParameters['id']!),
       ),
       GoRoute(
+        path: '/profile/:id',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => PublicProfileScreen(userId: state.pathParameters['id']!),
+      ),
+      GoRoute(
         path: '/chat/:id',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => ChatRoomScreen(conversationId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/disputes/:id',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => DisputeDetailScreen(disputeId: state.pathParameters['id']!),
       ),
 
       // Stateful Shell with 4 Navigation Branches

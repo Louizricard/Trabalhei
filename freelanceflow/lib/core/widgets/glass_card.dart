@@ -21,33 +21,45 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget content = Container(
-      padding: padding,
-      decoration: BoxDecoration(
-        color: backgroundColor ?? AppColors.cardDark,
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(
-          color: borderColor ?? AppColors.borderDark,
-          width: 1,
-        ),
-      ),
-      child: child,
+    final border = Border.all(
+      color: borderColor ?? AppColors.borderDark,
+      width: 1,
     );
 
     if (onTap != null) {
       return Material(
-        color: AppColors.transparent,
+        color: backgroundColor ?? AppColors.cardDark,
         borderRadius: BorderRadius.circular(borderRadius),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(borderRadius),
           splashColor: AppColors.primaryContainer,
           highlightColor: AppColors.primaryContainer.withAlpha(20),
-          child: content,
+          child: Container(
+            padding: padding,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: border,
+            ),
+            child: child,
+          ),
         ),
       );
     }
 
-    return content;
+    return Material(
+      color: backgroundColor ?? AppColors.cardDark,
+      borderRadius: BorderRadius.circular(borderRadius),
+      clipBehavior: Clip.antiAlias,
+      child: Container(
+        padding: padding,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(borderRadius),
+          border: border,
+        ),
+        child: child,
+      ),
+    );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../theme/app_colors.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -12,6 +13,8 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final int maxLines;
   final void Function(String)? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextCapitalization textCapitalization;
 
   const CustomTextField({
     super.key,
@@ -25,6 +28,8 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.maxLines = 1,
     this.onChanged,
+    this.inputFormatters,
+    this.textCapitalization = TextCapitalization.none,
   });
 
   @override
@@ -48,6 +53,8 @@ class CustomTextField extends StatelessWidget {
           validator: validator,
           maxLines: maxLines,
           onChanged: onChanged,
+          inputFormatters: inputFormatters,
+          textCapitalization: textCapitalization,
           style: const TextStyle(color: AppColors.textPrimaryDark, fontSize: 14),
           decoration: InputDecoration(
             hintText: hint,
