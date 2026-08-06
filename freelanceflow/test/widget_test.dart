@@ -29,6 +29,46 @@ void main() {
       expect(UserRole.fromString('unknown'), UserRole.freelancer);
     });
 
+    test('UserProfile toUpdateJson excludes sensitive financial and admin fields', () {
+      final profile = UserProfile(
+        id: 'usr-123',
+        email: 'test@example.com',
+        fullName: 'Dev Senior',
+        role: UserRole.admin,
+        avatarUrl: 'https://img.png',
+        phone: '11999999999',
+        companyName: 'Tech Corp',
+        bio: 'Senior Architect',
+        hourlyRate: 150.0,
+        skills: ['Flutter', 'PostgreSQL'],
+        rating: 4.9,
+        completedJobsCount: 25,
+        availabilityStatus: 'available',
+        isVerified: true,
+        walletBalance: 10000.0,
+        escrowBalance: 5000.0,
+        createdAt: DateTime.now(),
+      );
+
+      final updatePayload = profile.toUpdateJson();
+
+      // Campos cadastrais permitidos
+      expect(updatePayload['full_name'], 'Dev Senior');
+      expect(updatePayload['avatar_url'], 'https://img.png');
+      expect(updatePayload['hourly_rate'], 150.0);
+      expect(updatePayload['skills'], ['Flutter', 'PostgreSQL']);
+
+      // Campos financeiros e administrativos estritamente omitidos
+      expect(updatePayload.containsKey('wallet_balance'), isFalse);
+      expect(updatePayload.containsKey('escrow_balance'), isFalse);
+      expect(updatePayload.containsKey('rating'), isFalse);
+      expect(updatePayload.containsKey('completed_jobs_count'), isFalse);
+      expect(updatePayload.containsKey('is_verified'), isFalse);
+      expect(updatePayload.containsKey('role'), isFalse);
+      expect(updatePayload.containsKey('id'), isFalse);
+      expect(updatePayload.containsKey('email'), isFalse);
+    });
+
     test('Job entity parses and serializes correctly', () {
       final job = Job(
         id: 'job-123',
