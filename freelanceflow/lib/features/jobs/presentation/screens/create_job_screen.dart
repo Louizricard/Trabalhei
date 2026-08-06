@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/attachment_widgets.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
@@ -29,6 +31,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   String _category = 'Mobile';
   bool _isUrgent = false;
   bool _isLoading = false;
+  List<PickedFileData> _selectedFiles = [];
 
   final _categories = ['Mobile', 'Design', 'Fullstack', 'Frontend', 'Backend', 'DevOps'];
 
@@ -57,6 +60,20 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     setState(() => _isLoading = true);
 
     try {
+      final storage = ref.read(storageServiceProvider);
+      final uploadedAttachments = <Map<String, dynamic>>[];
+
+      for (final file in _selectedFiles) {
+        final result = await storage.uploadFile(
+          bucket: 'job_attachments',
+          folder: user.id,
+          file: file,
+        );
+        if (result != null) {
+          uploadedAttachments.add(result.toJson());
+        }
+      }
+
       final skills = _skillsController.text
           .split(',')
           .map((s) => s.trim())
@@ -76,6 +93,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         deadlineDays: int.tryParse(_daysController.text) ?? 15,
         skillsRequired: skills,
         isUrgent: _isUrgent,
+        attachments: uploadedAttachments,
         createdAt: DateTime.now(),
       );
 
@@ -203,6 +221,16 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                         onChanged: (val) => setState(() => _isUrgent = val),
                       ),
                     ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                GlassCard(
+                  padding: const EdgeInsets.all(20),
+                  child: AttachmentPickerSection(
+                    selectedFiles: _selectedFiles,
+                    onChanged: (files) => setState(() => _selectedFiles = files),
+                    title: 'Anexos e Especificações da Vaga',
+                    hintText: 'Adicione briefings, PDFs, protótipos em imagem ou documentos para orientar os freelancers.',
                   ),
                 ),
                 const SizedBox(height: 24),

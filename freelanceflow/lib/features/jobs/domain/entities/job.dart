@@ -20,6 +20,7 @@ class Job {
   final bool isUrgent;
   final List<String> skillsRequired;
   final List<String> screeningQuestions;
+  final List<Map<String, dynamic>> attachments;
   final int proposalsCount;
   final DateTime createdAt;
 
@@ -41,6 +42,7 @@ class Job {
     this.isUrgent = false,
     this.skillsRequired = const [],
     this.screeningQuestions = const [],
+    this.attachments = const [],
     this.proposalsCount = 0,
     required this.createdAt,
   });
@@ -68,6 +70,14 @@ class Job {
       proposalsCount = (json['proposals_count'] as num).toInt();
     }
 
+    final rawAttachments = json['attachments'];
+    List<Map<String, dynamic>> parsedAttachments = [];
+    if (rawAttachments is List) {
+      parsedAttachments = rawAttachments
+          .whereType<Map<String, dynamic>>()
+          .toList();
+    }
+
     return Job(
       id: json['id'] as String,
       clientId: json['client_id'] as String? ?? '',
@@ -86,6 +96,7 @@ class Job {
       isUrgent: json['is_urgent'] as bool? ?? false,
       skillsRequired: (json['skills_required'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
       screeningQuestions: (json['screening_questions'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      attachments: parsedAttachments,
       proposalsCount: proposalsCount,
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now() : DateTime.now(),
     );
@@ -108,6 +119,7 @@ class Job {
       'is_urgent': isUrgent,
       'skills_required': skillsRequired,
       'screening_questions': screeningQuestions,
+      'attachments': attachments,
     };
   }
 

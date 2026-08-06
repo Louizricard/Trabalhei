@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freelanceflow/core/theme/app_colors.dart';
 import 'package:freelanceflow/core/utils/currency_formatter.dart';
 import 'package:freelanceflow/core/utils/date_formatter.dart';
+import 'package:freelanceflow/core/widgets/attachment_widgets.dart';
 import 'package:freelanceflow/core/widgets/custom_button.dart';
 import 'package:freelanceflow/core/widgets/empty_state.dart';
 import 'package:freelanceflow/core/widgets/glass_card.dart';
@@ -124,6 +125,13 @@ class JobDetailScreen extends ConsumerWidget {
                           side: const BorderSide(color: AppColors.primaryDark),
                         );
                       }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                  if (job.attachments.isNotEmpty) ...[
+                    AttachmentCardsList(
+                      attachments: job.attachments,
+                      title: 'Anexos e Documentos da Vaga',
                     ),
                     const SizedBox(height: 24),
                   ],

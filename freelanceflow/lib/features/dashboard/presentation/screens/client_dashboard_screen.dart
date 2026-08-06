@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freelanceflow/core/theme/app_colors.dart';
-import 'package:freelanceflow/core/utils/currency_formatter.dart';
-import 'package:freelanceflow/core/widgets/custom_button.dart';
-import 'package:freelanceflow/core/widgets/empty_state.dart';
-import 'package:freelanceflow/core/widgets/glass_card.dart';
-import 'package:freelanceflow/core/widgets/responsive_layout.dart';
-import 'package:freelanceflow/features/auth/presentation/providers/auth_state_provider.dart';
-import 'package:freelanceflow/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/custom_button.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/glass_card.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../auth/presentation/providers/auth_state_provider.dart';
+import '../providers/dashboard_provider.dart';
 
 class ClientDashboardScreen extends ConsumerWidget {
   const ClientDashboardScreen({super.key});
@@ -22,6 +22,11 @@ class ClientDashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Dashboard do Contratante'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.people_outline_rounded),
+            tooltip: 'Buscar Freelancers',
+            onPressed: () => context.push('/freelancers'),
+          ),
           IconButton(
             icon: const Icon(Icons.add_circle_outline_rounded),
             tooltip: 'Publicar Projeto',
@@ -63,12 +68,12 @@ class ClientDashboardScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                user?.companyName ?? user?.fullName ?? 'TechSolutions',
+                                user?.companyName ?? user?.fullName ?? 'Contratante',
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
                               ),
                               const SizedBox(height: 4),
                               const Text(
-                                'Empresa Verificada • 12 Projetos Concluídos',
+                                'Contratante Verificado • Trabalhei Protegido',
                                 style: TextStyle(fontSize: 12, color: AppColors.primaryLight, fontWeight: FontWeight.w600),
                               ),
                             ],
@@ -78,6 +83,8 @@ class ClientDashboardScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Balanço Escrow e Total
                   Row(
                     children: [
                       Expanded(
@@ -116,13 +123,32 @@ class ClientDashboardScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  CustomButton(
-                    text: 'Publicar Nova Vaga no Mural',
-                    icon: Icons.add_circle_outline,
-                    width: double.infinity,
-                    onPressed: () => context.push('/jobs/create'),
+
+                  // Ações Rápidas: Publicar Vaga & Buscar Freelancers
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomButton(
+                          text: 'Buscar Talentos',
+                          icon: Icons.people_outline_rounded,
+                          variant: ButtonVariant.primary,
+                          onPressed: () => context.push('/freelancers'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: CustomButton(
+                          text: 'Publicar Vaga',
+                          icon: Icons.add_circle_outline_rounded,
+                          variant: ButtonVariant.secondary,
+                          onPressed: () => context.push('/jobs/create'),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
+
+                  // Gestão de Talentos e Vagas
                   GlassCard(
                     padding: const EdgeInsets.all(18),
                     child: Column(
@@ -152,6 +178,18 @@ class ClientDashboardScreen extends ConsumerWidget {
                           subtitle: const Text('Acompanhe entregas e liberação de marcos', style: TextStyle(fontSize: 12, color: AppColors.textMutedDark)),
                           trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondaryDark),
                           onTap: () => context.push('/chat'),
+                        ),
+                        const Divider(),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const CircleAvatar(
+                            backgroundColor: AppColors.surfaceElevatedDark,
+                            child: Icon(Icons.search_rounded, color: AppColors.primary),
+                          ),
+                          title: const Text('Explorar Profissionais Freelancer', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                          subtitle: const Text('Filtre por especialidade, nota e valor por hora', style: TextStyle(fontSize: 12, color: AppColors.textMutedDark)),
+                          trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondaryDark),
+                          onTap: () => context.push('/freelancers'),
                         ),
                       ],
                     ),

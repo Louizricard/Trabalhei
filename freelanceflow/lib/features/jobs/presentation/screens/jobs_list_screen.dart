@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freelanceflow/core/theme/app_colors.dart';
 import 'package:freelanceflow/core/widgets/empty_state.dart';
+import 'package:freelanceflow/core/widgets/notification_bell_button.dart';
 import 'package:freelanceflow/core/widgets/responsive_layout.dart';
 import 'package:freelanceflow/features/auth/domain/entities/user_profile.dart';
 import 'package:freelanceflow/features/auth/presentation/providers/auth_state_provider.dart';
@@ -38,9 +39,10 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
       appBar: AppBar(
         title: const Text('Mural de Vagas'),
         actions: [
+          const NotificationBellButton(),
           if (isClient)
             Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.only(right: 8, left: 4),
               child: FilledButton.icon(
                 style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
                 icon: const Icon(Icons.add_rounded, size: 18),
