@@ -155,4 +155,20 @@ class UserProfile {
       'escrow_balance': escrowBalance,
     };
   }
+
+  /// Serializa exclusivamente os campos cadastrais editáveis pelo usuário.
+  /// Campos financeiros, administrativos e métricas (wallet_balance, role, rating, etc.)
+  /// são deliberadamente omitidos para proteger a integridade do RLS.
+  Map<String, dynamic> toUpdateJson() {
+    return {
+      'full_name': fullName,
+      'avatar_url': avatarUrl,
+      'phone': phone,
+      'company_name': companyName,
+      'bio': bio,
+      'hourly_rate': hourlyRate,
+      'skills': skills,
+      'availability_status': availabilityStatus,
+    };
+  }
 }
