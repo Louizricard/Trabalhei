@@ -245,6 +245,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                       ],
                     ),
+                    if (user != null) ...[
+                      const SizedBox(height: 10),
+                      CustomButton(
+                        text: 'Visualizar como Perfil Público',
+                        variant: ButtonVariant.outline,
+                        icon: Icons.visibility_outlined,
+                        width: double.infinity,
+                        onPressed: () => context.push('/profile/${user.id}'),
+                      ),
+                    ],
                   ],
                 ),
               ),

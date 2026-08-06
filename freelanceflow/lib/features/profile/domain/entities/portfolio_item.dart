@@ -25,6 +25,16 @@ class PortfolioItem {
       tags: (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'description': description,
+      'image_url': imageUrl,
+      'project_url': projectUrl,
+      'tags': tags,
+    };
+  }
 }
 
 class UserReview {
