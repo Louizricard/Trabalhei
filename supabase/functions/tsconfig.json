@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "lib": ["ESNext", "DOM"],
+    "noImplicitAny": false,
+    "useUnknownInCatchVariables": false,
+    "allowSyntheticDefaultImports": true,
+    "strict": false
+  },
+  "include": ["**/*.ts", "deno.d.ts"]
+}
