@@ -1,0 +1,2 @@
+-- Rollback da migration 20260807000001
+-- Restaura accept_proposal_and_create_contract sem o update de jobs.status
