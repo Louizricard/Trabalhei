@@ -203,11 +203,15 @@ class ChatRemoteDataSource {
     if (user == null) throw Exception('Usuário não autenticado.');
 
     String dbType = 'text';
-    if (type == MessageType.systemEvent) dbType = 'system_event';
-    if (type == MessageType.milestoneUpdate) dbType = 'milestone_update';
-    if (type == MessageType.image) dbType = 'image';
-    if (type == MessageType.file || type == MessageType.document)
+    if (type == MessageType.systemEvent) {
+      dbType = 'system_event';
+    } else if (type == MessageType.milestoneUpdate) {
+      dbType = 'milestone_update';
+    } else if (type == MessageType.image) {
+      dbType = 'image';
+    } else if (type == MessageType.file || type == MessageType.document) {
       dbType = 'file';
+    }
 
     final payload = <String, dynamic>{
       'conversation_id': conversationId,
@@ -258,12 +262,17 @@ class ChatRemoteDataSource {
     MilestoneStatus status,
   ) async {
     String dbStatus = 'pending';
-    if (status == MilestoneStatus.fundedInEscrow) dbStatus = 'funded_in_escrow';
-    if (status == MilestoneStatus.submitted) dbStatus = 'submitted';
-    if (status == MilestoneStatus.inRevision) dbStatus = 'in_revision';
-    if (status == MilestoneStatus.approvedAndReleased)
+    if (status == MilestoneStatus.fundedInEscrow) {
+      dbStatus = 'funded_in_escrow';
+    } else if (status == MilestoneStatus.submitted) {
+      dbStatus = 'submitted';
+    } else if (status == MilestoneStatus.inRevision) {
+      dbStatus = 'in_revision';
+    } else if (status == MilestoneStatus.approvedAndReleased) {
       dbStatus = 'approved_and_released';
-    if (status == MilestoneStatus.disputed) dbStatus = 'disputed';
+    } else if (status == MilestoneStatus.disputed) {
+      dbStatus = 'disputed';
+    }
 
     if (status == MilestoneStatus.approvedAndReleased) {
       try {

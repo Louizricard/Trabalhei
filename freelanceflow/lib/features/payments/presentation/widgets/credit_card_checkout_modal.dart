@@ -51,17 +51,25 @@ class _CreditCardCheckoutModalState
 
   String _getBrand() {
     final clean = _cardNumberController.text.replaceAll(RegExp(r'\D'), '');
-    if (clean.startsWith('4')) return 'VISA';
+    if (clean.startsWith('4')) {
+      return 'VISA';
+    }
     if (RegExp(
       r'^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[0-1]|2720)',
-    ).hasMatch(clean))
+    ).hasMatch(clean)) {
       return 'MASTERCARD';
+    }
     if (RegExp(
       r'^(4011|4312|4389|4514|4576|5041|5066|5067|509|6277|6362|6363)',
-    ).hasMatch(clean))
+    ).hasMatch(clean)) {
       return 'ELO';
-    if (RegExp(r'^(34|37)').hasMatch(clean)) return 'AMEX';
-    if (RegExp(r'^(606282|3841)').hasMatch(clean)) return 'HIPERCARD';
+    }
+    if (RegExp(r'^(34|37)').hasMatch(clean)) {
+      return 'AMEX';
+    }
+    if (RegExp(r'^(606282|3841)').hasMatch(clean)) {
+      return 'HIPERCARD';
+    }
     return 'CARTÃO';
   }
 
@@ -333,8 +341,9 @@ class _CreditCardCheckoutModalState
                 textCapitalization: TextCapitalization.characters,
                 onChanged: (_) => setState(() {}),
                 validator: (val) {
-                  if (val == null || val.trim().isEmpty)
+                  if (val == null || val.trim().isEmpty) {
                     return 'Informe o nome do titular';
+                  }
                   return null;
                 },
               ),
@@ -357,8 +366,9 @@ class _CreditCardCheckoutModalState
                       ],
                       onChanged: (_) => setState(() {}),
                       validator: (val) {
-                        if (val == null || val.length < 5)
+                        if (val == null || val.length < 5) {
                           return 'Data inválida';
+                        }
                         return null;
                       },
                     ),
@@ -376,8 +386,9 @@ class _CreditCardCheckoutModalState
                         LengthLimitingTextInputFormatter(4),
                       ],
                       validator: (val) {
-                        if (val == null || val.length < 3)
+                        if (val == null || val.length < 3) {
                           return 'CVV inválido';
+                        }
                         return null;
                       },
                     ),

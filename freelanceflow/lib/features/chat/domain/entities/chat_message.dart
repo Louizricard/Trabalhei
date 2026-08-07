@@ -37,10 +37,15 @@ class ChatMessage {
           ).hasMatch(attachmentName!));
 
   String get formattedSize {
-    if (attachmentSize == null || attachmentSize! <= 0) return '';
-    if (attachmentSize! < 1024) return '${attachmentSize!} B';
-    if (attachmentSize! < 1024 * 1024)
+    if (attachmentSize == null || attachmentSize! <= 0) {
+      return '';
+    }
+    if (attachmentSize! < 1024) {
+      return '${attachmentSize!} B';
+    }
+    if (attachmentSize! < 1024 * 1024) {
       return '${(attachmentSize! / 1024).toStringAsFixed(1)} KB';
+    }
     return '${(attachmentSize! / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 

@@ -165,10 +165,12 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               prefixIcon: Icons.lock_outline_rounded,
                               obscureText: true,
                               validator: (v) {
-                                if (v == null || v.isEmpty)
+                                if (v == null || v.isEmpty) {
                                   return 'Informe a nova senha';
-                                if (v.length < 6)
+                                }
+                                if (v.length < 6) {
                                   return 'Mínimo de 6 caracteres';
+                                }
                                 return null;
                               },
                             ),
@@ -180,10 +182,12 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               prefixIcon: Icons.lock_outline_rounded,
                               obscureText: true,
                               validator: (v) {
-                                if (v == null || v.isEmpty)
+                                if (v == null || v.isEmpty) {
                                   return 'Confirme a nova senha';
-                                if (v != _newPasswordController.text)
+                                }
+                                if (v != _newPasswordController.text) {
                                   return 'As senhas não coincidem';
+                                }
                                 return null;
                               },
                             ),
