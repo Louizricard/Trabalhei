@@ -80,7 +80,9 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao salvar projeto: ${e.toString().replaceAll("Exception: ", "")}'),
+            content: Text(
+              'Erro ao salvar projeto: ${e.toString().replaceAll("Exception: ", "")}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -134,16 +136,21 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
                 controller: _titleController,
                 label: 'Título do Projeto',
                 hint: 'Ex: App FreelanceFlow Mobile & Web',
-                validator: (v) => v == null || v.trim().isEmpty ? 'Informe o título do projeto' : null,
+                validator: (v) => v == null || v.trim().isEmpty
+                    ? 'Informe o título do projeto'
+                    : null,
               ),
               const SizedBox(height: 14),
 
               CustomTextField(
                 controller: _descController,
                 label: 'Descrição',
-                hint: 'Descreva os desafios, arquitetura e resultados alcançados...',
+                hint:
+                    'Descreva os desafios, arquitetura e resultados alcançados...',
                 maxLines: 3,
-                validator: (v) => v == null || v.trim().isEmpty ? 'Informe uma descrição' : null,
+                validator: (v) => v == null || v.trim().isEmpty
+                    ? 'Informe uma descrição'
+                    : null,
               ),
               const SizedBox(height: 14),
 
@@ -151,7 +158,9 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
                 controller: _imageUrlController,
                 label: 'URL da Imagem / Screenshot',
                 hint: 'https://exemplo.com/imagem.png',
-                validator: (v) => v == null || v.trim().isEmpty ? 'Informe a URL da imagem' : null,
+                validator: (v) => v == null || v.trim().isEmpty
+                    ? 'Informe a URL da imagem'
+                    : null,
               ),
               const SizedBox(height: 14),
 

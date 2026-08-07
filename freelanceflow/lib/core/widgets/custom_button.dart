@@ -81,7 +81,9 @@ class CustomButton extends StatelessWidget {
           foregroundColor: AppColors.onPrimary,
           elevation: 2,
           shadowColor: AppColors.primaryGlow,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
         );
       case ButtonVariant.secondary:
         return ElevatedButton.styleFrom(
@@ -89,7 +91,9 @@ class CustomButton extends StatelessWidget {
           foregroundColor: AppColors.textPrimaryDark,
           elevation: 0,
           side: const BorderSide(color: AppColors.borderDark, width: 1),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
         );
       case ButtonVariant.outline:
         return ElevatedButton.styleFrom(
@@ -97,14 +101,18 @@ class CustomButton extends StatelessWidget {
           foregroundColor: AppColors.primary,
           elevation: 0,
           side: const BorderSide(color: AppColors.primary, width: 1.5),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
         );
       case ButtonVariant.danger:
         return ElevatedButton.styleFrom(
           backgroundColor: AppColors.error,
           foregroundColor: AppColors.pureWhite,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
         );
     }
   }

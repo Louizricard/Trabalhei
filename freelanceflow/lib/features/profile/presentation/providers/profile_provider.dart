@@ -7,7 +7,9 @@ import '../../data/repositories/profile_repository_impl.dart';
 import '../../domain/entities/portfolio_item.dart';
 import '../../domain/repositories/profile_repository.dart';
 
-final profileRemoteDataSourceProvider = Provider<ProfileRemoteDataSource>((ref) {
+final profileRemoteDataSourceProvider = Provider<ProfileRemoteDataSource>((
+  ref,
+) {
   final supabase = ref.watch(supabaseClientProvider);
   return ProfileRemoteDataSource(supabase);
 });
@@ -18,22 +20,29 @@ final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
 });
 
 // Perfil de qualquer usuário (por ID)
-final publicProfileProvider = FutureProvider.family<UserProfile?, String>((ref, userId) async {
+final publicProfileProvider = FutureProvider.family<UserProfile?, String>((
+  ref,
+  userId,
+) async {
   final repository = ref.watch(profileRepositoryProvider);
   return repository.getProfileById(userId);
 });
 
 // Avaliações de qualquer usuário (por ID)
-final publicReviewsProvider = FutureProvider.family<List<UserReview>, String>((ref, userId) async {
+final publicReviewsProvider = FutureProvider.family<List<UserReview>, String>((
+  ref,
+  userId,
+) async {
   final repository = ref.watch(profileRepositoryProvider);
   return repository.getUserReviews(userId);
 });
 
 // Itens de portfólio de um usuário
-final userPortfolioProvider = FutureProvider.family<List<PortfolioItem>, String>((ref, userId) async {
-  final repository = ref.watch(profileRepositoryProvider);
-  return repository.getPortfolioItems(userId);
-});
+final userPortfolioProvider =
+    FutureProvider.family<List<PortfolioItem>, String>((ref, userId) async {
+      final repository = ref.watch(profileRepositoryProvider);
+      return repository.getPortfolioItems(userId);
+    });
 
 // Avaliações do usuário autenticado
 final userReviewsProvider = FutureProvider<List<UserReview>>((ref) async {
@@ -89,11 +98,14 @@ class FreelancerSearchFilter {
       (minRating != null && minRating! > 0) ||
       (minHourlyRate != null && minHourlyRate! > 0) ||
       (maxHourlyRate != null && maxHourlyRate! > 0) ||
-      (availabilityStatus != null && availabilityStatus!.isNotEmpty && availabilityStatus != 'all') ||
+      (availabilityStatus != null &&
+          availabilityStatus!.isNotEmpty &&
+          availabilityStatus != 'all') ||
       orderBy != 'rating_desc';
 }
 
-class FreelancerSearchFilterNotifier extends StateNotifier<FreelancerSearchFilter> {
+class FreelancerSearchFilterNotifier
+    extends StateNotifier<FreelancerSearchFilter> {
   FreelancerSearchFilterNotifier() : super(const FreelancerSearchFilter());
 
   void setQuery(String query) {
@@ -126,9 +138,12 @@ class FreelancerSearchFilterNotifier extends StateNotifier<FreelancerSearchFilte
 }
 
 final freelancerSearchFilterProvider =
-    StateNotifierProvider<FreelancerSearchFilterNotifier, FreelancerSearchFilter>((ref) {
-  return FreelancerSearchFilterNotifier();
-});
+    StateNotifierProvider<
+      FreelancerSearchFilterNotifier,
+      FreelancerSearchFilter
+    >((ref) {
+      return FreelancerSearchFilterNotifier();
+    });
 
 // Lista de freelancers filtrados
 final freelancersListProvider = FutureProvider<List<UserProfile>>((ref) async {
@@ -147,93 +162,101 @@ final freelancersListProvider = FutureProvider<List<UserProfile>>((ref) async {
 });
 
 // Adicionar projeto ao portfólio
-final addPortfolioItemProvider = Provider<Future<PortfolioItem> Function({
-  required String title,
-  required String description,
-  required String imageUrl,
-  String? projectUrl,
-  List<String> tags,
-})>((ref) {
-  final repository = ref.watch(profileRepositoryProvider);
-  final user = ref.watch(authProvider).value;
+final addPortfolioItemProvider =
+    Provider<
+      Future<PortfolioItem> Function({
+        required String title,
+        required String description,
+        required String imageUrl,
+        String? projectUrl,
+        List<String> tags,
+      })
+    >((ref) {
+      final repository = ref.watch(profileRepositoryProvider);
+      final user = ref.watch(authProvider).value;
 
-  return ({
-    required String title,
-    required String description,
-    required String imageUrl,
-    String? projectUrl,
-    List<String> tags = const [],
-  }) async {
-    if (user == null) throw Exception('Não autenticado');
+      return ({
+        required String title,
+        required String description,
+        required String imageUrl,
+        String? projectUrl,
+        List<String> tags = const [],
+      }) async {
+        if (user == null) throw Exception('Não autenticado');
 
-    final item = await repository.addPortfolioItem(
-      userId: user.id,
-      title: title,
-      description: description,
-      imageUrl: imageUrl,
-      projectUrl: projectUrl,
-      tags: tags,
-    );
+        final item = await repository.addPortfolioItem(
+          userId: user.id,
+          title: title,
+          description: description,
+          imageUrl: imageUrl,
+          projectUrl: projectUrl,
+          tags: tags,
+        );
 
-    ref.invalidate(userPortfolioProvider(user.id));
-    return item;
-  };
-});
+        ref.invalidate(userPortfolioProvider(user.id));
+        return item;
+      };
+    });
 
 // Deletar item do portfólio
-final deletePortfolioItemProvider = Provider<Future<void> Function(String itemId)>((ref) {
-  final repository = ref.watch(profileRepositoryProvider);
-  final user = ref.watch(authProvider).value;
+final deletePortfolioItemProvider =
+    Provider<Future<void> Function(String itemId)>((ref) {
+      final repository = ref.watch(profileRepositoryProvider);
+      final user = ref.watch(authProvider).value;
 
-  return (String itemId) async {
-    if (user == null) throw Exception('Não autenticado');
+      return (String itemId) async {
+        if (user == null) throw Exception('Não autenticado');
 
-    await repository.deletePortfolioItem(itemId);
-    ref.invalidate(userPortfolioProvider(user.id));
-  };
-});
+        await repository.deletePortfolioItem(itemId);
+        ref.invalidate(userPortfolioProvider(user.id));
+      };
+    });
 
 // Atualizar perfil
-final updateProfileProvider = Provider<Future<void> Function({
-  String? fullName,
-  String? bio,
-  double? hourlyRate,
-  List<String>? skills,
-})>((ref) {
-  final repository = ref.watch(profileRepositoryProvider);
-  final user = ref.watch(authProvider).value;
+final updateProfileProvider =
+    Provider<
+      Future<void> Function({
+        String? fullName,
+        String? bio,
+        double? hourlyRate,
+        List<String>? skills,
+      })
+    >((ref) {
+      final repository = ref.watch(profileRepositoryProvider);
+      final user = ref.watch(authProvider).value;
 
-  return ({fullName, bio, hourlyRate, skills}) async {
-    if (user == null) throw Exception('Não autenticado');
+      return ({fullName, bio, hourlyRate, skills}) async {
+        if (user == null) throw Exception('Não autenticado');
 
-    await repository.updateProfile(
-      userId: user.id,
-      fullName: fullName,
-      bio: bio,
-      hourlyRate: hourlyRate,
-      skills: skills,
-    );
-    ref.invalidate(authProvider);
-    ref.invalidate(publicProfileProvider(user.id));
-  };
-});
+        await repository.updateProfile(
+          userId: user.id,
+          fullName: fullName,
+          bio: bio,
+          hourlyRate: hourlyRate,
+          skills: skills,
+        );
+        ref.invalidate(authProvider);
+        ref.invalidate(publicProfileProvider(user.id));
+      };
+    });
 
 // Upload de avatar
-final uploadAvatarProvider = Provider<Future<String> Function(dynamic bytes, String fileExt)>((ref) {
-  final repository = ref.watch(profileRepositoryProvider);
-  final user = ref.watch(authProvider).value;
+final uploadAvatarProvider =
+    Provider<Future<String> Function(dynamic bytes, String fileExt)>((ref) {
+      final repository = ref.watch(profileRepositoryProvider);
+      final user = ref.watch(authProvider).value;
 
-  return (bytes, fileExt) async {
-    if (user == null) throw Exception('Não autenticado');
+      return (bytes, fileExt) async {
+        if (user == null) throw Exception('Não autenticado');
 
-    final publicUrl = await repository.uploadAvatar(
-      userId: user.id,
-      bytes: bytes,
-      fileExt: fileExt,
-    );
+        final publicUrl = await repository.uploadAvatar(
+          userId: user.id,
+          bytes: bytes,
+          fileExt: fileExt,
+        );
 
-    ref.invalidate(authProvider);
-    ref.invalidate(publicProfileProvider(user.id));
-    return publicUrl;
-  };
-});
+        ref.invalidate(authProvider);
+        ref.invalidate(publicProfileProvider(user.id));
+        return publicUrl;
+      };
+    });

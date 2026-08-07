@@ -33,10 +33,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await ref.read(authProvider.notifier).signIn(
-            _emailController.text.trim(),
-            _passwordController.text,
-          );
+      await ref
+          .read(authProvider.notifier)
+          .signIn(_emailController.text.trim(), _passwordController.text);
       if (mounted) {
         context.go('/jobs');
       }
@@ -74,7 +73,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(22),
-                          border: Border.all(color: AppColors.borderDark, width: 1.5),
+                          border: Border.all(
+                            color: AppColors.borderDark,
+                            width: 1.5,
+                          ),
                           color: AppColors.cardDark,
                         ),
                         child: ClipRRect(
@@ -122,7 +124,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             hint: 'seu@email.com',
                             prefixIcon: Icons.mail_outline_rounded,
                             keyboardType: TextInputType.emailAddress,
-                            validator: (v) => v != null && v.contains('@') ? null : 'E-mail inválido',
+                            validator: (v) => v != null && v.contains('@')
+                                ? null
+                                : 'E-mail inválido',
                           ),
                           const SizedBox(height: 16),
                           CustomTextField(
@@ -131,7 +135,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             hint: '••••••••',
                             prefixIcon: Icons.lock_outline_rounded,
                             obscureText: true,
-                            validator: (v) => v != null && v.length >= 6 ? null : 'Mínimo 6 caracteres',
+                            validator: (v) => v != null && v.length >= 6
+                                ? null
+                                : 'Mínimo 6 caracteres',
                           ),
                           const SizedBox(height: 12),
                           Align(
@@ -163,7 +169,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       children: [
                         const Text(
                           'Ainda não tem uma conta? ',
-                          style: TextStyle(color: AppColors.textSecondaryDark, fontSize: 14),
+                          style: TextStyle(
+                            color: AppColors.textSecondaryDark,
+                            fontSize: 14,
+                          ),
                         ),
                         GestureDetector(
                           onTap: () => context.push('/register'),

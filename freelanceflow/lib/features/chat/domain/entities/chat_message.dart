@@ -31,13 +31,16 @@ class ChatMessage {
       messageType == MessageType.image ||
       (attachmentMime != null && attachmentMime!.startsWith('image/')) ||
       (attachmentName != null &&
-          RegExp(r'\.(png|jpe?g|webp|gif)$', caseSensitive: false)
-              .hasMatch(attachmentName!));
+          RegExp(
+            r'\.(png|jpe?g|webp|gif)$',
+            caseSensitive: false,
+          ).hasMatch(attachmentName!));
 
   String get formattedSize {
     if (attachmentSize == null || attachmentSize! <= 0) return '';
     if (attachmentSize! < 1024) return '${attachmentSize!} B';
-    if (attachmentSize! < 1024 * 1024) return '${(attachmentSize! / 1024).toStringAsFixed(1)} KB';
+    if (attachmentSize! < 1024 * 1024)
+      return '${(attachmentSize! / 1024).toStringAsFixed(1)} KB';
     return '${(attachmentSize! / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
@@ -53,7 +56,9 @@ class ChatMessage {
       attachmentMime: json['attachment_mime'] as String?,
       messageType: _parseType(json['message_type'] as String?),
       isRead: json['is_read'] as bool? ?? false,
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now() : DateTime.now(),
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 

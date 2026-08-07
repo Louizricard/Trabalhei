@@ -153,9 +153,7 @@ void main() {
     });
 
     test('extracts job details route from job_id payload', () {
-      final route = service.extractRouteFromData({
-        'job_id': 'job-uuid-111',
-      });
+      final route = service.extractRouteFromData({'job_id': 'job-uuid-111'});
       expect(route, equals('/jobs/job-uuid-111'));
     });
 
@@ -168,16 +166,12 @@ void main() {
     });
 
     test('extracts payments route when type is payments', () {
-      final route = service.extractRouteFromData({
-        'type': 'payments',
-      });
+      final route = service.extractRouteFromData({'type': 'payments'});
       expect(route, equals('/payments'));
     });
 
     test('returns null when payload has no recognized navigation keys', () {
-      final route = service.extractRouteFromData({
-        'unrelated_key': 'value',
-      });
+      final route = service.extractRouteFromData({'unrelated_key': 'value'});
       expect(route, isNull);
     });
   });

@@ -12,7 +12,8 @@ class SplashScreen extends ConsumerStatefulWidget {
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends ConsumerState<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
   Timer? _timer;
@@ -87,7 +88,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                     height: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.5,
-                      valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        AppColors.primary,
+                      ),
                       backgroundColor: AppColors.primaryContainer,
                     ),
                   ),

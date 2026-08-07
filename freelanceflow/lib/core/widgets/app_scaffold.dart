@@ -52,7 +52,9 @@ class AppScaffold extends ConsumerWidget {
                     initialLocation: index == navigationShell.currentIndex,
                   ),
                   backgroundColor: AppColors.surfaceDark,
-                  selectedIconTheme: const IconThemeData(color: AppColors.primary),
+                  selectedIconTheme: const IconThemeData(
+                    color: AppColors.primary,
+                  ),
                   selectedLabelTextStyle: const TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w700,
@@ -62,7 +64,10 @@ class AppScaffold extends ConsumerWidget {
                     fontWeight: FontWeight.w500,
                   ),
                   leading: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 24,
+                      horizontal: 16,
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -90,11 +95,13 @@ class AppScaffold extends ConsumerWidget {
                   ),
                   labelType: NavigationRailLabelType.all,
                   destinations: navItems
-                      .map((item) => NavigationRailDestination(
-                            icon: item.icon,
-                            selectedIcon: item.selectedIcon,
-                            label: Text(item.label),
-                          ))
+                      .map(
+                        (item) => NavigationRailDestination(
+                          icon: item.icon,
+                          selectedIcon: item.selectedIcon,
+                          label: Text(item.label),
+                        ),
+                      )
                       .toList(),
                 ),
                 const VerticalDivider(

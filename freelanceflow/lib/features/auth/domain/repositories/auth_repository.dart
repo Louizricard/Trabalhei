@@ -17,4 +17,5 @@ abstract class AuthRepository {
   Future<void> updatePassword(String newPassword);
   Future<void> signOut();
   Future<UserProfile> updateProfile(UserProfile profile);
+  Future<UserProfile> switchRole(UserRole newRole);
 }

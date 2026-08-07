@@ -16,46 +16,46 @@ class StatusBadge extends StatelessWidget {
   });
 
   factory StatusBadge.open() => const StatusBadge(
-        label: 'Aberto',
-        backgroundColor: AppColors.successBg,
-        textColor: AppColors.success,
-        icon: Icons.check_circle_outline_rounded,
-      );
+    label: 'Aberto',
+    backgroundColor: AppColors.successBg,
+    textColor: AppColors.success,
+    icon: Icons.check_circle_outline_rounded,
+  );
 
   factory StatusBadge.inProgress() => const StatusBadge(
-        label: 'Em Andamento',
-        backgroundColor: AppColors.infoBg,
-        textColor: AppColors.info,
-        icon: Icons.sync_rounded,
-      );
+    label: 'Em Andamento',
+    backgroundColor: AppColors.infoBg,
+    textColor: AppColors.info,
+    icon: Icons.sync_rounded,
+  );
 
   factory StatusBadge.completed() => const StatusBadge(
-        label: 'Concluído',
-        backgroundColor: AppColors.primaryContainer,
-        textColor: AppColors.primary,
-        icon: Icons.verified_rounded,
-      );
+    label: 'Concluído',
+    backgroundColor: AppColors.primaryContainer,
+    textColor: AppColors.primary,
+    icon: Icons.verified_rounded,
+  );
 
   factory StatusBadge.escrowHold() => const StatusBadge(
-        label: 'Escrow Garantido',
-        backgroundColor: AppColors.escrowBg,
-        textColor: AppColors.escrow,
-        icon: Icons.shield_outlined,
-      );
+    label: 'Escrow Garantido',
+    backgroundColor: AppColors.escrowBg,
+    textColor: AppColors.escrow,
+    icon: Icons.shield_outlined,
+  );
 
   factory StatusBadge.urgent() => const StatusBadge(
-        label: 'Urgente',
-        backgroundColor: AppColors.errorBg,
-        textColor: AppColors.error,
-        icon: Icons.local_fire_department_rounded,
-      );
+    label: 'Urgente',
+    backgroundColor: AppColors.errorBg,
+    textColor: AppColors.error,
+    icon: Icons.local_fire_department_rounded,
+  );
 
   factory StatusBadge.featured() => const StatusBadge(
-        label: 'Destaque',
-        backgroundColor: AppColors.warningBg,
-        textColor: AppColors.warning,
-        icon: Icons.star_rounded,
-      );
+    label: 'Destaque',
+    backgroundColor: AppColors.warningBg,
+    textColor: AppColors.warning,
+    icon: Icons.star_rounded,
+  );
 
   @override
   Widget build(BuildContext context) {

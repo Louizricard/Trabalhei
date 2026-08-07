@@ -149,7 +149,9 @@ class StorageService {
       }
       return list;
     } catch (e) {
-      debugPrint('🚨 [StorageService] Erro ao selecionar múltiplos arquivos: $e');
+      debugPrint(
+        '🚨 [StorageService] Erro ao selecionar múltiplos arquivos: $e',
+      );
       return [];
     }
   }
@@ -193,13 +195,12 @@ class StorageService {
       final cleanName = file.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
       final path = '$folder/${fileId}_$cleanName';
 
-      await _supabase.storage.from(bucket).uploadBinary(
+      await _supabase.storage
+          .from(bucket)
+          .uploadBinary(
             path,
             file.bytes,
-            fileOptions: FileOptions(
-              contentType: file.mimeType,
-              upsert: true,
-            ),
+            fileOptions: FileOptions(contentType: file.mimeType, upsert: true),
           );
 
       final publicUrl = _supabase.storage.from(bucket).getPublicUrl(path);
@@ -212,7 +213,9 @@ class StorageService {
         mimeType: file.mimeType,
       );
     } catch (e, st) {
-      debugPrint('🚨 [StorageService] Erro no upload para o bucket $bucket: $e\n$st');
+      debugPrint(
+        '🚨 [StorageService] Erro no upload para o bucket $bucket: $e\n$st',
+      );
       return null;
     }
   }
@@ -225,7 +228,11 @@ class StorageService {
   }) async {
     final results = <Map<String, dynamic>>[];
     for (final file in files) {
-      final res = await uploadFile(bucket: bucket, folder: folderPath, file: file);
+      final res = await uploadFile(
+        bucket: bucket,
+        folder: folderPath,
+        file: file,
+      );
       if (res != null) {
         results.add(res.toJson());
       }

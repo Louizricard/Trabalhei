@@ -12,7 +12,8 @@ class ResetPasswordScreen extends ConsumerStatefulWidget {
   const ResetPasswordScreen({super.key});
 
   @override
-  ConsumerState<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+  ConsumerState<ResetPasswordScreen> createState() =>
+      _ResetPasswordScreenState();
 }
 
 class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
@@ -35,7 +36,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await ref.read(authProvider.notifier).updatePassword(_newPasswordController.text);
+      await ref
+          .read(authProvider.notifier)
+          .updatePassword(_newPasswordController.text);
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -106,7 +109,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                     const Text(
                       'Crie uma nova senha segura para acessar sua conta.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 14, color: AppColors.textSecondaryDark),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondaryDark,
+                      ),
                     ),
                     const SizedBox(height: 28),
                     if (_isSuccess)
@@ -114,7 +120,11 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                         padding: const EdgeInsets.all(24),
                         child: Column(
                           children: [
-                            const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 48),
+                            const Icon(
+                              Icons.check_circle_rounded,
+                              color: AppColors.success,
+                              size: 48,
+                            ),
                             const SizedBox(height: 14),
                             const Text(
                               'Senha alterada com sucesso!',
@@ -128,7 +138,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                             const Text(
                               'Sua nova senha já está ativa. Você já pode acessar a plataforma.',
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColors.textSecondaryDark, fontSize: 13),
+                              style: TextStyle(
+                                color: AppColors.textSecondaryDark,
+                                fontSize: 13,
+                              ),
                             ),
                             const SizedBox(height: 22),
                             CustomButton(
@@ -152,8 +165,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               prefixIcon: Icons.lock_outline_rounded,
                               obscureText: true,
                               validator: (v) {
-                                if (v == null || v.isEmpty) return 'Informe a nova senha';
-                                if (v.length < 6) return 'Mínimo de 6 caracteres';
+                                if (v == null || v.isEmpty)
+                                  return 'Informe a nova senha';
+                                if (v.length < 6)
+                                  return 'Mínimo de 6 caracteres';
                                 return null;
                               },
                             ),
@@ -165,8 +180,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               prefixIcon: Icons.lock_outline_rounded,
                               obscureText: true,
                               validator: (v) {
-                                if (v == null || v.isEmpty) return 'Confirme a nova senha';
-                                if (v != _newPasswordController.text) return 'As senhas não coincidem';
+                                if (v == null || v.isEmpty)
+                                  return 'Confirme a nova senha';
+                                if (v != _newPasswordController.text)
+                                  return 'As senhas não coincidem';
                                 return null;
                               },
                             ),

@@ -12,7 +12,8 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  ConsumerState<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  ConsumerState<ForgotPasswordScreen> createState() =>
+      _ForgotPasswordScreenState();
 }
 
 class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
@@ -32,7 +33,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await ref.read(authProvider.notifier).resetPassword(_emailController.text.trim());
+      await ref
+          .read(authProvider.notifier)
+          .resetPassword(_emailController.text.trim());
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -103,7 +106,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                     const Text(
                       'Informe seu e-mail cadastrado para receber as instruções.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 14, color: AppColors.textSecondaryDark),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondaryDark,
+                      ),
                     ),
                     const SizedBox(height: 28),
                     if (_emailSent)
@@ -111,7 +117,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         padding: const EdgeInsets.all(24),
                         child: Column(
                           children: [
-                            const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 48),
+                            const Icon(
+                              Icons.check_circle_rounded,
+                              color: AppColors.success,
+                              size: 48,
+                            ),
                             const SizedBox(height: 14),
                             const Text(
                               'E-mail enviado com sucesso!',
@@ -125,7 +135,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                             Text(
                               'Verifique a caixa de entrada de ${_emailController.text.trim()} e siga as instruções.',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(color: AppColors.textSecondaryDark, fontSize: 13),
+                              style: const TextStyle(
+                                color: AppColors.textSecondaryDark,
+                                fontSize: 13,
+                              ),
                             ),
                             const SizedBox(height: 22),
                             CustomButton(
@@ -147,7 +160,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                               hint: 'seu@email.com',
                               prefixIcon: Icons.mail_outline_rounded,
                               keyboardType: TextInputType.emailAddress,
-                              validator: (v) => v != null && v.contains('@') ? null : 'E-mail inválido',
+                              validator: (v) => v != null && v.contains('@')
+                                  ? null
+                                  : 'E-mail inválido',
                             ),
                             const SizedBox(height: 24),
                             CustomButton(

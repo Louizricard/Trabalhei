@@ -35,10 +35,14 @@ class FreelancerCard extends StatelessWidget {
                   CircleAvatar(
                     radius: 28,
                     backgroundColor: AppColors.primaryContainer,
-                    backgroundImage: freelancer.avatarUrl != null && freelancer.avatarUrl!.isNotEmpty
+                    backgroundImage:
+                        freelancer.avatarUrl != null &&
+                            freelancer.avatarUrl!.isNotEmpty
                         ? NetworkImage(freelancer.avatarUrl!)
                         : null,
-                    child: freelancer.avatarUrl == null || freelancer.avatarUrl!.isEmpty
+                    child:
+                        freelancer.avatarUrl == null ||
+                            freelancer.avatarUrl!.isEmpty
                         ? Text(
                             freelancer.fullName.trim().isNotEmpty
                                 ? freelancer.fullName.trim()[0].toUpperCase()
@@ -58,9 +62,14 @@ class FreelancerCard extends StatelessWidget {
                       width: 14,
                       height: 14,
                       decoration: BoxDecoration(
-                        color: isAvailable ? AppColors.success : AppColors.warning,
+                        color: isAvailable
+                            ? AppColors.success
+                            : AppColors.warning,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.surfaceDark, width: 2.5),
+                        border: Border.all(
+                          color: AppColors.surfaceDark,
+                          width: 2.5,
+                        ),
                       ),
                     ),
                   ),
@@ -116,7 +125,11 @@ class FreelancerCard extends StatelessWidget {
                     // Rating & Jobs entregues
                     Row(
                       children: [
-                        const Icon(Icons.star_rounded, color: AppColors.warning, size: 16),
+                        const Icon(
+                          Icons.star_rounded,
+                          color: AppColors.warning,
+                          size: 16,
+                        ),
                         const SizedBox(width: 3),
                         Text(
                           freelancer.rating.toStringAsFixed(1),
@@ -189,11 +202,16 @@ class FreelancerCard extends StatelessWidget {
               runSpacing: 6,
               children: freelancer.skills.take(4).map((skill) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceElevatedDark,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.borderDark.withAlpha(128)),
+                    border: Border.all(
+                      color: AppColors.borderDark.withAlpha(128),
+                    ),
                   ),
                   child: Text(
                     skill,
@@ -220,7 +238,9 @@ class FreelancerCard extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.textPrimaryDark,
                     side: const BorderSide(color: AppColors.borderDark),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                   icon: const Icon(Icons.person_outline_rounded, size: 16),
@@ -238,13 +258,18 @@ class FreelancerCard extends StatelessWidget {
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: AppColors.onPrimary,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                     icon: const Icon(Icons.send_rounded, size: 15),
                     label: const Text(
                       'Convidar',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     onPressed: onInvitePressed,
                   ),

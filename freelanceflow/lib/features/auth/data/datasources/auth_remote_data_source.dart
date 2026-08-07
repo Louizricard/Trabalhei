@@ -81,10 +81,7 @@ class AuthRemoteDataSource {
       final response = await _supabase.auth.signUp(
         email: email.trim(),
         password: password,
-        data: {
-          'full_name': fullName.trim(),
-          'role': role.toDbString(),
-        },
+        data: {'full_name': fullName.trim(), 'role': role.toDbString()},
       );
 
       final user = response.user;
@@ -122,9 +119,7 @@ class AuthRemoteDataSource {
 
   Future<void> updatePassword(String newPassword) async {
     try {
-      await _supabase.auth.updateUser(
-        UserAttributes(password: newPassword),
-      );
+      await _supabase.auth.updateUser(UserAttributes(password: newPassword));
     } on AuthException catch (e) {
       throw Exception(_mapAuthErrorMessage(e.message));
     } catch (e) {
@@ -155,6 +150,39 @@ class AuthRemoteDataSource {
     return profile;
   }
 
+  Future<UserProfile> switchRole(UserRole newRole) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) throw Exception('Usuário não autenticado.');
+
+    final roleStr = newRole.toDbString();
+
+    // 1. Atualiza na tabela profiles do PostgreSQL
+    await _supabase
+        .from('profiles')
+        .update({
+          'role': roleStr,
+          'updated_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', user.id);
+
+    // 2. Atualiza nos metadados de autenticação do Supabase Auth
+    try {
+      await _supabase.auth.updateUser(UserAttributes(data: {'role': roleStr}));
+    } catch (_) {}
+
+    // 3. Retorna o perfil completo e atualizado
+    final updated = await getCurrentUserProfile();
+    if (updated != null) return updated;
+
+    return UserProfile(
+      id: user.id,
+      email: user.email ?? '',
+      fullName: user.userMetadata?['full_name'] as String? ?? 'Usuário',
+      role: newRole,
+      createdAt: DateTime.now(),
+    );
+  }
+
   String _mapAuthErrorMessage(String msg) {
     final lower = msg.toLowerCase();
     if (lower.contains('socketexception') ||
@@ -163,10 +191,12 @@ class AuthRemoteDataSource {
         lower.contains('no address associated with hostname')) {
       return 'Sem conexão com a internet ou servidor inacessível. Reinstale o APK com as permissões de rede.';
     }
-    if (lower.contains('invalid login credentials') || lower.contains('invalid credentials')) {
+    if (lower.contains('invalid login credentials') ||
+        lower.contains('invalid credentials')) {
       return 'E-mail ou senha incorretos.';
     }
-    if (lower.contains('user already registered') || lower.contains('already registered')) {
+    if (lower.contains('user already registered') ||
+        lower.contains('already registered')) {
       return 'Este e-mail já está cadastrado no sistema.';
     }
     if (lower.contains('password should be at least')) {

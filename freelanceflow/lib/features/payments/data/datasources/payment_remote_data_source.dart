@@ -10,7 +10,8 @@ class PaymentRemoteDataSource {
   PaymentRemoteDataSource(
     this._supabase, {
     CardTokenizationService? cardTokenizationService,
-  }) : _cardTokenizationService = cardTokenizationService ?? CardTokenizationService();
+  }) : _cardTokenizationService =
+           cardTokenizationService ?? CardTokenizationService();
 
   SupabaseClient get supabase => _supabase;
 
@@ -25,7 +26,9 @@ class PaymentRemoteDataSource {
         .order('created_at', ascending: false);
 
     final List<dynamic> data = response as List<dynamic>;
-    return data.map((json) => WalletTransaction.fromJson(json as Map<String, dynamic>)).toList();
+    return data
+        .map((json) => WalletTransaction.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   Future<PaymentIntentResult> createPixPayment({
@@ -53,14 +56,18 @@ class PaymentRemoteDataSource {
       );
 
       if (response.status != 200) {
-        final errorMsg = response.data is Map ? (response.data['error'] ?? 'Erro no servidor') : 'Erro no processamento';
+        final errorMsg = response.data is Map
+            ? (response.data['error'] ?? 'Erro no servidor')
+            : 'Erro no processamento';
         return PaymentIntentResult.error(errorMsg.toString());
       }
 
       final data = response.data as Map<String, dynamic>;
       return PaymentIntentResult.fromJson(data);
     } catch (e) {
-      return PaymentIntentResult.error('Falha ao conectar com o gateway de pagamento: $e');
+      return PaymentIntentResult.error(
+        'Falha ao conectar com o gateway de pagamento: $e',
+      );
     }
   }
 
@@ -103,7 +110,9 @@ class PaymentRemoteDataSource {
       );
 
       if (response.status != 200) {
-        final errorMsg = response.data is Map ? (response.data['error'] ?? 'Cartão recusado') : 'Erro no processamento';
+        final errorMsg = response.data is Map
+            ? (response.data['error'] ?? 'Cartão recusado')
+            : 'Erro no processamento';
         return PaymentIntentResult.error(errorMsg.toString());
       }
 
@@ -114,38 +123,44 @@ class PaymentRemoteDataSource {
     }
   }
 
-  Future<void> requestPixWithdrawal({required double amount, required String pixKey}) async {
+  Future<void> requestPixWithdrawal({
+    required double amount,
+    required String pixKey,
+  }) async {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception('Usuário não autenticado.');
 
     try {
       final response = await _supabase.functions.invoke(
         'process-pix-payout',
-        body: {
-          'amount': amount,
-          'pix_key': pixKey.trim(),
-        },
+        body: {'amount': amount, 'pix_key': pixKey.trim()},
       );
 
       if (response.status != 200) {
-        throw Exception(response.data?['error'] ?? 'Falha ao solicitar saque Pix.');
+        throw Exception(
+          response.data?['error'] ?? 'Falha ao solicitar saque Pix.',
+        );
       }
     } catch (_) {
       // Fallback para Stored Procedure direta
-      await _supabase.rpc('request_pix_payout', params: {
-        'p_amount': amount,
-        'p_pix_key': pixKey.trim(),
-      });
+      await _supabase.rpc(
+        'request_pix_payout',
+        params: {'p_amount': amount, 'p_pix_key': pixKey.trim()},
+      );
     }
   }
 
-  Future<void> depositEscrow({required double amount, required String contractId}) async {
+  Future<void> depositEscrow({
+    required double amount,
+    required String contractId,
+  }) async {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception('Usuário não autenticado.');
 
-    await _supabase.rpc('fund_contract_escrow', params: {
-      'p_contract_id': contractId,
-    });
+    await _supabase.rpc(
+      'fund_contract_escrow',
+      params: {'p_contract_id': contractId},
+    );
   }
 
   Stream<WalletTransaction?> listenToTransaction(String transactionId) {
@@ -159,14 +174,14 @@ class PaymentRemoteDataSource {
         });
   }
 
-  Future<PaymentIntentResult> checkPaymentStatus({String? gatewayRef, String? transactionId}) async {
+  Future<PaymentIntentResult> checkPaymentStatus({
+    String? gatewayRef,
+    String? transactionId,
+  }) async {
     try {
       final response = await _supabase.functions.invoke(
         'check-payment-status',
-        body: {
-          'gateway_ref': gatewayRef,
-          'transaction_id': transactionId,
-        },
+        body: {'gateway_ref': gatewayRef, 'transaction_id': transactionId},
       );
 
       if (response.status != 200) {

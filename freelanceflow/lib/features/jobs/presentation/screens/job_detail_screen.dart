@@ -57,8 +57,9 @@ class JobDetailScreen extends ConsumerWidget {
               description: 'A vaga pode ter sido encerrada ou removida.',
             );
           }
-
-          final isOwner = currentUser?.id == job.clientId || currentUser?.role == UserRole.client;
+          final isOwner = currentUser != null && currentUser.id == job.clientId;
+          final isOtherClient =
+              currentUser?.role == UserRole.client && !isOwner;
 
           return ResponsiveLayout(
             maxWidth: 800,
@@ -69,72 +70,133 @@ class JobDetailScreen extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      if (job.isUrgent) ...[StatusBadge.urgent(), const SizedBox(width: 8)],
-                      if (job.isFeatured) ...[StatusBadge.featured(), const SizedBox(width: 8)],
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.surfaceElevatedDark,
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: Text(job.category, style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark)),
+                        child: Text(
+                          job.category,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondaryDark,
+                          ),
+                        ),
                       ),
                       const Spacer(),
-                      Text(DateFormatter.relativeTime(job.createdAt), style: const TextStyle(color: AppColors.textMutedDark, fontSize: 13)),
+                      _buildStatusBadge(job.status),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Text(job.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark)),
+                  Text(
+                    job.title,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimaryDark,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Publicado em ${DateFormatter.relativeTime(job.createdAt)}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textMutedDark,
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   GlassCard(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _DetailMetric(
                           icon: Icons.payments_outlined,
-                          title: job.contractType == ContractType.fixed ? 'Orçamento Estimado' : 'Valor por Hora',
-                          value: CurrencyFormatter.formatRange(job.budgetMin, job.budgetMax),
+                          title: 'Orçamento',
+                          value: _formatBudget(job),
                           valueColor: AppColors.success,
                         ),
-                        Container(height: 40, width: 1, color: AppColors.borderDark),
                         _DetailMetric(
-                          icon: Icons.calendar_month_outlined,
-                          title: 'Prazo Previsto',
+                          icon: Icons.access_time_rounded,
+                          title: 'Prazo Limite',
                           value: '${job.deadlineDays} dias',
+                        ),
+                        _DetailMetric(
+                          icon: Icons.trending_up_rounded,
+                          title: 'Nível',
+                          value: _formatExpLevel(job.experienceLevel),
+                        ),
+                        _DetailMetric(
+                          icon: Icons.assignment_outlined,
+                          title: 'Propostas',
+                          value: '${job.proposalsCount}',
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text('Descrição do Projeto', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark)),
-                  const SizedBox(height: 8),
-                  Text(job.description, style: const TextStyle(fontSize: 14, height: 1.6, color: AppColors.textSecondaryDark)),
-                  const SizedBox(height: 24),
-                  if (job.skillsRequired.isNotEmpty) ...[
-                    const Text('Habilidades Necessárias', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark)),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: job.skillsRequired.map((skill) {
-                        return Chip(
-                          label: Text(skill),
-                          backgroundColor: AppColors.primary.withAlpha(30),
-                          labelStyle: const TextStyle(color: AppColors.primaryLight, fontWeight: FontWeight.w600),
-                          side: const BorderSide(color: AppColors.primaryDark),
-                        );
-                      }).toList(),
+                  const Text(
+                    'Descrição do Projeto',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimaryDark,
                     ),
-                    const SizedBox(height: 24),
-                  ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    job.description,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      height: 1.6,
+                      color: AppColors.textSecondaryDark,
+                    ),
+                  ),
                   if (job.attachments.isNotEmpty) ...[
+                    const SizedBox(height: 24),
                     AttachmentCardsList(
                       attachments: job.attachments,
-                      title: 'Anexos e Documentos da Vaga',
+                      title: 'Arquivos Anexados pelo Contratante',
                     ),
-                    const SizedBox(height: 24),
                   ],
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Habilidades Necessárias',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimaryDark,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: job.skillsRequired.map((skill) {
+                      return Chip(
+                        label: Text(skill),
+                        backgroundColor: AppColors.surfaceElevatedDark,
+                        labelStyle: const TextStyle(
+                          color: AppColors.primaryLight,
+                          fontSize: 12,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Sobre o Contratante',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimaryDark,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   GlassCard(
                     padding: const EdgeInsets.all(16),
                     child: Row(
@@ -143,8 +205,13 @@ class JobDetailScreen extends ConsumerWidget {
                           radius: 22,
                           backgroundColor: AppColors.primary,
                           child: Text(
-                            job.clientName.trim().isNotEmpty ? job.clientName.trim()[0].toUpperCase() : 'C',
-                            style: const TextStyle(color: AppColors.onPrimary, fontWeight: FontWeight.w700),
+                            job.clientName.trim().isNotEmpty
+                                ? job.clientName.trim()[0].toUpperCase()
+                                : 'C',
+                            style: const TextStyle(
+                              color: AppColors.onPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -153,17 +220,38 @@ class JobDetailScreen extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                Text(job.clientName, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark, fontSize: 14)),
+                                Text(
+                                  job.clientName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimaryDark,
+                                    fontSize: 14,
+                                  ),
+                                ),
                                 const SizedBox(width: 6),
-                                const Icon(Icons.verified, size: 16, color: AppColors.primaryLight),
+                                const Icon(
+                                  Icons.verified,
+                                  size: 16,
+                                  color: AppColors.primaryLight,
+                                ),
                               ],
                             ),
                             const SizedBox(height: 2),
                             Row(
                               children: [
-                                const Icon(Icons.star_rounded, size: 16, color: AppColors.warning),
+                                const Icon(
+                                  Icons.star_rounded,
+                                  size: 16,
+                                  color: AppColors.warning,
+                                ),
                                 const SizedBox(width: 4),
-                                Text('${job.clientRating.toStringAsFixed(1)} (12 contratações)', style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark)),
+                                Text(
+                                  '${job.clientRating.toStringAsFixed(1)} (12 contratações)',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondaryDark,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -177,12 +265,45 @@ class JobDetailScreen extends ConsumerWidget {
                       text: 'Ver Propostas Recebidas (${job.proposalsCount})',
                       icon: Icons.list_alt_rounded,
                       width: double.infinity,
-                      onPressed: () => context.push('/jobs/${job.id}/proposals'),
+                      onPressed: () =>
+                          context.push('/jobs/${job.id}/proposals'),
+                    ),
+                  ] else if (isOtherClient) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceElevatedDark,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.borderDark),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.info_outline_rounded,
+                            color: AppColors.textMutedDark,
+                            size: 18,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Vaga publicada por outro contratante',
+                            style: TextStyle(
+                              color: AppColors.textSecondaryDark,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ] else ...[
                     CustomButton(
-                      text: hasApplied ? 'Editar Minha Proposta Enviada' : 'Enviar Proposta para esta Vaga',
-                      icon: hasApplied ? Icons.edit_note_rounded : Icons.send_rounded,
+                      text: hasApplied
+                          ? 'Editar Minha Proposta Enviada'
+                          : 'Enviar Proposta para esta Vaga',
+                      icon: hasApplied
+                          ? Icons.edit_note_rounded
+                          : Icons.send_rounded,
                       width: double.infinity,
                       onPressed: () => context.push('/jobs/${job.id}/apply'),
                     ),
@@ -194,6 +315,47 @@ class JobDetailScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  Widget _buildStatusBadge(JobStatus status) {
+    switch (status) {
+      case JobStatus.inProgress:
+        return StatusBadge.inProgress();
+      case JobStatus.completed:
+        return StatusBadge.completed();
+      case JobStatus.cancelled:
+        return const StatusBadge(
+          label: 'Cancelada',
+          backgroundColor: AppColors.errorBg,
+          textColor: AppColors.error,
+        );
+      case JobStatus.open:
+        return StatusBadge.open();
+    }
+  }
+
+  String _formatExpLevel(ExperienceLevel level) {
+    switch (level) {
+      case ExperienceLevel.junior:
+        return 'Iniciante / Júnior';
+      case ExperienceLevel.pleno:
+        return 'Intermediário / Pleno';
+      case ExperienceLevel.senior:
+        return 'Especialista / Sênior';
+      case ExperienceLevel.all:
+        return 'Todos os níveis';
+    }
+  }
+
+  String _formatBudget(Job job) {
+    if (job.budgetMin > 0 && job.budgetMax > 0) {
+      return '${CurrencyFormatter.format(job.budgetMin)} - ${CurrencyFormatter.format(job.budgetMax)}';
+    } else if (job.budgetMax > 0) {
+      return 'Até ${CurrencyFormatter.format(job.budgetMax)}';
+    } else if (job.budgetMin > 0) {
+      return 'A partir de ${CurrencyFormatter.format(job.budgetMin)}';
+    }
+    return 'A combinar';
   }
 }
 
@@ -216,9 +378,19 @@ class _DetailMetric extends StatelessWidget {
       children: [
         Icon(icon, size: 20, color: AppColors.textSecondaryDark),
         const SizedBox(height: 4),
-        Text(title, style: const TextStyle(fontSize: 11, color: AppColors.textMutedDark)),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 11, color: AppColors.textMutedDark),
+        ),
         const SizedBox(height: 2),
-        Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: valueColor ?? AppColors.textPrimaryDark)),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: valueColor ?? AppColors.textPrimaryDark,
+          ),
+        ),
       ],
     );
   }

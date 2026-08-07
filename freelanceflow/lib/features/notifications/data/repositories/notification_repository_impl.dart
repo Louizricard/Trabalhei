@@ -8,7 +8,10 @@ class NotificationRepositoryImpl implements NotificationRepository {
   NotificationRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<List<AppNotification>> getNotifications({int limit = 50, int offset = 0}) {
+  Future<List<AppNotification>> getNotifications({
+    int limit = 50,
+    int offset = 0,
+  }) {
     return _remoteDataSource.getNotifications(limit: limit, offset: offset);
   }
 

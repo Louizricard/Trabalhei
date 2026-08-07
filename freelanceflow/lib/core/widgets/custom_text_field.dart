@@ -55,7 +55,10 @@ class CustomTextField extends StatelessWidget {
           onChanged: onChanged,
           inputFormatters: inputFormatters,
           textCapitalization: textCapitalization,
-          style: const TextStyle(color: AppColors.textPrimaryDark, fontSize: 14),
+          style: const TextStyle(
+            color: AppColors.textPrimaryDark,
+            fontSize: 14,
+          ),
           decoration: InputDecoration(
             hintText: hint,
             prefixIcon: prefixIcon != null

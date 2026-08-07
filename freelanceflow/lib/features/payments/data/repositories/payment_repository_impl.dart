@@ -14,13 +14,25 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @override
-  Future<void> requestPixWithdrawal({required double amount, required String pixKey}) {
-    return _remoteDataSource.requestPixWithdrawal(amount: amount, pixKey: pixKey);
+  Future<void> requestPixWithdrawal({
+    required double amount,
+    required String pixKey,
+  }) {
+    return _remoteDataSource.requestPixWithdrawal(
+      amount: amount,
+      pixKey: pixKey,
+    );
   }
 
   @override
-  Future<void> depositEscrow({required double amount, required String contractId}) {
-    return _remoteDataSource.depositEscrow(amount: amount, contractId: contractId);
+  Future<void> depositEscrow({
+    required double amount,
+    required String contractId,
+  }) {
+    return _remoteDataSource.depositEscrow(
+      amount: amount,
+      contractId: contractId,
+    );
   }
 
   @override

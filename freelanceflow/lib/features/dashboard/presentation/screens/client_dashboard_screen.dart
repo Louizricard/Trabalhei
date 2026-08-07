@@ -59,7 +59,11 @@ class ClientDashboardScreen extends ConsumerWidget {
                             (user?.fullName.trim().isNotEmpty ?? false)
                                 ? user!.fullName.trim()[0].toUpperCase()
                                 : 'C',
-                            style: const TextStyle(fontSize: 18, color: AppColors.onPrimary, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: AppColors.onPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -68,13 +72,23 @@ class ClientDashboardScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                user?.companyName ?? user?.fullName ?? 'Contratante',
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                                user?.companyName ??
+                                    user?.fullName ??
+                                    'Contratante',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimaryDark,
+                                ),
                               ),
                               const SizedBox(height: 4),
                               const Text(
                                 'Contratante Verificado • Trabalhei Protegido',
-                                style: TextStyle(fontSize: 12, color: AppColors.primaryLight, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.primaryLight,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ],
                           ),
@@ -93,11 +107,23 @@ class ClientDashboardScreen extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Garantido em Escrow', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryDark)),
+                              const Text(
+                                'Garantido em Escrow',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondaryDark,
+                                ),
+                              ),
                               const SizedBox(height: 6),
                               Text(
-                                CurrencyFormatter.format(stats.activeEscrowBalance),
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.info),
+                                CurrencyFormatter.format(
+                                  stats.activeEscrowBalance,
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.info,
+                                ),
                               ),
                             ],
                           ),
@@ -110,11 +136,21 @@ class ClientDashboardScreen extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Total Investido', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryDark)),
+                              const Text(
+                                'Total Investido',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondaryDark,
+                                ),
+                              ),
                               const SizedBox(height: 6),
                               Text(
                                 CurrencyFormatter.format(stats.totalSpent),
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.success),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.success,
+                                ),
                               ),
                             ],
                           ),
@@ -154,17 +190,41 @@ class ClientDashboardScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Gestão de Talentos e Vagas', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const Text(
+                          'Gestão de Talentos e Vagas',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                         const SizedBox(height: 14),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: const CircleAvatar(
                             backgroundColor: AppColors.surfaceElevatedDark,
-                            child: Icon(Icons.work_outline, color: AppColors.primaryLight),
+                            child: Icon(
+                              Icons.work_outline,
+                              color: AppColors.primaryLight,
+                            ),
                           ),
-                          title: Text('${stats.activeJobsCount} Vagas Abertas no Mural', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                          subtitle: const Text('Recebendo candidaturas e propostas', style: TextStyle(fontSize: 12, color: AppColors.textMutedDark)),
-                          trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondaryDark),
+                          title: Text(
+                            '${stats.activeJobsCount} Vagas Abertas no Mural',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: const Text(
+                            'Recebendo candidaturas e propostas',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textMutedDark,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.chevron_right_rounded,
+                            color: AppColors.textSecondaryDark,
+                          ),
                           onTap: () => context.push('/jobs'),
                         ),
                         const Divider(),
@@ -172,11 +232,29 @@ class ClientDashboardScreen extends ConsumerWidget {
                           contentPadding: EdgeInsets.zero,
                           leading: const CircleAvatar(
                             backgroundColor: AppColors.surfaceElevatedDark,
-                            child: Icon(Icons.handshake_outlined, color: AppColors.success),
+                            child: Icon(
+                              Icons.handshake_outlined,
+                              color: AppColors.success,
+                            ),
                           ),
-                          title: Text('${stats.activeContractsCount} Contratos em Andamento', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                          subtitle: const Text('Acompanhe entregas e liberação de marcos', style: TextStyle(fontSize: 12, color: AppColors.textMutedDark)),
-                          trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondaryDark),
+                          title: Text(
+                            '${stats.activeContractsCount} Contratos em Andamento',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: const Text(
+                            'Acompanhe entregas e liberação de marcos',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textMutedDark,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.chevron_right_rounded,
+                            color: AppColors.textSecondaryDark,
+                          ),
                           onTap: () => context.push('/chat'),
                         ),
                         const Divider(),
@@ -184,11 +262,29 @@ class ClientDashboardScreen extends ConsumerWidget {
                           contentPadding: EdgeInsets.zero,
                           leading: const CircleAvatar(
                             backgroundColor: AppColors.surfaceElevatedDark,
-                            child: Icon(Icons.search_rounded, color: AppColors.primary),
+                            child: Icon(
+                              Icons.search_rounded,
+                              color: AppColors.primary,
+                            ),
                           ),
-                          title: const Text('Explorar Profissionais Freelancer', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                          subtitle: const Text('Filtre por especialidade, nota e valor por hora', style: TextStyle(fontSize: 12, color: AppColors.textMutedDark)),
-                          trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondaryDark),
+                          title: const Text(
+                            'Explorar Profissionais Freelancer',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: const Text(
+                            'Filtre por especialidade, nota e valor por hora',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textMutedDark,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.chevron_right_rounded,
+                            color: AppColors.textSecondaryDark,
+                          ),
                           onTap: () => context.push('/freelancers'),
                         ),
                       ],

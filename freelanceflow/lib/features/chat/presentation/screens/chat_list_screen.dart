@@ -16,9 +16,7 @@ class ChatListScreen extends ConsumerWidget {
     final convAsync = ref.watch(conversationsListProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Conversas & Projetos'),
-      ),
+      appBar: AppBar(title: const Text('Conversas & Projetos')),
       body: ResponsiveLayout(
         child: convAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -32,7 +30,8 @@ class ChatListScreen extends ConsumerWidget {
               return const EmptyStateWidget(
                 icon: Icons.chat_bubble_outline_rounded,
                 title: 'Nenhuma conversa ativa',
-                description: 'Suas mensagens e negociações com clientes e freelancers aparecerão aqui.',
+                description:
+                    'Suas mensagens e negociações com clientes e freelancers aparecerão aqui.',
               );
             }
 
@@ -52,9 +51,15 @@ class ChatListScreen extends ConsumerWidget {
                         backgroundColor: AppColors.primary,
                         child: Text(
                           conv.otherParticipantName.trim().isNotEmpty
-                              ? conv.otherParticipantName.trim()[0].toUpperCase()
+                              ? conv.otherParticipantName
+                                    .trim()[0]
+                                    .toUpperCase()
                               : 'U',
-                          style: const TextStyle(color: AppColors.onPrimary, fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(
+                            color: AppColors.onPrimary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 14),
@@ -68,56 +73,92 @@ class ChatListScreen extends ConsumerWidget {
                                 Expanded(
                                   child: Text(
                                     conv.otherParticipantName,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimaryDark),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      color: AppColors.textPrimaryDark,
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 Text(
-                                  DateFormatter.relativeTime(conv.lastMessageAt),
-                                  style: const TextStyle(fontSize: 11, color: AppColors.textMutedDark),
+                                  DateFormatter.relativeTime(
+                                    conv.lastMessageAt,
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.textMutedDark,
+                                  ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 3),
                             Text(
                               conv.jobTitle,
-                              style: const TextStyle(fontSize: 12, color: AppColors.primaryLight, fontWeight: FontWeight.w500),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.primaryLight,
+                                fontWeight: FontWeight.w500,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 4),
-                            if (conv.lastMessage.contains('Entrega') || conv.lastMessage.contains('📦')) ...[
+                            if (conv.lastMessage.contains('Entrega') ||
+                                conv.lastMessage.contains('📦')) ...[
                               Container(
                                 margin: const EdgeInsets.only(bottom: 2),
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppColors.primary.withAlpha(30),
                                   borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: AppColors.primaryLight.withAlpha(80)),
+                                  border: Border.all(
+                                    color: AppColors.primaryLight.withAlpha(80),
+                                  ),
                                 ),
                                 child: const Text(
                                   '📦 Entrega de marco para análise',
-                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryLight),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primaryLight,
+                                  ),
                                 ),
                               ),
-                            ] else if (conv.lastMessage.contains('Revisão') || conv.lastMessage.contains('🔄')) ...[
+                            ] else if (conv.lastMessage.contains('Revisão') ||
+                                conv.lastMessage.contains('🔄')) ...[
                               Container(
                                 margin: const EdgeInsets.only(bottom: 2),
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppColors.warning.withAlpha(30),
                                   borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: AppColors.warning.withAlpha(80)),
+                                  border: Border.all(
+                                    color: AppColors.warning.withAlpha(80),
+                                  ),
                                 ),
                                 child: const Text(
                                   '🔄 Revisão / Ajustes solicitados',
-                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.warning),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.warning,
+                                  ),
                                 ),
                               ),
                             ] else ...[
                               Text(
                                 conv.lastMessage,
-                                style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.textSecondaryDark,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -135,7 +176,11 @@ class ChatListScreen extends ConsumerWidget {
                           ),
                           child: Text(
                             '${conv.unreadCount}',
-                            style: const TextStyle(color: AppColors.onPrimary, fontSize: 11, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              color: AppColors.onPrimary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],

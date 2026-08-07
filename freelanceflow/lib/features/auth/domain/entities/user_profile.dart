@@ -124,14 +124,20 @@ class UserProfile {
       companyName: json['company_name'] as String?,
       bio: json['bio'] as String?,
       hourlyRate: (json['hourly_rate'] as num?)?.toDouble() ?? 0.0,
-      skills: (json['skills'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      skills:
+          (json['skills'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       rating: (json['rating'] as num?)?.toDouble() ?? 5.0,
       completedJobsCount: json['completed_jobs_count'] as int? ?? 0,
       availabilityStatus: json['availability_status'] as String? ?? 'available',
       isVerified: json['is_verified'] as bool? ?? false,
       walletBalance: (json['wallet_balance'] as num?)?.toDouble() ?? 0.0,
       escrowBalance: (json['escrow_balance'] as num?)?.toDouble() ?? 0.0,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : DateTime.now(),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 

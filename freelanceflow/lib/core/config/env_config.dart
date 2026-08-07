@@ -12,8 +12,10 @@ class EnvConfig {
 
   static String get supabaseUrl {
     return dotenv.env['SUPABASE_URL'] ??
-        const String.fromEnvironment('SUPABASE_URL',
-            defaultValue: 'https://wmfsjitjqltzbbgynwfb.supabase.co');
+        const String.fromEnvironment(
+          'SUPABASE_URL',
+          defaultValue: 'https://wmfsjitjqltzbbgynwfb.supabase.co',
+        );
   }
 
   static String get supabaseAnonKey {
@@ -27,13 +29,17 @@ class EnvConfig {
 
   static String get mercadoPagoPublicKey {
     return dotenv.env['MERCADO_PAGO_PUBLIC_KEY'] ??
-        const String.fromEnvironment('MERCADO_PAGO_PUBLIC_KEY',
-            defaultValue: 'APP_USR-9e73d8bb-4629-4660-959d-11880b3c4df0');
+        const String.fromEnvironment(
+          'MERCADO_PAGO_PUBLIC_KEY',
+          defaultValue: 'APP_USR-9e73d8bb-4629-4660-959d-11880b3c4df0',
+        );
   }
 
   static String get mercadoPagoClientId {
     return dotenv.env['MERCADO_PAGO_CLIENT_ID'] ??
-        const String.fromEnvironment('MERCADO_PAGO_CLIENT_ID',
-            defaultValue: '8031981668422592');
+        const String.fromEnvironment(
+          'MERCADO_PAGO_CLIENT_ID',
+          defaultValue: '8031981668422592',
+        );
   }
 }

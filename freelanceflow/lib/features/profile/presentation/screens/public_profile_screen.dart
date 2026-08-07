@@ -20,7 +20,8 @@ class PublicProfileScreen extends ConsumerStatefulWidget {
   const PublicProfileScreen({super.key, required this.userId});
 
   @override
-  ConsumerState<PublicProfileScreen> createState() => _PublicProfileScreenState();
+  ConsumerState<PublicProfileScreen> createState() =>
+      _PublicProfileScreenState();
 }
 
 class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
@@ -40,7 +41,10 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
     super.dispose();
   }
 
-  Future<void> _handleStartDirectChat(UserProfile targetUser, UserProfile currentUser) async {
+  Future<void> _handleStartDirectChat(
+    UserProfile targetUser,
+    UserProfile currentUser,
+  ) async {
     setState(() => _isStartingChat = true);
     try {
       final chatRepo = ref.read(chatRepositoryProvider);
@@ -63,7 +67,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Para iniciar conversa, selecione uma proposta ou projeto.'),
+              content: Text(
+                'Para iniciar conversa, selecione uma proposta ou projeto.',
+              ),
               backgroundColor: AppColors.info,
             ),
           );
@@ -91,7 +97,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Link do perfil copiado para a área de transferência!'),
+                  content: Text(
+                    'Link do perfil copiado para a área de transferência!',
+                  ),
                   backgroundColor: AppColors.success,
                 ),
               );
@@ -100,7 +108,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
         ],
       ),
       body: profileAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
         error: (err, _) => Center(
           child: EmptyStateWidget(
             icon: Icons.person_off_outlined,
@@ -148,12 +158,15 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                            color: AppColors.primary.withAlpha(204),
+                                            color: AppColors.primary.withAlpha(
+                                              204,
+                                            ),
                                             width: 2.5,
                                           ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: AppColors.primary.withAlpha(51),
+                                              color: AppColors.primary
+                                                  .withAlpha(51),
                                               blurRadius: 16,
                                               spreadRadius: 2,
                                             ),
@@ -161,16 +174,23 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                                         ),
                                         child: CircleAvatar(
                                           radius: 46,
-                                          backgroundColor: AppColors.surfaceElevatedDark,
-                                          backgroundImage: profile.avatarUrl != null &&
+                                          backgroundColor:
+                                              AppColors.surfaceElevatedDark,
+                                          backgroundImage:
+                                              profile.avatarUrl != null &&
                                                   profile.avatarUrl!.isNotEmpty
                                               ? NetworkImage(profile.avatarUrl!)
                                               : null,
-                                          child: profile.avatarUrl == null ||
+                                          child:
+                                              profile.avatarUrl == null ||
                                                   profile.avatarUrl!.isEmpty
                                               ? Text(
-                                                  profile.fullName.trim().isNotEmpty
-                                                      ? profile.fullName.trim()[0].toUpperCase()
+                                                  profile.fullName
+                                                          .trim()
+                                                          .isNotEmpty
+                                                      ? profile.fullName
+                                                            .trim()[0]
+                                                            .toUpperCase()
                                                       : 'U',
                                                   style: const TextStyle(
                                                     fontSize: 34,
@@ -187,7 +207,8 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                                           right: 4,
                                           child: CircleAvatar(
                                             radius: 12,
-                                            backgroundColor: AppColors.surfaceDark,
+                                            backgroundColor:
+                                                AppColors.surfaceDark,
                                             child: Icon(
                                               Icons.verified_rounded,
                                               color: AppColors.primary,
@@ -215,10 +236,11 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
 
                                 Text(
                                   profile.role == UserRole.client
-                                      ? (profile.companyName ?? 'Empresa Contratante')
+                                      ? (profile.companyName ??
+                                            'Empresa Contratante')
                                       : (profile.skills.isNotEmpty
-                                          ? profile.skills.take(3).join(' • ')
-                                          : 'Profissional Freelancer'),
+                                            ? profile.skills.take(3).join(' • ')
+                                            : 'Profissional Freelancer'),
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
@@ -230,14 +252,23 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
 
                                 // Badge de Disponibilidade
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 5,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: (isAvailable ? AppColors.success : AppColors.warning)
-                                        .withAlpha(30),
+                                    color:
+                                        (isAvailable
+                                                ? AppColors.success
+                                                : AppColors.warning)
+                                            .withAlpha(30),
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(
-                                      color: (isAvailable ? AppColors.success : AppColors.warning)
-                                          .withAlpha(100),
+                                      color:
+                                          (isAvailable
+                                                  ? AppColors.success
+                                                  : AppColors.warning)
+                                              .withAlpha(100),
                                     ),
                                   ),
                                   child: Row(
@@ -247,7 +278,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                                         width: 8,
                                         height: 8,
                                         decoration: BoxDecoration(
-                                          color: isAvailable ? AppColors.success : AppColors.warning,
+                                          color: isAvailable
+                                              ? AppColors.success
+                                              : AppColors.warning,
                                           shape: BoxShape.circle,
                                         ),
                                       ),
@@ -259,7 +292,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
-                                          color: isAvailable ? AppColors.success : AppColors.warning,
+                                          color: isAvailable
+                                              ? AppColors.success
+                                              : AppColors.warning,
                                         ),
                                       ),
                                     ],
@@ -274,7 +309,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                                       child: _buildMetricCard(
                                         icon: Icons.star_rounded,
                                         iconColor: AppColors.warning,
-                                        value: profile.rating.toStringAsFixed(1),
+                                        value: profile.rating.toStringAsFixed(
+                                          1,
+                                        ),
                                         label: 'Avaliação',
                                       ),
                                     ),
@@ -293,7 +330,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                                         child: _buildMetricCard(
                                           icon: Icons.payments_outlined,
                                           iconColor: AppColors.primary,
-                                          value: CurrencyFormatter.format(profile.hourlyRate),
+                                          value: CurrencyFormatter.format(
+                                            profile.hourlyRate,
+                                          ),
                                           label: 'por hora',
                                         ),
                                       ),
@@ -345,7 +384,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                     padding: const EdgeInsets.all(16),
                     decoration: const BoxDecoration(
                       color: AppColors.surfaceDark,
-                      border: Border(top: BorderSide(color: AppColors.borderDark, width: 1)),
+                      border: Border(
+                        top: BorderSide(color: AppColors.borderDark, width: 1),
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -355,7 +396,8 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                             variant: ButtonVariant.secondary,
                             icon: Icons.chat_bubble_outline_rounded,
                             isLoading: _isStartingChat,
-                            onPressed: () => _handleStartDirectChat(profile, currentUser),
+                            onPressed: () =>
+                                _handleStartDirectChat(profile, currentUser),
                           ),
                         ),
                         if (isClient) ...[
@@ -366,7 +408,8 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                               text: 'Convidar para Vaga',
                               variant: ButtonVariant.primary,
                               icon: Icons.send_rounded,
-                              onPressed: () => InviteToJobModal.show(context, profile),
+                              onPressed: () =>
+                                  InviteToJobModal.show(context, profile),
                             ),
                           ),
                         ],
@@ -404,7 +447,10 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
           ),
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textMutedDark),
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.textMutedDark,
+            ),
           ),
         ],
       ),
@@ -466,7 +512,10 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
               runSpacing: 8,
               children: profile.skills.map((skill) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceElevatedDark,
                     borderRadius: BorderRadius.circular(10),
@@ -475,8 +524,11 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.check_circle_outline_rounded,
-                          size: 14, color: AppColors.primary),
+                      const Icon(
+                        Icons.check_circle_outline_rounded,
+                        size: 14,
+                        color: AppColors.primary,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         skill,
@@ -505,7 +557,11 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                     color: AppColors.primaryContainer,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.security_rounded, color: AppColors.primary, size: 24),
+                  child: const Icon(
+                    Icons.security_rounded,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 const Expanded(
@@ -523,7 +579,10 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                       SizedBox(height: 2),
                       Text(
                         'O pagamento só é liberado para o freelancer após sua aprovação das entregas.',
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondaryDark,
+                        ),
                       ),
                     ],
                   ),
@@ -536,10 +595,16 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
     );
   }
 
-  Widget _buildPortfolioTab(AsyncValue<List<dynamic>> portfolioAsync, bool isOwner) {
+  Widget _buildPortfolioTab(
+    AsyncValue<List<dynamic>> portfolioAsync,
+    bool isOwner,
+  ) {
     return portfolioAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-      error: (err, _) => Center(child: Text('Erro ao carregar portfólio: $err')),
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      ),
+      error: (err, _) =>
+          Center(child: Text('Erro ao carregar portfólio: $err')),
       data: (items) {
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -573,7 +638,8 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: items.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 14),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 14),
                   itemBuilder: (context, index) {
                     final item = items[index];
                     return GlassCard(
@@ -590,14 +656,17 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                                 height: 180,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Container(
-                                  height: 120,
-                                  color: AppColors.surfaceElevatedDark,
-                                  child: const Center(
-                                    child: Icon(Icons.image_not_supported_outlined,
-                                        color: AppColors.textMutedDark),
-                                  ),
-                                ),
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                      height: 120,
+                                      color: AppColors.surfaceElevatedDark,
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.image_not_supported_outlined,
+                                          color: AppColors.textMutedDark,
+                                        ),
+                                      ),
+                                    ),
                               ),
                             ),
                           const SizedBox(height: 12),
@@ -616,10 +685,15 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                               ),
                               if (isOwner)
                                 IconButton(
-                                  icon: const Icon(Icons.delete_outline_rounded,
-                                      color: AppColors.error, size: 20),
+                                  icon: const Icon(
+                                    Icons.delete_outline_rounded,
+                                    color: AppColors.error,
+                                    size: 20,
+                                  ),
                                   onPressed: () async {
-                                    final deleteFn = ref.read(deletePortfolioItemProvider);
+                                    final deleteFn = ref.read(
+                                      deletePortfolioItemProvider,
+                                    );
                                     await deleteFn(item.id);
                                   },
                                 ),
@@ -628,7 +702,10 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                           const SizedBox(height: 4),
                           Text(
                             item.description,
-                            style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondaryDark,
+                            ),
                           ),
                           if (item.tags.isNotEmpty) ...[
                             const SizedBox(height: 10),
@@ -637,11 +714,16 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                               runSpacing: 6,
                               children: (item.tags as List<dynamic>).map((tag) {
                                 return Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppColors.surfaceElevatedDark,
                                     borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: AppColors.borderDark),
+                                    border: Border.all(
+                                      color: AppColors.borderDark,
+                                    ),
                                   ),
                                   child: Text(
                                     tag.toString(),
@@ -669,8 +751,11 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
 
   Widget _buildReviewsTab(AsyncValue<List<dynamic>> reviewsAsync) {
     return reviewsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-      error: (err, _) => Center(child: Text('Erro ao carregar avaliações: $err')),
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      ),
+      error: (err, _) =>
+          Center(child: Text('Erro ao carregar avaliações: $err')),
       data: (reviews) {
         if (reviews.isEmpty) {
           return const Center(
@@ -679,7 +764,8 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
               child: EmptyStateWidget(
                 icon: Icons.rate_review_outlined,
                 title: 'Nenhuma avaliação ainda',
-                description: 'As avaliações aparecerão aqui conforme os contratos forem concluídos.',
+                description:
+                    'As avaliações aparecerão aqui conforme os contratos forem concluídos.',
               ),
             ),
           );
@@ -741,7 +827,11 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                       ),
                       Row(
                         children: [
-                          const Icon(Icons.star_rounded, color: AppColors.warning, size: 16),
+                          const Icon(
+                            Icons.star_rounded,
+                            color: AppColors.warning,
+                            size: 16,
+                          ),
                           const SizedBox(width: 2),
                           Text(
                             review.rating.toStringAsFixed(1),
@@ -787,11 +877,12 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => tabBar.preferredSize.height;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: AppColors.surfaceDark,
-      child: tabBar,
-    );
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(color: AppColors.surfaceDark, child: tabBar);
   }
 
   @override

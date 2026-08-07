@@ -29,45 +29,48 @@ void main() {
       expect(UserRole.fromString('unknown'), UserRole.freelancer);
     });
 
-    test('UserProfile toUpdateJson excludes sensitive financial and admin fields', () {
-      final profile = UserProfile(
-        id: 'usr-123',
-        email: 'test@example.com',
-        fullName: 'Dev Senior',
-        role: UserRole.admin,
-        avatarUrl: 'https://img.png',
-        phone: '11999999999',
-        companyName: 'Tech Corp',
-        bio: 'Senior Architect',
-        hourlyRate: 150.0,
-        skills: ['Flutter', 'PostgreSQL'],
-        rating: 4.9,
-        completedJobsCount: 25,
-        availabilityStatus: 'available',
-        isVerified: true,
-        walletBalance: 10000.0,
-        escrowBalance: 5000.0,
-        createdAt: DateTime.now(),
-      );
+    test(
+      'UserProfile toUpdateJson excludes sensitive financial and admin fields',
+      () {
+        final profile = UserProfile(
+          id: 'usr-123',
+          email: 'test@example.com',
+          fullName: 'Dev Senior',
+          role: UserRole.admin,
+          avatarUrl: 'https://img.png',
+          phone: '11999999999',
+          companyName: 'Tech Corp',
+          bio: 'Senior Architect',
+          hourlyRate: 150.0,
+          skills: ['Flutter', 'PostgreSQL'],
+          rating: 4.9,
+          completedJobsCount: 25,
+          availabilityStatus: 'available',
+          isVerified: true,
+          walletBalance: 10000.0,
+          escrowBalance: 5000.0,
+          createdAt: DateTime.now(),
+        );
 
-      final updatePayload = profile.toUpdateJson();
+        final updatePayload = profile.toUpdateJson();
 
-      // Campos cadastrais permitidos
-      expect(updatePayload['full_name'], 'Dev Senior');
-      expect(updatePayload['avatar_url'], 'https://img.png');
-      expect(updatePayload['hourly_rate'], 150.0);
-      expect(updatePayload['skills'], ['Flutter', 'PostgreSQL']);
+        // Campos cadastrais permitidos
+        expect(updatePayload['full_name'], 'Dev Senior');
+        expect(updatePayload['avatar_url'], 'https://img.png');
+        expect(updatePayload['hourly_rate'], 150.0);
+        expect(updatePayload['skills'], ['Flutter', 'PostgreSQL']);
 
-      // Campos financeiros e administrativos estritamente omitidos
-      expect(updatePayload.containsKey('wallet_balance'), isFalse);
-      expect(updatePayload.containsKey('escrow_balance'), isFalse);
-      expect(updatePayload.containsKey('rating'), isFalse);
-      expect(updatePayload.containsKey('completed_jobs_count'), isFalse);
-      expect(updatePayload.containsKey('is_verified'), isFalse);
-      expect(updatePayload.containsKey('role'), isFalse);
-      expect(updatePayload.containsKey('id'), isFalse);
-      expect(updatePayload.containsKey('email'), isFalse);
-    });
+        // Campos financeiros e administrativos estritamente omitidos
+        expect(updatePayload.containsKey('wallet_balance'), isFalse);
+        expect(updatePayload.containsKey('escrow_balance'), isFalse);
+        expect(updatePayload.containsKey('rating'), isFalse);
+        expect(updatePayload.containsKey('completed_jobs_count'), isFalse);
+        expect(updatePayload.containsKey('is_verified'), isFalse);
+        expect(updatePayload.containsKey('role'), isFalse);
+        expect(updatePayload.containsKey('id'), isFalse);
+        expect(updatePayload.containsKey('email'), isFalse);
+      },
+    );
 
     test('Job entity parses and serializes correctly', () {
       final job = Job(
@@ -107,7 +110,10 @@ void main() {
       final json = proposal.toJson();
       expect(json['bid_amount'], 4000.0);
       expect(json['amount'], 4000.0);
-      expect(json['cover_letter'], 'Experiência comprovada em Flutter e Supabase');
+      expect(
+        json['cover_letter'],
+        'Experiência comprovada em Flutter e Supabase',
+      );
       expect(json['message'], 'Experiência comprovada em Flutter e Supabase');
       expect(json['estimated_days'], 10);
       expect((json['proposed_milestones'] as List).length, 2);
@@ -159,36 +165,42 @@ void main() {
       expect(milestone.amount, 1200.0);
     });
 
-    test('Job entity serializes status to snake_case for PostgreSQL compatibility', () {
-      final job = Job(
-        id: 'job-1',
-        clientId: 'client-1',
-        clientName: 'Cliente',
-        title: 'Vaga Teste',
-        category: 'Mobile',
-        description: 'Descrição',
-        budgetMin: 1000,
-        budgetMax: 2000,
-        status: JobStatus.inProgress,
-        createdAt: DateTime.now(),
-      );
+    test(
+      'Job entity serializes status to snake_case for PostgreSQL compatibility',
+      () {
+        final job = Job(
+          id: 'job-1',
+          clientId: 'client-1',
+          clientName: 'Cliente',
+          title: 'Vaga Teste',
+          category: 'Mobile',
+          description: 'Descrição',
+          budgetMin: 1000,
+          budgetMax: 2000,
+          status: JobStatus.inProgress,
+          createdAt: DateTime.now(),
+        );
 
-      final json = job.toJson();
-      expect(json['status'], 'in_progress');
-    });
+        final json = job.toJson();
+        expect(json['status'], 'in_progress');
+      },
+    );
 
-    test('ContractMilestone serializes status to snake_case for PostgreSQL compatibility', () {
-      const milestone = ContractMilestone(
-        id: 'ms-1',
-        contractId: 'c-1',
-        title: 'Entrega Final',
-        amount: 2500.0,
-        status: MilestoneStatus.approvedAndReleased,
-      );
+    test(
+      'ContractMilestone serializes status to snake_case for PostgreSQL compatibility',
+      () {
+        const milestone = ContractMilestone(
+          id: 'ms-1',
+          contractId: 'c-1',
+          title: 'Entrega Final',
+          amount: 2500.0,
+          status: MilestoneStatus.approvedAndReleased,
+        );
 
-      final json = milestone.toJson();
-      expect(json['status'], 'approved_and_released');
-    });
+        final json = milestone.toJson();
+        expect(json['status'], 'approved_and_released');
+      },
+    );
 
     test('UserProfile handles wallet_balance and escrow_balance properly', () {
       final user = UserProfile.fromJson({
@@ -208,17 +220,22 @@ void main() {
       expect(json['escrow_balance'], 1200.00);
     });
 
-    test('Avatar safe initial extractor handles empty and spaces gracefully', () {
-      String getInitial(String? name) {
-        return (name != null && name.trim().isNotEmpty) ? name.trim()[0].toUpperCase() : 'U';
-      }
+    test(
+      'Avatar safe initial extractor handles empty and spaces gracefully',
+      () {
+        String getInitial(String? name) {
+          return (name != null && name.trim().isNotEmpty)
+              ? name.trim()[0].toUpperCase()
+              : 'U';
+        }
 
-      expect(getInitial(''), 'U');
-      expect(getInitial('   '), 'U');
-      expect(getInitial(null), 'U');
-      expect(getInitial('Luiz'), 'L');
-      expect(getInitial(' carlos'), 'C');
-    });
+        expect(getInitial(''), 'U');
+        expect(getInitial('   '), 'U');
+        expect(getInitial(null), 'U');
+        expect(getInitial('Luiz'), 'L');
+        expect(getInitial(' carlos'), 'C');
+      },
+    );
 
     test('WalletTransaction parses credit/debit correctly', () {
       final credit = WalletTransaction.fromJson({
@@ -271,44 +288,110 @@ void main() {
       expect(proposal.proposedMilestones.length, 2);
     });
 
-    test('Proposal status conversions and parseStatus work bidirectionally', () {
-      expect(Proposal.statusToString(ProposalStatus.accepted), 'accepted');
-      expect(Proposal.statusToString(ProposalStatus.rejected), 'rejected');
-      expect(Proposal.statusToString(ProposalStatus.counterOffered), 'counter_offered');
-      expect(Proposal.statusToString(ProposalStatus.pending), 'pending');
+    test(
+      'Proposal status conversions and parseStatus work bidirectionally',
+      () {
+        expect(Proposal.statusToString(ProposalStatus.accepted), 'accepted');
+        expect(Proposal.statusToString(ProposalStatus.rejected), 'rejected');
+        expect(
+          Proposal.statusToString(ProposalStatus.counterOffered),
+          'counter_offered',
+        );
+        expect(Proposal.statusToString(ProposalStatus.pending), 'pending');
 
-      expect(Proposal.parseStatus('accepted'), ProposalStatus.accepted);
-      expect(Proposal.parseStatus('rejected'), ProposalStatus.rejected);
-      expect(Proposal.parseStatus('counter_offered'), ProposalStatus.counterOffered);
-      expect(Proposal.parseStatus('pending'), ProposalStatus.pending);
-      expect(Proposal.parseStatus(null), ProposalStatus.pending);
-    });
+        expect(Proposal.parseStatus('accepted'), ProposalStatus.accepted);
+        expect(Proposal.parseStatus('rejected'), ProposalStatus.rejected);
+        expect(
+          Proposal.parseStatus('counter_offered'),
+          ProposalStatus.counterOffered,
+        );
+        expect(Proposal.parseStatus('pending'), ProposalStatus.pending);
+        expect(Proposal.parseStatus(null), ProposalStatus.pending);
+      },
+    );
 
-    test('Proposal serializes into Supabase-compatible payload with amount and cover_letter', () {
-      final p = Proposal(
-        id: 'prop-uuid-123',
-        jobId: 'job-uuid-456',
-        freelancerId: 'free-uuid-789',
-        freelancerName: 'Carlos Dev',
-        freelancerRating: 4.8,
-        bidAmount: 1500.0,
-        estimatedDays: 10,
-        coverLetter: 'Experiência comprovada em Flutter e Supabase',
-        proposedMilestones: const [
-          ProposedMilestone(title: 'Sprint 1', amount: 750, days: 5),
-          ProposedMilestone(title: 'Sprint 2', amount: 750, days: 5),
-        ],
-        createdAt: DateTime(2026, 8, 4),
-      );
+    test(
+      'Proposal serializes into Supabase-compatible payload with amount and cover_letter',
+      () {
+        final p = Proposal(
+          id: 'prop-uuid-123',
+          jobId: 'job-uuid-456',
+          freelancerId: 'free-uuid-789',
+          freelancerName: 'Carlos Dev',
+          freelancerRating: 4.8,
+          bidAmount: 1500.0,
+          estimatedDays: 10,
+          coverLetter: 'Experiência comprovada em Flutter e Supabase',
+          proposedMilestones: const [
+            ProposedMilestone(title: 'Sprint 1', amount: 750, days: 5),
+            ProposedMilestone(title: 'Sprint 2', amount: 750, days: 5),
+          ],
+          createdAt: DateTime(2026, 8, 4),
+        );
 
-      final json = p.toJson();
-      expect(json['job_id'], 'job-uuid-456');
-      expect(json['freelancer_id'], 'free-uuid-789');
-      expect(json['bid_amount'], 1500.0);
-      expect(json['estimated_days'], 10);
-      expect(json['cover_letter'], 'Experiência comprovada em Flutter e Supabase');
-      expect(json['status'], 'pending');
-    });
+        final json = p.toJson();
+        expect(json['job_id'], 'job-uuid-456');
+        expect(json['freelancer_id'], 'free-uuid-789');
+        expect(json['bid_amount'], 1500.0);
+        expect(json['estimated_days'], 10);
+        expect(
+          json['cover_letter'],
+          'Experiência comprovada em Flutter e Supabase',
+        );
+        expect(json['status'], 'pending');
+      },
+    );
+
+    test(
+      'UserRole toDbString and label formats are consistent across transitions',
+      () {
+        expect(UserRole.client.toDbString(), 'client');
+        expect(UserRole.freelancer.toDbString(), 'freelancer');
+        expect(UserRole.admin.toDbString(), 'admin');
+
+        expect(UserRole.client.label, 'Cliente');
+        expect(UserRole.freelancer.label, 'Freelancer');
+        expect(UserRole.admin.label, 'Administrador');
+      },
+    );
+
+    test(
+      'Job status in_progress correctly demarcates filled job departing public listings',
+      () {
+        final openJob = Job(
+          id: 'job-open',
+          clientId: 'c-1',
+          clientName: 'Cliente',
+          title: 'Vaga Aberta',
+          category: 'Mobile',
+          description: 'Vaga disponível para propostas',
+          budgetMin: 1000,
+          budgetMax: 2000,
+          status: JobStatus.open,
+          createdAt: DateTime.now(),
+        );
+
+        final filledJob = Job(
+          id: 'job-filled',
+          clientId: 'c-1',
+          clientName: 'Cliente',
+          title: 'Vaga Aceita',
+          category: 'Mobile',
+          description: 'Vaga com proposta aceita',
+          budgetMin: 1000,
+          budgetMax: 2000,
+          status: JobStatus.inProgress,
+          createdAt: DateTime.now(),
+        );
+
+        final allJobs = [openJob, filledJob];
+        final publicJobs = allJobs
+            .where((j) => j.status == JobStatus.open)
+            .toList();
+
+        expect(publicJobs.length, 1);
+        expect(publicJobs.first.id, 'job-open');
+      },
+    );
   });
 }
-

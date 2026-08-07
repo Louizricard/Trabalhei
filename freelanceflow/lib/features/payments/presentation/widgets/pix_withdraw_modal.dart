@@ -48,7 +48,11 @@ class _PixWithdrawModalState extends ConsumerState<PixWithdrawModal> {
     final amount = double.tryParse(_amountController.text) ?? 0.0;
     if (amount <= 0 || amount > widget.availableBalance) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Valor solicitado inválido ou maior que o saldo disponível.')),
+        const SnackBar(
+          content: Text(
+            'Valor solicitado inválido ou maior que o saldo disponível.',
+          ),
+        ),
       );
       return;
     }
@@ -62,7 +66,9 @@ class _PixWithdrawModalState extends ConsumerState<PixWithdrawModal> {
 
     setState(() => _isLoading = true);
     try {
-      await ref.read(paymentRepositoryProvider).requestPixWithdrawal(
+      await ref
+          .read(paymentRepositoryProvider)
+          .requestPixWithdrawal(
             amount: amount,
             pixKey: _pixKeyController.text.trim(),
           );
@@ -73,7 +79,9 @@ class _PixWithdrawModalState extends ConsumerState<PixWithdrawModal> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Saque Pix de ${CurrencyFormatter.format(amount)} realizado com sucesso!'),
+            content: Text(
+              'Saque Pix de ${CurrencyFormatter.format(amount)} realizado com sucesso!',
+            ),
             backgroundColor: AppColors.success,
           ),
         );
@@ -83,7 +91,9 @@ class _PixWithdrawModalState extends ConsumerState<PixWithdrawModal> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Falha ao processar saque: ${e.toString().replaceAll("Exception: ", "")}'),
+            content: Text(
+              'Falha ao processar saque: ${e.toString().replaceAll("Exception: ", "")}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -109,9 +119,16 @@ class _PixWithdrawModalState extends ConsumerState<PixWithdrawModal> {
               children: [
                 const Text(
                   'Solicitar Saque Pix Instantâneo',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimaryDark,
+                  ),
                 ),
-                IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.of(context).pop()),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -120,10 +137,20 @@ class _PixWithdrawModalState extends ConsumerState<PixWithdrawModal> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Saldo Disponível para Saque:', style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark)),
+                  const Text(
+                    'Saldo Disponível para Saque:',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondaryDark,
+                    ),
+                  ),
                   Text(
                     CurrencyFormatter.format(widget.availableBalance),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.success),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: AppColors.success,
+                    ),
                   ),
                 ],
               ),
@@ -136,7 +163,14 @@ class _PixWithdrawModalState extends ConsumerState<PixWithdrawModal> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
-            const Text('Tipo de Chave Pix', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondaryDark)),
+            const Text(
+              'Tipo de Chave Pix',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondaryDark,
+              ),
+            ),
             const SizedBox(height: 6),
             DropdownButtonFormField<String>(
               initialValue: _keyType,

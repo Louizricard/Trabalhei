@@ -60,10 +60,12 @@ class _PixEscrowModalState extends ConsumerState<PixEscrowModal> {
     }
 
     try {
-      final res = await ref.read(paymentRepositoryProvider).checkPaymentStatus(
-        gatewayRef: widget.paymentIntent.gatewayRef,
-        transactionId: widget.paymentIntent.transactionId,
-      );
+      final res = await ref
+          .read(paymentRepositoryProvider)
+          .checkPaymentStatus(
+            gatewayRef: widget.paymentIntent.gatewayRef,
+            transactionId: widget.paymentIntent.transactionId,
+          );
 
       if (res.isApproved || res.status == 'approved') {
         _handleSuccess();
@@ -73,7 +75,10 @@ class _PixEscrowModalState extends ConsumerState<PixEscrowModal> {
       if (!isAutoPoll && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(res.errorMessage ?? 'Pagamento em processamento no Mercado Pago. Aguarde alguns instantes...'),
+            content: Text(
+              res.errorMessage ??
+                  'Pagamento em processamento no Mercado Pago. Aguarde alguns instantes...',
+            ),
             backgroundColor: AppColors.warning,
             duration: const Duration(seconds: 3),
           ),
@@ -83,7 +88,9 @@ class _PixEscrowModalState extends ConsumerState<PixEscrowModal> {
       if (!isAutoPoll && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Verificando status junto ao gateway... Tente novamente em instantes.'),
+            content: Text(
+              'Verificando status junto ao gateway... Tente novamente em instantes.',
+            ),
             backgroundColor: AppColors.warning,
           ),
         );
@@ -102,7 +109,9 @@ class _PixEscrowModalState extends ConsumerState<PixEscrowModal> {
       setState(() => _isCopied = true);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Código Pix Copia e Cola copiado para a área de transferência!'),
+          content: Text(
+            'Código Pix Copia e Cola copiado para a área de transferência!',
+          ),
           backgroundColor: AppColors.success,
           duration: Duration(seconds: 2),
         ),
@@ -127,7 +136,9 @@ class _PixEscrowModalState extends ConsumerState<PixEscrowModal> {
       Navigator.of(context).pop(true);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('🎉 Pagamento Pix confirmado! Valor retido com segurança no Escrow.'),
+          content: Text(
+            '🎉 Pagamento Pix confirmado! Valor retido com segurança no Escrow.',
+          ),
           backgroundColor: AppColors.success,
           duration: Duration(seconds: 4),
         ),
@@ -188,7 +199,11 @@ class _PixEscrowModalState extends ConsumerState<PixEscrowModal> {
                         color: AppColors.primaryContainer,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.qr_code_2_rounded, color: AppColors.primary, size: 24),
+                      child: const Icon(
+                        Icons.qr_code_2_rounded,
+                        color: AppColors.primary,
+                        size: 24,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     const Text(
@@ -202,7 +217,10 @@ class _PixEscrowModalState extends ConsumerState<PixEscrowModal> {
                   ],
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded, color: AppColors.textMutedDark),
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: AppColors.textMutedDark,
+                  ),
                   onPressed: () => Navigator.of(context).pop(false),
                 ),
               ],
@@ -285,7 +303,11 @@ class _PixEscrowModalState extends ConsumerState<PixEscrowModal> {
                         width: 200,
                         height: 200,
                         alignment: Alignment.center,
-                        child: const Icon(Icons.qr_code_2_rounded, size: 140, color: AppColors.bgDark),
+                        child: const Icon(
+                          Icons.qr_code_2_rounded,
+                          size: 140,
+                          color: AppColors.bgDark,
+                        ),
                       ),
               ),
             ),
@@ -313,7 +335,11 @@ class _PixEscrowModalState extends ConsumerState<PixEscrowModal> {
                   SizedBox(width: 10),
                   Text(
                     'Aguardando confirmação em tempo real...',
-                    style: TextStyle(fontSize: 12, color: AppColors.textSecondaryDark, fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondaryDark,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
@@ -324,24 +350,38 @@ class _PixEscrowModalState extends ConsumerState<PixEscrowModal> {
             CustomButton(
               text: _isCopied ? 'Código Copiado!' : 'Copiar Código Pix',
               icon: _isCopied ? Icons.check_circle_rounded : Icons.copy_rounded,
-              variant: _isCopied ? ButtonVariant.secondary : ButtonVariant.primary,
+              variant: _isCopied
+                  ? ButtonVariant.secondary
+                  : ButtonVariant.primary,
               onPressed: _copyToClipboard,
             ),
             const SizedBox(height: 10),
 
             // Botão de verificação manual
             TextButton.icon(
-              onPressed: _isVerifying ? null : () => _checkPayment(isAutoPoll: false),
+              onPressed: _isVerifying
+                  ? null
+                  : () => _checkPayment(isAutoPoll: false),
               icon: _isVerifying
                   ? const SizedBox(
                       width: 14,
                       height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textSecondaryDark),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.textSecondaryDark,
+                      ),
                     )
-                  : const Icon(Icons.sync_rounded, size: 16, color: AppColors.textSecondaryDark),
+                  : const Icon(
+                      Icons.sync_rounded,
+                      size: 16,
+                      color: AppColors.textSecondaryDark,
+                    ),
               label: const Text(
                 'Já realizei o pagamento',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondaryDark,
+                ),
               ),
             ),
           ],

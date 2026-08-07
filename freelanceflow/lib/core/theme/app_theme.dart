@@ -4,7 +4,9 @@ import 'app_colors.dart';
 
 class AppTheme {
   static ThemeData get darkTheme {
-    final baseTextTheme = GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme);
+    final baseTextTheme = GoogleFonts.plusJakartaSansTextTheme(
+      ThemeData.dark().textTheme,
+    );
 
     return ThemeData(
       useMaterial3: true,
@@ -84,9 +86,20 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.cardDark,
-        hintStyle: const TextStyle(color: AppColors.textMutedDark, fontSize: 14, fontWeight: FontWeight.w400),
-        labelStyle: const TextStyle(color: AppColors.textSecondaryDark, fontSize: 14, fontWeight: FontWeight.w500),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+        hintStyle: const TextStyle(
+          color: AppColors.textMutedDark,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+        ),
+        labelStyle: const TextStyle(
+          color: AppColors.textSecondaryDark,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.borderDark),
@@ -114,7 +127,9 @@ class AppTheme {
           foregroundColor: AppColors.onPrimary,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
@@ -123,7 +138,9 @@ class AppTheme {
           foregroundColor: AppColors.primary,
           side: const BorderSide(color: AppColors.primary, width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
@@ -143,9 +160,17 @@ class AppTheme {
         indicatorColor: AppColors.primaryContainer,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600);
+            return const TextStyle(
+              color: AppColors.primary,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            );
           }
-          return const TextStyle(color: AppColors.textMutedDark, fontSize: 12, fontWeight: FontWeight.w500);
+          return const TextStyle(
+            color: AppColors.textMutedDark,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {

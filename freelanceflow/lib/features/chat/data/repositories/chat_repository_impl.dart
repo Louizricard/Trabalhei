@@ -74,8 +74,16 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<void> updateMilestoneStatus(String conversationId, String milestoneId, MilestoneStatus status) {
-    return _remoteDataSource.updateMilestoneStatus(conversationId, milestoneId, status);
+  Future<void> updateMilestoneStatus(
+    String conversationId,
+    String milestoneId,
+    MilestoneStatus status,
+  ) {
+    return _remoteDataSource.updateMilestoneStatus(
+      conversationId,
+      milestoneId,
+      status,
+    );
   }
 
   @override

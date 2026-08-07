@@ -42,10 +42,12 @@ class PaymentMethodSelectorModal extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<PaymentMethodSelectorModal> createState() => _PaymentMethodSelectorModalState();
+  ConsumerState<PaymentMethodSelectorModal> createState() =>
+      _PaymentMethodSelectorModalState();
 }
 
-class _PaymentMethodSelectorModalState extends ConsumerState<PaymentMethodSelectorModal> {
+class _PaymentMethodSelectorModalState
+    extends ConsumerState<PaymentMethodSelectorModal> {
   String _selectedMethod = 'pix'; // 'pix', 'credit_card', 'wallet'
   bool _isLoading = false;
 
@@ -79,7 +81,10 @@ class _PaymentMethodSelectorModalState extends ConsumerState<PaymentMethodSelect
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result.errorMessage ?? 'Não foi possível gerar a chave Pix. Tente novamente.'),
+              content: Text(
+                result.errorMessage ??
+                    'Não foi possível gerar a chave Pix. Tente novamente.',
+              ),
               backgroundColor: AppColors.error,
             ),
           );
@@ -89,7 +94,9 @@ class _PaymentMethodSelectorModalState extends ConsumerState<PaymentMethodSelect
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro: ${e.toString().replaceAll("Exception: ", "")}'),
+              content: Text(
+                'Erro: ${e.toString().replaceAll("Exception: ", "")}',
+              ),
               backgroundColor: AppColors.error,
             ),
           );
@@ -112,10 +119,12 @@ class _PaymentMethodSelectorModalState extends ConsumerState<PaymentMethodSelect
       setState(() => _isLoading = true);
       try {
         if (widget.contractId != null) {
-          await ref.read(paymentRepositoryProvider).depositEscrow(
-            amount: widget.amount,
-            contractId: widget.contractId!,
-          );
+          await ref
+              .read(paymentRepositoryProvider)
+              .depositEscrow(
+                amount: widget.amount,
+                contractId: widget.contractId!,
+              );
         }
         ref.invalidate(walletSummaryProvider);
         ref.invalidate(transactionsListProvider);
@@ -125,7 +134,9 @@ class _PaymentMethodSelectorModalState extends ConsumerState<PaymentMethodSelect
           Navigator.of(context).pop(true);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('🎉 Pagamento realizado com sucesso utilizando o saldo da carteira!'),
+              content: Text(
+                '🎉 Pagamento realizado com sucesso utilizando o saldo da carteira!',
+              ),
               backgroundColor: AppColors.success,
             ),
           );
@@ -134,7 +145,9 @@ class _PaymentMethodSelectorModalState extends ConsumerState<PaymentMethodSelect
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro no pagamento com saldo: ${e.toString().replaceAll("Exception: ", "")}'),
+              content: Text(
+                'Erro no pagamento com saldo: ${e.toString().replaceAll("Exception: ", "")}',
+              ),
               backgroundColor: AppColors.error,
             ),
           );
@@ -179,7 +192,10 @@ class _PaymentMethodSelectorModalState extends ConsumerState<PaymentMethodSelect
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close_rounded, color: AppColors.textMutedDark),
+                icon: const Icon(
+                  Icons.close_rounded,
+                  color: AppColors.textMutedDark,
+                ),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
@@ -266,11 +282,16 @@ class _PaymentMethodSelectorModalState extends ConsumerState<PaymentMethodSelect
               selectedId: _selectedMethod,
               icon: Icons.account_balance_wallet_rounded,
               title: 'Saldo da Carteira Trabalhei',
-              subtitle: 'Saldo disponível: ${CurrencyFormatter.format(availableBalance)}',
+              subtitle:
+                  'Saldo disponível: ${CurrencyFormatter.format(availableBalance)}',
               badge: hasEnoughBalance ? 'DISPONÍVEL' : 'INSUFICIENTE',
-              badgeColor: hasEnoughBalance ? AppColors.success : AppColors.error,
+              badgeColor: hasEnoughBalance
+                  ? AppColors.success
+                  : AppColors.error,
               enabled: hasEnoughBalance,
-              onTap: hasEnoughBalance ? () => setState(() => _selectedMethod = 'wallet') : null,
+              onTap: hasEnoughBalance
+                  ? () => setState(() => _selectedMethod = 'wallet')
+                  : null,
             ),
             const SizedBox(height: 10),
           ],
@@ -281,7 +302,9 @@ class _PaymentMethodSelectorModalState extends ConsumerState<PaymentMethodSelect
           CustomButton(
             text: _selectedMethod == 'pix'
                 ? 'Gerar QR Code Pix'
-                : (_selectedMethod == 'credit_card' ? 'Preencher Dados do Cartão' : 'Pagar com Saldo'),
+                : (_selectedMethod == 'credit_card'
+                      ? 'Preencher Dados do Cartão'
+                      : 'Pagar com Saldo'),
             icon: Icons.arrow_forward_rounded,
             isLoading: _isLoading,
             onPressed: _handleProceed,
@@ -326,7 +349,9 @@ class _PaymentOptionTile extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryContainer : AppColors.cardDark.withValues(alpha: enabled ? 1.0 : 0.5),
+          color: isSelected
+              ? AppColors.primaryContainer
+              : AppColors.cardDark.withValues(alpha: enabled ? 1.0 : 0.5),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.borderDark,
@@ -338,12 +363,18 @@ class _PaymentOptionTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : AppColors.surfaceElevatedDark,
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.surfaceElevatedDark,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? AppColors.onPrimary : (enabled ? AppColors.primary : AppColors.textDisabledDark),
+                color: isSelected
+                    ? AppColors.onPrimary
+                    : (enabled
+                          ? AppColors.primary
+                          : AppColors.textDisabledDark),
                 size: 22,
               ),
             ),
@@ -360,7 +391,9 @@ class _PaymentOptionTile extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: enabled ? AppColors.textPrimaryDark : AppColors.textDisabledDark,
+                            color: enabled
+                                ? AppColors.textPrimaryDark
+                                : AppColors.textDisabledDark,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -369,9 +402,14 @@ class _PaymentOptionTile extends StatelessWidget {
                       if (badge != null) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: (badgeColor ?? AppColors.primary).withValues(alpha: 0.2),
+                            color: (badgeColor ?? AppColors.primary).withValues(
+                              alpha: 0.2,
+                            ),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -391,7 +429,9 @@ class _PaymentOptionTile extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: enabled ? AppColors.textSecondaryDark : AppColors.textDisabledDark,
+                      color: enabled
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textDisabledDark,
                     ),
                   ),
                 ],
@@ -399,7 +439,9 @@ class _PaymentOptionTile extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Icon(
-              isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+              isSelected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_off_rounded,
               color: isSelected ? AppColors.primary : AppColors.textMutedDark,
               size: 20,
             ),

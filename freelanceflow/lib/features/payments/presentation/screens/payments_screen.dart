@@ -30,7 +30,11 @@ class PaymentsScreen extends ConsumerWidget {
             SizedBox(width: 8),
             Text(
               'Adicionar Saldo',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimaryDark,
+              ),
             ),
           ],
         ),
@@ -40,22 +44,44 @@ class PaymentsScreen extends ConsumerWidget {
           children: [
             const Text(
               'Informe o valor que deseja depositar em sua carteira para contratações:',
-              style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondaryDark,
+              ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: amountController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              style: const TextStyle(color: AppColors.textPrimaryDark, fontSize: 18, fontWeight: FontWeight.bold),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              style: const TextStyle(
+                color: AppColors.textPrimaryDark,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
               decoration: InputDecoration(
                 prefixText: 'R\$ ',
-                prefixStyle: const TextStyle(color: AppColors.primary, fontSize: 18, fontWeight: FontWeight.bold),
+                prefixStyle: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
                 hintText: '100.00',
                 filled: true,
                 fillColor: AppColors.surfaceElevatedDark,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.borderDark)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.borderDark)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.borderDark),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.borderDark),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.primary),
+                ),
               ),
             ),
           ],
@@ -63,16 +89,23 @@ class PaymentsScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar', style: TextStyle(color: AppColors.textSecondaryDark)),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: AppColors.textSecondaryDark),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: AppColors.onPrimary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             onPressed: () {
-              final val = double.tryParse(amountController.text.replaceAll(',', '.')) ?? 0.0;
+              final val =
+                  double.tryParse(amountController.text.replaceAll(',', '.')) ??
+                  0.0;
               if (val <= 0) return;
               Navigator.pop(ctx);
               PaymentMethodSelectorModal.show(
@@ -101,9 +134,7 @@ class PaymentsScreen extends ConsumerWidget {
     final escrowBalance = summaryAsync.value?.escrowBalance ?? 0.0;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Carteira & Escrow'),
-      ),
+      appBar: AppBar(title: const Text('Carteira & Escrow')),
       body: ResponsiveLayout(
         maxWidth: 800,
         child: RefreshIndicator(
@@ -127,11 +158,21 @@ class PaymentsScreen extends ConsumerWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Saldo Disponível na Carteira', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryDark)),
+                              const Text(
+                                'Saldo Disponível na Carteira',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondaryDark,
+                                ),
+                              ),
                               const SizedBox(height: 4),
                               Text(
                                 CurrencyFormatter.format(availableBalance),
-                                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary),
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
                               ),
                             ],
                           ),
@@ -140,18 +181,32 @@ class PaymentsScreen extends ConsumerWidget {
                               CustomButton(
                                 text: 'Depositar',
                                 icon: Icons.add_rounded,
-                                onPressed: () => _showDepositDialog(context, ref),
+                                onPressed: () =>
+                                    _showDepositDialog(context, ref),
                               ),
                               const SizedBox(width: 8),
                               OutlinedButton.icon(
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: AppColors.primary,
-                                  side: const BorderSide(color: AppColors.primary),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  side: const BorderSide(
+                                    color: AppColors.primary,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 12,
+                                  ),
                                 ),
                                 icon: const Icon(Icons.pix_rounded, size: 16),
-                                label: const Text('Sacar', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                                label: const Text(
+                                  'Sacar',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 onPressed: () {
                                   showModalBottomSheet(
                                     context: context,
@@ -160,7 +215,9 @@ class PaymentsScreen extends ConsumerWidget {
                                     builder: (_) => PixWithdrawModal(
                                       availableBalance: availableBalance,
                                       onWithdrawSuccess: () {
-                                        ref.invalidate(transactionsListProvider);
+                                        ref.invalidate(
+                                          transactionsListProvider,
+                                        );
                                         ref.invalidate(walletSummaryProvider);
                                       },
                                     ),
@@ -174,13 +231,27 @@ class PaymentsScreen extends ConsumerWidget {
                       const Divider(height: 24),
                       Row(
                         children: [
-                          const Icon(Icons.shield_rounded, size: 16, color: AppColors.escrow),
+                          const Icon(
+                            Icons.shield_rounded,
+                            size: 16,
+                            color: AppColors.escrow,
+                          ),
                           const SizedBox(width: 8),
-                          const Text('Retido em Garantia (Escrow Ativo):', style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark)),
+                          const Text(
+                            'Retido em Garantia (Escrow Ativo):',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondaryDark,
+                            ),
+                          ),
                           const Spacer(),
                           Text(
                             CurrencyFormatter.format(escrowBalance),
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.escrow),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.escrow,
+                            ),
                           ),
                         ],
                       ),
@@ -190,11 +261,20 @@ class PaymentsScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
                 const Text(
                   'Histórico de Transações',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimaryDark,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 transactionsAsync.when(
-                  loading: () => const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator())),
+                  loading: () => const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32),
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
                   error: (err, _) => EmptyStateWidget(
                     icon: Icons.error_outline_rounded,
                     title: 'Erro ao carregar extrato',
@@ -205,7 +285,8 @@ class PaymentsScreen extends ConsumerWidget {
                       return const EmptyStateWidget(
                         icon: Icons.receipt_long_rounded,
                         title: 'Nenhuma transação recente',
-                        description: 'Os pagamentos via Pix, depósitos e liberações de escrow aparecerão listados aqui.',
+                        description:
+                            'Os pagamentos via Pix, depósitos e liberações de escrow aparecerão listados aqui.',
                       );
                     }
 
@@ -217,16 +298,25 @@ class PaymentsScreen extends ConsumerWidget {
                       itemBuilder: (context, index) {
                         final tx = transactions[index];
                         return GlassCard(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           child: Row(
                             children: [
                               CircleAvatar(
                                 radius: 18,
-                                backgroundColor: tx.isCredit ? AppColors.successBg : AppColors.surfaceElevatedDark,
+                                backgroundColor: tx.isCredit
+                                    ? AppColors.successBg
+                                    : AppColors.surfaceElevatedDark,
                                 child: Icon(
-                                  tx.isCredit ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+                                  tx.isCredit
+                                      ? Icons.arrow_downward_rounded
+                                      : Icons.arrow_upward_rounded,
                                   size: 18,
-                                  color: tx.isCredit ? AppColors.success : AppColors.textSecondaryDark,
+                                  color: tx.isCredit
+                                      ? AppColors.success
+                                      : AppColors.textSecondaryDark,
                                 ),
                               ),
                               const SizedBox(width: 14),
@@ -236,26 +326,42 @@ class PaymentsScreen extends ConsumerWidget {
                                   children: [
                                     Text(
                                       tx.typeLabel,
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryDark),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: AppColors.textPrimaryDark,
+                                      ),
                                     ),
                                     if (tx.contractTitle != null)
                                       Text(
                                         tx.contractTitle!,
-                                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryDark),
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: AppColors.textSecondaryDark,
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     Row(
                                       children: [
                                         Text(
-                                          DateFormatter.simpleDate(tx.createdAt),
-                                          style: const TextStyle(fontSize: 11, color: AppColors.textMutedDark),
+                                          DateFormatter.simpleDate(
+                                            tx.createdAt,
+                                          ),
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: AppColors.textMutedDark,
+                                          ),
                                         ),
                                         if (tx.gatewayProvider != null) ...[
                                           const SizedBox(width: 6),
                                           Text(
                                             '• ${tx.paymentMethod == "credit_card" ? "Cartão" : "Pix"} Mercado Pago',
-                                            style: const TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w600),
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: AppColors.primary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ],
                                       ],
@@ -268,7 +374,9 @@ class PaymentsScreen extends ConsumerWidget {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
-                                  color: tx.isCredit ? AppColors.success : AppColors.textPrimaryDark,
+                                  color: tx.isCredit
+                                      ? AppColors.success
+                                      : AppColors.textPrimaryDark,
                                 ),
                               ),
                             ],

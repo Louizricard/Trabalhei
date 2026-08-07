@@ -8,6 +8,8 @@ import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../../auth/domain/entities/user_profile.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../providers/profile_provider.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -30,6 +32,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     try {
       await ref.read(authProvider.notifier).switchRole(targetRole);
+      ref.invalidate(clientStatsProvider);
+      ref.invalidate(freelancerStatsProvider);
+      ref.invalidate(jobsListProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -38,13 +43,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             duration: const Duration(seconds: 2),
           ),
         );
-        context.go(targetRole == UserRole.client ? '/dashboard/client' : '/jobs');
+        context.go(
+          targetRole == UserRole.client ? '/dashboard/client' : '/jobs',
+        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Falha ao alternar modo: ${e.toString().replaceAll("Exception: ", "")}'),
+            content: Text(
+              'Falha ao alternar modo: ${e.toString().replaceAll("Exception: ", "")}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -88,7 +97,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao enviar foto: ${e.toString().replaceAll("Exception: ", "")}'),
+            content: Text(
+              'Erro ao enviar foto: ${e.toString().replaceAll("Exception: ", "")}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -137,13 +148,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         CircleAvatar(
                           radius: 42,
                           backgroundColor: AppColors.primary,
-                          backgroundImage: (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty)
+                          backgroundImage:
+                              (user?.avatarUrl != null &&
+                                  user!.avatarUrl!.isNotEmpty)
                               ? NetworkImage(user.avatarUrl!)
                               : null,
-                          child: (user?.avatarUrl == null || user!.avatarUrl!.isEmpty)
+                          child:
+                              (user?.avatarUrl == null ||
+                                  user!.avatarUrl!.isEmpty)
                               ? Text(
-                                  (user?.fullName.isNotEmpty ?? false) ? user!.fullName[0].toUpperCase() : 'U',
-                                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.onPrimary),
+                                  (user?.fullName.isNotEmpty ?? false)
+                                      ? user!.fullName[0].toUpperCase()
+                                      : 'U',
+                                  style: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.onPrimary,
+                                  ),
                                 )
                               : null,
                         ),
@@ -189,30 +210,50 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       children: [
                         Text(
                           user?.fullName ?? 'Usuário',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimaryDark),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimaryDark,
+                          ),
                         ),
                         if (user?.isVerified ?? false) ...[
                           const SizedBox(width: 6),
-                          const Icon(Icons.verified, size: 18, color: AppColors.primary),
+                          const Icon(
+                            Icons.verified,
+                            size: 18,
+                            color: AppColors.primary,
+                          ),
                         ],
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(
                       user?.email ?? '',
-                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondaryDark,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primaryContainer,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.primary.withAlpha(60)),
+                        border: Border.all(
+                          color: AppColors.primary.withAlpha(60),
+                        ),
                       ),
                       child: Text(
                         user?.role.label ?? 'Freelancer',
-                        style: const TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w700),
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -236,11 +277,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: CustomButton(
-                            text: isFreelancer ? 'Modo Contratante' : 'Modo Freelancer',
+                            text: isFreelancer
+                                ? 'Modo Contratante'
+                                : 'Modo Freelancer',
                             variant: ButtonVariant.secondary,
                             icon: Icons.swap_horiz_rounded,
                             isLoading: _isSwitchingRole,
-                            onPressed: _isSwitchingRole ? null : () => _handleSwitchRole(isFreelancer),
+                            onPressed: _isSwitchingRole
+                                ? null
+                                : () => _handleSwitchRole(isFreelancer),
                           ),
                         ),
                       ],
@@ -264,21 +309,43 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Sobre Mim', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    const Text(
+                      'Sobre Mim',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Text(
-                      user?.bio?.isNotEmpty == true ? user!.bio! : 'Sem biografia cadastrada.',
-                      style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.textSecondaryDark),
+                      user?.bio?.isNotEmpty == true
+                          ? user!.bio!
+                          : 'Sem biografia cadastrada.',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        height: 1.5,
+                        color: AppColors.textSecondaryDark,
+                      ),
                     ),
                     if (isFreelancer && (user?.hourlyRate ?? 0) > 0) ...[
                       const Divider(height: 20),
                       Row(
                         children: [
-                          const Text('Valor Hora Sugerido:', style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark)),
+                          const Text(
+                            'Valor Hora Sugerido:',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondaryDark,
+                            ),
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             '${CurrencyFormatter.format(user!.hourlyRate)}/h',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.success),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: AppColors.success,
+                            ),
                           ),
                         ],
                       ),
@@ -288,7 +355,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               const SizedBox(height: 20),
               if (user != null && user.skills.isNotEmpty) ...[
-                const Text('Especialidades & Habilidades', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text(
+                  'Especialidades & Habilidades',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
@@ -297,22 +367,42 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     return Chip(
                       label: Text(skill),
                       backgroundColor: AppColors.surfaceElevatedDark,
-                      labelStyle: const TextStyle(color: AppColors.textPrimaryDark, fontSize: 12),
+                      labelStyle: const TextStyle(
+                        color: AppColors.textPrimaryDark,
+                        fontSize: 12,
+                      ),
                     );
                   }).toList(),
                 ),
                 const SizedBox(height: 24),
               ],
-              const Text('Avaliações & Reputação', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Text(
+                'Avaliações & Reputação',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
               const SizedBox(height: 12),
               reviewsAsync.when(
-                loading: () => const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator())),
-                error: (_, _) => const Text('Não foi possível carregar as avaliações.', style: TextStyle(color: AppColors.textMutedDark)),
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                error: (_, _) => const Text(
+                  'Não foi possível carregar as avaliações.',
+                  style: TextStyle(color: AppColors.textMutedDark),
+                ),
                 data: (reviews) {
                   if (reviews.isEmpty) {
                     return const Padding(
                       padding: EdgeInsets.symmetric(vertical: 8),
-                      child: Text('Nenhuma avaliação recebida ainda.', style: TextStyle(color: AppColors.textMutedDark, fontSize: 13)),
+                      child: Text(
+                        'Nenhuma avaliação recebida ainda.',
+                        style: TextStyle(
+                          color: AppColors.textMutedDark,
+                          fontSize: 13,
+                        ),
+                      ),
                     );
                   }
                   return Column(
@@ -325,20 +415,43 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(rev.authorName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                  Text(
+                                    rev.authorName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
                                   Row(
                                     children: [
-                                      const Icon(Icons.star_rounded, size: 16, color: AppColors.warning),
+                                      const Icon(
+                                        Icons.star_rounded,
+                                        size: 16,
+                                        color: AppColors.warning,
+                                      ),
                                       const SizedBox(width: 2),
-                                      Text(rev.rating.toStringAsFixed(1), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                      Text(
+                                        rev.rating.toStringAsFixed(1),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              Text(rev.comment, style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark)),
+                              Text(
+                                rev.comment,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondaryDark,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -350,8 +463,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               const SizedBox(height: 24),
               Center(
                 child: TextButton.icon(
-                  icon: const Icon(Icons.policy_outlined, size: 16, color: AppColors.textMutedDark),
-                  label: const Text('Termos de Uso e Política de Privacidade', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                  icon: const Icon(
+                    Icons.policy_outlined,
+                    size: 16,
+                    color: AppColors.textMutedDark,
+                  ),
+                  label: const Text(
+                    'Termos de Uso e Política de Privacidade',
+                    style: TextStyle(
+                      color: AppColors.textMutedDark,
+                      fontSize: 12,
+                    ),
+                  ),
                   onPressed: () => context.push('/terms'),
                 ),
               ),

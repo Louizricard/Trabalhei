@@ -3,7 +3,9 @@ import '../../../../core/config/supabase_client.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../domain/entities/dashboard_stats.dart';
 
-final freelancerStatsProvider = FutureProvider<FreelancerDashboardStats>((ref) async {
+final freelancerStatsProvider = FutureProvider<FreelancerDashboardStats>((
+  ref,
+) async {
   final supabase = ref.watch(supabaseClientProvider);
   final user = ref.watch(authProvider).value;
 
@@ -34,7 +36,8 @@ final freelancerStatsProvider = FutureProvider<FreelancerDashboardStats>((ref) a
     for (final tx in (txResponse as List<dynamic>)) {
       final type = tx['type'] as String?;
       final amount = (tx['amount'] as num?)?.toDouble() ?? 0.0;
-      final createdAt = DateTime.tryParse(tx['created_at'] as String? ?? '') ?? now;
+      final createdAt =
+          DateTime.tryParse(tx['created_at'] as String? ?? '') ?? now;
 
       if (type == 'escrow_release' || type == 'deposit') {
         availableBalance += amount;
@@ -43,7 +46,8 @@ final freelancerStatsProvider = FutureProvider<FreelancerDashboardStats>((ref) a
       }
 
       if (type == 'escrow_release') {
-        final monthDiff = (now.year - createdAt.year) * 12 + now.month - createdAt.month;
+        final monthDiff =
+            (now.year - createdAt.year) * 12 + now.month - createdAt.month;
         if (monthDiff >= 0 && monthDiff < 6) {
           chartData[5 - monthDiff] += amount;
         }

@@ -9,7 +9,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Stream<UserProfile?> get authStateChanges {
-    return _remoteDataSource.authStateChanges.asyncMap((_) => _remoteDataSource.getCurrentUserProfile());
+    return _remoteDataSource.authStateChanges.asyncMap(
+      (_) => _remoteDataSource.getCurrentUserProfile(),
+    );
   }
 
   @override
@@ -58,5 +60,10 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserProfile> updateProfile(UserProfile profile) {
     return _remoteDataSource.updateProfile(profile);
+  }
+
+  @override
+  Future<UserProfile> switchRole(UserRole newRole) {
+    return _remoteDataSource.switchRole(newRole);
   }
 }

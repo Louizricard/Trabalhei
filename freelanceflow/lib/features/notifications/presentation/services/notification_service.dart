@@ -15,7 +15,9 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   } catch (e) {
     debugPrint('🚨 [FCM Background] Firebase initialization error: $e');
   }
-  debugPrint('📬 [FCM Background Message] ID: ${message.messageId}, Data: ${message.data}');
+  debugPrint(
+    '📬 [FCM Background Message] ID: ${message.messageId}, Data: ${message.data}',
+  );
 }
 
 /// Centralized service handling Firebase Cloud Messaging and Local Notifications
@@ -58,7 +60,8 @@ class NotificationService {
       'Notificações sobre mensagens, propostas, contratos e pagamentos.';
 
   final _navigationStreamController = StreamController<String>.broadcast();
-  Stream<String> get onNotificationNavigation => _navigationStreamController.stream;
+  Stream<String> get onNotificationNavigation =>
+      _navigationStreamController.stream;
 
   bool _isInitialized = false;
 
@@ -68,13 +71,17 @@ class NotificationService {
 
     try {
       // 1. Initialize local notifications
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings = AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
+      );
       const darwinSettings = DarwinInitializationSettings(
         requestAlertPermission: false,
         requestBadgePermission: false,
         requestSoundPermission: false,
       );
-      const linuxSettings = LinuxInitializationSettings(defaultActionName: 'Open');
+      const linuxSettings = LinuxInitializationSettings(
+        defaultActionName: 'Open',
+      );
 
       const initSettings = InitializationSettings(
         android: androidSettings,
@@ -101,7 +108,8 @@ class NotificationService {
 
         await _localNotifications
             .resolvePlatformSpecificImplementation<
-                AndroidFlutterLocalNotificationsPlugin>()
+              AndroidFlutterLocalNotificationsPlugin
+            >()
             ?.createNotificationChannel(androidChannel);
       }
 
@@ -128,7 +136,9 @@ class NotificationService {
       }
 
       _isInitialized = true;
-      debugPrint('🔔 [NotificationService] Initialized successfully (FCM supported: $isFcmSupported)');
+      debugPrint(
+        '🔔 [NotificationService] Initialized successfully (FCM supported: $isFcmSupported)',
+      );
     } catch (e, st) {
       debugPrint('🚨 [NotificationService] Initialization error: $e\n$st');
     }
@@ -154,14 +164,18 @@ class NotificationService {
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
         await _localNotifications
             .resolvePlatformSpecificImplementation<
-                AndroidFlutterLocalNotificationsPlugin>()
+              AndroidFlutterLocalNotificationsPlugin
+            >()
             ?.requestNotificationsPermission();
       }
 
-      final isAuthorized = settings.authorizationStatus == AuthorizationStatus.authorized ||
+      final isAuthorized =
+          settings.authorizationStatus == AuthorizationStatus.authorized ||
           settings.authorizationStatus == AuthorizationStatus.provisional;
 
-      debugPrint('🔔 [NotificationService] Permission status: ${settings.authorizationStatus}');
+      debugPrint(
+        '🔔 [NotificationService] Permission status: ${settings.authorizationStatus}',
+      );
       return isAuthorized;
     } catch (e) {
       debugPrint('🚨 [NotificationService] Request permission error: $e');
@@ -183,8 +197,9 @@ class NotificationService {
   }
 
   /// Stream of FCM token refresh events
-  Stream<String> get onTokenRefresh =>
-      isFcmSupported && _fcm != null ? _fcm!.onTokenRefresh : const Stream.empty();
+  Stream<String> get onTokenRefresh => isFcmSupported && _fcm != null
+      ? _fcm!.onTokenRefresh
+      : const Stream.empty();
 
   /// Returns current platform string for backend storage
   String get currentPlatform {
@@ -207,11 +222,14 @@ class NotificationService {
 
   /// Displays local notification banner for foreground FCM messages
   void _handleForegroundMessage(RemoteMessage message) {
-    debugPrint('🔔 [FCM Foreground] Received: ${message.notification?.title} - ${message.notification?.body}');
+    debugPrint(
+      '🔔 [FCM Foreground] Received: ${message.notification?.title} - ${message.notification?.body}',
+    );
     debugPrint('🔔 [FCM Foreground Data] ${message.data}');
 
     final notification = message.notification;
-    final title = notification?.title ?? message.data['title'] ?? 'Nova notificação';
+    final title =
+        notification?.title ?? message.data['title'] ?? 'Nova notificação';
     final body = notification?.body ?? message.data['body'] ?? '';
 
     final payloadString = jsonEncode(message.data);
@@ -268,7 +286,9 @@ class NotificationService {
 
   /// Handles notification click when opening app from background or terminated state
   void _handleMessageOpenedApp(RemoteMessage message) {
-    debugPrint('🚀 [FCM MessageOpenedApp] User tapped notification: ${message.data}');
+    debugPrint(
+      '🚀 [FCM MessageOpenedApp] User tapped notification: ${message.data}',
+    );
     final route = extractRouteFromData(message.data);
     if (route != null && route.isNotEmpty) {
       _navigationStreamController.add(route);
@@ -297,7 +317,8 @@ class NotificationService {
     if (data.containsKey('route') && data['route'] != null) {
       return data['route'].toString();
     }
-    if (data.containsKey('conversation_id') && data['conversation_id'] != null) {
+    if (data.containsKey('conversation_id') &&
+        data['conversation_id'] != null) {
       return '/chat/${data['conversation_id']}';
     }
     if (data.containsKey('job_id') && data['job_id'] != null) {

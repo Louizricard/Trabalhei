@@ -25,7 +25,9 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   final _descController = TextEditingController();
   final _budgetMinController = TextEditingController(text: '3000');
   final _budgetMaxController = TextEditingController(text: '6000');
-  final _skillsController = TextEditingController(text: 'Flutter, Riverpod, Supabase');
+  final _skillsController = TextEditingController(
+    text: 'Flutter, Riverpod, Supabase',
+  );
   final _daysController = TextEditingController(text: '20');
 
   String _category = 'Mobile';
@@ -33,7 +35,14 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   bool _isLoading = false;
   List<PickedFileData> _selectedFiles = [];
 
-  final _categories = ['Mobile', 'Design', 'Fullstack', 'Frontend', 'Backend', 'DevOps'];
+  final _categories = [
+    'Mobile',
+    'Design',
+    'Fullstack',
+    'Frontend',
+    'Backend',
+    'DevOps',
+  ];
 
   @override
   void dispose() {
@@ -52,7 +61,11 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     final user = ref.read(authProvider).value;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Você precisa estar autenticado para publicar uma vaga.')),
+        const SnackBar(
+          content: Text(
+            'Você precisa estar autenticado para publicar uma vaga.',
+          ),
+        ),
       );
       return;
     }
@@ -114,7 +127,9 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Falha ao publicar vaga: ${e.toString().replaceAll("Exception: ", "")}'),
+            content: Text(
+              'Falha ao publicar vaga: ${e.toString().replaceAll("Exception: ", "")}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -146,29 +161,53 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Informações Básicas', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const Text(
+                        'Informações Básicas',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       CustomTextField(
                         controller: _titleController,
                         label: 'Título do Projeto',
-                        hint: 'Ex: Desenvolvimento de App em Flutter com Chat Realtime',
-                        validator: (v) => v != null && v.length >= 10 ? null : 'Mínimo de 10 caracteres',
+                        hint:
+                            'Ex: Desenvolvimento de App em Flutter com Chat Realtime',
+                        validator: (v) => v != null && v.length >= 10
+                            ? null
+                            : 'Mínimo de 10 caracteres',
                       ),
                       const SizedBox(height: 16),
-                      const Text('Categoria', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondaryDark)),
+                      const Text(
+                        'Categoria',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondaryDark,
+                        ),
+                      ),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
                         initialValue: _category,
-                        items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-                        onChanged: (val) => setState(() => _category = val ?? 'Mobile'),
+                        items: _categories
+                            .map(
+                              (c) => DropdownMenuItem(value: c, child: Text(c)),
+                            )
+                            .toList(),
+                        onChanged: (val) =>
+                            setState(() => _category = val ?? 'Mobile'),
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
                         controller: _descController,
                         label: 'Descrição Detalhada dos Requisitos',
-                        hint: 'Explique os objetivos, entregáveis esperados, integrações e escopo do projeto...',
+                        hint:
+                            'Explique os objetivos, entregáveis esperados, integrações e escopo do projeto...',
                         maxLines: 5,
-                        validator: (v) => v != null && v.length >= 30 ? null : 'Mínimo de 30 caracteres',
+                        validator: (v) => v != null && v.length >= 30
+                            ? null
+                            : 'Mínimo de 30 caracteres',
                       ),
                     ],
                   ),
@@ -179,7 +218,13 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Orçamento e Prazos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const Text(
+                        'Orçamento e Prazos',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       Row(
                         children: [
@@ -215,8 +260,20 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                       const SizedBox(height: 12),
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Destacar como Urgente 🔥', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                        subtitle: const Text('Aparece em destaque no topo do mural para freelancers', style: TextStyle(fontSize: 12, color: AppColors.textMutedDark)),
+                        title: const Text(
+                          'Destacar como Urgente 🔥',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        subtitle: const Text(
+                          'Aparece em destaque no topo do mural para freelancers',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textMutedDark,
+                          ),
+                        ),
                         value: _isUrgent,
                         onChanged: (val) => setState(() => _isUrgent = val),
                       ),
@@ -228,9 +285,11 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                   padding: const EdgeInsets.all(20),
                   child: AttachmentPickerSection(
                     selectedFiles: _selectedFiles,
-                    onChanged: (files) => setState(() => _selectedFiles = files),
+                    onChanged: (files) =>
+                        setState(() => _selectedFiles = files),
                     title: 'Anexos e Especificações da Vaga',
-                    hintText: 'Adicione briefings, PDFs, protótipos em imagem ou documentos para orientar os freelancers.',
+                    hintText:
+                        'Adicione briefings, PDFs, protótipos em imagem ou documentos para orientar os freelancers.',
                   ),
                 ),
                 const SizedBox(height: 24),

@@ -25,7 +25,9 @@ class PaymentIntentResult {
 
   factory PaymentIntentResult.fromJson(Map<String, dynamic> json) {
     return PaymentIntentResult(
-      success: json['success'] as bool? ?? (json['status'] == 'approved' || json['status'] == 'pending'),
+      success:
+          json['success'] as bool? ??
+          (json['status'] == 'approved' || json['status'] == 'pending'),
       transactionId: json['transaction_id'] as String?,
       gatewayRef: json['gateway_ref']?.toString(),
       status: json['status'] as String? ?? 'pending',
@@ -33,7 +35,9 @@ class PaymentIntentResult {
       qrCode: json['qr_code'] as String?,
       qrCodeBase64: json['qr_code_base64'] as String?,
       ticketUrl: json['ticket_url'] as String?,
-      expiresAt: json['expires_at'] != null ? DateTime.tryParse(json['expires_at'] as String) : null,
+      expiresAt: json['expires_at'] != null
+          ? DateTime.tryParse(json['expires_at'] as String)
+          : null,
       errorMessage: json['error'] as String?,
     );
   }
@@ -76,10 +80,14 @@ class CardPaymentData {
 
   String detectBrand() {
     final num = cleanCardNumber;
-    if (RegExp(r'^(4011|4312|4389|4514|4576|5041|5066|5067|509|6277|6362|6363|650|6516|6550)').hasMatch(num)) return 'elo';
+    if (RegExp(
+      r'^(4011|4312|4389|4514|4576|5041|5066|5067|509|6277|6362|6363|650|6516|6550)',
+    ).hasMatch(num))
+      return 'elo';
     if (RegExp(r'^(606282|3841)').hasMatch(num)) return 'hipercard';
     if (RegExp(r'^(34|37)').hasMatch(num)) return 'amex';
-    if (RegExp(r'^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[0-1]|2720)').hasMatch(num)) return 'master';
+    if (RegExp(r'^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[0-1]|2720)').hasMatch(num))
+      return 'master';
     if (RegExp(r'^(6011|65|64[4-9])').hasMatch(num)) return 'discover';
     if (RegExp(r'^(301|305|36|38)').hasMatch(num)) return 'diners';
     if (num.startsWith('4')) return 'visa';

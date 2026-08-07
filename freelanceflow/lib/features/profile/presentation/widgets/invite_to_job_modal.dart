@@ -65,7 +65,9 @@ class _InviteToJobModalState extends ConsumerState<InviteToJobModal> {
     if (_selectedJobId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Você precisa publicar uma vaga antes de convidar freelancers.'),
+          content: Text(
+            'Você precisa publicar uma vaga antes de convidar freelancers.',
+          ),
           backgroundColor: AppColors.warning,
         ),
       );
@@ -95,7 +97,9 @@ class _InviteToJobModalState extends ConsumerState<InviteToJobModal> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao enviar convite: ${e.toString().replaceAll("Exception: ", "")}'),
+            content: Text(
+              'Erro ao enviar convite: ${e.toString().replaceAll("Exception: ", "")}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -124,10 +128,15 @@ class _InviteToJobModalState extends ConsumerState<InviteToJobModal> {
         ),
         error: (err, _) => Padding(
           padding: const EdgeInsets.all(20),
-          child: Text('Erro ao carregar vagas: $err', style: const TextStyle(color: AppColors.error)),
+          child: Text(
+            'Erro ao carregar vagas: $err',
+            style: const TextStyle(color: AppColors.error),
+          ),
         ),
         data: (allJobs) {
-          final myJobs = allJobs.where((j) => j.clientId == client?.id).toList();
+          final myJobs = allJobs
+              .where((j) => j.clientId == client?.id)
+              .toList();
 
           return Column(
             mainAxisSize: MainAxisSize.min,
@@ -158,7 +167,10 @@ class _InviteToJobModalState extends ConsumerState<InviteToJobModal> {
               const SizedBox(height: 6),
               const Text(
                 'Selecione uma vaga em aberto e envie uma mensagem direta de convite.',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondaryDark,
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -172,17 +184,27 @@ class _InviteToJobModalState extends ConsumerState<InviteToJobModal> {
                   ),
                   child: Column(
                     children: [
-                      const Icon(Icons.work_outline_rounded, color: AppColors.warning, size: 32),
+                      const Icon(
+                        Icons.work_outline_rounded,
+                        color: AppColors.warning,
+                        size: 32,
+                      ),
                       const SizedBox(height: 8),
                       const Text(
                         'Você ainda não possui vagas abertas',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimaryDark,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       const Text(
                         'Crie um projeto primeiro para poder convidar profissionais.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondaryDark,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       CustomButton(
@@ -200,7 +222,11 @@ class _InviteToJobModalState extends ConsumerState<InviteToJobModal> {
               ] else ...[
                 const Text(
                   'Selecione o Projeto',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondaryDark),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondaryDark,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Container(
@@ -220,7 +246,10 @@ class _InviteToJobModalState extends ConsumerState<InviteToJobModal> {
                           value: j.id,
                           child: Text(
                             j.title,
-                            style: const TextStyle(color: AppColors.textPrimaryDark, fontSize: 14),
+                            style: const TextStyle(
+                              color: AppColors.textPrimaryDark,
+                              fontSize: 14,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         );

@@ -12,7 +12,9 @@ class ServerFailure extends Failure {
 }
 
 class AuthFailure extends Failure {
-  const AuthFailure([super.message = 'Falha de autenticação. Verifique suas credenciais.']);
+  const AuthFailure([
+    super.message = 'Falha de autenticação. Verifique suas credenciais.',
+  ]);
 }
 
 class NotFoundFailure extends Failure {

@@ -22,7 +22,9 @@ class PortfolioItem {
       description: json['description'] as String? ?? '',
       imageUrl: json['image_url'] as String? ?? '',
       projectUrl: json['project_url'] as String?,
-      tags: (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+          [],
     );
   }
 

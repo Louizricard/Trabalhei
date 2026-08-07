@@ -15,7 +15,9 @@ class ProposalRemoteDataSource {
           .order('created_at', ascending: false);
 
       final List<dynamic> data = response as List<dynamic>;
-      return data.map((json) => Proposal.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map((json) => Proposal.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       final response = await _supabase
           .from('proposals')
@@ -24,7 +26,9 @@ class ProposalRemoteDataSource {
           .order('created_at', ascending: false);
 
       final List<dynamic> data = response as List<dynamic>;
-      return data.map((json) => Proposal.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map((json) => Proposal.fromJson(json as Map<String, dynamic>))
+          .toList();
     }
   }
 
@@ -37,7 +41,9 @@ class ProposalRemoteDataSource {
           .order('created_at', ascending: false);
 
       final List<dynamic> data = response as List<dynamic>;
-      return data.map((json) => Proposal.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map((json) => Proposal.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       final response = await _supabase
           .from('proposals')
@@ -46,7 +52,9 @@ class ProposalRemoteDataSource {
           .order('created_at', ascending: false);
 
       final List<dynamic> data = response as List<dynamic>;
-      return data.map((json) => Proposal.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map((json) => Proposal.fromJson(json as Map<String, dynamic>))
+          .toList();
     }
   }
 
@@ -104,6 +112,25 @@ class ProposalRemoteDataSource {
       'accept_proposal_and_create_contract',
       params: {'p_proposal_id': proposalId},
     );
+
+    // Garante que o status da vaga seja alterado para 'in_progress' saindo do mural
+    try {
+      final propRes = await _supabase
+          .from('proposals')
+          .select('job_id')
+          .eq('id', proposalId)
+          .maybeSingle();
+      if (propRes != null && propRes['job_id'] != null) {
+        await _supabase
+            .from('jobs')
+            .update({
+              'status': 'in_progress',
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+            .eq('id', propRes['job_id']);
+      }
+    } catch (_) {}
+
     if (response is Map<String, dynamic>) {
       return response;
     }
@@ -116,7 +143,10 @@ class ProposalRemoteDataSource {
       return;
     }
     final statusStr = Proposal.statusToString(status);
-    await _supabase.from('proposals').update({'status': statusStr}).eq('id', proposalId);
+    await _supabase
+        .from('proposals')
+        .update({'status': statusStr})
+        .eq('id', proposalId);
   }
 
   Future<void> makeCounterOffer({
@@ -129,14 +159,17 @@ class ProposalRemoteDataSource {
     if (user == null) throw Exception('Usuário não autenticado.');
 
     // 1. Atualizar proposta com a contraproposta
-    await _supabase.from('proposals').update({
-      'status': 'counter_offered',
-      'counter_price': counterPrice,
-      'counter_estimated_days': counterEstimatedDays,
-      'counter_message': counterMessage?.trim(),
-      'counter_by_user_id': user.id,
-      'counter_created_at': DateTime.now().toIso8601String(),
-    }).eq('id', proposalId);
+    await _supabase
+        .from('proposals')
+        .update({
+          'status': 'counter_offered',
+          'counter_price': counterPrice,
+          'counter_estimated_days': counterEstimatedDays,
+          'counter_message': counterMessage?.trim(),
+          'counter_by_user_id': user.id,
+          'counter_created_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', proposalId);
 
     // 2. Registrar no histórico de contrapropostas
     try {
@@ -151,27 +184,43 @@ class ProposalRemoteDataSource {
   }
 
   Future<void> acceptCounterOffer(String proposalId) async {
-    final prop = await _supabase.from('proposals').select('*').eq('id', proposalId).single();
-    final counterPrice = (prop['counter_price'] as num?)?.toDouble() ?? (prop['bid_amount'] as num?)?.toDouble() ?? 0.0;
-    final counterDays = (prop['counter_estimated_days'] as num?)?.toInt() ?? (prop['estimated_days'] as num?)?.toInt() ?? 14;
+    final prop = await _supabase
+        .from('proposals')
+        .select('*')
+        .eq('id', proposalId)
+        .single();
+    final counterPrice =
+        (prop['counter_price'] as num?)?.toDouble() ??
+        (prop['bid_amount'] as num?)?.toDouble() ??
+        0.0;
+    final counterDays =
+        (prop['counter_estimated_days'] as num?)?.toInt() ??
+        (prop['estimated_days'] as num?)?.toInt() ??
+        14;
 
     // Atualizar valores da proposta e aceitar
-    await _supabase.from('proposals').update({
-      'bid_amount': counterPrice,
-      'amount': counterPrice,
-      'estimated_days': counterDays,
-      'status': 'accepted',
-    }).eq('id', proposalId);
+    await _supabase
+        .from('proposals')
+        .update({
+          'bid_amount': counterPrice,
+          'amount': counterPrice,
+          'estimated_days': counterDays,
+          'status': 'accepted',
+        })
+        .eq('id', proposalId);
 
     await updateStatus(proposalId, ProposalStatus.accepted);
   }
 
   Future<void> rejectCounterOffer(String proposalId) async {
-    await _supabase.from('proposals').update({
-      'status': 'pending',
-      'counter_price': null,
-      'counter_estimated_days': null,
-      'counter_message': null,
-    }).eq('id', proposalId);
+    await _supabase
+        .from('proposals')
+        .update({
+          'status': 'pending',
+          'counter_price': null,
+          'counter_estimated_days': null,
+          'counter_message': null,
+        })
+        .eq('id', proposalId);
   }
 }

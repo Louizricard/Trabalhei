@@ -14,10 +14,12 @@ class FreelancersSearchScreen extends ConsumerStatefulWidget {
   const FreelancersSearchScreen({super.key});
 
   @override
-  ConsumerState<FreelancersSearchScreen> createState() => _FreelancersSearchScreenState();
+  ConsumerState<FreelancersSearchScreen> createState() =>
+      _FreelancersSearchScreenState();
 }
 
-class _FreelancersSearchScreenState extends ConsumerState<FreelancersSearchScreen> {
+class _FreelancersSearchScreenState
+    extends ConsumerState<FreelancersSearchScreen> {
   final _searchController = TextEditingController();
 
   final _skillsList = [
@@ -99,7 +101,10 @@ class _FreelancersSearchScreenState extends ConsumerState<FreelancersSearchScree
                 style: const TextStyle(color: AppColors.textPrimaryDark),
                 decoration: InputDecoration(
                   hintText: 'Buscar por nome, cargo ou habilidades...',
-                  prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMutedDark),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: AppColors.textMutedDark,
+                  ),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear_rounded, size: 18),
@@ -119,12 +124,16 @@ class _FreelancersSearchScreenState extends ConsumerState<FreelancersSearchScree
               height: 46,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 itemCount: _skillsList.length,
                 separatorBuilder: (context, index) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   final skill = _skillsList[index];
-                  final isSelected = (filter.skill == skill) ||
+                  final isSelected =
+                      (filter.skill == skill) ||
                       (filter.skill == null && skill == 'Todos') ||
                       (filter.skill == '' && skill == 'Todos');
 
@@ -132,21 +141,27 @@ class _FreelancersSearchScreenState extends ConsumerState<FreelancersSearchScree
                     label: Text(skill),
                     selected: isSelected,
                     onSelected: (_) {
-                      ref.read(freelancerSearchFilterProvider.notifier).setSkill(
-                            skill == 'Todos' ? null : skill,
-                          );
+                      ref
+                          .read(freelancerSearchFilterProvider.notifier)
+                          .setSkill(skill == 'Todos' ? null : skill);
                     },
                     selectedColor: AppColors.primaryContainer,
                     backgroundColor: AppColors.surfaceElevatedDark,
                     labelStyle: TextStyle(
                       fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? AppColors.primary : AppColors.textSecondaryDark,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.textSecondaryDark,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                       side: BorderSide(
-                        color: isSelected ? AppColors.primary : AppColors.borderDark,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.borderDark,
                       ),
                     ),
                   );
@@ -181,12 +196,19 @@ class _FreelancersSearchScreenState extends ConsumerState<FreelancersSearchScree
                         child: EmptyStateWidget(
                           icon: Icons.people_outline_rounded,
                           title: 'Nenhum freelancer encontrado',
-                          description: 'Tente ajustar os termos de busca ou limpar os filtros aplicados.',
-                          actionText: filter.hasActiveFilters ? 'Limpar Filtros' : null,
+                          description:
+                              'Tente ajustar os termos de busca ou limpar os filtros aplicados.',
+                          actionText: filter.hasActiveFilters
+                              ? 'Limpar Filtros'
+                              : null,
                           onAction: filter.hasActiveFilters
                               ? () {
                                   _searchController.clear();
-                                  ref.read(freelancerSearchFilterProvider.notifier).resetFilters();
+                                  ref
+                                      .read(
+                                        freelancerSearchFilterProvider.notifier,
+                                      )
+                                      .resetFilters();
                                 }
                               : null,
                         ),
@@ -200,12 +222,13 @@ class _FreelancersSearchScreenState extends ConsumerState<FreelancersSearchScree
                         if (isWide) {
                           return GridView.builder(
                             padding: const EdgeInsets.all(16),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              mainAxisExtent: 250,
-                            ),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                  mainAxisExtent: 250,
+                                ),
                             itemCount: freelancers.length,
                             itemBuilder: (context, index) {
                               final f = freelancers[index];
@@ -222,7 +245,8 @@ class _FreelancersSearchScreenState extends ConsumerState<FreelancersSearchScree
                         return ListView.separated(
                           padding: const EdgeInsets.all(16),
                           itemCount: freelancers.length,
-                          separatorBuilder: (context, index) => const SizedBox(height: 14),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 14),
                           itemBuilder: (context, index) {
                             final f = freelancers[index];
                             return FreelancerCard(

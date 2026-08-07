@@ -9,17 +9,26 @@ import 'glass_card.dart';
 /// Utilitários para detecção de tipo de anexo
 class AttachmentHelper {
   static bool isImage(Map<String, dynamic> attachment) {
-    final mime = (attachment['mime_type'] ?? attachment['mimeType'] ?? attachment['mime'] ?? '').toString().toLowerCase();
+    final mime =
+        (attachment['mime_type'] ??
+                attachment['mimeType'] ??
+                attachment['mime'] ??
+                '')
+            .toString()
+            .toLowerCase();
     if (mime.startsWith('image/')) return true;
 
     final name = (attachment['name'] ?? '').toString().toLowerCase();
     final url = (attachment['url'] ?? '').toString().toLowerCase();
-    final ext = (name.split('.').lastOrNull ?? url.split('.').lastOrNull ?? '').toLowerCase();
+    final ext = (name.split('.').lastOrNull ?? url.split('.').lastOrNull ?? '')
+        .toLowerCase();
     return ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'heic'].contains(ext);
   }
 
   static String formatSize(dynamic rawSize) {
-    final size = (rawSize is num) ? rawSize.toInt() : int.tryParse(rawSize?.toString() ?? '') ?? 0;
+    final size = (rawSize is num)
+        ? rawSize.toInt()
+        : int.tryParse(rawSize?.toString() ?? '') ?? 0;
     if (size <= 0) return '';
     if (size < 1024) return '$size B';
     if (size < 1024 * 1024) return '${(size / 1024).toStringAsFixed(1)} KB';
@@ -50,10 +59,7 @@ class _ImageViewerDialog extends StatefulWidget {
   final List<Map<String, dynamic>> images;
   final int initialIndex;
 
-  const _ImageViewerDialog({
-    required this.images,
-    this.initialIndex = 0,
-  });
+  const _ImageViewerDialog({required this.images, this.initialIndex = 0});
 
   @override
   State<_ImageViewerDialog> createState() => _ImageViewerDialogState();
@@ -89,7 +95,8 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
   @override
   Widget build(BuildContext context) {
     final currentImage = widget.images[_currentIndex];
-    final currentName = currentImage['name'] as String? ?? 'Imagem ${_currentIndex + 1}';
+    final currentName =
+        currentImage['name'] as String? ?? 'Imagem ${_currentIndex + 1}';
     final currentUrl = currentImage['url'] as String? ?? '';
     final currentSize = AttachmentHelper.formatSize(currentImage['size']);
 
@@ -120,22 +127,35 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
                   maxScale: 4.5,
                   child: Center(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 80),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 80,
+                      ),
                       child: Image.network(
                         url,
                         fit: BoxFit.contain,
                         loadingBuilder: (ctx, child, progress) {
                           if (progress == null) return child;
                           return const Center(
-                            child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2.5),
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                              strokeWidth: 2.5,
+                            ),
                           );
                         },
                         errorBuilder: (ctx, error, stackTrace) => Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
-                            Icon(Icons.broken_image_rounded, size: 64, color: AppColors.error),
+                            Icon(
+                              Icons.broken_image_rounded,
+                              size: 64,
+                              color: AppColors.error,
+                            ),
                             SizedBox(height: 12),
-                            Text('Não foi possível carregar a imagem', style: TextStyle(color: AppColors.pureWhite)),
+                            Text(
+                              'Não foi possível carregar a imagem',
+                              style: TextStyle(color: AppColors.pureWhite),
+                            ),
                           ],
                         ),
                       ),
@@ -153,7 +173,10 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
             right: 0,
             child: SafeArea(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
@@ -165,7 +188,11 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
                   children: [
                     // Botão Fechar
                     IconButton(
-                      icon: const Icon(Icons.close_rounded, color: AppColors.pureWhite, size: 26),
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        color: AppColors.pureWhite,
+                        size: 26,
+                      ),
                       tooltip: 'Fechar',
                       onPressed: () => Navigator.of(context).pop(),
                     ),
@@ -190,7 +217,10 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
                           if (currentSize.isNotEmpty)
                             Text(
                               currentSize,
-                              style: const TextStyle(color: AppColors.textSecondaryDark, fontSize: 11),
+                              style: const TextStyle(
+                                color: AppColors.textSecondaryDark,
+                                fontSize: 11,
+                              ),
                             ),
                         ],
                       ),
@@ -199,7 +229,10 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
                     // Badge de contagem (ex: 1 / 3)
                     if (widget.images.length > 1) ...[
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.surfaceElevatedDark.withAlpha(200),
                           borderRadius: BorderRadius.circular(20),
@@ -219,9 +252,16 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
 
                     if (currentUrl.isNotEmpty)
                       IconButton(
-                        icon: const Icon(Icons.open_in_new_rounded, color: AppColors.pureWhite, size: 20),
+                        icon: const Icon(
+                          Icons.open_in_new_rounded,
+                          color: AppColors.pureWhite,
+                          size: 20,
+                        ),
                         tooltip: 'Abrir original',
-                        onPressed: () => launchUrl(Uri.parse(currentUrl), mode: LaunchMode.externalApplication),
+                        onPressed: () => launchUrl(
+                          Uri.parse(currentUrl),
+                          mode: LaunchMode.externalApplication,
+                        ),
                       ),
                   ],
                 ),
@@ -241,7 +281,11 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
                     color: Colors.black.withAlpha(140),
                     shape: const CircleBorder(),
                     child: IconButton(
-                      icon: const Icon(Icons.chevron_left_rounded, color: AppColors.pureWhite, size: 36),
+                      icon: const Icon(
+                        Icons.chevron_left_rounded,
+                        color: AppColors.pureWhite,
+                        size: 36,
+                      ),
                       onPressed: () => _goTo(_currentIndex - 1),
                     ),
                   ),
@@ -257,7 +301,11 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
                     color: Colors.black.withAlpha(140),
                     shape: const CircleBorder(),
                     child: IconButton(
-                      icon: const Icon(Icons.chevron_right_rounded, color: AppColors.pureWhite, size: 36),
+                      icon: const Icon(
+                        Icons.chevron_right_rounded,
+                        color: AppColors.pureWhite,
+                        size: 36,
+                      ),
                       onPressed: () => _goTo(_currentIndex + 1),
                     ),
                   ),
@@ -273,7 +321,10 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
               right: 0,
               child: SafeArea(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.bottomCenter,
@@ -288,7 +339,8 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
                         mainAxisSize: MainAxisSize.min,
                         children: List.generate(widget.images.length, (idx) {
                           final isSelected = idx == _currentIndex;
-                          final thumbUrl = widget.images[idx]['url'] as String? ?? '';
+                          final thumbUrl =
+                              widget.images[idx]['url'] as String? ?? '';
 
                           return GestureDetector(
                             onTap: () => _goTo(idx),
@@ -300,16 +352,20 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
-                                  color: isSelected ? AppColors.primary : AppColors.borderDark,
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : AppColors.borderDark,
                                   width: isSelected ? 2.5 : 1,
                                 ),
                                 boxShadow: isSelected
                                     ? [
                                         BoxShadow(
-                                          color: AppColors.primary.withAlpha(100),
+                                          color: AppColors.primary.withAlpha(
+                                            100,
+                                          ),
                                           blurRadius: 8,
                                           spreadRadius: 1,
-                                        )
+                                        ),
                                       ]
                                     : null,
                               ),
@@ -318,10 +374,15 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
                                 child: Image.network(
                                   thumbUrl,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) => Container(
-                                    color: AppColors.surfaceDark,
-                                    child: const Icon(Icons.image, color: AppColors.textMutedDark, size: 20),
-                                  ),
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Container(
+                                        color: AppColors.surfaceDark,
+                                        child: const Icon(
+                                          Icons.image,
+                                          color: AppColors.textMutedDark,
+                                          size: 20,
+                                        ),
+                                      ),
                                 ),
                               ),
                             ),
@@ -359,25 +420,47 @@ class AttachmentPickerSection extends ConsumerStatefulWidget {
   static Widget buildFileIcon(String name) {
     final ext = name.split('.').last.toLowerCase();
     if (ext == 'pdf') {
-      return const Icon(Icons.picture_as_pdf_rounded, size: 18, color: AppColors.error);
+      return const Icon(
+        Icons.picture_as_pdf_rounded,
+        size: 18,
+        color: AppColors.error,
+      );
     }
     if (['png', 'jpg', 'jpeg', 'webp', 'gif'].contains(ext)) {
-      return const Icon(Icons.image_rounded, size: 18, color: AppColors.primaryLight);
+      return const Icon(
+        Icons.image_rounded,
+        size: 18,
+        color: AppColors.primaryLight,
+      );
     }
     if (['doc', 'docx'].contains(ext)) {
-      return const Icon(Icons.description_rounded, size: 18, color: AppColors.info);
+      return const Icon(
+        Icons.description_rounded,
+        size: 18,
+        color: AppColors.info,
+      );
     }
     if (ext == 'zip') {
-      return const Icon(Icons.folder_zip_rounded, size: 18, color: AppColors.warning);
+      return const Icon(
+        Icons.folder_zip_rounded,
+        size: 18,
+        color: AppColors.warning,
+      );
     }
-    return const Icon(Icons.insert_drive_file_rounded, size: 18, color: AppColors.textSecondaryDark);
+    return const Icon(
+      Icons.insert_drive_file_rounded,
+      size: 18,
+      color: AppColors.textSecondaryDark,
+    );
   }
 
   @override
-  ConsumerState<AttachmentPickerSection> createState() => _AttachmentPickerSectionState();
+  ConsumerState<AttachmentPickerSection> createState() =>
+      _AttachmentPickerSectionState();
 }
 
-class _AttachmentPickerSectionState extends ConsumerState<AttachmentPickerSection> {
+class _AttachmentPickerSectionState
+    extends ConsumerState<AttachmentPickerSection> {
   bool _isPicking = false;
 
   Future<void> _pickFiles() async {
@@ -396,13 +479,24 @@ class _AttachmentPickerSectionState extends ConsumerState<AttachmentPickerSectio
 
     try {
       final picked = await storage.pickMultipleFiles(
-        allowedExtensions: ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg', 'webp', 'zip', 'txt'],
+        allowedExtensions: [
+          'pdf',
+          'doc',
+          'docx',
+          'png',
+          'jpg',
+          'jpeg',
+          'webp',
+          'zip',
+          'txt',
+        ],
       );
 
       if (picked.isNotEmpty) {
         final current = List<PickedFileData>.from(widget.selectedFiles);
         for (final f in picked) {
-          if (!current.any((c) => c.name == f.name) && current.length < widget.maxFiles) {
+          if (!current.any((c) => c.name == f.name) &&
+              current.length < widget.maxFiles) {
             current.add(f);
           }
         }
@@ -414,7 +508,8 @@ class _AttachmentPickerSectionState extends ConsumerState<AttachmentPickerSectio
   }
 
   void _removeFile(int index) {
-    final current = List<PickedFileData>.from(widget.selectedFiles)..removeAt(index);
+    final current = List<PickedFileData>.from(widget.selectedFiles)
+      ..removeAt(index);
     widget.onChanged(current);
   }
 
@@ -428,16 +523,29 @@ class _AttachmentPickerSectionState extends ConsumerState<AttachmentPickerSectio
           children: [
             Text(
               widget.title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryDark),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: AppColors.textPrimaryDark,
+              ),
             ),
             Text(
               '${widget.selectedFiles.length}/${widget.maxFiles}',
-              style: const TextStyle(fontSize: 12, color: AppColors.textMutedDark),
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textMutedDark,
+              ),
             ),
           ],
         ),
         const SizedBox(height: 6),
-        Text(widget.hintText, style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark)),
+        Text(
+          widget.hintText,
+          style: const TextStyle(
+            fontSize: 12,
+            color: AppColors.textSecondaryDark,
+          ),
+        ),
         const SizedBox(height: 10),
         if (widget.selectedFiles.isNotEmpty) ...[
           Wrap(
@@ -446,7 +554,10 @@ class _AttachmentPickerSectionState extends ConsumerState<AttachmentPickerSectio
             children: List.generate(widget.selectedFiles.length, (index) {
               final file = widget.selectedFiles[index];
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceElevatedDark,
                   borderRadius: BorderRadius.circular(10),
@@ -461,16 +572,29 @@ class _AttachmentPickerSectionState extends ConsumerState<AttachmentPickerSectio
                       constraints: const BoxConstraints(maxWidth: 160),
                       child: Text(
                         file.name,
-                        style: const TextStyle(fontSize: 12, color: AppColors.textPrimaryDark),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textPrimaryDark,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Text('(${file.formattedSize})', style: const TextStyle(fontSize: 10, color: AppColors.textMutedDark)),
+                    Text(
+                      '(${file.formattedSize})',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: AppColors.textMutedDark,
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     InkWell(
                       onTap: () => _removeFile(index),
-                      child: const Icon(Icons.close_rounded, size: 16, color: AppColors.error),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        size: 16,
+                        color: AppColors.error,
+                      ),
                     ),
                   ],
                 ),
@@ -483,12 +607,18 @@ class _AttachmentPickerSectionState extends ConsumerState<AttachmentPickerSectio
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.primaryLight,
             side: const BorderSide(color: AppColors.borderDark),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           ),
           onPressed: _isPicking ? null : _pickFiles,
           icon: _isPicking
-              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
               : const Icon(Icons.attach_file_rounded, size: 18),
           label: Text(_isPicking ? 'Selecionando...' : 'Selecionar Arquivos'),
         ),
@@ -516,7 +646,9 @@ class AttachmentCardsList extends ConsumerWidget {
 
     // Separar em imagens (Galeria) e documentos (Arquivos)
     final images = attachments.where(AttachmentHelper.isImage).toList();
-    final documents = attachments.where((a) => !AttachmentHelper.isImage(a)).toList();
+    final documents = attachments
+        .where((a) => !AttachmentHelper.isImage(a))
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -527,11 +659,19 @@ class AttachmentCardsList extends ConsumerWidget {
         if (images.isNotEmpty) ...[
           Row(
             children: [
-              const Icon(Icons.photo_library_rounded, size: 18, color: AppColors.primaryLight),
+              const Icon(
+                Icons.photo_library_rounded,
+                size: 18,
+                color: AppColors.primaryLight,
+              ),
               const SizedBox(width: 8),
               Text(
                 'Galeria de Fotos (${images.length})',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimaryDark,
+                ),
               ),
               const SizedBox(width: 8),
               Container(
@@ -543,7 +683,11 @@ class AttachmentCardsList extends ConsumerWidget {
                 ),
                 child: const Text(
                   'Clique para ampliar',
-                  style: TextStyle(fontSize: 11, color: AppColors.primaryLight, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.primaryLight,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -561,11 +705,19 @@ class AttachmentCardsList extends ConsumerWidget {
         if (documents.isNotEmpty) ...[
           Row(
             children: [
-              const Icon(Icons.description_rounded, size: 18, color: AppColors.info),
+              const Icon(
+                Icons.description_rounded,
+                size: 18,
+                color: AppColors.info,
+              ),
               const SizedBox(width: 8),
               Text(
                 'Documentos e Arquivos (${documents.length})',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimaryDark,
+                ),
               ),
             ],
           ),
@@ -582,7 +734,10 @@ class AttachmentCardsList extends ConsumerWidget {
               final sizeStr = AttachmentHelper.formatSize(data['size']);
 
               return GlassCard(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 child: Row(
                   children: [
                     CircleAvatar(
@@ -597,25 +752,41 @@ class AttachmentCardsList extends ConsumerWidget {
                         children: [
                           Text(
                             name,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimaryDark),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimaryDark,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           if (sizeStr.isNotEmpty)
-                            Text(sizeStr, style: const TextStyle(fontSize: 11, color: AppColors.textMutedDark)),
+                            Text(
+                              sizeStr,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textMutedDark,
+                              ),
+                            ),
                         ],
                       ),
                     ),
                     const SizedBox(width: 8),
                     IconButton(
-                      icon: const Icon(Icons.download_rounded, color: AppColors.primaryLight, size: 20),
+                      icon: const Icon(
+                        Icons.download_rounded,
+                        color: AppColors.primaryLight,
+                        size: 20,
+                      ),
                       tooltip: 'Baixar Documento',
                       onPressed: () {
                         if (url.isNotEmpty) {
                           storage.launchAttachment(url);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('URL do arquivo não disponível.')),
+                            const SnackBar(
+                              content: Text('URL do arquivo não disponível.'),
+                            ),
                           );
                         }
                       },
@@ -631,24 +802,36 @@ class AttachmentCardsList extends ConsumerWidget {
   }
 
   /// Constrói a visualização em grade no formato galeria
-  Widget _buildImageGrid(BuildContext context, List<Map<String, dynamic>> images) {
+  Widget _buildImageGrid(
+    BuildContext context,
+    List<Map<String, dynamic>> images,
+  ) {
     if (images.length == 1) {
       // Única imagem em destaque
-      return _buildImageCard(
-        context,
-        images: images,
-        index: 0,
-        height: 220,
-      );
+      return _buildImageCard(context, images: images, index: 0, height: 220);
     }
 
     if (images.length == 2) {
       // Duas imagens lado a lado
       return Row(
         children: [
-          Expanded(child: _buildImageCard(context, images: images, index: 0, height: 160)),
+          Expanded(
+            child: _buildImageCard(
+              context,
+              images: images,
+              index: 0,
+              height: 160,
+            ),
+          ),
           const SizedBox(width: 12),
-          Expanded(child: _buildImageCard(context, images: images, index: 1, height: 160)),
+          Expanded(
+            child: _buildImageCard(
+              context,
+              images: images,
+              index: 1,
+              height: 160,
+            ),
+          ),
         ],
       );
     }
@@ -665,11 +848,7 @@ class AttachmentCardsList extends ConsumerWidget {
       ),
       itemCount: images.length,
       itemBuilder: (context, index) {
-        return _buildImageCard(
-          context,
-          images: images,
-          index: index,
-        );
+        return _buildImageCard(context, images: images, index: index);
       },
     );
   }
@@ -686,7 +865,8 @@ class AttachmentCardsList extends ConsumerWidget {
     final sizeStr = AttachmentHelper.formatSize(data['size']);
 
     return InkWell(
-      onTap: () => showImageViewerGallery(context, images: images, initialIndex: index),
+      onTap: () =>
+          showImageViewerGallery(context, images: images, initialIndex: index),
       borderRadius: BorderRadius.circular(14),
       child: Container(
         height: height,
@@ -718,7 +898,10 @@ class AttachmentCardsList extends ConsumerWidget {
                     child: SizedBox(
                       width: 24,
                       height: 24,
-                      child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                        strokeWidth: 2,
+                      ),
                     ),
                   ),
                 );
@@ -726,7 +909,11 @@ class AttachmentCardsList extends ConsumerWidget {
               errorBuilder: (ctx, error, stackTrace) => Container(
                 color: AppColors.surfaceDark,
                 child: const Center(
-                  child: Icon(Icons.broken_image_rounded, color: AppColors.error, size: 28),
+                  child: Icon(
+                    Icons.broken_image_rounded,
+                    color: AppColors.error,
+                    size: 28,
+                  ),
                 ),
               ),
             ),
@@ -763,7 +950,10 @@ class AttachmentCardsList extends ConsumerWidget {
                       const SizedBox(width: 4),
                       Text(
                         sizeStr,
-                        style: const TextStyle(color: AppColors.textSecondaryDark, fontSize: 9),
+                        style: const TextStyle(
+                          color: AppColors.textSecondaryDark,
+                          fontSize: 9,
+                        ),
                       ),
                     ],
                   ],

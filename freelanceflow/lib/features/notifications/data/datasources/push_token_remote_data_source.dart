@@ -8,13 +8,9 @@ abstract class PushTokenRemoteDataSource {
     required String platform,
   });
 
-  Future<void> deleteToken({
-    required String token,
-  });
+  Future<void> deleteToken({required String token});
 
-  Future<List<PushToken>> getTokensForUser({
-    required String userId,
-  });
+  Future<List<PushToken>> getTokensForUser({required String userId});
 }
 
 class PushTokenRemoteDataSourceImpl implements PushTokenRemoteDataSource {
@@ -28,28 +24,21 @@ class PushTokenRemoteDataSourceImpl implements PushTokenRemoteDataSource {
     required String token,
     required String platform,
   }) async {
-    await _supabase.from('user_push_tokens').upsert(
-      {
-        'user_id': userId,
-        'token': token,
-        'platform': platform,
-        'updated_at': DateTime.now().toIso8601String(),
-      },
-      onConflict: 'token',
-    );
+    await _supabase.from('user_push_tokens').upsert({
+      'user_id': userId,
+      'token': token,
+      'platform': platform,
+      'updated_at': DateTime.now().toIso8601String(),
+    }, onConflict: 'token');
   }
 
   @override
-  Future<void> deleteToken({
-    required String token,
-  }) async {
+  Future<void> deleteToken({required String token}) async {
     await _supabase.from('user_push_tokens').delete().eq('token', token);
   }
 
   @override
-  Future<List<PushToken>> getTokensForUser({
-    required String userId,
-  }) async {
+  Future<List<PushToken>> getTokensForUser({required String userId}) async {
     final response = await _supabase
         .from('user_push_tokens')
         .select()

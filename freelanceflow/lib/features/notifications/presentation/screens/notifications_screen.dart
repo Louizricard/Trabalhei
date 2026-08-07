@@ -10,7 +10,8 @@ class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
+  ConsumerState<NotificationsScreen> createState() =>
+      _NotificationsScreenState();
 }
 
 class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
@@ -27,7 +28,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         backgroundColor: AppColors.bgDark,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimaryDark, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: AppColors.textPrimaryDark,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Row(
@@ -63,11 +68,21 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         actions: [
           if (unreadCount > 0)
             TextButton.icon(
-              onPressed: () => ref.read(notificationManagerProvider.notifier).markAllAsRead(),
-              icon: const Icon(Icons.done_all_rounded, size: 18, color: AppColors.primary),
+              onPressed: () => ref
+                  .read(notificationManagerProvider.notifier)
+                  .markAllAsRead(),
+              icon: const Icon(
+                Icons.done_all_rounded,
+                size: 18,
+                color: AppColors.primary,
+              ),
               label: const Text(
                 'Ler todas',
-                style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600, fontSize: 13),
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
               ),
             ),
         ],
@@ -88,8 +103,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   selectedColor: AppColors.primary.withValues(alpha: 0.2),
                   backgroundColor: AppColors.surfaceDark,
                   labelStyle: TextStyle(
-                    color: !_filterUnreadOnly ? AppColors.primary : AppColors.textSecondaryDark,
-                    fontWeight: !_filterUnreadOnly ? FontWeight.bold : FontWeight.normal,
+                    color: !_filterUnreadOnly
+                        ? AppColors.primary
+                        : AppColors.textSecondaryDark,
+                    fontWeight: !_filterUnreadOnly
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -102,8 +121,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   selectedColor: AppColors.primary.withValues(alpha: 0.2),
                   backgroundColor: AppColors.surfaceDark,
                   labelStyle: TextStyle(
-                    color: _filterUnreadOnly ? AppColors.primary : AppColors.textSecondaryDark,
-                    fontWeight: _filterUnreadOnly ? FontWeight.bold : FontWeight.normal,
+                    color: _filterUnreadOnly
+                        ? AppColors.primary
+                        : AppColors.textSecondaryDark,
+                    fontWeight: _filterUnreadOnly
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
               ],
@@ -158,7 +181,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                         const Text(
                           'Avisos sobre mensagens, propostas e marcos aparecerão aqui.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: AppColors.textSecondaryDark, fontSize: 13),
+                          style: TextStyle(
+                            color: AppColors.textSecondaryDark,
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
@@ -166,16 +192,21 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 }
 
                 return ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   itemCount: filtered.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 10),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final notif = filtered[index];
                     return _NotificationTile(
                       notification: notif,
                       onTap: () => _handleNotificationTap(notif),
-                      onDismissed: () =>
-                          ref.read(notificationManagerProvider.notifier).deleteNotification(notif.id),
+                      onDismissed: () => ref
+                          .read(notificationManagerProvider.notifier)
+                          .deleteNotification(notif.id),
                     );
                   },
                 );
@@ -197,7 +228,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       try {
         context.push(targetRoute);
       } catch (e) {
-        debugPrint('🚨 [NotificationNavigation] Erro ao navegar para $targetRoute: $e');
+        debugPrint(
+          '🚨 [NotificationNavigation] Erro ao navegar para $targetRoute: $e',
+        );
       }
     }
   }
@@ -254,7 +287,11 @@ class _NotificationTile extends StatelessWidget {
                     color: typeConfig.color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(typeConfig.icon, color: typeConfig.color, size: 22),
+                  child: Icon(
+                    typeConfig.icon,
+                    color: typeConfig.color,
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 14),
 
@@ -273,7 +310,9 @@ class _NotificationTile extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: AppColors.textPrimaryDark,
-                                fontWeight: notification.isRead ? FontWeight.w600 : FontWeight.bold,
+                                fontWeight: notification.isRead
+                                    ? FontWeight.w600
+                                    : FontWeight.bold,
                                 fontSize: 15,
                               ),
                             ),
@@ -296,7 +335,9 @@ class _NotificationTile extends StatelessWidget {
                         style: TextStyle(
                           color: notification.isRead
                               ? AppColors.textSecondaryDark
-                              : AppColors.textPrimaryDark.withValues(alpha: 0.9),
+                              : AppColors.textPrimaryDark.withValues(
+                                  alpha: 0.9,
+                                ),
                           fontSize: 13,
                           height: 1.3,
                         ),
@@ -331,7 +372,10 @@ class _NotificationTile extends StatelessWidget {
       case NotificationType.newMessage:
         return const _TypeConfig(Icons.chat_bubble_rounded, AppColors.primary);
       case NotificationType.proposalReceived:
-        return const _TypeConfig(Icons.assignment_ind_rounded, Colors.purpleAccent);
+        return const _TypeConfig(
+          Icons.assignment_ind_rounded,
+          Colors.purpleAccent,
+        );
       case NotificationType.proposalAccepted:
       case NotificationType.contractActive:
         return const _TypeConfig(Icons.verified_rounded, Colors.tealAccent);
@@ -345,7 +389,10 @@ class _NotificationTile extends StatelessWidget {
       case NotificationType.disputeOpened:
         return const _TypeConfig(Icons.gavel_rounded, Colors.redAccent);
       case NotificationType.system:
-        return const _TypeConfig(Icons.notifications_active_rounded, Colors.blueAccent);
+        return const _TypeConfig(
+          Icons.notifications_active_rounded,
+          Colors.blueAccent,
+        );
     }
   }
 

@@ -50,26 +50,30 @@ class ContractMilestone {
       description: json['description'] as String? ?? '',
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       status: _parseStatus(json['status'] as String?),
-      dueDate: json['due_date'] != null ? DateTime.tryParse(json['due_date'] as String) : null,
+      dueDate: json['due_date'] != null
+          ? DateTime.tryParse(json['due_date'] as String)
+          : null,
       deliverableNotes: json['deliverable_notes'] as String?,
       deliverableAttachments: parsedAttachments,
-      submittedAt: json['submitted_at'] != null ? DateTime.tryParse(json['submitted_at'] as String) : null,
+      submittedAt: json['submitted_at'] != null
+          ? DateTime.tryParse(json['submitted_at'] as String)
+          : null,
       revisionCount: (json['revision_count'] as num?)?.toInt() ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'contract_id': contractId,
-        'title': title,
-        'description': description,
-        'amount': amount,
-        'status': _statusToDb(status),
-        'deliverable_notes': deliverableNotes,
-        'deliverable_attachments': deliverableAttachments,
-        'submitted_at': submittedAt?.toIso8601String(),
-        'revision_count': revisionCount,
-      };
+    'id': id,
+    'contract_id': contractId,
+    'title': title,
+    'description': description,
+    'amount': amount,
+    'status': _statusToDb(status),
+    'deliverable_notes': deliverableNotes,
+    'deliverable_attachments': deliverableAttachments,
+    'submitted_at': submittedAt?.toIso8601String(),
+    'revision_count': revisionCount,
+  };
 
   static String _statusToDb(MilestoneStatus s) {
     switch (s) {
@@ -104,7 +108,8 @@ class ContractMilestone {
       status: status ?? this.status,
       dueDate: dueDate,
       deliverableNotes: deliverableNotes ?? this.deliverableNotes,
-      deliverableAttachments: deliverableAttachments ?? this.deliverableAttachments,
+      deliverableAttachments:
+          deliverableAttachments ?? this.deliverableAttachments,
       submittedAt: submittedAt ?? this.submittedAt,
       revisionCount: revisionCount ?? this.revisionCount,
     );
@@ -160,4 +165,3 @@ class Conversation {
     this.milestones = const [],
   });
 }
-

@@ -23,9 +23,12 @@ class ContractMilestoneSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final liveConv = ref.watch(conversationDetailProvider(conversation.id)).value ?? conversation;
+    final liveConv =
+        ref.watch(conversationDetailProvider(conversation.id)).value ??
+        conversation;
     final user = ref.watch(authProvider).value;
-    final isClient = (liveConv.clientId != null && user?.id == liveConv.clientId) ||
+    final isClient =
+        (liveConv.clientId != null && user?.id == liveConv.clientId) ||
         (user?.role == UserRole.client && liveConv.freelancerId != user?.id);
 
     return Container(
@@ -44,7 +47,11 @@ class ContractMilestoneSheet extends ConsumerWidget {
               children: [
                 const Text(
                   'Marcos do Contrato & Escrow',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimaryDark,
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded),
@@ -55,11 +62,15 @@ class ContractMilestoneSheet extends ConsumerWidget {
             const SizedBox(height: 4),
             Text(
               liveConv.jobTitle,
-              style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondaryDark,
+              ),
             ),
             const SizedBox(height: 16),
             ...liveConv.milestones.map((m) {
-              final hasDeliverables = m.deliverableNotes != null && m.deliverableNotes!.isNotEmpty;
+              final hasDeliverables =
+                  m.deliverableNotes != null && m.deliverableNotes!.isNotEmpty;
               final hasAttachments = m.deliverableAttachments.isNotEmpty;
 
               return Padding(
@@ -75,18 +86,32 @@ class ContractMilestoneSheet extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               m.title,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimaryDark),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: AppColors.textPrimaryDark,
+                              ),
                             ),
                           ),
                           Text(
                             CurrencyFormatter.format(m.amount),
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.success),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: AppColors.success,
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 6),
                       if (m.description.isNotEmpty) ...[
-                        Text(m.description, style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark)),
+                        Text(
+                          m.description,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondaryDark,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                       ],
                       if (hasDeliverables) ...[
@@ -102,18 +127,31 @@ class ContractMilestoneSheet extends ConsumerWidget {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.inventory_2_outlined, size: 14, color: AppColors.primaryLight),
+                                  const Icon(
+                                    Icons.inventory_2_outlined,
+                                    size: 14,
+                                    color: AppColors.primaryLight,
+                                  ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    hasAttachments ? 'Entrega (${m.deliverableAttachments.length} anexo(s)):' : 'Entrega:',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryLight),
+                                    hasAttachments
+                                        ? 'Entrega (${m.deliverableAttachments.length} anexo(s)):'
+                                        : 'Entrega:',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primaryLight,
+                                    ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 m.deliverableNotes!,
-                                style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondaryDark,
+                                ),
                                 maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -126,7 +164,8 @@ class ContractMilestoneSheet extends ConsumerWidget {
                         children: [
                           _buildMilestoneBadge(m.status),
                           const Spacer(),
-                          if (m.status == MilestoneStatus.pending && isClient) ...[
+                          if (m.status == MilestoneStatus.pending &&
+                              isClient) ...[
                             CustomButton(
                               text: 'Garantir no Escrow',
                               icon: Icons.shield_outlined,
@@ -138,14 +177,21 @@ class ContractMilestoneSheet extends ConsumerWidget {
                                   contractId: liveConv.contractId,
                                   title: 'Garantia de Custódia - ${m.title}',
                                   onPaymentSuccess: () {
-                                    ref.invalidate(conversationDetailProvider(liveConv.id));
+                                    ref.invalidate(
+                                      conversationDetailProvider(liveConv.id),
+                                    );
                                   },
                                 );
                               },
                             ),
-                          ] else if ((m.status == MilestoneStatus.fundedInEscrow || m.status == MilestoneStatus.inRevision) && !isClient) ...[
+                          ] else if ((m.status ==
+                                      MilestoneStatus.fundedInEscrow ||
+                                  m.status == MilestoneStatus.inRevision) &&
+                              !isClient) ...[
                             CustomButton(
-                              text: m.status == MilestoneStatus.inRevision ? 'Reenviar Entrega' : 'Entregar Marco',
+                              text: m.status == MilestoneStatus.inRevision
+                                  ? 'Reenviar Entrega'
+                                  : 'Entregar Marco',
                               icon: Icons.upload_file_rounded,
                               onPressed: () {
                                 Navigator.of(context).pop();
@@ -153,11 +199,16 @@ class ContractMilestoneSheet extends ConsumerWidget {
                                   context: context,
                                   backgroundColor: AppColors.transparent,
                                   isScrollControlled: true,
-                                  builder: (_) => SubmitDeliverableModal(conversation: liveConv, milestone: m),
+                                  builder: (_) => SubmitDeliverableModal(
+                                    conversation: liveConv,
+                                    milestone: m,
+                                  ),
                                 );
                               },
                             ),
-                          ] else if ((m.status == MilestoneStatus.submitted || m.status == MilestoneStatus.inRevision) && isClient) ...[
+                          ] else if ((m.status == MilestoneStatus.submitted ||
+                                  m.status == MilestoneStatus.inRevision) &&
+                              isClient) ...[
                             CustomButton(
                               text: 'Revisar Entrega',
                               icon: Icons.check_circle_outline,
@@ -167,45 +218,77 @@ class ContractMilestoneSheet extends ConsumerWidget {
                                   context: context,
                                   backgroundColor: AppColors.transparent,
                                   isScrollControlled: true,
-                                  builder: (_) => RequestRevisionModal(conversation: liveConv, milestone: m),
+                                  builder: (_) => RequestRevisionModal(
+                                    conversation: liveConv,
+                                    milestone: m,
+                                  ),
                                 );
                               },
                             ),
-                          ] else if (m.status == MilestoneStatus.submitted && !isClient) ...[
+                          ] else if (m.status == MilestoneStatus.submitted &&
+                              !isClient) ...[
                             OutlinedButton.icon(
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.primaryLight,
-                                side: const BorderSide(color: AppColors.borderDark),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                side: const BorderSide(
+                                  color: AppColors.borderDark,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
-                              icon: const Icon(Icons.visibility_outlined, size: 16),
-                              label: const Text('Ver Entrega', style: TextStyle(fontSize: 12)),
+                              icon: const Icon(
+                                Icons.visibility_outlined,
+                                size: 16,
+                              ),
+                              label: const Text(
+                                'Ver Entrega',
+                                style: TextStyle(fontSize: 12),
+                              ),
                               onPressed: () {
                                 Navigator.of(context).pop();
                                 showModalBottomSheet(
                                   context: context,
                                   backgroundColor: AppColors.transparent,
                                   isScrollControlled: true,
-                                  builder: (_) => RequestRevisionModal(conversation: liveConv, milestone: m),
+                                  builder: (_) => RequestRevisionModal(
+                                    conversation: liveConv,
+                                    milestone: m,
+                                  ),
                                 );
                               },
                             ),
-                          ] else if (m.status == MilestoneStatus.approvedAndReleased && hasAttachments) ...[
+                          ] else if (m.status ==
+                                  MilestoneStatus.approvedAndReleased &&
+                              hasAttachments) ...[
                             OutlinedButton.icon(
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.success,
-                                side: const BorderSide(color: AppColors.success),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                side: const BorderSide(
+                                  color: AppColors.success,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
-                              icon: const Icon(Icons.download_done_rounded, size: 16),
-                              label: const Text('Baixar Arquivos', style: TextStyle(fontSize: 12)),
+                              icon: const Icon(
+                                Icons.download_done_rounded,
+                                size: 16,
+                              ),
+                              label: const Text(
+                                'Baixar Arquivos',
+                                style: TextStyle(fontSize: 12),
+                              ),
                               onPressed: () {
                                 Navigator.of(context).pop();
                                 showModalBottomSheet(
                                   context: context,
                                   backgroundColor: AppColors.transparent,
                                   isScrollControlled: true,
-                                  builder: (_) => RequestRevisionModal(conversation: liveConv, milestone: m),
+                                  builder: (_) => RequestRevisionModal(
+                                    conversation: liveConv,
+                                    milestone: m,
+                                  ),
                                 );
                               },
                             ),
@@ -218,9 +301,11 @@ class ContractMilestoneSheet extends ConsumerWidget {
               );
             }),
             const SizedBox(height: 12),
-            if (liveConv.milestones.any((m) => m.status == MilestoneStatus.approvedAndReleased)) ...[
+            if (liveConv.milestones.any(
+              (m) => m.status == MilestoneStatus.approvedAndReleased,
+            )) ...[
               CustomButton(
-                text: 'Avaliar Profissional',
+                text: isClient ? 'Avaliar Profissional' : 'Avaliar Contratante',
                 icon: Icons.star_rate_rounded,
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -239,7 +324,9 @@ class ContractMilestoneSheet extends ConsumerWidget {
                 foregroundColor: AppColors.error,
                 side: const BorderSide(color: AppColors.error),
                 minimumSize: const Size(double.infinity, 44),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               icon: const Icon(Icons.gavel_rounded, size: 18),
               label: const Text('Abrir Mediação / Disputa'),
@@ -264,15 +351,35 @@ class ContractMilestoneSheet extends ConsumerWidget {
       case MilestoneStatus.fundedInEscrow:
         return StatusBadge.escrowHold();
       case MilestoneStatus.submitted:
-        return const StatusBadge(label: 'Entregue p/ Revisão', backgroundColor: AppColors.infoBg, textColor: AppColors.info);
+        return const StatusBadge(
+          label: 'Entregue p/ Revisão',
+          backgroundColor: AppColors.infoBg,
+          textColor: AppColors.info,
+        );
       case MilestoneStatus.inRevision:
-        return const StatusBadge(label: 'Revisão Solicitada', backgroundColor: AppColors.warningBg, textColor: AppColors.warning);
+        return const StatusBadge(
+          label: 'Revisão Solicitada',
+          backgroundColor: AppColors.warningBg,
+          textColor: AppColors.warning,
+        );
       case MilestoneStatus.approvedAndReleased:
-        return const StatusBadge(label: 'Aprovado e Pago', backgroundColor: AppColors.successBg, textColor: AppColors.success);
+        return const StatusBadge(
+          label: 'Aprovado e Pago',
+          backgroundColor: AppColors.successBg,
+          textColor: AppColors.success,
+        );
       case MilestoneStatus.disputed:
-        return const StatusBadge(label: 'Em Disputa', backgroundColor: AppColors.errorBg, textColor: AppColors.error);
+        return const StatusBadge(
+          label: 'Em Disputa',
+          backgroundColor: AppColors.errorBg,
+          textColor: AppColors.error,
+        );
       default:
-        return const StatusBadge(label: 'Aguardando Depósito', backgroundColor: AppColors.surfaceElevatedDark, textColor: AppColors.textMutedDark);
+        return const StatusBadge(
+          label: 'Aguardando Depósito',
+          backgroundColor: AppColors.surfaceElevatedDark,
+          textColor: AppColors.textMutedDark,
+        );
     }
   }
 }

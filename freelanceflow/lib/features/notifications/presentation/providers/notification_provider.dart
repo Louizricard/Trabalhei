@@ -118,7 +118,9 @@ class PushNotificationNotifier extends StateNotifier<PushNotificationState> {
           platform: platform,
         );
         state = state.copyWith(fcmToken: token, isSyncing: false);
-        debugPrint('✅ [PushNotificationNotifier] FCM token synced for user $userId ($platform)');
+        debugPrint(
+          '✅ [PushNotificationNotifier] FCM token synced for user $userId ($platform)',
+        );
       } else {
         state = state.copyWith(isSyncing: false);
       }
@@ -140,9 +142,13 @@ class PushNotificationNotifier extends StateNotifier<PushNotificationState> {
           token: newToken,
           platform: platform,
         );
-        debugPrint('🔄 [PushNotificationNotifier] Updated refreshed token for user ${currentUser.id}');
+        debugPrint(
+          '🔄 [PushNotificationNotifier] Updated refreshed token for user ${currentUser.id}',
+        );
       } catch (e) {
-        debugPrint('🚨 [PushNotificationNotifier] Error saving refreshed token: $e');
+        debugPrint(
+          '🚨 [PushNotificationNotifier] Error saving refreshed token: $e',
+        );
       }
     }
   }
@@ -153,9 +159,13 @@ class PushNotificationNotifier extends StateNotifier<PushNotificationState> {
     if (token != null && token.isNotEmpty) {
       try {
         await _tokenRepository.deleteToken(token: token);
-        debugPrint('🧹 [PushNotificationNotifier] Removed push token on logout');
+        debugPrint(
+          '🧹 [PushNotificationNotifier] Removed push token on logout',
+        );
       } catch (e) {
-        debugPrint('🚨 [PushNotificationNotifier] Error removing token on logout: $e');
+        debugPrint(
+          '🚨 [PushNotificationNotifier] Error removing token on logout: $e',
+        );
       } finally {
         state = state.copyWith(fcmToken: null);
       }
@@ -171,18 +181,22 @@ class PushNotificationNotifier extends StateNotifier<PushNotificationState> {
 
 /// Main provider for push notifications state and sync lifecycle
 final pushNotificationProvider =
-    StateNotifierProvider<PushNotificationNotifier, PushNotificationState>((ref) {
-  final tokenRepo = ref.watch(pushTokenRepositoryProvider);
-  final notifService = ref.watch(notificationServiceProvider);
-  return PushNotificationNotifier(tokenRepo, notifService, ref);
-});
+    StateNotifierProvider<PushNotificationNotifier, PushNotificationState>((
+      ref,
+    ) {
+      final tokenRepo = ref.watch(pushTokenRepositoryProvider);
+      final notifService = ref.watch(notificationServiceProvider);
+      return PushNotificationNotifier(tokenRepo, notifService, ref);
+    });
 
 // ============================================================================
 // IN-APP NOTIFICATIONS & REALTIME PROVIDERS
 // ============================================================================
 
 /// Provider for NotificationRemoteDataSource
-final notificationDataSourceProvider = Provider<NotificationRemoteDataSource>((ref) {
+final notificationDataSourceProvider = Provider<NotificationRemoteDataSource>((
+  ref,
+) {
   return NotificationRemoteDataSourceImpl(ref.watch(supabaseClientProvider));
 });
 
@@ -192,10 +206,11 @@ final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
 });
 
 /// Realtime stream provider for all active notifications of current user
-final notificationsStreamProvider = StreamProvider.autoDispose<List<AppNotification>>((ref) {
-  final repo = ref.watch(notificationRepositoryProvider);
-  return repo.streamNotifications();
-});
+final notificationsStreamProvider =
+    StreamProvider.autoDispose<List<AppNotification>>((ref) {
+      final repo = ref.watch(notificationRepositoryProvider);
+      return repo.streamNotifications();
+    });
 
 /// Unread notifications count provider
 final unreadNotificationsCountProvider = Provider.autoDispose<int>((ref) {
@@ -211,15 +226,9 @@ class NotificationManagerState {
   final bool isLoading;
   final String? errorMessage;
 
-  const NotificationManagerState({
-    this.isLoading = false,
-    this.errorMessage,
-  });
+  const NotificationManagerState({this.isLoading = false, this.errorMessage});
 
-  NotificationManagerState copyWith({
-    bool? isLoading,
-    String? errorMessage,
-  }) {
+  NotificationManagerState copyWith({bool? isLoading, String? errorMessage}) {
     return NotificationManagerState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
@@ -228,10 +237,12 @@ class NotificationManagerState {
 }
 
 /// Notifier for notification actions (mark as read, mark all as read, delete)
-class NotificationManagerNotifier extends StateNotifier<NotificationManagerState> {
+class NotificationManagerNotifier
+    extends StateNotifier<NotificationManagerState> {
   final NotificationRepository _repository;
 
-  NotificationManagerNotifier(this._repository) : super(const NotificationManagerState());
+  NotificationManagerNotifier(this._repository)
+    : super(const NotificationManagerState());
 
   Future<void> markAsRead(String id) async {
     try {
@@ -247,8 +258,13 @@ class NotificationManagerNotifier extends StateNotifier<NotificationManagerState
       await _repository.markAllAsRead();
       state = state.copyWith(isLoading: false);
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: 'Erro ao marcar todas como lidas');
-      debugPrint('🚨 [NotificationManagerNotifier] Error marking all as read: $e');
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Erro ao marcar todas como lidas',
+      );
+      debugPrint(
+        '🚨 [NotificationManagerNotifier] Error marking all as read: $e',
+      );
     }
   }
 
@@ -256,12 +272,19 @@ class NotificationManagerNotifier extends StateNotifier<NotificationManagerState
     try {
       await _repository.deleteNotification(id);
     } catch (e) {
-      debugPrint('🚨 [NotificationManagerNotifier] Error deleting notification: $e');
+      debugPrint(
+        '🚨 [NotificationManagerNotifier] Error deleting notification: $e',
+      );
     }
   }
 }
 
 final notificationManagerProvider =
-    StateNotifierProvider<NotificationManagerNotifier, NotificationManagerState>((ref) {
-  return NotificationManagerNotifier(ref.watch(notificationRepositoryProvider));
-});
+    StateNotifierProvider<
+      NotificationManagerNotifier,
+      NotificationManagerState
+    >((ref) {
+      return NotificationManagerNotifier(
+        ref.watch(notificationRepositoryProvider),
+      );
+    });

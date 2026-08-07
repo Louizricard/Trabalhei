@@ -40,7 +40,9 @@ class ProfileRemoteDataSource {
           .order('created_at', ascending: false);
 
       final list = response as List<dynamic>;
-      return list.map((json) => UserReview.fromJson(json as Map<String, dynamic>)).toList();
+      return list
+          .map((json) => UserReview.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -55,7 +57,9 @@ class ProfileRemoteDataSource {
           .order('created_at', ascending: false);
 
       final list = response as List<dynamic>;
-      return list.map((json) => PortfolioItem.fromJson(json as Map<String, dynamic>)).toList();
+      return list
+          .map((json) => PortfolioItem.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -69,14 +73,18 @@ class ProfileRemoteDataSource {
     String? projectUrl,
     List<String> tags = const [],
   }) async {
-    final response = await _supabase.from('portfolio_items').insert({
-      'freelancer_id': userId,
-      'title': title,
-      'description': description,
-      'image_url': imageUrl,
-      'project_url': projectUrl,
-      'tags': tags,
-    }).select().single();
+    final response = await _supabase
+        .from('portfolio_items')
+        .insert({
+          'freelancer_id': userId,
+          'title': title,
+          'description': description,
+          'image_url': imageUrl,
+          'project_url': projectUrl,
+          'tags': tags,
+        })
+        .select()
+        .single();
 
     return PortfolioItem.fromJson(response);
   }
@@ -143,7 +151,9 @@ class ProfileRemoteDataSource {
 
       final response = await transform;
       final list = response as List<dynamic>;
-      return list.map((json) => UserProfile.fromJson(json as Map<String, dynamic>)).toList();
+      return list
+          .map((json) => UserProfile.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -172,20 +182,21 @@ class ProfileRemoteDataSource {
     required dynamic bytes,
     required String fileExt,
   }) async {
-    final fileName = '${userId}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+    final fileName =
+        '${userId}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
     final path = fileName;
 
-    await _supabase.storage.from('avatars').uploadBinary(
-          path,
-          bytes,
-        );
+    await _supabase.storage.from('avatars').uploadBinary(path, bytes);
 
     final publicUrl = _supabase.storage.from('avatars').getPublicUrl(path);
 
-    await _supabase.from('profiles').update({
-      'avatar_url': publicUrl,
-      'updated_at': DateTime.now().toIso8601String(),
-    }).eq('id', userId);
+    await _supabase
+        .from('profiles')
+        .update({
+          'avatar_url': publicUrl,
+          'updated_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', userId);
 
     return publicUrl;
   }

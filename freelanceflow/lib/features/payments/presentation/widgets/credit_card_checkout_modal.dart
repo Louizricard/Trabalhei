@@ -23,10 +23,12 @@ class CreditCardCheckoutModal extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CreditCardCheckoutModal> createState() => _CreditCardCheckoutModalState();
+  ConsumerState<CreditCardCheckoutModal> createState() =>
+      _CreditCardCheckoutModalState();
 }
 
-class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModal> {
+class _CreditCardCheckoutModalState
+    extends ConsumerState<CreditCardCheckoutModal> {
   final _formKey = GlobalKey<FormState>();
   final _cardNumberController = TextEditingController();
   final _holderNameController = TextEditingController();
@@ -50,8 +52,14 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
   String _getBrand() {
     final clean = _cardNumberController.text.replaceAll(RegExp(r'\D'), '');
     if (clean.startsWith('4')) return 'VISA';
-    if (RegExp(r'^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[0-1]|2720)').hasMatch(clean)) return 'MASTERCARD';
-    if (RegExp(r'^(4011|4312|4389|4514|4576|5041|5066|5067|509|6277|6362|6363)').hasMatch(clean)) return 'ELO';
+    if (RegExp(
+      r'^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[0-1]|2720)',
+    ).hasMatch(clean))
+      return 'MASTERCARD';
+    if (RegExp(
+      r'^(4011|4312|4389|4514|4576|5041|5066|5067|509|6277|6362|6363)',
+    ).hasMatch(clean))
+      return 'ELO';
     if (RegExp(r'^(34|37)').hasMatch(clean)) return 'AMEX';
     if (RegExp(r'^(606282|3841)').hasMatch(clean)) return 'HIPERCARD';
     return 'CARTÃO';
@@ -63,7 +71,10 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
     setState(() => _isLoading = true);
 
     try {
-      final cleanNumber = _cardNumberController.text.replaceAll(RegExp(r'\D'), '');
+      final cleanNumber = _cardNumberController.text.replaceAll(
+        RegExp(r'\D'),
+        '',
+      );
       final expiryParts = _expiryController.text.split('/');
       final month = expiryParts[0].trim();
       final year = '20${expiryParts[1].trim()}';
@@ -96,7 +107,9 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
           Navigator.of(context).pop(true);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('🎉 Pagamento com cartão aprovado! Valor garantido no Escrow.'),
+              content: Text(
+                '🎉 Pagamento com cartão aprovado! Valor garantido no Escrow.',
+              ),
               backgroundColor: AppColors.success,
               duration: Duration(seconds: 4),
             ),
@@ -106,7 +119,9 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Cartão recusado: ${result.statusDetail ?? result.errorMessage ?? "Verifique os dados digitados."}'),
+              content: Text(
+                'Cartão recusado: ${result.statusDetail ?? result.errorMessage ?? "Verifique os dados digitados."}',
+              ),
               backgroundColor: AppColors.error,
               duration: const Duration(seconds: 4),
             ),
@@ -117,7 +132,9 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro no pagamento: ${e.toString().replaceAll("Exception: ", "")}'),
+            content: Text(
+              'Erro no pagamento: ${e.toString().replaceAll("Exception: ", "")}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -130,9 +147,15 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
   @override
   Widget build(BuildContext context) {
     final brand = _getBrand();
-    final numText = _cardNumberController.text.isEmpty ? '•••• •••• •••• ••••' : _cardNumberController.text;
-    final nameText = _holderNameController.text.isEmpty ? 'NOME DO TITULAR' : _holderNameController.text.toUpperCase();
-    final expText = _expiryController.text.isEmpty ? 'MM/AA' : _expiryController.text;
+    final numText = _cardNumberController.text.isEmpty
+        ? '•••• •••• •••• ••••'
+        : _cardNumberController.text;
+    final nameText = _holderNameController.text.isEmpty
+        ? 'NOME DO TITULAR'
+        : _holderNameController.text.toUpperCase();
+    final expText = _expiryController.text.isEmpty
+        ? 'MM/AA'
+        : _expiryController.text;
 
     return Container(
       padding: EdgeInsets.only(
@@ -164,7 +187,11 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
                           color: AppColors.primaryContainer,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(Icons.credit_card_rounded, color: AppColors.primary, size: 24),
+                        child: const Icon(
+                          Icons.credit_card_rounded,
+                          color: AppColors.primary,
+                          size: 24,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       const Text(
@@ -178,7 +205,10 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, color: AppColors.textMutedDark),
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      color: AppColors.textMutedDark,
+                    ),
                     onPressed: () => Navigator.of(context).pop(false),
                   ),
                 ],
@@ -196,7 +226,10 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1.2),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    width: 1.2,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.12),
@@ -212,7 +245,11 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Icon(Icons.contactless_rounded, color: AppColors.primaryLight, size: 28),
+                        const Icon(
+                          Icons.contactless_rounded,
+                          color: AppColors.primaryLight,
+                          size: 28,
+                        ),
                         Text(
                           brand,
                           style: const TextStyle(
@@ -296,7 +333,8 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
                 textCapitalization: TextCapitalization.characters,
                 onChanged: (_) => setState(() {}),
                 validator: (val) {
-                  if (val == null || val.trim().isEmpty) return 'Informe o nome do titular';
+                  if (val == null || val.trim().isEmpty)
+                    return 'Informe o nome do titular';
                   return null;
                 },
               ),
@@ -319,7 +357,8 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
                       ],
                       onChanged: (_) => setState(() {}),
                       validator: (val) {
-                        if (val == null || val.length < 5) return 'Data inválida';
+                        if (val == null || val.length < 5)
+                          return 'Data inválida';
                         return null;
                       },
                     ),
@@ -337,7 +376,8 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
                         LengthLimitingTextInputFormatter(4),
                       ],
                       validator: (val) {
-                        if (val == null || val.length < 3) return 'CVV inválido';
+                        if (val == null || val.length < 3)
+                          return 'CVV inválido';
                         return null;
                       },
                     ),
@@ -368,7 +408,10 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
 
               // Seletor de Parcelas
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceElevatedDark,
                   borderRadius: BorderRadius.circular(12),
@@ -379,8 +422,14 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
                     value: _installments,
                     isExpanded: true,
                     dropdownColor: AppColors.surfaceElevatedDark,
-                    style: const TextStyle(color: AppColors.textPrimaryDark, fontSize: 14),
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primary),
+                    style: const TextStyle(
+                      color: AppColors.textPrimaryDark,
+                      fontSize: 14,
+                    ),
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: AppColors.primary,
+                    ),
                     items: List.generate(12, (index) {
                       final i = index + 1;
                       final installmentAmount = widget.amount / i;
@@ -388,7 +437,9 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
                         value: i,
                         child: Text(
                           '$i x de ${CurrencyFormatter.format(installmentAmount)} ${i == 1 ? "(à vista)" : "sem juros"}',
-                          style: const TextStyle(color: AppColors.textPrimaryDark),
+                          style: const TextStyle(
+                            color: AppColors.textPrimaryDark,
+                          ),
                         ),
                       );
                     }),
@@ -418,7 +469,10 @@ class _CreditCardCheckoutModalState extends ConsumerState<CreditCardCheckoutModa
 // Formatadores de Entrada
 class _CardNumberFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final text = newValue.text.replaceAll(' ', '');
     final buffer = StringBuffer();
     for (int i = 0; i < text.length; i++) {
@@ -434,7 +488,10 @@ class _CardNumberFormatter extends TextInputFormatter {
 
 class _ExpiryDateFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final text = newValue.text.replaceAll('/', '');
     final buffer = StringBuffer();
     for (int i = 0; i < text.length; i++) {
@@ -450,7 +507,10 @@ class _ExpiryDateFormatter extends TextInputFormatter {
 
 class _CpfFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final text = newValue.text.replaceAll(RegExp(r'\D'), '');
     final buffer = StringBuffer();
     for (int i = 0; i < text.length; i++) {

@@ -29,9 +29,13 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
     _nameController = TextEditingController(text: widget.user.fullName);
     _bioController = TextEditingController(text: widget.user.bio ?? '');
     _hourlyRateController = TextEditingController(
-      text: widget.user.hourlyRate > 0 ? widget.user.hourlyRate.toStringAsFixed(0) : '',
+      text: widget.user.hourlyRate > 0
+          ? widget.user.hourlyRate.toStringAsFixed(0)
+          : '',
     );
-    _skillsController = TextEditingController(text: widget.user.skills.join(', '));
+    _skillsController = TextEditingController(
+      text: widget.user.skills.join(', '),
+    );
   }
 
   @override
@@ -79,7 +83,9 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Falha ao atualizar perfil: ${e.toString().replaceAll("Exception: ", "")}'),
+            content: Text(
+              'Falha ao atualizar perfil: ${e.toString().replaceAll("Exception: ", "")}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -132,13 +138,15 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                 label: 'Nome Completo',
                 hint: 'Seu nome',
                 prefixIcon: Icons.person_outline_rounded,
-                validator: (v) => v == null || v.trim().isEmpty ? 'Nome é obrigatório' : null,
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? 'Nome é obrigatório' : null,
               ),
               const SizedBox(height: 14),
               CustomTextField(
                 controller: _bioController,
                 label: 'Sobre Você (Bio)',
-                hint: 'Conte sobre sua experiência, histórico e especialidades...',
+                hint:
+                    'Conte sobre sua experiência, histórico e especialidades...',
                 prefixIcon: Icons.description_outlined,
                 maxLines: 3,
               ),
@@ -149,13 +157,16 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                   label: 'Valor/Hora (R\$)',
                   hint: 'Ex: 120',
                   prefixIcon: Icons.payments_outlined,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                 ),
                 const SizedBox(height: 14),
                 CustomTextField(
                   controller: _skillsController,
                   label: 'Habilidades & Tecnologias',
-                  hint: 'Ex: Flutter, Dart, Riverpod, Supabase (separadas por vírgula)',
+                  hint:
+                      'Ex: Flutter, Dart, Riverpod, Supabase (separadas por vírgula)',
                   prefixIcon: Icons.code_rounded,
                 ),
               ],

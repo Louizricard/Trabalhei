@@ -10,7 +10,10 @@ class MockNotificationRemoteDataSource implements NotificationRemoteDataSource {
   int unreadCount = 0;
 
   @override
-  Future<List<AppNotification>> getNotifications({int limit = 50, int offset = 0}) async {
+  Future<List<AppNotification>> getNotifications({
+    int limit = 50,
+    int offset = 0,
+  }) async {
     return notifications;
   }
 
@@ -100,10 +103,22 @@ void main() {
     });
 
     test('Maps all notification types correctly', () {
-      expect(NotificationType.fromString('new_message'), NotificationType.newMessage);
-      expect(NotificationType.fromString('contract_active'), NotificationType.contractActive);
-      expect(NotificationType.fromString('milestone_submitted'), NotificationType.milestoneSubmitted);
-      expect(NotificationType.fromString('milestone_approved'), NotificationType.milestoneApproved);
+      expect(
+        NotificationType.fromString('new_message'),
+        NotificationType.newMessage,
+      );
+      expect(
+        NotificationType.fromString('contract_active'),
+        NotificationType.contractActive,
+      );
+      expect(
+        NotificationType.fromString('milestone_submitted'),
+        NotificationType.milestoneSubmitted,
+      );
+      expect(
+        NotificationType.fromString('milestone_approved'),
+        NotificationType.milestoneApproved,
+      );
       expect(NotificationType.fromString('unknown'), NotificationType.system);
     });
   });
@@ -141,8 +156,14 @@ void main() {
 
     test('Marks specific notification as read', () async {
       await notifier.markAsRead('n1');
-      expect(mockDataSource.notifications.firstWhere((n) => n.id == 'n1').isRead, isTrue);
-      expect(mockDataSource.notifications.firstWhere((n) => n.id == 'n2').isRead, isFalse);
+      expect(
+        mockDataSource.notifications.firstWhere((n) => n.id == 'n1').isRead,
+        isTrue,
+      );
+      expect(
+        mockDataSource.notifications.firstWhere((n) => n.id == 'n2').isRead,
+        isFalse,
+      );
     });
 
     test('Marks all notifications as read', () async {

@@ -21,16 +21,12 @@ class PushTokenRepositoryImpl implements PushTokenRepository {
   }
 
   @override
-  Future<void> deleteToken({
-    required String token,
-  }) {
+  Future<void> deleteToken({required String token}) {
     return _remoteDataSource.deleteToken(token: token);
   }
 
   @override
-  Future<List<PushToken>> getTokensForUser({
-    required String userId,
-  }) {
+  Future<List<PushToken>> getTokensForUser({required String userId}) {
     return _remoteDataSource.getTokensForUser(userId: userId);
   }
 }

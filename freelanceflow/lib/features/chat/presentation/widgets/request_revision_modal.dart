@@ -24,7 +24,8 @@ class RequestRevisionModal extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<RequestRevisionModal> createState() => _RequestRevisionModalState();
+  ConsumerState<RequestRevisionModal> createState() =>
+      _RequestRevisionModalState();
 }
 
 class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
@@ -54,7 +55,10 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancelar', style: TextStyle(color: AppColors.textSecondaryDark)),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: AppColors.textSecondaryDark),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
@@ -70,7 +74,9 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
     setState(() => _isApproving = true);
 
     try {
-      await ref.read(chatRepositoryProvider).updateMilestoneStatus(
+      await ref
+          .read(chatRepositoryProvider)
+          .updateMilestoneStatus(
             widget.conversation.id,
             widget.milestone.id,
             MilestoneStatus.approvedAndReleased,
@@ -95,7 +101,10 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
       if (mounted) {
         setState(() => _isApproving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao liberar pagamento: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Erro ao liberar pagamento: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -105,7 +114,9 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
     final text = _commentController.text.trim();
     if (text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Informe as observações e alterações solicitadas.')),
+        const SnackBar(
+          content: Text('Informe as observações e alterações solicitadas.'),
+        ),
       );
       return;
     }
@@ -127,7 +138,9 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
         }
       }
 
-      await ref.read(chatRepositoryProvider).requestMilestoneRevision(
+      await ref
+          .read(chatRepositoryProvider)
+          .requestMilestoneRevision(
             conversationId: widget.conversation.id,
             milestoneId: widget.milestone.id,
             contractId: widget.milestone.contractId,
@@ -153,7 +166,10 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
       if (mounted) {
         setState(() => _isRequestingRevision = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao solicitar revisão: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Erro ao solicitar revisão: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -162,9 +178,13 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).value;
-    final isClient = (widget.conversation.clientId != null && user?.id == widget.conversation.clientId) ||
-        (user?.role == UserRole.client && widget.conversation.freelancerId != user?.id);
-    final isApproved = widget.milestone.status == MilestoneStatus.approvedAndReleased;
+    final isClient =
+        (widget.conversation.clientId != null &&
+            user?.id == widget.conversation.clientId) ||
+        (user?.role == UserRole.client &&
+            widget.conversation.freelancerId != user?.id);
+    final isApproved =
+        widget.milestone.status == MilestoneStatus.approvedAndReleased;
 
     return Container(
       padding: EdgeInsets.only(
@@ -188,7 +208,11 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                 Expanded(
                   child: Text(
                     'Entrega: ${widget.milestone.title}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimaryDark,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -203,22 +227,34 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
               children: [
                 const Text(
                   'Valor do Marco: ',
-                  style: TextStyle(fontSize: 14, color: AppColors.textSecondaryDark),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondaryDark,
+                  ),
                 ),
                 Text(
                   CurrencyFormatter.format(widget.milestone.amount),
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.success),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.success,
+                  ),
                 ),
                 const Spacer(),
                 if (isApproved)
                   const Text(
                     '✅ Aprovado & Pago',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.success),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.success,
+                    ),
                   ),
               ],
             ),
             const SizedBox(height: 16),
-            if (widget.milestone.deliverableNotes != null && widget.milestone.deliverableNotes!.isNotEmpty) ...[
+            if (widget.milestone.deliverableNotes != null &&
+                widget.milestone.deliverableNotes!.isNotEmpty) ...[
               GlassCard(
                 padding: const EdgeInsets.all(14),
                 child: Column(
@@ -226,15 +262,30 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.inventory_2_outlined, size: 18, color: AppColors.primaryLight),
+                        Icon(
+                          Icons.inventory_2_outlined,
+                          size: 18,
+                          color: AppColors.primaryLight,
+                        ),
                         SizedBox(width: 8),
-                        Text('Instruções e Observações da Entrega:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryDark)),
+                        Text(
+                          'Instruções e Observações da Entrega:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: AppColors.textPrimaryDark,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Text(
                       widget.milestone.deliverableNotes!,
-                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryDark, height: 1.5),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondaryDark,
+                        height: 1.5,
+                      ),
                     ),
                   ],
                 ),
@@ -258,12 +309,20 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.check_circle_rounded, color: AppColors.success, size: 24),
+                    Icon(
+                      Icons.check_circle_rounded,
+                      color: AppColors.success,
+                      size: 24,
+                    ),
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Esta entrega foi aprovada e o valor foi creditado na carteira do Freelancer.',
-                        style: TextStyle(fontSize: 12, color: AppColors.textPrimaryDark, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textPrimaryDark,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
@@ -285,7 +344,9 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                     foregroundColor: AppColors.warning,
                     side: const BorderSide(color: AppColors.warning),
                     minimumSize: const Size(double.infinity, 44),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   icon: const Icon(Icons.replay_rounded, size: 18),
                   label: const Text('Solicitar Ajustes / Revisão'),
@@ -295,7 +356,11 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                 const Divider(color: AppColors.borderDark, height: 24),
                 const Text(
                   'O que precisa ser corrigido ou ajustado?',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimaryDark,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 CustomTextField(
@@ -309,7 +374,8 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                   selectedFiles: _selectedFiles,
                   onChanged: (files) => setState(() => _selectedFiles = files),
                   title: 'Prints / Exemplos de Referência (Opcional)',
-                  hintText: 'Anexe capturas ou documentos apontando o que ajustar.',
+                  hintText:
+                      'Anexe capturas ou documentos apontando o que ajustar.',
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -318,9 +384,12 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: AppColors.borderDark),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        onPressed: () => setState(() => _showRevisionForm = false),
+                        onPressed: () =>
+                            setState(() => _showRevisionForm = false),
                         child: const Text('Voltar'),
                       ),
                     ),
@@ -343,18 +412,27 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                 decoration: BoxDecoration(
                   color: AppColors.primary.withAlpha(20),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.primaryLight.withAlpha(80)),
+                  border: Border.all(
+                    color: AppColors.primaryLight.withAlpha(80),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.hourglass_top_rounded, color: AppColors.primaryLight, size: 22),
+                    const Icon(
+                      Icons.hourglass_top_rounded,
+                      color: AppColors.primaryLight,
+                      size: 22,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         widget.milestone.status == MilestoneStatus.inRevision
                             ? 'O cliente solicitou ajustes neste marco. Você pode reescrever a entrega e enviar novos arquivos.'
                             : 'Entrega enviada com sucesso! Aguardando o cliente aprovar para transferir ${CurrencyFormatter.format(widget.milestone.amount)} para sua carteira.',
-                        style: const TextStyle(fontSize: 12, color: AppColors.textPrimaryDark),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textPrimaryDark,
+                        ),
                       ),
                     ),
                   ],

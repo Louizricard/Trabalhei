@@ -2,7 +2,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/app_notification.dart';
 
 abstract class NotificationRemoteDataSource {
-  Future<List<AppNotification>> getNotifications({int limit = 50, int offset = 0});
+  Future<List<AppNotification>> getNotifications({
+    int limit = 50,
+    int offset = 0,
+  });
   Stream<List<AppNotification>> streamNotifications();
   Future<void> markAsRead(String notificationId);
   Future<int> markAllAsRead();
@@ -16,7 +19,10 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   NotificationRemoteDataSourceImpl(this._supabase);
 
   @override
-  Future<List<AppNotification>> getNotifications({int limit = 50, int offset = 0}) async {
+  Future<List<AppNotification>> getNotifications({
+    int limit = 50,
+    int offset = 0,
+  }) async {
     final user = _supabase.auth.currentUser;
     if (user == null) return [];
 
@@ -43,8 +49,10 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
         .stream(primaryKey: ['id'])
         .eq('user_id', user.id)
         .order('created_at', ascending: false)
-        .map((records) =>
-            records.map((row) => AppNotification.fromJson(row)).toList());
+        .map(
+          (records) =>
+              records.map((row) => AppNotification.fromJson(row)).toList(),
+        );
   }
 
   @override

@@ -8,7 +8,7 @@ class CardTokenizationService {
   final http.Client _httpClient;
 
   CardTokenizationService({http.Client? httpClient})
-      : _httpClient = httpClient ?? http.Client();
+    : _httpClient = httpClient ?? http.Client();
 
   /// Tokeniza os dados do cartão de crédito diretamente nos servidores seguros do Mercado Pago.
   Future<String> tokenizeCard({
@@ -24,24 +24,27 @@ class CardTokenizationService {
     final cleanCvv = securityCode.replaceAll(RegExp(r'\D'), '');
     final cleanCpf = identificationNumber?.replaceAll(RegExp(r'\D'), '');
     final month = int.tryParse(expirationMonth) ?? 12;
-    final year = int.tryParse(expirationYear.length == 2 ? '20$expirationYear' : expirationYear) ?? 2030;
+    final year =
+        int.tryParse(
+          expirationYear.length == 2 ? '20$expirationYear' : expirationYear,
+        ) ??
+        2030;
 
     final publicKey = EnvConfig.mercadoPagoPublicKey;
     if (publicKey.isEmpty) {
       throw Exception('MERCADO_PAGO_PUBLIC_KEY não configurada no aplicativo.');
     }
 
-    final url = Uri.parse('https://api.mercadopago.com/v1/card_tokens?public_key=$publicKey');
+    final url = Uri.parse(
+      'https://api.mercadopago.com/v1/card_tokens?public_key=$publicKey',
+    );
 
     final payload = {
       'card_number': cleanCardNumber,
       'cardholder': {
         'name': cardholderName.trim(),
         if (cleanCpf != null && cleanCpf.isNotEmpty)
-          'identification': {
-            'type': identificationType,
-            'number': cleanCpf,
-          },
+          'identification': {'type': identificationType, 'number': cleanCpf},
       },
       'expiration_month': month,
       'expiration_year': year,
@@ -63,7 +66,9 @@ class CardTokenizationService {
       if (tokenId != null && tokenId.isNotEmpty) {
         return tokenId;
       }
-      throw Exception('Token do cartão retornado pelo Mercado Pago é inválido.');
+      throw Exception(
+        'Token do cartão retornado pelo Mercado Pago é inválido.',
+      );
     } else {
       try {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -76,9 +81,13 @@ class CardTokenizationService {
           }
         }
         final message = errorData['message'] as String?;
-        throw Exception(message ?? 'Falha ao tokenizar cartão (${response.statusCode})');
+        throw Exception(
+          message ?? 'Falha ao tokenizar cartão (${response.statusCode})',
+        );
       } on FormatException {
-        throw Exception('Falha na comunicação com o Mercado Pago (${response.statusCode})');
+        throw Exception(
+          'Falha na comunicação com o Mercado Pago (${response.statusCode})',
+        );
       }
     }
   }

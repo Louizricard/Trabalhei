@@ -16,7 +16,10 @@ class NotificationBellButton extends ConsumerWidget {
       children: [
         IconButton(
           tooltip: 'Notificações',
-          icon: const Icon(Icons.notifications_none_rounded, color: AppColors.textPrimaryDark),
+          icon: const Icon(
+            Icons.notifications_none_rounded,
+            color: AppColors.textPrimaryDark,
+          ),
           onPressed: () => context.push('/notifications'),
         ),
         if (unreadCount > 0)
@@ -29,10 +32,7 @@ class NotificationBellButton extends ConsumerWidget {
                 color: AppColors.primary,
                 shape: BoxShape.circle,
               ),
-              constraints: const BoxConstraints(
-                minWidth: 16,
-                minHeight: 16,
-              ),
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               child: Text(
                 unreadCount > 9 ? '9+' : '$unreadCount',
                 textAlign: TextAlign.center,

@@ -8,13 +8,17 @@ class JobRemoteDataSource {
   JobRemoteDataSource(this._supabase);
 
   Future<List<Job>> getJobs({JobFilter? filter}) async {
-    var query = _supabase.from('jobs').select('*, profiles!client_id(full_name, rating), proposals(count)');
+    var query = _supabase
+        .from('jobs')
+        .select('*, profiles!client_id(full_name, rating), proposals(count)')
+        .eq('status', 'open');
 
     if (filter != null) {
       if (filter.category != null && filter.category != 'Todas') {
         query = query.ilike('category', filter.category!);
       }
-      if (filter.experienceLevel != null && filter.experienceLevel != ExperienceLevel.all) {
+      if (filter.experienceLevel != null &&
+          filter.experienceLevel != ExperienceLevel.all) {
         query = query.eq('experience_level', filter.experienceLevel!.name);
       }
       if (filter.minBudget != null) {
@@ -32,7 +36,9 @@ class JobRemoteDataSource {
     final response = await query.order('created_at', ascending: false);
     final List<dynamic> data = response as List<dynamic>;
 
-    var list = data.map((json) => Job.fromJson(json as Map<String, dynamic>)).toList();
+    var list = data
+        .map((json) => Job.fromJson(json as Map<String, dynamic>))
+        .toList();
 
     if (filter?.sortBy == 'budget_desc') {
       list.sort((a, b) => b.budgetMax.compareTo(a.budgetMax));
@@ -61,11 +67,16 @@ class JobRemoteDataSource {
       payload['client_id'] = user.id;
     }
     // Remove client-generated id if not valid uuid or let supabase generate default gen_random_uuid
-    if (!payload['id'].toString().contains('-') || payload['id'].toString().startsWith('job-')) {
+    if (!payload['id'].toString().contains('-') ||
+        payload['id'].toString().startsWith('job-')) {
       payload.remove('id');
     }
 
-    final response = await _supabase.from('jobs').insert(payload).select('*, profiles!client_id(full_name, rating)').single();
+    final response = await _supabase
+        .from('jobs')
+        .insert(payload)
+        .select('*, profiles!client_id(full_name, rating)')
+        .single();
     return Job.fromJson(response);
   }
 
@@ -77,6 +88,8 @@ class JobRemoteDataSource {
         .order('created_at', ascending: false);
 
     final List<dynamic> data = response as List<dynamic>;
-    return data.map((json) => Job.fromJson(json as Map<String, dynamic>)).toList();
+    return data
+        .map((json) => Job.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 }

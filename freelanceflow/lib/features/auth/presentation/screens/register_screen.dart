@@ -37,7 +37,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await ref.read(authProvider.notifier).signUp(
+      await ref
+          .read(authProvider.notifier)
+          .signUp(
             email: _emailController.text.trim(),
             password: _passwordController.text,
             fullName: _nameController.text.trim(),
@@ -92,7 +94,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     const SizedBox(height: 6),
                     const Text(
                       'Escolha seu perfil e comece agora mesmo.',
-                      style: TextStyle(color: AppColors.textSecondaryDark, fontSize: 14),
+                      style: TextStyle(
+                        color: AppColors.textSecondaryDark,
+                        fontSize: 14,
+                      ),
                     ),
                     const SizedBox(height: 24),
 
@@ -112,7 +117,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               subtitle: 'Quero trabalhar',
                               isSelected: _selectedRole == UserRole.freelancer,
                               icon: Icons.code_rounded,
-                              onTap: () => setState(() => _selectedRole = UserRole.freelancer),
+                              onTap: () => setState(
+                                () => _selectedRole = UserRole.freelancer,
+                              ),
                             ),
                           ),
                           Expanded(
@@ -121,7 +128,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               subtitle: 'Quero contratar',
                               isSelected: _selectedRole == UserRole.client,
                               icon: Icons.business_center_rounded,
-                              onTap: () => setState(() => _selectedRole = UserRole.client),
+                              onTap: () => setState(
+                                () => _selectedRole = UserRole.client,
+                              ),
                             ),
                           ),
                         ],
@@ -139,7 +148,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             label: 'Nome Completo',
                             hint: 'Ex: Carlos Oliveira',
                             prefixIcon: Icons.person_outline_rounded,
-                            validator: (v) => v != null && v.length >= 3 ? null : 'Insira seu nome completo',
+                            validator: (v) => v != null && v.length >= 3
+                                ? null
+                                : 'Insira seu nome completo',
                           ),
                           const SizedBox(height: 16),
                           CustomTextField(
@@ -148,7 +159,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             hint: 'seu@email.com',
                             prefixIcon: Icons.mail_outline_rounded,
                             keyboardType: TextInputType.emailAddress,
-                            validator: (v) => v != null && v.contains('@') ? null : 'E-mail inválido',
+                            validator: (v) => v != null && v.contains('@')
+                                ? null
+                                : 'E-mail inválido',
                           ),
                           const SizedBox(height: 16),
                           CustomTextField(
@@ -157,7 +170,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             hint: 'Mínimo 6 caracteres',
                             prefixIcon: Icons.lock_outline_rounded,
                             obscureText: true,
-                            validator: (v) => v != null && v.length >= 6 ? null : 'Mínimo 6 caracteres',
+                            validator: (v) => v != null && v.length >= 6
+                                ? null
+                                : 'Mínimo 6 caracteres',
                           ),
                           const SizedBox(height: 24),
                           CustomButton(
@@ -210,13 +225,17 @@ class _RoleTab extends StatelessWidget {
             Icon(
               icon,
               size: 20,
-              color: isSelected ? AppColors.onPrimary : AppColors.textSecondaryDark,
+              color: isSelected
+                  ? AppColors.onPrimary
+                  : AppColors.textSecondaryDark,
             ),
             const SizedBox(height: 4),
             Text(
               title,
               style: TextStyle(
-                color: isSelected ? AppColors.onPrimary : AppColors.textPrimaryDark,
+                color: isSelected
+                    ? AppColors.onPrimary
+                    : AppColors.textPrimaryDark,
                 fontWeight: FontWeight.w700,
                 fontSize: 13,
               ),
@@ -224,7 +243,9 @@ class _RoleTab extends StatelessWidget {
             Text(
               subtitle,
               style: TextStyle(
-                color: isSelected ? AppColors.onPrimary.withAlpha(200) : AppColors.textMutedDark,
+                color: isSelected
+                    ? AppColors.onPrimary.withAlpha(200)
+                    : AppColors.textMutedDark,
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
               ),

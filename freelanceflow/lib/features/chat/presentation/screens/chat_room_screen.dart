@@ -79,7 +79,16 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     if (user == null) return;
 
     final picked = await storage.pickFile(
-      allowedExtensions: ['pdf', 'doc', 'docx', 'zip', 'txt', 'png', 'jpg', 'jpeg'],
+      allowedExtensions: [
+        'pdf',
+        'doc',
+        'docx',
+        'zip',
+        'txt',
+        'png',
+        'jpg',
+        'jpeg',
+      ],
     );
     if (picked == null) return;
 
@@ -102,7 +111,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
       if (attachment != null) {
         final caption = _messageController.text.trim();
-        await ref.read(chatRepositoryProvider).sendAttachmentMessage(
+        await ref
+            .read(chatRepositoryProvider)
+            .sendAttachmentMessage(
               conversationId: widget.conversationId,
               attachment: attachment,
               caption: caption.isNotEmpty ? caption : null,
@@ -142,7 +153,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surfaceDark,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (ctx) {
         return SafeArea(
           child: Padding(
@@ -161,16 +174,35 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 ),
                 const Text(
                   'Enviar Anexo',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimaryDark,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: AppColors.surfaceElevatedDark,
-                    child: Icon(Icons.photo_library_rounded, color: AppColors.primaryLight),
+                    child: Icon(
+                      Icons.photo_library_rounded,
+                      color: AppColors.primaryLight,
+                    ),
                   ),
-                  title: const Text('Foto da Galeria', style: TextStyle(color: AppColors.textPrimaryDark, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('PNG, JPG, WEBP', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                  title: const Text(
+                    'Foto da Galeria',
+                    style: TextStyle(
+                      color: AppColors.textPrimaryDark,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'PNG, JPG, WEBP',
+                    style: TextStyle(
+                      color: AppColors.textMutedDark,
+                      fontSize: 12,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.pop(ctx);
                     _pickAndSendImage(ImageSource.gallery);
@@ -179,9 +211,18 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: AppColors.surfaceElevatedDark,
-                    child: Icon(Icons.camera_alt_rounded, color: AppColors.primaryLight),
+                    child: Icon(
+                      Icons.camera_alt_rounded,
+                      color: AppColors.primaryLight,
+                    ),
                   ),
-                  title: const Text('Tirar Foto', style: TextStyle(color: AppColors.textPrimaryDark, fontWeight: FontWeight.w600)),
+                  title: const Text(
+                    'Tirar Foto',
+                    style: TextStyle(
+                      color: AppColors.textPrimaryDark,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.pop(ctx);
                     _pickAndSendImage(ImageSource.camera);
@@ -190,10 +231,25 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: AppColors.surfaceElevatedDark,
-                    child: Icon(Icons.description_rounded, color: AppColors.info),
+                    child: Icon(
+                      Icons.description_rounded,
+                      color: AppColors.info,
+                    ),
                   ),
-                  title: const Text('Documento ou PDF', style: TextStyle(color: AppColors.textPrimaryDark, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('PDF, DOC, DOCX, ZIP até 20MB', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                  title: const Text(
+                    'Documento ou PDF',
+                    style: TextStyle(
+                      color: AppColors.textPrimaryDark,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'PDF, DOC, DOCX, ZIP até 20MB',
+                    style: TextStyle(
+                      color: AppColors.textMutedDark,
+                      fontSize: 12,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.pop(ctx);
                     _pickAndSendDocument();
@@ -210,8 +266,12 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final conversation = ref.watch(conversationDetailProvider(widget.conversationId)).value;
-    final messagesAsync = ref.watch(chatMessagesStreamProvider(widget.conversationId));
+    final conversation = ref
+        .watch(conversationDetailProvider(widget.conversationId))
+        .value;
+    final messagesAsync = ref.watch(
+      chatMessagesStreamProvider(widget.conversationId),
+    );
     final currentUser = ref.watch(authProvider).value;
     final currentUserId = currentUser?.id;
 
@@ -237,7 +297,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             if (conversation != null)
               Text(
                 conversation.jobTitle,
-                style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryDark),
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textSecondaryDark,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -251,16 +314,22 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 style: TextButton.styleFrom(
                   backgroundColor: AppColors.primary.withAlpha(30),
                   foregroundColor: AppColors.primaryLight,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
                 icon: const Icon(Icons.shield_outlined, size: 16),
-                label: const Text('Marcos', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                label: const Text(
+                  'Marcos',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                ),
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
                     backgroundColor: AppColors.transparent,
                     isScrollControlled: true,
-                    builder: (_) => ContractMilestoneSheet(conversation: conversation),
+                    builder: (_) =>
+                        ContractMilestoneSheet(conversation: conversation),
                   );
                 },
               ),
@@ -289,7 +358,12 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final msg = messages[index];
-                      return _buildMessageBubble(msg, currentUserId, conversation, currentUser);
+                      return _buildMessageBubble(
+                        msg,
+                        currentUserId,
+                        conversation,
+                        currentUser,
+                      );
                     },
                   );
                 },
@@ -297,16 +371,26 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             ),
             if (_isUploadingAttachment)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 color: AppColors.surfaceElevatedDark,
                 child: Row(
                   children: [
-                    const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         _uploadStatus,
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondaryDark,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -322,22 +406,38 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.primaryLight, size: 24),
+                    icon: const Icon(
+                      Icons.add_circle_outline_rounded,
+                      color: AppColors.primaryLight,
+                      size: 24,
+                    ),
                     tooltip: 'Enviar Anexo ou Imagem',
-                    onPressed: _isUploadingAttachment ? null : _showAttachmentOptions,
+                    onPressed: _isUploadingAttachment
+                        ? null
+                        : _showAttachmentOptions,
                   ),
                   const SizedBox(width: 4),
                   Expanded(
                     child: TextField(
                       controller: _messageController,
-                      style: const TextStyle(color: AppColors.textPrimaryDark, fontSize: 14),
+                      style: const TextStyle(
+                        color: AppColors.textPrimaryDark,
+                        fontSize: 14,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Digite sua mensagem...',
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
-                          borderSide: const BorderSide(color: AppColors.borderDark),
+                          borderSide: const BorderSide(
+                            color: AppColors.borderDark,
+                          ),
                         ),
                       ),
                       onSubmitted: (_) => _sendMessage(),
@@ -363,7 +463,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     Conversation? conversation,
     dynamic currentUser,
   ) {
-    if (msg.messageType == MessageType.systemEvent || msg.messageType == MessageType.milestoneUpdate) {
+    if (msg.messageType == MessageType.systemEvent ||
+        msg.messageType == MessageType.milestoneUpdate) {
       return _buildSystemEventCard(msg, conversation, currentUser);
     }
 
@@ -385,7 +486,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           ),
         ),
         child: Column(
-          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isMe
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             if (msg.isImage && msg.attachmentUrl != null) ...[
               GestureDetector(
@@ -393,7 +496,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    constraints: const BoxConstraints(maxHeight: 240, maxWidth: 360),
+                    constraints: const BoxConstraints(
+                      maxHeight: 240,
+                      maxWidth: 360,
+                    ),
                     child: Image.network(
                       msg.attachmentUrl!,
                       fit: BoxFit.cover,
@@ -402,13 +508,20 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         return Container(
                           height: 160,
                           color: AppColors.surfaceDark,
-                          child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                         );
                       },
                       errorBuilder: (context, error, stackTrace) => Container(
                         height: 120,
                         color: AppColors.surfaceDark,
-                        child: const Center(child: Icon(Icons.broken_image_rounded, color: AppColors.error)),
+                        child: const Center(
+                          child: Icon(
+                            Icons.broken_image_rounded,
+                            color: AppColors.error,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -421,14 +534,24 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: isMe ? Colors.black.withAlpha(50) : AppColors.surfaceDark,
+                    color: isMe
+                        ? Colors.black.withAlpha(50)
+                        : AppColors.surfaceDark,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: isMe ? AppColors.pureWhite.withAlpha(40) : AppColors.borderDark),
+                    border: Border.all(
+                      color: isMe
+                          ? AppColors.pureWhite.withAlpha(40)
+                          : AppColors.borderDark,
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.insert_drive_file_rounded, color: AppColors.primaryLight, size: 28),
+                      const Icon(
+                        Icons.insert_drive_file_rounded,
+                        color: AppColors.primaryLight,
+                        size: 28,
+                      ),
                       const SizedBox(width: 10),
                       Flexible(
                         child: Column(
@@ -439,7 +562,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                color: isMe ? AppColors.onPrimary : AppColors.textPrimaryDark,
+                                color: isMe
+                                    ? AppColors.onPrimary
+                                    : AppColors.textPrimaryDark,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -449,14 +574,22 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                                 msg.formattedSize,
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: isMe ? AppColors.onPrimary.withAlpha(180) : AppColors.textMutedDark,
+                                  color: isMe
+                                      ? AppColors.onPrimary.withAlpha(180)
+                                      : AppColors.textMutedDark,
                                 ),
                               ),
                           ],
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Icon(Icons.download_rounded, color: isMe ? AppColors.onPrimary : AppColors.primaryLight, size: 20),
+                      Icon(
+                        Icons.download_rounded,
+                        color: isMe
+                            ? AppColors.onPrimary
+                            : AppColors.primaryLight,
+                        size: 20,
+                      ),
                     ],
                   ),
                 ),
@@ -479,7 +612,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               DateFormatter.timeOnly(msg.createdAt),
               style: TextStyle(
                 fontSize: 10,
-                color: isMe ? AppColors.onPrimary.withAlpha(200) : AppColors.textMutedDark,
+                color: isMe
+                    ? AppColors.onPrimary.withAlpha(200)
+                    : AppColors.textMutedDark,
               ),
             ),
           ],
@@ -493,16 +628,31 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     Conversation? conversation,
     dynamic currentUser,
   ) {
-    final isClient = (conversation != null && conversation.clientId != null && currentUser?.id == conversation.clientId) ||
-        (currentUser?.role == UserRole.client && conversation?.freelancerId != currentUser?.id);
+    final isClient =
+        (conversation != null &&
+            conversation.clientId != null &&
+            currentUser?.id == conversation.clientId) ||
+        (currentUser?.role == UserRole.client &&
+            conversation?.freelancerId != currentUser?.id);
 
-    final isDelivery = msg.content.contains('Entrega') || msg.content.contains('📦');
-    final isRevision = msg.content.contains('Revisão') || msg.content.contains('🔄') || msg.content.contains('Ajustes');
-    final isApproved = msg.content.contains('aprovado') || msg.content.contains('liberado') || msg.content.contains('🎉');
+    final isDelivery =
+        msg.content.contains('Entrega') || msg.content.contains('📦');
+    final isRevision =
+        msg.content.contains('Revisão') ||
+        msg.content.contains('🔄') ||
+        msg.content.contains('Ajustes');
+    final isApproved =
+        msg.content.contains('aprovado') ||
+        msg.content.contains('liberado') ||
+        msg.content.contains('🎉');
 
-    if (isDelivery && conversation != null && conversation.milestones.isNotEmpty) {
+    if (isDelivery &&
+        conversation != null &&
+        conversation.milestones.isNotEmpty) {
       final activeMilestone = conversation.milestones.firstWhere(
-        (m) => m.status == MilestoneStatus.submitted || m.status == MilestoneStatus.inRevision,
+        (m) =>
+            m.status == MilestoneStatus.submitted ||
+            m.status == MilestoneStatus.inRevision,
         orElse: () => conversation.milestones.firstWhere(
           (m) => m.status == MilestoneStatus.fundedInEscrow,
           orElse: () => conversation.milestones.first,
@@ -518,7 +668,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           decoration: BoxDecoration(
             color: AppColors.surfaceElevatedDark,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.primaryLight.withAlpha(90), width: 1.2),
+            border: Border.all(
+              color: AppColors.primaryLight.withAlpha(90),
+              width: 1.2,
+            ),
             boxShadow: [
               BoxShadow(
                 color: AppColors.primary.withAlpha(25),
@@ -535,7 +688,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   CircleAvatar(
                     radius: 18,
                     backgroundColor: AppColors.primary.withAlpha(40),
-                    child: const Icon(Icons.inventory_2_rounded, size: 20, color: AppColors.primaryLight),
+                    child: const Icon(
+                      Icons.inventory_2_rounded,
+                      size: 20,
+                      color: AppColors.primaryLight,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -543,7 +700,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isClient ? '📦 Entrega de Marco Recebida!' : '📦 Entrega de Marco Enviada',
+                          isClient
+                              ? '📦 Entrega de Marco Recebida!'
+                              : '📦 Entrega de Marco Enviada',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -552,7 +711,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         ),
                         Text(
                           activeMilestone.title,
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondaryDark,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -575,17 +737,28 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               ),
               Text(
                 msg.content,
-                style: const TextStyle(fontSize: 13, color: AppColors.textPrimaryDark, height: 1.3),
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textPrimaryDark,
+                  height: 1.3,
+                ),
               ),
               if (activeMilestone.deliverableAttachments.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.attach_file_rounded, size: 16, color: AppColors.primaryLight),
+                    const Icon(
+                      Icons.attach_file_rounded,
+                      size: 16,
+                      color: AppColors.primaryLight,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '${activeMilestone.deliverableAttachments.length} anexo(s) incluído(s)',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondaryDark,
+                      ),
                     ),
                   ],
                 ),
@@ -595,15 +768,29 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isClient ? AppColors.success : AppColors.primary,
+                    backgroundColor: isClient
+                        ? AppColors.success
+                        : AppColors.primary,
                     foregroundColor: AppColors.pureWhite,
                     padding: const EdgeInsets.symmetric(vertical: 11),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                  icon: Icon(isClient ? Icons.check_circle_outline_rounded : Icons.visibility_outlined, size: 18),
+                  icon: Icon(
+                    isClient
+                        ? Icons.check_circle_outline_rounded
+                        : Icons.visibility_outlined,
+                    size: 18,
+                  ),
                   label: Text(
-                    isClient ? 'Revisar Arquivos & Liberar Pagamento' : 'Visualizar Detalhes da Entrega',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    isClient
+                        ? 'Revisar Arquivos & Liberar Pagamento'
+                        : 'Visualizar Detalhes da Entrega',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
                   ),
                   onPressed: () {
                     showModalBottomSheet(
@@ -624,9 +811,13 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
       );
     }
 
-    if (isRevision && conversation != null && conversation.milestones.isNotEmpty) {
+    if (isRevision &&
+        conversation != null &&
+        conversation.milestones.isNotEmpty) {
       final activeMilestone = conversation.milestones.firstWhere(
-        (m) => m.status == MilestoneStatus.inRevision || m.status == MilestoneStatus.submitted,
+        (m) =>
+            m.status == MilestoneStatus.inRevision ||
+            m.status == MilestoneStatus.submitted,
         orElse: () => conversation.milestones.first,
       );
 
@@ -639,7 +830,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           decoration: BoxDecoration(
             color: AppColors.surfaceElevatedDark,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.warning.withAlpha(100), width: 1.2),
+            border: Border.all(
+              color: AppColors.warning.withAlpha(100),
+              width: 1.2,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -649,7 +843,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   CircleAvatar(
                     radius: 18,
                     backgroundColor: AppColors.warningBg,
-                    child: const Icon(Icons.replay_rounded, size: 20, color: AppColors.warning),
+                    child: const Icon(
+                      Icons.replay_rounded,
+                      size: 20,
+                      color: AppColors.warning,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -657,7 +855,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isClient ? '🔄 Revisão Solicitada' : '⚠️ Ajustes Solicitados pelo Cliente',
+                          isClient
+                              ? '🔄 Revisão Solicitada'
+                              : '⚠️ Ajustes Solicitados pelo Cliente',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -666,7 +866,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         ),
                         Text(
                           activeMilestone.title,
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondaryDark,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -681,7 +884,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               ),
               Text(
                 msg.content,
-                style: const TextStyle(fontSize: 13, color: AppColors.textPrimaryDark, height: 1.3),
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textPrimaryDark,
+                  height: 1.3,
+                ),
               ),
               const SizedBox(height: 12),
               SizedBox(
@@ -692,10 +899,18 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                           foregroundColor: AppColors.warning,
                           side: const BorderSide(color: AppColors.warning),
                           padding: const EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                         icon: const Icon(Icons.info_outline_rounded, size: 18),
-                        label: const Text('Ver Detalhes do Marco', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        label: const Text(
+                          'Ver Detalhes do Marco',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
                         onPressed: () {
                           showModalBottomSheet(
                             context: context,
@@ -713,12 +928,17 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                           backgroundColor: AppColors.warning,
                           foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(vertical: 11),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                         icon: const Icon(Icons.upload_file_rounded, size: 18),
                         label: const Text(
                           'Reenviar Entrega Corrigida',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
                         ),
                         onPressed: () {
                           showModalBottomSheet(
@@ -749,7 +969,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           decoration: BoxDecoration(
             color: AppColors.surfaceElevatedDark,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.success.withAlpha(100), width: 1.2),
+            border: Border.all(
+              color: AppColors.success.withAlpha(100),
+              width: 1.2,
+            ),
           ),
           child: Column(
             children: [
@@ -758,13 +981,21 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   const CircleAvatar(
                     radius: 18,
                     backgroundColor: AppColors.successBg,
-                    child: Icon(Icons.celebration_rounded, size: 20, color: AppColors.success),
+                    child: Icon(
+                      Icons.celebration_rounded,
+                      size: 20,
+                      color: AppColors.success,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
                       '🎉 Pagamento Liberado com Sucesso!',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.success),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.success,
+                      ),
                     ),
                   ),
                 ],
@@ -775,7 +1006,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               ),
               Text(
                 msg.content,
-                style: const TextStyle(fontSize: 13, color: AppColors.textPrimaryDark, height: 1.3),
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textPrimaryDark,
+                  height: 1.3,
+                ),
                 textAlign: TextAlign.center,
               ),
               if (isClient) ...[
@@ -787,16 +1022,25 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                       backgroundColor: AppColors.success,
                       foregroundColor: AppColors.pureWhite,
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     icon: const Icon(Icons.star_rate_rounded, size: 18),
-                    label: const Text('Avaliar Freelancer', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    label: const Text(
+                      'Avaliar Freelancer',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
                     onPressed: () {
                       showModalBottomSheet(
                         context: context,
                         backgroundColor: AppColors.transparent,
                         isScrollControlled: true,
-                        builder: (_) => ReviewContractModal(conversation: conversation),
+                        builder: (_) =>
+                            ReviewContractModal(conversation: conversation),
                       );
                     },
                   ),
@@ -821,12 +1065,19 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.security_rounded, size: 18, color: AppColors.primaryLight),
+            const Icon(
+              Icons.security_rounded,
+              size: 18,
+              color: AppColors.primaryLight,
+            ),
             const SizedBox(width: 8),
             Flexible(
               child: Text(
                 msg.content,
-                style: const TextStyle(fontSize: 12, color: AppColors.textPrimaryDark),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textPrimaryDark,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -844,28 +1095,35 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           'url': msg.attachmentUrl!,
           'name': msg.attachmentName ?? 'Imagem do Chat',
           'size': msg.attachmentSize,
-        }
+        },
       ],
     );
   }
 
   Widget _buildDeliveryActionBanner(dynamic conversation, dynamic currentUser) {
-    final isClient = (conversation.clientId != null && currentUser?.id == conversation.clientId) ||
-        (currentUser?.role == UserRole.client && conversation.freelancerId != currentUser?.id);
+    final isClient =
+        (conversation.clientId != null &&
+            currentUser?.id == conversation.clientId) ||
+        (currentUser?.role == UserRole.client &&
+            conversation.freelancerId != currentUser?.id);
 
     final milestones = List<ContractMilestone>.from(conversation.milestones);
     if (milestones.isEmpty) return const SizedBox.shrink();
 
     // Encontrar o marco em foco prioritário
     final activeMilestone = milestones.firstWhere(
-      (m) => m.status == MilestoneStatus.submitted || m.status == MilestoneStatus.inRevision,
+      (m) =>
+          m.status == MilestoneStatus.submitted ||
+          m.status == MilestoneStatus.inRevision,
       orElse: () => milestones.firstWhere(
         (m) => m.status == MilestoneStatus.fundedInEscrow,
         orElse: () => milestones.first,
       ),
     );
 
-    final allApproved = milestones.every((m) => m.status == MilestoneStatus.approvedAndReleased);
+    final allApproved = milestones.every(
+      (m) => m.status == MilestoneStatus.approvedAndReleased,
+    );
 
     // 1. Caso: Projeto 100% Concluído & Pagamento Liberado
     if (allApproved) {
@@ -882,7 +1140,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             const CircleAvatar(
               radius: 18,
               backgroundColor: AppColors.successBg,
-              child: Icon(Icons.celebration_rounded, color: AppColors.success, size: 20),
+              child: Icon(
+                Icons.celebration_rounded,
+                color: AppColors.success,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             const Expanded(
@@ -891,52 +1153,47 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 children: [
                   Text(
                     'Projeto Concluído & Pago! 🎉',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.success),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: AppColors.success,
+                    ),
                   ),
                   Text(
                     'Todos os valores de Escrow foram transferidos.',
-                    style: TextStyle(fontSize: 11, color: AppColors.textSecondaryDark),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textSecondaryDark,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            if (isClient)
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.success,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.success,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
                 ),
-                icon: const Icon(Icons.star_rate_rounded, size: 16),
-                label: const Text('Avaliar'),
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    backgroundColor: AppColors.transparent,
-                    isScrollControlled: true,
-                    builder: (_) => ReviewContractModal(conversation: conversation),
-                  );
-                },
-              )
-            else
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.success,
-                  side: const BorderSide(color: AppColors.success),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                textStyle: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
                 ),
-                icon: const Icon(Icons.shield_outlined, size: 16),
-                label: const Text('Ver Marcos', style: TextStyle(fontSize: 12)),
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    backgroundColor: AppColors.transparent,
-                    isScrollControlled: true,
-                    builder: (_) => ContractMilestoneSheet(conversation: conversation),
-                  );
-                },
               ),
+              icon: const Icon(Icons.star_rate_rounded, size: 16),
+              label: const Text('Avaliar'),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: AppColors.transparent,
+                  isScrollControlled: true,
+                  builder: (_) =>
+                      ReviewContractModal(conversation: conversation),
+                );
+              },
+            ),
           ],
         ),
       );
@@ -950,7 +1207,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
         decoration: BoxDecoration(
           color: AppColors.primary.withAlpha(25),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.primaryLight.withAlpha(100), width: 1.2),
+          border: Border.all(
+            color: AppColors.primaryLight.withAlpha(100),
+            width: 1.2,
+          ),
           boxShadow: [
             BoxShadow(
               color: AppColors.primary.withAlpha(40),
@@ -964,7 +1224,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             const CircleAvatar(
               radius: 18,
               backgroundColor: AppColors.surfaceElevatedDark,
-              child: Icon(Icons.inventory_2_rounded, color: AppColors.primaryLight, size: 20),
+              child: Icon(
+                Icons.inventory_2_rounded,
+                color: AppColors.primaryLight,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -975,20 +1239,31 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     children: [
                       Text(
                         isClient ? '📦 Entrega Recebida!' : '⏳ Entrega Enviada',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primaryLight),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: AppColors.primaryLight,
+                        ),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         CurrencyFormatter.format(activeMilestone.amount),
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.success),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.success,
+                        ),
                       ),
                     ],
                   ),
                   Text(
                     isClient
-                      ? 'Analise os arquivos e aprove para liberar o pagamento.'
-                      : 'Aguardando o contratante analisar e liberar o pagamento.',
-                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryDark),
+                        ? 'Analise os arquivos e aprove para liberar o pagamento.'
+                        : 'Aguardando o contratante analisar e liberar o pagamento.',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textSecondaryDark,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -998,19 +1273,35 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             const SizedBox(width: 8),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: isClient ? AppColors.success : AppColors.primary,
+                backgroundColor: isClient
+                    ? AppColors.success
+                    : AppColors.primary,
                 foregroundColor: AppColors.pureWhite,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              icon: Icon(isClient ? Icons.check_circle_outline_rounded : Icons.visibility_outlined, size: 16),
+              icon: Icon(
+                isClient
+                    ? Icons.check_circle_outline_rounded
+                    : Icons.visibility_outlined,
+                size: 16,
+              ),
               label: Text(isClient ? 'Revisar & Aprovar' : 'Ver Entrega'),
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
                   backgroundColor: AppColors.transparent,
                   isScrollControlled: true,
-                  builder: (_) => RequestRevisionModal(conversation: conversation, milestone: activeMilestone),
+                  builder: (_) => RequestRevisionModal(
+                    conversation: conversation,
+                    milestone: activeMilestone,
+                  ),
                 );
               },
             ),
@@ -1027,14 +1318,21 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
         decoration: BoxDecoration(
           color: AppColors.warning.withAlpha(20),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.warning.withAlpha(100), width: 1.2),
+          border: Border.all(
+            color: AppColors.warning.withAlpha(100),
+            width: 1.2,
+          ),
         ),
         child: Row(
           children: [
             const CircleAvatar(
               radius: 18,
               backgroundColor: AppColors.warningBg,
-              child: Icon(Icons.replay_rounded, color: AppColors.warning, size: 20),
+              child: Icon(
+                Icons.replay_rounded,
+                color: AppColors.warning,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1042,14 +1340,23 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isClient ? '🔄 Revisão em Andamento' : '⚠️ Ajustes Solicitados!',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.warning),
+                    isClient
+                        ? '🔄 Revisão em Andamento'
+                        : '⚠️ Ajustes Solicitados!',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: AppColors.warning,
+                    ),
                   ),
                   Text(
                     isClient
-                      ? 'Você solicitou alterações no marco "${activeMilestone.title}".'
-                      : 'O cliente solicitou correções. Faça os ajustes e reenvie.',
-                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryDark),
+                        ? 'Você solicitou alterações no marco "${activeMilestone.title}".'
+                        : 'O cliente solicitou correções. Faça os ajustes e reenvie.',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textSecondaryDark,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1062,8 +1369,14 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.warning,
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 icon: const Icon(Icons.upload_file_rounded, size: 16),
                 label: const Text('Reenviar'),
@@ -1072,7 +1385,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     context: context,
                     backgroundColor: AppColors.transparent,
                     isScrollControlled: true,
-                    builder: (_) => SubmitDeliverableModal(conversation: conversation, milestone: activeMilestone),
+                    builder: (_) => SubmitDeliverableModal(
+                      conversation: conversation,
+                      milestone: activeMilestone,
+                    ),
                   );
                 },
               )
@@ -1081,7 +1397,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.warning,
                   side: const BorderSide(color: AppColors.warning),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                 ),
                 icon: const Icon(Icons.shield_outlined, size: 16),
                 label: const Text('Ver Status', style: TextStyle(fontSize: 12)),
@@ -1090,7 +1409,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     context: context,
                     backgroundColor: AppColors.transparent,
                     isScrollControlled: true,
-                    builder: (_) => ContractMilestoneSheet(conversation: conversation),
+                    builder: (_) =>
+                        ContractMilestoneSheet(conversation: conversation),
                   );
                 },
               ),
@@ -1114,7 +1434,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             const CircleAvatar(
               radius: 18,
               backgroundColor: AppColors.successBg,
-              child: Icon(Icons.lock_rounded, color: AppColors.success, size: 18),
+              child: Icon(
+                Icons.lock_rounded,
+                color: AppColors.success,
+                size: 18,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1125,19 +1449,30 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     children: [
                       const Text(
                         'Escrow Ativo: ',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryDark),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: AppColors.textPrimaryDark,
+                        ),
                       ),
                       Text(
                         CurrencyFormatter.format(activeMilestone.amount),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.success),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: AppColors.success,
+                        ),
                       ),
                     ],
                   ),
                   Text(
                     isClient
-                      ? 'Valor seguro em custódia até sua aprovação.'
-                      : 'Marco: ${activeMilestone.title}. Realize a entrega quando concluir.',
-                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryDark),
+                        ? 'Valor seguro em custódia até sua aprovação.'
+                        : 'Marco: ${activeMilestone.title}. Realize a entrega quando concluir.',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textSecondaryDark,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1150,8 +1485,14 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: AppColors.onPrimary,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 icon: const Icon(Icons.upload_file_rounded, size: 16),
                 label: const Text('Entregar'),
@@ -1160,7 +1501,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     context: context,
                     backgroundColor: AppColors.transparent,
                     isScrollControlled: true,
-                    builder: (_) => SubmitDeliverableModal(conversation: conversation, milestone: activeMilestone),
+                    builder: (_) => SubmitDeliverableModal(
+                      conversation: conversation,
+                      milestone: activeMilestone,
+                    ),
                   );
                 },
               )
@@ -1169,7 +1513,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primaryLight,
                   side: const BorderSide(color: AppColors.borderDark),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                 ),
                 icon: const Icon(Icons.shield_outlined, size: 16),
                 label: const Text('Marcos', style: TextStyle(fontSize: 12)),
@@ -1178,7 +1525,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     context: context,
                     backgroundColor: AppColors.transparent,
                     isScrollControlled: true,
-                    builder: (_) => ContractMilestoneSheet(conversation: conversation),
+                    builder: (_) =>
+                        ContractMilestoneSheet(conversation: conversation),
                   );
                 },
               ),
@@ -1190,4 +1538,3 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     return const SizedBox.shrink();
   }
 }
-

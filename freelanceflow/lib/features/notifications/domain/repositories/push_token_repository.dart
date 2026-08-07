@@ -10,12 +10,8 @@ abstract class PushTokenRepository {
   });
 
   /// Deletes a specific FCM token (e.g. upon user logout)
-  Future<void> deleteToken({
-    required String token,
-  });
+  Future<void> deleteToken({required String token});
 
   /// Retrieves all registered tokens for a given user
-  Future<List<PushToken>> getTokensForUser({
-    required String userId,
-  });
+  Future<List<PushToken>> getTokensForUser({required String userId});
 }

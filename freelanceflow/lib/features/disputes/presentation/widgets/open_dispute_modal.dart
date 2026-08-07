@@ -54,7 +54,9 @@ class _OpenDisputeModalState extends ConsumerState<OpenDisputeModal> {
 
     if (widget.conversation.contractId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Este chat não possui um contrato ativo associado.')),
+        const SnackBar(
+          content: Text('Este chat não possui um contrato ativo associado.'),
+        ),
       );
       return;
     }
@@ -76,7 +78,9 @@ class _OpenDisputeModalState extends ConsumerState<OpenDisputeModal> {
         }
       }
 
-      await ref.read(disputeRepositoryProvider).openDispute(
+      await ref
+          .read(disputeRepositoryProvider)
+          .openDispute(
             contractId: widget.conversation.contractId!,
             milestoneId: _selectedMilestoneId,
             reason: _selectedReason,
@@ -91,7 +95,9 @@ class _OpenDisputeModalState extends ConsumerState<OpenDisputeModal> {
           context: context,
           builder: (ctx) => AlertDialog(
             backgroundColor: AppColors.surfaceDark,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             title: const Row(
               children: [
                 Icon(Icons.shield_rounded, color: AppColors.warning),
@@ -116,7 +122,10 @@ class _OpenDisputeModalState extends ConsumerState<OpenDisputeModal> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao abrir disputa: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Erro ao abrir disputa: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -151,7 +160,11 @@ class _OpenDisputeModalState extends ConsumerState<OpenDisputeModal> {
                       SizedBox(width: 8),
                       Text(
                         'Abrir Mediação / Disputa',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimaryDark,
+                        ),
                       ),
                     ],
                   ),
@@ -169,12 +182,20 @@ class _OpenDisputeModalState extends ConsumerState<OpenDisputeModal> {
                 child: const Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.lock_clock_rounded, color: AppColors.warning, size: 20),
+                    Icon(
+                      Icons.lock_clock_rounded,
+                      color: AppColors.warning,
+                      size: 20,
+                    ),
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Ao abrir uma disputa, o valor do marco em Escrow é congelado e a equipe do Trabalhei atuará como mediadora imparcial.',
-                        style: TextStyle(fontSize: 12, color: AppColors.textPrimaryDark, height: 1.4),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textPrimaryDark,
+                          height: 1.4,
+                        ),
                       ),
                     ),
                   ],
@@ -182,38 +203,75 @@ class _OpenDisputeModalState extends ConsumerState<OpenDisputeModal> {
               ),
               const SizedBox(height: 16),
               if (widget.conversation.milestones.isNotEmpty) ...[
-                const Text('Marco em Questão:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryDark)),
+                const Text(
+                  'Marco em Questão:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: AppColors.textPrimaryDark,
+                  ),
+                ),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedMilestoneId,
                   dropdownColor: AppColors.surfaceElevatedDark,
                   decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   items: widget.conversation.milestones.map((m) {
                     return DropdownMenuItem(
                       value: m.id,
-                      child: Text(m.title, style: const TextStyle(fontSize: 13, color: AppColors.textPrimaryDark)),
+                      child: Text(
+                        m.title,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textPrimaryDark,
+                        ),
+                      ),
                     );
                   }).toList(),
-                  onChanged: (val) => setState(() => _selectedMilestoneId = val),
+                  onChanged: (val) =>
+                      setState(() => _selectedMilestoneId = val),
                 ),
                 const SizedBox(height: 14),
               ],
-              const Text('Motivo Principal:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryDark)),
+              const Text(
+                'Motivo Principal:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  color: AppColors.textPrimaryDark,
+                ),
+              ),
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 initialValue: _selectedReason,
                 dropdownColor: AppColors.surfaceElevatedDark,
                 decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 items: _reasons.map((r) {
                   return DropdownMenuItem(
                     value: r,
-                    child: Text(r, style: const TextStyle(fontSize: 13, color: AppColors.textPrimaryDark)),
+                    child: Text(
+                      r,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textPrimaryDark,
+                      ),
+                    ),
                   );
                 }).toList(),
                 onChanged: (val) {
@@ -224,16 +282,20 @@ class _OpenDisputeModalState extends ConsumerState<OpenDisputeModal> {
               CustomTextField(
                 controller: _descController,
                 label: 'Descrição Detalhada do Ocorrido',
-                hint: 'Explique o motivo da disputa, o que foi combinado e onde houve divergência...',
+                hint:
+                    'Explique o motivo da disputa, o que foi combinado e onde houve divergência...',
                 maxLines: 4,
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'Descreva o ocorrido detalhadamente' : null,
+                validator: (val) => (val == null || val.trim().isEmpty)
+                    ? 'Descreva o ocorrido detalhadamente'
+                    : null,
               ),
               const SizedBox(height: 14),
               AttachmentPickerSection(
                 selectedFiles: _selectedFiles,
                 onChanged: (files) => setState(() => _selectedFiles = files),
                 title: 'Provas & Evidências (Prints, PDFs, Documentos)',
-                hintText: 'Anexe comprovantes ou prints para embasar sua solicitação.',
+                hintText:
+                    'Anexe comprovantes ou prints para embasar sua solicitação.',
               ),
               const SizedBox(height: 24),
               CustomButton(

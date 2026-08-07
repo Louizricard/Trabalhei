@@ -66,9 +66,14 @@ class Dispute {
       status: _parseStatus(json['status'] as String?),
       resolutionSummary: json['resolution_summary'] as String?,
       refundClientAmount: (json['refund_client_amount'] as num?)?.toDouble(),
-      releaseFreelancerAmount: (json['release_freelancer_amount'] as num?)?.toDouble(),
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now() : DateTime.now(),
-      resolvedAt: json['resolved_at'] != null ? DateTime.tryParse(json['resolved_at'] as String) : null,
+      releaseFreelancerAmount: (json['release_freelancer_amount'] as num?)
+          ?.toDouble(),
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
+          : DateTime.now(),
+      resolvedAt: json['resolved_at'] != null
+          ? DateTime.tryParse(json['resolved_at'] as String)
+          : null,
     );
   }
 

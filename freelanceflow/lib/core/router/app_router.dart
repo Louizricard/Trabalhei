@@ -40,7 +40,9 @@ class RouterNotifier extends ChangeNotifier {
   }
 }
 
-final routerNotifierProvider = Provider<RouterNotifier>((ref) => RouterNotifier(ref));
+final routerNotifierProvider = Provider<RouterNotifier>(
+  (ref) => RouterNotifier(ref),
+);
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = ref.watch(routerNotifierProvider);
@@ -53,7 +55,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authProvider);
       final isLoggedIn = authState.value != null;
       final loc = state.matchedLocation;
-      final isAuthRoute = loc == '/splash' ||
+      final isAuthRoute =
+          loc == '/splash' ||
           loc == '/login' ||
           loc == '/register' ||
           loc == '/forgot-password' ||
@@ -79,10 +82,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/splash',
         builder: (context, state) => const SplashScreen(),
       ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
@@ -123,32 +123,38 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/jobs/:id',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => JobDetailScreen(jobId: state.pathParameters['id']!),
+        builder: (context, state) =>
+            JobDetailScreen(jobId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/jobs/:id/proposals',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => JobProposalsScreen(jobId: state.pathParameters['id']!),
+        builder: (context, state) =>
+            JobProposalsScreen(jobId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/jobs/:id/apply',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => ApplyJobScreen(jobId: state.pathParameters['id']!),
+        builder: (context, state) =>
+            ApplyJobScreen(jobId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/profile/:id',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => PublicProfileScreen(userId: state.pathParameters['id']!),
+        builder: (context, state) =>
+            PublicProfileScreen(userId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/chat/:id',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => ChatRoomScreen(conversationId: state.pathParameters['id']!),
+        builder: (context, state) =>
+            ChatRoomScreen(conversationId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/disputes/:id',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => DisputeDetailScreen(disputeId: state.pathParameters['id']!),
+        builder: (context, state) =>
+            DisputeDetailScreen(disputeId: state.pathParameters['id']!),
       ),
 
       // Stateful Shell with 4 Navigation Branches
@@ -193,7 +199,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   ),
                   GoRoute(
                     path: 'freelancer',
-                    builder: (context, state) => const FreelancerDashboardScreen(),
+                    builder: (context, state) =>
+                        const FreelancerDashboardScreen(),
                   ),
                 ],
               ),

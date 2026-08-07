@@ -13,15 +13,18 @@ final paymentRepositoryProvider = Provider<PaymentRepository>((ref) {
   return PaymentRepositoryImpl(ref.watch(paymentDataSourceProvider));
 });
 
-final transactionsListProvider = FutureProvider<List<WalletTransaction>>((ref) async {
+final transactionsListProvider = FutureProvider<List<WalletTransaction>>((
+  ref,
+) async {
   final repository = ref.watch(paymentRepositoryProvider);
   return repository.getTransactions();
 });
 
-final transactionStatusStreamProvider = StreamProvider.family<WalletTransaction?, String>((ref, txId) {
-  final repository = ref.watch(paymentRepositoryProvider);
-  return repository.listenToTransaction(txId);
-});
+final transactionStatusStreamProvider =
+    StreamProvider.family<WalletTransaction?, String>((ref, txId) {
+      final repository = ref.watch(paymentRepositoryProvider);
+      return repository.listenToTransaction(txId);
+    });
 
 class WalletSummary {
   final double availableBalance;
@@ -40,7 +43,11 @@ final walletSummaryProvider = FutureProvider<WalletSummary>((ref) async {
   double balance = 0.0;
   if (user != null) {
     try {
-      final profile = await supabase.from('profiles').select('wallet_balance').eq('id', user.id).maybeSingle();
+      final profile = await supabase
+          .from('profiles')
+          .select('wallet_balance')
+          .eq('id', user.id)
+          .maybeSingle();
       if (profile != null && profile['wallet_balance'] != null) {
         balance = (profile['wallet_balance'] as num).toDouble();
       }

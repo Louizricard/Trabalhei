@@ -26,7 +26,11 @@ abstract class ChatRepository {
     required AppAttachment attachment,
     String? caption,
   });
-  Future<void> updateMilestoneStatus(String conversationId, String milestoneId, MilestoneStatus status);
+  Future<void> updateMilestoneStatus(
+    String conversationId,
+    String milestoneId,
+    MilestoneStatus status,
+  );
   Future<void> submitMilestoneDeliverable({
     required String conversationId,
     required String milestoneId,
@@ -42,4 +46,3 @@ abstract class ChatRepository {
   });
   Future<List<Map<String, dynamic>>> getMilestoneRevisions(String milestoneId);
 }
-

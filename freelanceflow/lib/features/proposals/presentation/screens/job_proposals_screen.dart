@@ -7,6 +7,7 @@ import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../../chat/presentation/providers/chat_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../../../payments/presentation/widgets/payment_method_selector_modal.dart';
 import '../../domain/entities/proposal.dart';
@@ -25,14 +26,19 @@ class JobProposalsScreen extends ConsumerStatefulWidget {
 class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
   bool _isProcessing = false;
 
-  Future<void> _handleAcceptProposal(Proposal proposal, String? clientId) async {
+  Future<void> _handleAcceptProposal(
+    Proposal proposal,
+    String? clientId,
+  ) async {
     setState(() => _isProcessing = true);
     try {
       final repository = ref.read(proposalRepositoryProvider);
       // 1. Cria o contrato atômico em 'awaiting_payment'
       final contractResult = await repository.acceptProposal(proposal.id);
       final contractId = contractResult['contract_id'] as String?;
-      final totalAmount = (contractResult['total_amount'] as num?)?.toDouble() ?? proposal.bidAmount;
+      final totalAmount =
+          (contractResult['total_amount'] as num?)?.toDouble() ??
+          proposal.bidAmount;
 
       if (!mounted) return;
       setState(() => _isProcessing = false);
@@ -53,7 +59,9 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('🎉 Pagamento confirmado! O contrato está ativo e protegido no Escrow.'),
+              content: Text(
+                '🎉 Pagamento confirmado! O contrato está ativo e protegido no Escrow.',
+              ),
               backgroundColor: AppColors.success,
             ),
           );
@@ -65,7 +73,14 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
               jobId: widget.jobId,
               freelancerId: proposal.freelancerId,
               clientId: cId,
+              contractId: contractId,
             );
+            ref.invalidate(jobProposalsProvider(widget.jobId));
+            ref.invalidate(jobDetailProvider(widget.jobId));
+            ref.invalidate(conversationsListProvider);
+            ref.invalidate(conversationDetailProvider(conv.id));
+            ref.invalidate(clientStatsProvider);
+            ref.invalidate(freelancerStatsProvider);
             if (mounted) {
               context.push('/chat/${conv.id}');
             }
@@ -77,7 +92,9 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao aceitar proposta: ${e.toString().replaceAll("Exception: ", "")}'),
+            content: Text(
+              'Erro ao aceitar proposta: ${e.toString().replaceAll("Exception: ", "")}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -89,7 +106,10 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
     final cId = clientId ?? ref.read(authProvider).value?.id;
     if (cId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Faça login para iniciar o chat'), backgroundColor: AppColors.error),
+        const SnackBar(
+          content: Text('Faça login para iniciar o chat'),
+          backgroundColor: AppColors.error,
+        ),
       );
       return;
     }
@@ -109,7 +129,10 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao iniciar chat: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Erro ao iniciar chat: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     } finally {
@@ -122,7 +145,10 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surfaceDark,
-        title: const Text('Recusar Proposta', style: TextStyle(color: AppColors.textPrimaryDark)),
+        title: const Text(
+          'Recusar Proposta',
+          style: TextStyle(color: AppColors.textPrimaryDark),
+        ),
         content: Text(
           'Deseja recusar a proposta de ${proposal.freelancerName}?',
           style: const TextStyle(color: AppColors.textSecondaryDark),
@@ -130,7 +156,10 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar', style: TextStyle(color: AppColors.textSecondaryDark)),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: AppColors.textSecondaryDark),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -154,13 +183,19 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
       if (mounted) {
         ref.invalidate(jobProposalsProvider(widget.jobId));
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Proposta recusada.'), backgroundColor: AppColors.info),
+          const SnackBar(
+            content: Text('Proposta recusada.'),
+            backgroundColor: AppColors.info,
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao recusar proposta: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Erro ao recusar proposta: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     } finally {
@@ -180,7 +215,10 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
         backgroundColor: AppColors.surfaceDark,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryDark),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimaryDark,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Column(
@@ -188,7 +226,11 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
           children: [
             const Text(
               'Propostas Recebidas',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimaryDark,
+              ),
             ),
             jobAsync.maybeWhen(
               data: (job) => job != null
@@ -196,7 +238,10 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                       job.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondaryDark,
+                      ),
                     )
                   : const SizedBox.shrink(),
               orElse: () => const SizedBox.shrink(),
@@ -205,7 +250,10 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.textSecondaryDark),
+            icon: const Icon(
+              Icons.refresh_rounded,
+              color: AppColors.textSecondaryDark,
+            ),
             onPressed: () => ref.invalidate(jobProposalsProvider(widget.jobId)),
             tooltip: 'Atualizar Propostas',
           ),
@@ -221,23 +269,35 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
+                const Icon(
+                  Icons.error_outline_rounded,
+                  color: AppColors.error,
+                  size: 48,
+                ),
                 const SizedBox(height: 16),
                 const Text(
                   'Erro ao carregar propostas',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimaryDark,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   err.toString(),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondaryDark,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 CustomButton(
                   text: 'Tentar Novamente',
                   icon: Icons.refresh_rounded,
-                  onPressed: () => ref.invalidate(jobProposalsProvider(widget.jobId)),
+                  onPressed: () =>
+                      ref.invalidate(jobProposalsProvider(widget.jobId)),
                 ),
               ],
             ),
@@ -258,18 +318,30 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                         shape: BoxShape.circle,
                         border: Border.all(color: AppColors.borderDark),
                       ),
-                      child: const Icon(Icons.inbox_rounded, size: 56, color: AppColors.textSecondaryDark),
+                      child: const Icon(
+                        Icons.inbox_rounded,
+                        size: 56,
+                        color: AppColors.textSecondaryDark,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     const Text(
                       'Nenhuma proposta recebida ainda',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimaryDark,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     const Text(
                       'Freelancers qualificados estão visualizando sua vaga. Assim que enviarem propostas, elas aparecerão aqui.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 14, color: AppColors.textSecondaryDark, height: 1.5),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondaryDark,
+                        height: 1.5,
+                      ),
                     ),
                   ],
                 ),
@@ -328,27 +400,59 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildMetricItem('Total', '${proposals.length}', Icons.people_outline_rounded, AppColors.primaryLight),
-          _buildMetricItem('Menor Proposta', CurrencyFormatter.format(minBid), Icons.trending_down_rounded, AppColors.success),
-          _buildMetricItem('Maior Proposta', CurrencyFormatter.format(maxBid), Icons.trending_up_rounded, AppColors.info),
-          _buildMetricItem('Prazo Médio', '$avgDays dias', Icons.schedule_rounded, AppColors.warning),
+          _buildMetricItem(
+            'Total',
+            '${proposals.length}',
+            Icons.people_outline_rounded,
+            AppColors.primaryLight,
+          ),
+          _buildMetricItem(
+            'Menor Proposta',
+            CurrencyFormatter.format(minBid),
+            Icons.trending_down_rounded,
+            AppColors.success,
+          ),
+          _buildMetricItem(
+            'Maior Proposta',
+            CurrencyFormatter.format(maxBid),
+            Icons.trending_up_rounded,
+            AppColors.info,
+          ),
+          _buildMetricItem(
+            'Prazo Médio',
+            '$avgDays dias',
+            Icons.schedule_rounded,
+            AppColors.warning,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildMetricItem(String label, String value, IconData icon, Color color) {
+  Widget _buildMetricItem(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Column(
       children: [
         Icon(icon, size: 20, color: color),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimaryDark,
+          ),
         ),
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryDark),
+          style: const TextStyle(
+            fontSize: 11,
+            color: AppColors.textSecondaryDark,
+          ),
         ),
       ],
     );
@@ -374,15 +478,22 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                   radius: 24,
                   backgroundColor: AppColors.primaryDark,
                   child: Text(
-                    proposal.freelancerName.isNotEmpty ? proposal.freelancerName[0].toUpperCase() : 'F',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onPrimary),
+                    proposal.freelancerName.isNotEmpty
+                        ? proposal.freelancerName[0].toUpperCase()
+                        : 'F',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.onPrimary,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: InkWell(
-                  onTap: () => context.push('/profile/${proposal.freelancerId}'),
+                  onTap: () =>
+                      context.push('/profile/${proposal.freelancerId}'),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -391,27 +502,46 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                           Flexible(
                             child: Text(
                               proposal.freelancerName,
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimaryDark,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 4),
-                          const Icon(Icons.open_in_new_rounded, size: 14, color: AppColors.primaryLight),
+                          const Icon(
+                            Icons.open_in_new_rounded,
+                            size: 14,
+                            color: AppColors.primaryLight,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.star_rounded, size: 16, color: AppColors.warning),
+                          const Icon(
+                            Icons.star_rounded,
+                            size: 16,
+                            color: AppColors.warning,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             proposal.freelancerRating.toStringAsFixed(1),
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimaryDark),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimaryDark,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           Text(
                             '• ${proposal.estimatedDays} dias de prazo',
-                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondaryDark,
+                            ),
                           ),
                         ],
                       ),
@@ -437,11 +567,18 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
               children: [
                 const Text(
                   'Valor Ofertado:',
-                  style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondaryDark,
+                  ),
                 ),
                 Text(
                   CurrencyFormatter.format(proposal.bidAmount),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.success),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.success,
+                  ),
                 ),
               ],
             ),
@@ -451,7 +588,11 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
           // Carta de Apresentação / Mensagem
           const Text(
             'Carta de Apresentação:',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondaryDark),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondaryDark,
+            ),
           ),
           const SizedBox(height: 6),
           Container(
@@ -460,11 +601,19 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
             decoration: BoxDecoration(
               color: AppColors.bgDark,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.borderDark.withValues(alpha: 0.5)),
+              border: Border.all(
+                color: AppColors.borderDark.withValues(alpha: 0.5),
+              ),
             ),
             child: Text(
-              proposal.coverLetter.isNotEmpty ? proposal.coverLetter : 'Nenhuma mensagem adicional informada.',
-              style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.textPrimaryDark),
+              proposal.coverLetter.isNotEmpty
+                  ? proposal.coverLetter
+                  : 'Nenhuma mensagem adicional informada.',
+              style: const TextStyle(
+                fontSize: 13,
+                height: 1.5,
+                color: AppColors.textPrimaryDark,
+              ),
             ),
           ),
 
@@ -473,7 +622,11 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
             const SizedBox(height: 14),
             Text(
               'Marcos Propostos (${proposal.proposedMilestones.length}):',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondaryDark),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondaryDark,
+              ),
             ),
             const SizedBox(height: 6),
             Column(
@@ -481,7 +634,10 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                 for (int i = 0; i < proposal.proposedMilestones.length; i++)
                   Container(
                     margin: const EdgeInsets.only(bottom: 6),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceElevatedDark,
                       borderRadius: BorderRadius.circular(8),
@@ -491,22 +647,37 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                       children: [
                         CircleAvatar(
                           radius: 10,
-                          backgroundColor: AppColors.primaryLight.withValues(alpha: 0.2),
+                          backgroundColor: AppColors.primaryLight.withValues(
+                            alpha: 0.2,
+                          ),
                           child: Text(
                             '${i + 1}',
-                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryLight),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryLight,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             proposal.proposedMilestones[i].title,
-                            style: const TextStyle(fontSize: 12, color: AppColors.textPrimaryDark),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textPrimaryDark,
+                            ),
                           ),
                         ),
                         Text(
-                          CurrencyFormatter.format(proposal.proposedMilestones[i].amount),
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.success),
+                          CurrencyFormatter.format(
+                            proposal.proposedMilestones[i].amount,
+                          ),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.success,
+                          ),
                         ),
                       ],
                     ),
@@ -516,7 +687,8 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
           ],
 
           // Banner de Contraproposta Ativa
-          if (proposal.status == ProposalStatus.counterOffered && proposal.counterPrice != null) ...[
+          if (proposal.status == ProposalStatus.counterOffered &&
+              proposal.counterPrice != null) ...[
             const SizedBox(height: 12),
             GlassCard(
               padding: const EdgeInsets.all(12),
@@ -527,16 +699,28 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.handshake_rounded, size: 16, color: AppColors.info),
+                      const Icon(
+                        Icons.handshake_rounded,
+                        size: 16,
+                        color: AppColors.info,
+                      ),
                       const SizedBox(width: 6),
                       const Text(
                         'Contraproposta Enviada ao Freelancer',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.info),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: AppColors.info,
+                        ),
                       ),
                       const Spacer(),
                       Text(
                         CurrencyFormatter.format(proposal.counterPrice!),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.info),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: AppColors.info,
+                        ),
                       ),
                     ],
                   ),
@@ -544,14 +728,22 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                     const SizedBox(height: 4),
                     Text(
                       'Prazo proposto: ${proposal.counterEstimatedDays} dias',
-                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryDark),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textSecondaryDark,
+                      ),
                     ),
                   ],
-                  if (proposal.counterMessage != null && proposal.counterMessage!.isNotEmpty) ...[
+                  if (proposal.counterMessage != null &&
+                      proposal.counterMessage!.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
                       'Mensagem: "${proposal.counterMessage}"',
-                      style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppColors.textSecondaryDark),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.textSecondaryDark,
+                      ),
                     ),
                   ],
                 ],
@@ -572,12 +764,22 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                       backgroundColor: AppColors.success,
                       foregroundColor: AppColors.pureWhite,
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                    icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
+                    icon: const Icon(
+                      Icons.check_circle_outline_rounded,
+                      size: 18,
+                    ),
                     label: Text(
-                      proposal.status == ProposalStatus.counterOffered ? 'Contratar' : 'Aceitar & Contratar',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      proposal.status == ProposalStatus.counterOffered
+                          ? 'Contratar'
+                          : 'Aceitar & Contratar',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                     ),
                     onPressed: () => _handleAcceptProposal(proposal, clientId),
                   ),
@@ -590,12 +792,17 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                       foregroundColor: AppColors.warning,
                       side: const BorderSide(color: AppColors.warning),
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     icon: const Icon(Icons.handshake_outlined, size: 16),
                     label: const Text(
                       'Negociar',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
                     ),
                     onPressed: () {
                       showModalBottomSheet(
@@ -615,19 +822,28 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                       foregroundColor: AppColors.primaryLight,
                       side: const BorderSide(color: AppColors.primaryLight),
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     icon: const Icon(Icons.chat_outlined, size: 16),
                     label: const Text(
                       'Chat',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
                     ),
                     onPressed: () => _handleStartChat(proposal, clientId),
                   ),
                 ),
                 const SizedBox(width: 6),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded, color: AppColors.textSecondaryDark, size: 20),
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: AppColors.textSecondaryDark,
+                    size: 20,
+                  ),
                   tooltip: 'Recusar Proposta',
                   onPressed: () => _handleRejectProposal(proposal),
                 ),
@@ -642,9 +858,14 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                       foregroundColor: AppColors.primaryLight,
                       side: const BorderSide(color: AppColors.primaryLight),
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                    icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                    icon: const Icon(
+                      Icons.chat_bubble_outline_rounded,
+                      size: 18,
+                    ),
                     label: const Text(
                       'Abrir Chat do Contrato',
                       style: TextStyle(fontWeight: FontWeight.bold),

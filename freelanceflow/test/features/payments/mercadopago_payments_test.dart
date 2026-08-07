@@ -11,8 +11,10 @@ void main() {
         'transaction_id': 'tx-123456',
         'gateway_ref': 'mp-99887766',
         'status': 'pending',
-        'qr_code': '00020126580014br.gov.bcb.pix0136123e4567-e89b-12d3-a456-426614174000',
-        'qr_code_base64': 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        'qr_code':
+            '00020126580014br.gov.bcb.pix0136123e4567-e89b-12d3-a456-426614174000',
+        'qr_code_base64':
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
         'ticket_url': 'https://www.mercadopago.com.br/payments/123/ticket',
         'expires_at': '2026-08-05T20:00:00.000Z',
       };
@@ -27,7 +29,10 @@ void main() {
       expect(result.isApproved, isFalse);
       expect(result.qrCode, isNotNull);
       expect(result.qrCodeBase64, isNotNull);
-      expect(result.ticketUrl, 'https://www.mercadopago.com.br/payments/123/ticket');
+      expect(
+        result.ticketUrl,
+        'https://www.mercadopago.com.br/payments/123/ticket',
+      );
       expect(result.expiresAt, isNotNull);
     });
 
@@ -79,43 +84,46 @@ void main() {
       expect(amexCard.detectBrand(), 'amex');
     });
 
-    test('WalletTransaction serializes and deserializes Mercado Pago fields', () {
-      final json = {
-        'id': 'tx-abc-123',
-        'user_id': 'user-789',
-        'contract_id': 'contract-001',
-        'type': 'deposit',
-        'amount': 1500.50,
-        'status': 'completed',
-        'gateway_provider': 'mercadopago',
-        'gateway_ref': 'mp-pay-999',
-        'gateway_status': 'approved',
-        'qr_code': 'pix-payload-string',
-        'qr_code_base64': 'base64-image-string',
-        'payment_method': 'pix',
-        'created_at': '2026-08-05T12:00:00.000Z',
-      };
+    test(
+      'WalletTransaction serializes and deserializes Mercado Pago fields',
+      () {
+        final json = {
+          'id': 'tx-abc-123',
+          'user_id': 'user-789',
+          'contract_id': 'contract-001',
+          'type': 'deposit',
+          'amount': 1500.50,
+          'status': 'completed',
+          'gateway_provider': 'mercadopago',
+          'gateway_ref': 'mp-pay-999',
+          'gateway_status': 'approved',
+          'qr_code': 'pix-payload-string',
+          'qr_code_base64': 'base64-image-string',
+          'payment_method': 'pix',
+          'created_at': '2026-08-05T12:00:00.000Z',
+        };
 
-      final tx = WalletTransaction.fromJson(json);
+        final tx = WalletTransaction.fromJson(json);
 
-      expect(tx.id, 'tx-abc-123');
-      expect(tx.userId, 'user-789');
-      expect(tx.type, TransactionType.deposit);
-      expect(tx.amount, 1500.50);
-      expect(tx.status, TransactionStatus.completed);
-      expect(tx.gatewayProvider, 'mercadopago');
-      expect(tx.gatewayRef, 'mp-pay-999');
-      expect(tx.gatewayStatus, 'approved');
-      expect(tx.qrCode, 'pix-payload-string');
-      expect(tx.qrCodeBase64, 'base64-image-string');
-      expect(tx.paymentMethod, 'pix');
-      expect(tx.isCredit, isTrue);
+        expect(tx.id, 'tx-abc-123');
+        expect(tx.userId, 'user-789');
+        expect(tx.type, TransactionType.deposit);
+        expect(tx.amount, 1500.50);
+        expect(tx.status, TransactionStatus.completed);
+        expect(tx.gatewayProvider, 'mercadopago');
+        expect(tx.gatewayRef, 'mp-pay-999');
+        expect(tx.gatewayStatus, 'approved');
+        expect(tx.qrCode, 'pix-payload-string');
+        expect(tx.qrCodeBase64, 'base64-image-string');
+        expect(tx.paymentMethod, 'pix');
+        expect(tx.isCredit, isTrue);
 
-      final exported = tx.toJson();
-      expect(exported['gateway_provider'], 'mercadopago');
-      expect(exported['gateway_ref'], 'mp-pay-999');
-      expect(exported['payment_method'], 'pix');
-    });
+        final exported = tx.toJson();
+        expect(exported['gateway_provider'], 'mercadopago');
+        expect(exported['gateway_ref'], 'mp-pay-999');
+        expect(exported['payment_method'], 'pix');
+      },
+    );
 
     test('CurrencyFormatter formats Brazilian Real amounts properly', () {
       expect(CurrencyFormatter.format(1500.0), contains('1.500,00'));
@@ -124,7 +132,9 @@ void main() {
     });
 
     test('PaymentIntentResult handles error and approved states correctly', () {
-      final errorResult = PaymentIntentResult.error('Erro de autorização do gateway');
+      final errorResult = PaymentIntentResult.error(
+        'Erro de autorização do gateway',
+      );
       expect(errorResult.success, isFalse);
       expect(errorResult.errorMessage, 'Erro de autorização do gateway');
       expect(errorResult.isPending, isFalse);

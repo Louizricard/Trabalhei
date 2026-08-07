@@ -40,17 +40,28 @@ void main() async {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline_rounded, color: AppColors.warning, size: 48),
+                  const Icon(
+                    Icons.error_outline_rounded,
+                    color: AppColors.warning,
+                    size: 48,
+                  ),
                   const SizedBox(height: 12),
                   const Text(
                     'Ocorreu uma falha visual',
-                    style: TextStyle(color: AppColors.textPrimaryDark, fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(
+                      color: AppColors.textPrimaryDark,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     errorDetails.exceptionAsString(),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.textSecondaryDark, fontSize: 12),
+                    style: const TextStyle(
+                      color: AppColors.textSecondaryDark,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
@@ -62,7 +73,11 @@ void main() async {
   };
 
   // Inicialização do Supabase
-  await SupabaseInit.initialize();
+  try {
+    await SupabaseInit.initialize();
+  } catch (e, st) {
+    debugPrint('🚨 [SupabaseInit] Erro ao inicializar Supabase: $e\n$st');
+  }
 
   // Inicialização segura do Firebase e Push Notifications
   if (kIsWeb ||
@@ -75,7 +90,9 @@ void main() async {
         );
       }
       if (!kIsWeb) {
-        FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+        FirebaseMessaging.onBackgroundMessage(
+          firebaseMessagingBackgroundHandler,
+        );
       }
       await NotificationService().initialize();
     } catch (e) {
@@ -132,4 +149,3 @@ class _TrabalheiAppState extends ConsumerState<TrabalheiApp> {
     );
   }
 }
-

@@ -31,11 +31,14 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
       state = AsyncValue.error(e, st);
     }
 
-    _authSubscription = _repository.authStateChanges.listen((user) {
-      state = AsyncValue.data(user);
-    }, onError: (Object err, StackTrace st) {
-      state = AsyncValue.error(err, st);
-    });
+    _authSubscription = _repository.authStateChanges.listen(
+      (user) {
+        state = AsyncValue.data(user);
+      },
+      onError: (Object err, StackTrace st) {
+        state = AsyncValue.error(err, st);
+      },
+    );
   }
 
   Future<void> signIn(String email, String password) async {
@@ -84,8 +87,13 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
   Future<void> switchRole(UserRole newRole) async {
     final current = state.value;
     if (current == null) return;
-    final updated = current.copyWith(role: newRole);
-    await updateProfile(updated);
+    try {
+      final updated = await _repository.switchRole(newRole);
+      state = AsyncValue.data(updated);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      rethrow;
+    }
   }
 
   Future<void> updateProfile(UserProfile profile) async {
@@ -117,6 +125,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
   }
 }
 
-final authProvider = StateNotifierProvider<AuthNotifier, AsyncValue<UserProfile?>>((ref) {
-  return AuthNotifier(ref.watch(authRepositoryProvider));
-});
+final authProvider =
+    StateNotifierProvider<AuthNotifier, AsyncValue<UserProfile?>>((ref) {
+      return AuthNotifier(ref.watch(authRepositoryProvider));
+    });

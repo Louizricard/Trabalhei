@@ -21,7 +21,15 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
   final _searchController = TextEditingController();
   String? _selectedCategory;
 
-  final _categories = ['Todos', 'Mobile', 'Design', 'Fullstack', 'Frontend', 'Backend', 'DevOps'];
+  final _categories = [
+    'Todos',
+    'Mobile',
+    'Design',
+    'Fullstack',
+    'Frontend',
+    'Backend',
+    'DevOps',
+  ];
 
   @override
   void dispose() {
@@ -44,7 +52,9 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 8, left: 4),
               child: FilledButton.icon(
-                style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                ),
                 icon: const Icon(Icons.add_rounded, size: 18),
                 label: const Text('Publicar Vaga'),
                 onPressed: () => context.push('/jobs/create'),
@@ -62,7 +72,10 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                 style: const TextStyle(color: AppColors.textPrimaryDark),
                 decoration: InputDecoration(
                   hintText: 'Buscar vagas por título, tecnologia ou cliente...',
-                  prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondaryDark),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: AppColors.textSecondaryDark,
+                  ),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear_rounded),
@@ -85,7 +98,9 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                 separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   final cat = _categories[index];
-                  final isSelected = (_selectedCategory == null && cat == 'Todos') || _selectedCategory == cat;
+                  final isSelected =
+                      (_selectedCategory == null && cat == 'Todos') ||
+                      _selectedCategory == cat;
 
                   return ChoiceChip(
                     label: Text(cat),
@@ -98,12 +113,18 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                     selectedColor: AppColors.primary,
                     backgroundColor: AppColors.surfaceElevatedDark,
                     labelStyle: TextStyle(
-                      color: isSelected ? AppColors.onPrimary : AppColors.textSecondaryDark,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected
+                          ? AppColors.onPrimary
+                          : AppColors.textSecondaryDark,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                       fontSize: 12,
                     ),
                     side: BorderSide(
-                      color: isSelected ? AppColors.primary : AppColors.borderDark,
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.borderDark,
                     ),
                   );
                 },
@@ -121,23 +142,41 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                 data: (jobs) {
                   var filtered = jobs;
                   if (_selectedCategory != null) {
-                    filtered = filtered.where((j) => j.category.toLowerCase() == _selectedCategory!.toLowerCase()).toList();
+                    filtered = filtered
+                        .where(
+                          (j) =>
+                              j.category.toLowerCase() ==
+                              _selectedCategory!.toLowerCase(),
+                        )
+                        .toList();
                   }
                   if (_searchController.text.isNotEmpty) {
                     final query = _searchController.text.toLowerCase();
-                    filtered = filtered.where((j) => j.title.toLowerCase().contains(query) || j.skillsRequired.any((s) => s.toLowerCase().contains(query))).toList();
+                    filtered = filtered
+                        .where(
+                          (j) =>
+                              j.title.toLowerCase().contains(query) ||
+                              j.skillsRequired.any(
+                                (s) => s.toLowerCase().contains(query),
+                              ),
+                        )
+                        .toList();
                   }
 
                   if (filtered.isEmpty) {
                     return const EmptyStateWidget(
                       icon: Icons.work_off_outlined,
                       title: 'Nenhuma vaga encontrada',
-                      description: 'Tente alterar os filtros de busca ou volte mais tarde.',
+                      description:
+                          'Tente alterar os filtros de busca ou volte mais tarde.',
                     );
                   }
 
                   return ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     itemCount: filtered.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {

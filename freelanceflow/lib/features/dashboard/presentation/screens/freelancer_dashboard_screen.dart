@@ -55,7 +55,11 @@ class FreelancerDashboardScreen extends ConsumerWidget {
                             (user?.fullName.trim().isNotEmpty ?? false)
                                 ? user!.fullName.trim()[0].toUpperCase()
                                 : 'F',
-                            style: const TextStyle(fontSize: 18, color: AppColors.onPrimary, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: AppColors.onPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -65,12 +69,20 @@ class FreelancerDashboardScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 'Olá, ${user?.fullName ?? 'Freelancer'} 👋',
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimaryDark,
+                                ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 'Job Success Score: ${stats.jobSuccessScore}% • 18 Projetos Concluídos',
-                                style: const TextStyle(fontSize: 12, color: AppColors.primaryLight, fontWeight: FontWeight.w600),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.primaryLight,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ],
                           ),
@@ -89,15 +101,29 @@ class FreelancerDashboardScreen extends ConsumerWidget {
                             children: [
                               const Row(
                                 children: [
-                                  Icon(Icons.lock_clock_outlined, size: 18, color: AppColors.info),
+                                  Icon(
+                                    Icons.lock_clock_outlined,
+                                    size: 18,
+                                    color: AppColors.info,
+                                  ),
                                   SizedBox(width: 6),
-                                  Text('Em Escrow (Garantido)', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryDark)),
+                                  Text(
+                                    'Em Escrow (Garantido)',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondaryDark,
+                                    ),
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 CurrencyFormatter.format(stats.escrowBalance),
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.info),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.info,
+                                ),
                               ),
                             ],
                           ),
@@ -112,15 +138,31 @@ class FreelancerDashboardScreen extends ConsumerWidget {
                             children: [
                               const Row(
                                 children: [
-                                  Icon(Icons.check_circle_outline, size: 18, color: AppColors.success),
+                                  Icon(
+                                    Icons.check_circle_outline,
+                                    size: 18,
+                                    color: AppColors.success,
+                                  ),
                                   SizedBox(width: 6),
-                                  Text('Saldo Disponível', style: TextStyle(fontSize: 12, color: AppColors.textSecondaryDark)),
+                                  Text(
+                                    'Saldo Disponível',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondaryDark,
+                                    ),
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                CurrencyFormatter.format(stats.availableBalance),
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.success),
+                                CurrencyFormatter.format(
+                                  stats.availableBalance,
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.success,
+                                ),
                               ),
                             ],
                           ),
@@ -146,11 +188,19 @@ class FreelancerDashboardScreen extends ConsumerWidget {
                           children: [
                             const Text(
                               'Evolução do Faturamento',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimaryDark,
+                              ),
                             ),
                             Text(
                               'Total mês: ${CurrencyFormatter.format(stats.monthlyEarnings)}',
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.success),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.success,
+                              ),
                             ),
                           ],
                         ),

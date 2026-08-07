@@ -30,11 +30,18 @@ class DisputeRemoteDataSource {
       payload['milestone_id'] = milestoneId;
     }
 
-    final res = await _supabase.from('disputes').insert(payload).select('*').single();
+    final res = await _supabase
+        .from('disputes')
+        .insert(payload)
+        .select('*')
+        .single();
 
     // 2. Se houver milestoneId, atualizar o status do milestone para disputed
     if (milestoneId != null) {
-      await _supabase.from('milestones').update({'status': 'disputed'}).eq('id', milestoneId);
+      await _supabase
+          .from('milestones')
+          .update({'status': 'disputed'})
+          .eq('id', milestoneId);
     }
 
     // 3. Notificar no chat se conversationId estiver disponível
@@ -42,7 +49,8 @@ class DisputeRemoteDataSource {
       await _supabase.from('messages').insert({
         'conversation_id': conversationId,
         'sender_id': user.id,
-        'content': '⚖️ Uma Mediação / Disputa foi aberta para este projeto.\nMotivo: $reason\n\nNossa equipe de mediação avaliará o caso e entrará em contato.',
+        'content':
+            '⚖️ Uma Mediação / Disputa foi aberta para este projeto.\nMotivo: $reason\n\nNossa equipe de mediação avaliará o caso e entrará em contato.',
         'message_type': 'system_event',
         'is_read': false,
       });
@@ -59,7 +67,9 @@ class DisputeRemoteDataSource {
           .eq('contract_id', contractId)
           .order('created_at', ascending: false);
 
-      return (res as List).map((j) => Dispute.fromJson(j as Map<String, dynamic>)).toList();
+      return (res as List)
+          .map((j) => Dispute.fromJson(j as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -67,7 +77,11 @@ class DisputeRemoteDataSource {
 
   Future<Dispute?> getDisputeById(String id) async {
     try {
-      final res = await _supabase.from('disputes').select('*').eq('id', id).maybeSingle();
+      final res = await _supabase
+          .from('disputes')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
       if (res == null) return null;
       return Dispute.fromJson(res);
     } catch (_) {

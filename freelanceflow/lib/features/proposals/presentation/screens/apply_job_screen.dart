@@ -33,8 +33,16 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
   bool _initializedFromExisting = false;
 
   List<ProposedMilestone> _milestones = [
-    const ProposedMilestone(title: 'Estrutura base & Telas iniciais', amount: 1500, days: 7),
-    const ProposedMilestone(title: 'Integrações, Testes e Entrega', amount: 1500, days: 8),
+    const ProposedMilestone(
+      title: 'Estrutura base & Telas iniciais',
+      amount: 1500,
+      days: 7,
+    ),
+    const ProposedMilestone(
+      title: 'Integrações, Testes e Entrega',
+      amount: 1500,
+      days: 8,
+    ),
   ];
 
   @override
@@ -102,7 +110,9 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('🎉 Contraproposta aceita! O contrato foi criado e o Escrow inicializado.'),
+            content: Text(
+              '🎉 Contraproposta aceita! O contrato foi criado e o Escrow inicializado.',
+            ),
             backgroundColor: AppColors.success,
           ),
         );
@@ -112,7 +122,10 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao aceitar contraproposta: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Erro ao aceitar contraproposta: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -124,7 +137,9 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
     final user = ref.read(authProvider).value;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Você precisa estar logado para enviar propostas.')),
+        const SnackBar(
+          content: Text('Você precisa estar logado para enviar propostas.'),
+        ),
       );
       return;
     }
@@ -153,7 +168,11 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isEditing ? 'Proposta atualizada com sucesso!' : 'Proposta enviada com sucesso! O cliente foi notificado.'),
+            content: Text(
+              _isEditing
+                  ? 'Proposta atualizada com sucesso!'
+                  : 'Proposta enviada com sucesso! O cliente foi notificado.',
+            ),
             backgroundColor: AppColors.success,
           ),
         );
@@ -167,10 +186,7 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
             : 'Falha ao processar proposta: ${e.toString().replaceAll("Exception: ", "")}';
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errText),
-            backgroundColor: AppColors.error,
-          ),
+          SnackBar(content: Text(errText), backgroundColor: AppColors.error),
         );
       }
     }
@@ -183,7 +199,10 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'Editar Proposta' : 'Enviar Proposta'),
-        leading: IconButton(icon: const Icon(Icons.arrow_back_rounded), onPressed: () => context.pop()),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => context.pop(),
+        ),
       ),
       body: ResponsiveLayout(
         maxWidth: 700,
@@ -195,7 +214,8 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Banner de Contraproposta Recebida
-                if (_existingProposal != null && _existingProposal!.hasActiveCounterOffer) ...[
+                if (_existingProposal != null &&
+                    _existingProposal!.hasActiveCounterOffer) ...[
                   GlassCard(
                     padding: const EdgeInsets.all(16),
                     backgroundColor: AppColors.warning.withAlpha(25),
@@ -205,12 +225,20 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.handshake_rounded, color: AppColors.warning, size: 22),
+                            Icon(
+                              Icons.handshake_rounded,
+                              color: AppColors.warning,
+                              size: 22,
+                            ),
                             SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 'O Cliente Enviou uma Contraproposta!',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.warning),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                  color: AppColors.warning,
+                                ),
                               ),
                             ),
                           ],
@@ -219,13 +247,22 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                         Text(
                           'Novo Valor Ofertado: ${CurrencyFormatter.format(_existingProposal!.counterPrice!)}'
                           '${_existingProposal!.counterEstimatedDays != null ? " em ${_existingProposal!.counterEstimatedDays} dias" : ""}',
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimaryDark,
+                          ),
                         ),
-                        if (_existingProposal!.counterMessage != null && _existingProposal!.counterMessage!.isNotEmpty) ...[
+                        if (_existingProposal!.counterMessage != null &&
+                            _existingProposal!.counterMessage!.isNotEmpty) ...[
                           const SizedBox(height: 6),
                           Text(
                             'Mensagem do Cliente: "${_existingProposal!.counterMessage}"',
-                            style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: AppColors.textSecondaryDark),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                              color: AppColors.textSecondaryDark,
+                            ),
                           ),
                         ],
                         const SizedBox(height: 14),
@@ -242,21 +279,33 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                   const SizedBox(height: 16),
                 ] else if (_isEditing) ...[
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
                       color: AppColors.primaryDark.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.4)),
+                      border: Border.all(
+                        color: AppColors.primaryLight.withValues(alpha: 0.4),
+                      ),
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.info_outline_rounded, color: AppColors.primaryLight, size: 20),
+                        Icon(
+                          Icons.info_outline_rounded,
+                          color: AppColors.primaryLight,
+                          size: 20,
+                        ),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'Você já enviou uma proposta para esta vaga. Você pode atualizar os valores e condições abaixo.',
-                            style: TextStyle(fontSize: 12, color: AppColors.textPrimaryDark),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textPrimaryDark,
+                            ),
                           ),
                         ),
                       ],
@@ -269,13 +318,30 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Candidatando-se para:', style: TextStyle(fontSize: 12, color: AppColors.textMutedDark)),
+                        const Text(
+                          'Candidatando-se para:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textMutedDark,
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        Text(job.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimaryDark)),
+                        Text(
+                          job.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: AppColors.textPrimaryDark,
+                          ),
+                        ),
                         const SizedBox(height: 6),
                         Text(
                           'Orçamento sugerido pelo cliente: ${CurrencyFormatter.formatRange(job.budgetMin, job.budgetMax)}',
-                          style: const TextStyle(fontSize: 13, color: AppColors.success, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.success,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
                     ),
@@ -287,7 +353,13 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Termos da Proposta', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                      const Text(
+                        'Termos da Proposta',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       Row(
                         children: [
@@ -297,7 +369,10 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                               label: 'Valor Total da Proposta (R\$)',
                               keyboardType: TextInputType.number,
                               onChanged: (_) => setState(() {}),
-                              validator: (v) => v != null && (double.tryParse(v) ?? 0) > 0 ? null : 'Valor inválido',
+                              validator: (v) =>
+                                  v != null && (double.tryParse(v) ?? 0) > 0
+                                  ? null
+                                  : 'Valor inválido',
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -306,7 +381,10 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                               controller: _daysController,
                               label: 'Prazo Estimado (Dias)',
                               keyboardType: TextInputType.number,
-                              validator: (v) => v != null && (int.tryParse(v) ?? 0) > 0 ? null : 'Prazo inválido',
+                              validator: (v) =>
+                                  v != null && (int.tryParse(v) ?? 0) > 0
+                                  ? null
+                                  : 'Prazo inválido',
                             ),
                           ),
                         ],
@@ -324,16 +402,42 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('Taxa de serviço Trabalhei (10%)', style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark)),
-                                Text('- ${CurrencyFormatter.format(_platformFee)}', style: const TextStyle(fontSize: 13, color: AppColors.error)),
+                                const Text(
+                                  'Taxa de serviço Trabalhei (10%)',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.textSecondaryDark,
+                                  ),
+                                ),
+                                Text(
+                                  '- ${CurrencyFormatter.format(_platformFee)}',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.error,
+                                  ),
+                                ),
                               ],
                             ),
                             const Divider(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('Você receberá (Líquido em Escrow)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark)),
-                                Text(CurrencyFormatter.format(_netEarnings), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.success)),
+                                const Text(
+                                  'Você receberá (Líquido em Escrow)',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimaryDark,
+                                  ),
+                                ),
+                                Text(
+                                  CurrencyFormatter.format(_netEarnings),
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.success,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -348,21 +452,33 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Carta de Apresentação', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                      const Text(
+                        'Carta de Apresentação',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       CustomTextField(
                         controller: _coverLetterController,
-                        label: 'Por que você é a pessoa ideal para este projeto?',
-                        hint: 'Apresente suas experiências relevantes, abordagem técnica e links para projetos similares...',
+                        label:
+                            'Por que você é a pessoa ideal para este projeto?',
+                        hint:
+                            'Apresente suas experiências relevantes, abordagem técnica e links para projetos similares...',
                         maxLines: 6,
-                        validator: (v) => v != null && v.length >= 30 ? null : 'Mínimo de 30 caracteres para uma proposta competitiva',
+                        validator: (v) => v != null && v.length >= 30
+                            ? null
+                            : 'Mínimo de 30 caracteres para uma proposta competitiva',
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 24),
                 CustomButton(
-                  text: _isEditing ? 'Atualizar Minha Proposta' : 'Confirmar e Enviar Proposta',
+                  text: _isEditing
+                      ? 'Atualizar Minha Proposta'
+                      : 'Confirmar e Enviar Proposta',
                   icon: _isEditing ? Icons.save_rounded : Icons.send_rounded,
                   isLoading: _isLoading,
                   width: double.infinity,

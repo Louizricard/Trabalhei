@@ -20,7 +20,8 @@ class DisputeDetailScreen extends ConsumerStatefulWidget {
   const DisputeDetailScreen({super.key, required this.disputeId});
 
   @override
-  ConsumerState<DisputeDetailScreen> createState() => _DisputeDetailScreenState();
+  ConsumerState<DisputeDetailScreen> createState() =>
+      _DisputeDetailScreenState();
 }
 
 class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
@@ -38,7 +39,9 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
     final text = _messageController.text.trim();
     if (text.isEmpty && _selectedFiles.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Insira uma mensagem ou anexe arquivos de evidência.')),
+        const SnackBar(
+          content: Text('Insira uma mensagem ou anexe arquivos de evidência.'),
+        ),
       );
       return;
     }
@@ -59,7 +62,9 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
         );
       }
 
-      await ref.read(disputeRepositoryProvider).addDisputeMessage(
+      await ref
+          .read(disputeRepositoryProvider)
+          .addDisputeMessage(
             disputeId: dispute.id,
             message: text,
             attachments: uploaded,
@@ -72,7 +77,9 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Evidência enviada com sucesso para a equipe de mediação.'),
+            content: Text(
+              'Evidência enviada com sucesso para a equipe de mediação.',
+            ),
             backgroundColor: AppColors.success,
           ),
         );
@@ -80,7 +87,10 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao enviar evidência: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Erro ao enviar evidência: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     } finally {
@@ -95,7 +105,10 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mediação & Disputa'),
-        leading: IconButton(icon: const Icon(Icons.arrow_back_rounded), onPressed: () => context.pop()),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => context.pop(),
+        ),
       ),
       body: ResponsiveLayout(
         maxWidth: 800,
@@ -114,7 +127,8 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
                 child: EmptyStateWidget(
                   icon: Icons.search_off_rounded,
                   title: 'Disputa não encontrada',
-                  description: 'Não foi possível localizar as informações desta mediação.',
+                  description:
+                      'Não foi possível localizar as informações desta mediação.',
                 ),
               );
             }
@@ -134,7 +148,11 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.lock_rounded, color: AppColors.error, size: 24),
+                            const Icon(
+                              Icons.lock_rounded,
+                              color: AppColors.error,
+                              size: 24,
+                            ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Column(
@@ -142,17 +160,27 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
                                 children: [
                                   const Text(
                                     'Fundo de Escrow Congelado',
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.error),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: AppColors.error,
+                                    ),
                                   ),
                                   Text(
                                     'Status atual: ${dispute.statusLabel}',
-                                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondaryDark,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.error.withAlpha(40),
                                 borderRadius: BorderRadius.circular(20),
@@ -160,7 +188,11 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
                               ),
                               child: Text(
                                 dispute.statusLabel,
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.error),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.error,
+                                ),
                               ),
                             ),
                           ],
@@ -168,7 +200,11 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
                         const SizedBox(height: 12),
                         const Text(
                           'Enquanto esta disputa estiver em andamento, os pagamentos relacionados a este marco estão protegidos e não podem ser liberados sem a decisão da equipe de suporte Trabalhei.',
-                          style: TextStyle(fontSize: 12, height: 1.4, color: AppColors.textSecondaryDark),
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.4,
+                            color: AppColors.textSecondaryDark,
+                          ),
                         ),
                       ],
                     ),
@@ -182,17 +218,36 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Detalhes da Solicitação', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                        const Text(
+                          'Detalhes da Solicitação',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
                         const SizedBox(height: 12),
                         _buildDetailRow('Motivo:', dispute.reason),
                         const SizedBox(height: 8),
-                        _buildDetailRow('Aberta em:', DateFormatter.dateTime(dispute.createdAt)),
+                        _buildDetailRow(
+                          'Aberta em:',
+                          DateFormatter.dateTime(dispute.createdAt),
+                        ),
                         if (dispute.milestoneId != null) ...[
                           const SizedBox(height: 8),
-                          _buildDetailRow('Marco afetado:', dispute.milestoneId!),
+                          _buildDetailRow(
+                            'Marco afetado:',
+                            dispute.milestoneId!,
+                          ),
                         ],
                         const SizedBox(height: 12),
-                        const Text('Descrição:', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textSecondaryDark)),
+                        const Text(
+                          'Descrição:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: AppColors.textSecondaryDark,
+                          ),
+                        ),
                         const SizedBox(height: 4),
                         Container(
                           width: double.infinity,
@@ -204,14 +259,19 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
                           ),
                           child: Text(
                             dispute.description,
-                            style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.textPrimaryDark),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              height: 1.5,
+                              color: AppColors.textPrimaryDark,
+                            ),
                           ),
                         ),
                         if (dispute.evidenceAttachments.isNotEmpty) ...[
                           const SizedBox(height: 14),
                           AttachmentCardsList(
                             attachments: dispute.evidenceAttachments,
-                            title: 'Evidências Iniciais Anexadas (${dispute.evidenceAttachments.length})',
+                            title:
+                                'Evidências Iniciais Anexadas (${dispute.evidenceAttachments.length})',
                           ),
                         ],
                       ],
@@ -228,12 +288,18 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
                       children: [
                         const Text(
                           'Adicionar Evidências / Esclarecimento',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         const Text(
                           'Envie prints de conversas, links de repositórios ou documentos para ajudar na resolução.',
-                          style: TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondaryDark,
+                          ),
                         ),
                         const SizedBox(height: 14),
                         CustomTextField(
@@ -245,7 +311,8 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
                         const SizedBox(height: 12),
                         AttachmentPickerSection(
                           selectedFiles: _selectedFiles,
-                          onChanged: (files) => setState(() => _selectedFiles = files),
+                          onChanged: (files) =>
+                              setState(() => _selectedFiles = files),
                           title: 'Anexar Arquivos / Prints',
                         ),
                         const SizedBox(height: 16),
@@ -275,10 +342,23 @@ class _DisputeDetailScreenState extends ConsumerState<DisputeDetailScreen> {
       children: [
         SizedBox(
           width: 120,
-          child: Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryDark)),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondaryDark,
+            ),
+          ),
         ),
         Expanded(
-          child: Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimaryDark)),
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimaryDark,
+            ),
+          ),
         ),
       ],
     );

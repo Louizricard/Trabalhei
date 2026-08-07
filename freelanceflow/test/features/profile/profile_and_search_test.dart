@@ -37,11 +37,12 @@ void main() {
       final json = {
         'id': 'rev-001',
         'rating': 5,
-        'comment': 'Excelente desenvolvedor! Entregou antes do prazo com ótima qualidade.',
+        'comment':
+            'Excelente desenvolvedor! Entregou antes do prazo com ótima qualidade.',
         'created_at': '2026-08-01T12:00:00Z',
         'profiles': {'full_name': 'Tech Corp'},
         'contracts': {
-          'jobs': {'title': 'Aplicativo Delivery em Flutter'}
+          'jobs': {'title': 'Aplicativo Delivery em Flutter'},
         },
       };
 
@@ -94,7 +95,9 @@ void main() {
   });
 
   group('FreelancerCard Widget Tests', () {
-    testWidgets('Should display freelancer name, rating, rate and skills', (tester) async {
+    testWidgets('Should display freelancer name, rating, rate and skills', (
+      tester,
+    ) async {
       final freelancer = UserProfile(
         id: 'f-1',
         email: 'ana@example.com',
@@ -112,9 +115,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: FreelancerCard(freelancer: freelancer),
-          ),
+          home: Scaffold(body: FreelancerCard(freelancer: freelancer)),
         ),
       );
 

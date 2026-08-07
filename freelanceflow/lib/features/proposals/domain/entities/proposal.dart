@@ -11,9 +11,14 @@ class ProposedMilestone {
     required this.days,
   });
 
-  Map<String, dynamic> toJson() => {'title': title, 'amount': amount, 'days': days};
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'amount': amount,
+    'days': days,
+  };
 
-  factory ProposedMilestone.fromJson(Map<String, dynamic> json) => ProposedMilestone(
+  factory ProposedMilestone.fromJson(Map<String, dynamic> json) =>
+      ProposedMilestone(
         title: json['title'] as String? ?? 'Marco',
         amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
         days: json['days'] as int? ?? 7,
@@ -123,8 +128,11 @@ class Proposal {
       bidAmount: (rawAmount as num?)?.toDouble() ?? 0.0,
       estimatedDays: json['estimated_days'] as int? ?? 14,
       coverLetter: rawLetter as String,
-      proposedMilestones: (json['proposed_milestones'] as List<dynamic>?)
-              ?.map((e) => ProposedMilestone.fromJson(e as Map<String, dynamic>))
+      proposedMilestones:
+          (json['proposed_milestones'] as List<dynamic>?)
+              ?.map(
+                (e) => ProposedMilestone.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
       status: parseStatus(json['status'] as String?),

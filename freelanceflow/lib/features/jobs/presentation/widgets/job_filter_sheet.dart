@@ -30,7 +30,9 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
   }
 
   void _applyFilter() {
-    ref.read(jobFilterProvider.notifier).state = ref.read(jobFilterProvider).copyWith(
+    ref.read(jobFilterProvider.notifier).state = ref
+        .read(jobFilterProvider)
+        .copyWith(
           category: _selectedCategory == 'Todas' ? null : _selectedCategory,
           experienceLevel: _selectedExp,
           sortBy: _selectedSort,
@@ -61,18 +63,34 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
               children: [
                 const Text(
                   'Filtros de Vagas',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimaryDark),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimaryDark,
+                  ),
                 ),
                 TextButton(
                   onPressed: _resetFilter,
-                  child: const Text('Limpar', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                  child: const Text(
+                    'Limpar',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
 
             // Category Filter
-            const Text('Categoria', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondaryDark)),
+            const Text(
+              'Categoria',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondaryDark,
+              ),
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -85,7 +103,9 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
                   selectedColor: AppColors.primary,
                   backgroundColor: AppColors.surfaceElevatedDark,
                   labelStyle: TextStyle(
-                    color: isSelected ? AppColors.onPrimary : AppColors.textSecondaryDark,
+                    color: isSelected
+                        ? AppColors.onPrimary
+                        : AppColors.textSecondaryDark,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   ),
                 );
@@ -94,7 +114,13 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
             const SizedBox(height: 20),
 
             // Experience Level Filter
-            const Text('Nível de Experiência', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondaryDark)),
+            const Text(
+              'Nível de Experiência',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondaryDark,
+              ),
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -108,7 +134,13 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
             const SizedBox(height: 20),
 
             // Sort By
-            const Text('Ordenar por', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondaryDark)),
+            const Text(
+              'Ordenar por',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondaryDark,
+              ),
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,

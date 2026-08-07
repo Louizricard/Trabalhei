@@ -21,10 +21,12 @@ class SubmitDeliverableModal extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SubmitDeliverableModal> createState() => _SubmitDeliverableModalState();
+  ConsumerState<SubmitDeliverableModal> createState() =>
+      _SubmitDeliverableModalState();
 }
 
-class _SubmitDeliverableModalState extends ConsumerState<SubmitDeliverableModal> {
+class _SubmitDeliverableModalState
+    extends ConsumerState<SubmitDeliverableModal> {
   final _formKey = GlobalKey<FormState>();
   final _notesController = TextEditingController();
   List<PickedFileData> _selectedFiles = [];
@@ -59,7 +61,9 @@ class _SubmitDeliverableModalState extends ConsumerState<SubmitDeliverableModal>
         }
       }
 
-      await ref.read(chatRepositoryProvider).submitMilestoneDeliverable(
+      await ref
+          .read(chatRepositoryProvider)
+          .submitMilestoneDeliverable(
             conversationId: widget.conversation.id,
             milestoneId: widget.milestone.id,
             notes: _notesController.text.trim(),
@@ -74,7 +78,9 @@ class _SubmitDeliverableModalState extends ConsumerState<SubmitDeliverableModal>
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('🎉 Entrega do marco enviada ao cliente com sucesso!'),
+            content: Text(
+              '🎉 Entrega do marco enviada ao cliente com sucesso!',
+            ),
             backgroundColor: AppColors.success,
           ),
         );
@@ -118,7 +124,11 @@ class _SubmitDeliverableModalState extends ConsumerState<SubmitDeliverableModal>
                   Expanded(
                     child: Text(
                       'Entregar: ${widget.milestone.title}',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimaryDark,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -131,22 +141,29 @@ class _SubmitDeliverableModalState extends ConsumerState<SubmitDeliverableModal>
               const SizedBox(height: 4),
               const Text(
                 'Envie os detalhes do trabalho concluído e anexe os arquivos finais para a aprovação do cliente.',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondaryDark,
+                ),
               ),
               const SizedBox(height: 16),
               CustomTextField(
                 controller: _notesController,
                 label: 'Descrição da Entrega & Instruções',
-                hint: 'Ex: Concluí a tela conforme solicitado. Links, documentação ou orientações para teste...',
+                hint:
+                    'Ex: Concluí a tela conforme solicitado. Links, documentação ou orientações para teste...',
                 maxLines: 4,
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'Informe uma descrição para a entrega' : null,
+                validator: (val) => (val == null || val.trim().isEmpty)
+                    ? 'Informe uma descrição para a entrega'
+                    : null,
               ),
               const SizedBox(height: 16),
               AttachmentPickerSection(
                 selectedFiles: _selectedFiles,
                 onChanged: (files) => setState(() => _selectedFiles = files),
                 title: 'Arquivos Entregues (Projetos, ZIPs, PDFs, Telas)',
-                hintText: 'Anexe o código empacotado, prints ou documentos comprobatórios.',
+                hintText:
+                    'Anexe o código empacotado, prints ou documentos comprobatórios.',
               ),
               const SizedBox(height: 24),
               CustomButton(

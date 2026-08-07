@@ -43,13 +43,19 @@ class JobCard extends StatelessWidget {
                 ),
                 child: Text(
                   job.category,
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryDark),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondaryDark,
+                  ),
                 ),
               ),
               const Spacer(),
               Text(
                 DateFormatter.relativeTime(job.createdAt),
-                style: const TextStyle(fontSize: 12, color: AppColors.textMutedDark),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textMutedDark,
+                ),
               ),
             ],
           ),
@@ -82,7 +88,10 @@ class JobCard extends StatelessWidget {
               runSpacing: 6,
               children: job.skillsRequired.take(4).map((skill) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withAlpha(25),
                     borderRadius: BorderRadius.circular(6),
@@ -90,7 +99,10 @@ class JobCard extends StatelessWidget {
                   ),
                   child: Text(
                     skill,
-                    style: const TextStyle(fontSize: 11, color: AppColors.primaryLight),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.primaryLight,
+                    ),
                   ),
                 );
               }).toList(),
@@ -105,8 +117,13 @@ class JobCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    job.contractType == ContractType.fixed ? 'Orçamento Estimado' : 'Valor por Hora',
-                    style: const TextStyle(fontSize: 11, color: AppColors.textMutedDark),
+                    job.contractType == ContractType.fixed
+                        ? 'Orçamento Estimado'
+                        : 'Valor por Hora',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textMutedDark,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -122,18 +139,33 @@ class JobCard extends StatelessWidget {
               const Spacer(),
               Row(
                 children: [
-                  const Icon(Icons.description_outlined, size: 14, color: AppColors.textSecondaryDark),
+                  const Icon(
+                    Icons.description_outlined,
+                    size: 14,
+                    color: AppColors.textSecondaryDark,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     '${job.proposalsCount} propostas',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondaryDark,
+                    ),
                   ),
                   const SizedBox(width: 12),
-                  const Icon(Icons.star_rounded, size: 16, color: AppColors.warning),
+                  const Icon(
+                    Icons.star_rounded,
+                    size: 16,
+                    color: AppColors.warning,
+                  ),
                   const SizedBox(width: 2),
                   Text(
                     job.clientRating.toStringAsFixed(1),
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimaryDark,
+                    ),
                   ),
                 ],
               ),

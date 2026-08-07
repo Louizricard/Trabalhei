@@ -17,11 +17,16 @@ class EarningsChart extends StatelessWidget {
             show: true,
             drawVerticalLine: false,
             horizontalInterval: 4000,
-            getDrawingHorizontalLine: (_) => const FlLine(color: AppColors.borderDark, strokeWidth: 1),
+            getDrawingHorizontalLine: (_) =>
+                const FlLine(color: AppColors.borderDark, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -30,7 +35,10 @@ class EarningsChart extends StatelessWidget {
                   if (val == 0) return const SizedBox.shrink();
                   return Text(
                     '${(val / 1000).toInt()}k',
-                    style: const TextStyle(fontSize: 10, color: AppColors.textMutedDark),
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textMutedDark,
+                    ),
                   );
                 },
               ),
@@ -44,7 +52,13 @@ class EarningsChart extends StatelessWidget {
                   if (index >= 0 && index < months.length) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 6),
-                      child: Text(months[index], style: const TextStyle(fontSize: 11, color: AppColors.textMutedDark)),
+                      child: Text(
+                        months[index],
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textMutedDark,
+                        ),
+                      ),
                     );
                   }
                   return const SizedBox.shrink();
@@ -59,7 +73,11 @@ class EarningsChart extends StatelessWidget {
           maxY: 15000,
           lineBarsData: [
             LineChartBarData(
-              spots: data.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value)).toList(),
+              spots: data
+                  .asMap()
+                  .entries
+                  .map((e) => FlSpot(e.key.toDouble(), e.value))
+                  .toList(),
               isCurved: true,
               color: AppColors.primaryLight,
               barWidth: 3,

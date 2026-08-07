@@ -1,5 +1,7 @@
 enum ContractType { fixed, hourly }
+
 enum JobStatus { open, inProgress, completed, cancelled }
+
 enum ExperienceLevel { all, junior, pleno, senior }
 
 class Job {
@@ -61,7 +63,9 @@ class Job {
       clientRating = (json['client_rating'] as num?)?.toDouble() ?? 5.0;
     }
 
-    if (json['proposals'] != null && json['proposals'] is List && (json['proposals'] as List).isNotEmpty) {
+    if (json['proposals'] != null &&
+        json['proposals'] is List &&
+        (json['proposals'] as List).isNotEmpty) {
       final first = (json['proposals'] as List).first;
       if (first is Map && first.containsKey('count')) {
         proposalsCount = (first['count'] as num?)?.toInt() ?? 0;
@@ -86,7 +90,9 @@ class Job {
       title: json['title'] as String? ?? 'Sem título',
       category: json['category'] as String? ?? 'Mobile',
       description: json['description'] as String? ?? '',
-      contractType: json['contract_type'] == 'hourly' ? ContractType.hourly : ContractType.fixed,
+      contractType: json['contract_type'] == 'hourly'
+          ? ContractType.hourly
+          : ContractType.fixed,
       budgetMin: (json['budget_min'] as num?)?.toDouble() ?? 0.0,
       budgetMax: (json['budget_max'] as num?)?.toDouble() ?? 0.0,
       deadlineDays: (json['deadline_days'] as num?)?.toInt() ?? 30,
@@ -94,11 +100,21 @@ class Job {
       status: _parseJobStatus(json['status'] as String?),
       isFeatured: json['is_featured'] as bool? ?? false,
       isUrgent: json['is_urgent'] as bool? ?? false,
-      skillsRequired: (json['skills_required'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
-      screeningQuestions: (json['screening_questions'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      skillsRequired:
+          (json['skills_required'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      screeningQuestions:
+          (json['screening_questions'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       attachments: parsedAttachments,
       proposalsCount: proposalsCount,
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now() : DateTime.now(),
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 

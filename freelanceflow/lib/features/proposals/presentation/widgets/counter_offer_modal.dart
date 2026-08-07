@@ -27,8 +27,12 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
   @override
   void initState() {
     super.initState();
-    _priceController = TextEditingController(text: widget.proposal.bidAmount.toStringAsFixed(0));
-    _daysController = TextEditingController(text: widget.proposal.estimatedDays.toString());
+    _priceController = TextEditingController(
+      text: widget.proposal.bidAmount.toStringAsFixed(0),
+    );
+    _daysController = TextEditingController(
+      text: widget.proposal.estimatedDays.toString(),
+    );
   }
 
   @override
@@ -55,11 +59,15 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
     setState(() => _isLoading = true);
 
     try {
-      await ref.read(proposalRepositoryProvider).makeCounterOffer(
+      await ref
+          .read(proposalRepositoryProvider)
+          .makeCounterOffer(
             proposalId: widget.proposal.id,
             counterPrice: price,
             counterEstimatedDays: days,
-            counterMessage: _messageController.text.trim().isNotEmpty ? _messageController.text.trim() : null,
+            counterMessage: _messageController.text.trim().isNotEmpty
+                ? _messageController.text.trim()
+                : null,
           );
 
       ref.invalidate(jobProposalsProvider(widget.proposal.jobId));
@@ -69,7 +77,9 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Contraproposta de ${CurrencyFormatter.format(price)} enviada com sucesso!'),
+            content: Text(
+              'Contraproposta de ${CurrencyFormatter.format(price)} enviada com sucesso!',
+            ),
             backgroundColor: AppColors.success,
           ),
         );
@@ -78,7 +88,10 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao enviar contraproposta: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Erro ao enviar contraproposta: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -109,11 +122,18 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.handshake_outlined, color: AppColors.primaryLight),
+                      Icon(
+                        Icons.handshake_outlined,
+                        color: AppColors.primaryLight,
+                      ),
                       SizedBox(width: 8),
                       Text(
                         'Negociar / Fazer Contraproposta',
-                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark),
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimaryDark,
+                        ),
                       ),
                     ],
                   ),
@@ -126,7 +146,10 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
               const SizedBox(height: 6),
               Text(
                 'Negocie valores ou prazos diretamente com ${widget.proposal.freelancerName}.',
-                style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryDark),
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondaryDark,
+                ),
               ),
               const SizedBox(height: 14),
               GlassCard(
@@ -136,22 +159,46 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
                   children: [
                     Column(
                       children: [
-                        const Text('Valor Original', style: TextStyle(fontSize: 11, color: AppColors.textMutedDark)),
+                        const Text(
+                          'Valor Original',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textMutedDark,
+                          ),
+                        ),
                         const SizedBox(height: 2),
                         Text(
                           CurrencyFormatter.format(widget.proposal.bidAmount),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryDark),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: AppColors.textPrimaryDark,
+                          ),
                         ),
                       ],
                     ),
-                    Container(height: 30, width: 1, color: AppColors.borderDark),
+                    Container(
+                      height: 30,
+                      width: 1,
+                      color: AppColors.borderDark,
+                    ),
                     Column(
                       children: [
-                        const Text('Prazo Original', style: TextStyle(fontSize: 11, color: AppColors.textMutedDark)),
+                        const Text(
+                          'Prazo Original',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textMutedDark,
+                          ),
+                        ),
                         const SizedBox(height: 2),
                         Text(
                           '${widget.proposal.estimatedDays} dias',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimaryDark),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: AppColors.textPrimaryDark,
+                          ),
                         ),
                       ],
                     ),
@@ -166,7 +213,8 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
                       controller: _priceController,
                       label: 'Novo Valor Ofertado (R\$)',
                       keyboardType: TextInputType.number,
-                      validator: (v) => (v == null || v.isEmpty) ? 'Informe o valor' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Informe o valor' : null,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -175,7 +223,8 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
                       controller: _daysController,
                       label: 'Novo Prazo (Dias)',
                       keyboardType: TextInputType.number,
-                      validator: (v) => (v == null || v.isEmpty) ? 'Informe os dias' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Informe os dias' : null,
                     ),
                   ),
                 ],
@@ -184,7 +233,8 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
               CustomTextField(
                 controller: _messageController,
                 label: 'Mensagem / Justificativa (Opcional)',
-                hint: 'Ex: Conseguimos fechar por este valor se entregarmos até o dia X...',
+                hint:
+                    'Ex: Conseguimos fechar por este valor se entregarmos até o dia X...',
                 maxLines: 3,
               ),
               const SizedBox(height: 20),

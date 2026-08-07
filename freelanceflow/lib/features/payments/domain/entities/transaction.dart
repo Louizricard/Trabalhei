@@ -1,4 +1,11 @@
-enum TransactionType { deposit, escrowHold, escrowRelease, payoutPix, platformFee }
+enum TransactionType {
+  deposit,
+  escrowHold,
+  escrowRelease,
+  payoutPix,
+  platformFee,
+}
+
 enum TransactionStatus { pending, completed, failed, refunded }
 
 class WalletTransaction {
@@ -64,19 +71,19 @@ class WalletTransaction {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'user_id': userId,
-        'type': _typeToDb(type),
-        'amount': amount,
-        'status': status.name,
-        'pix_key': pixKey,
-        'gateway_provider': gatewayProvider,
-        'gateway_ref': gatewayRef,
-        'gateway_status': gatewayStatus,
-        'qr_code': qrCode,
-        'qr_code_base64': qrCodeBase64,
-        'payment_method': paymentMethod,
-      };
+    'id': id,
+    'user_id': userId,
+    'type': _typeToDb(type),
+    'amount': amount,
+    'status': status.name,
+    'pix_key': pixKey,
+    'gateway_provider': gatewayProvider,
+    'gateway_ref': gatewayRef,
+    'gateway_status': gatewayStatus,
+    'qr_code': qrCode,
+    'qr_code_base64': qrCodeBase64,
+    'payment_method': paymentMethod,
+  };
 
   String get typeLabel {
     switch (type) {
@@ -93,7 +100,8 @@ class WalletTransaction {
     }
   }
 
-  bool get isCredit => type == TransactionType.escrowRelease || type == TransactionType.deposit;
+  bool get isCredit =>
+      type == TransactionType.escrowRelease || type == TransactionType.deposit;
 
   static TransactionType _parseType(String? t) {
     switch (t) {
