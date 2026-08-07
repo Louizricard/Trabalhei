@@ -14,9 +14,11 @@
         "/usr/include/harfbuzz/**",
         "/usr/include/x86_64-linux-gnu/**",
         "/usr/include/gio-unix-2.0/**",
+        "${workspaceFolder}/freelanceflow/linux/**",
         "${workspaceFolder}/freelanceflow/linux/flutter/ephemeral/**",
         "${workspaceFolder}/freelanceflow/linux/runner/**",
         "${workspaceFolder}/freelanceflow/linux/flutter/**",
+        "${workspaceFolder}/linux/**",
         "${workspaceFolder}/linux/flutter/ephemeral/**",
         "${workspaceFolder}/linux/runner/**",
         "${workspaceFolder}/linux/flutter/**"

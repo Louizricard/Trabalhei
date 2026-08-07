@@ -14,6 +14,7 @@
         "/usr/include/harfbuzz/**",
         "/usr/include/x86_64-linux-gnu/**",
         "/usr/include/gio-unix-2.0/**",
+        "${workspaceFolder}/linux/**",
         "${workspaceFolder}/linux/flutter/ephemeral/**",
         "${workspaceFolder}/linux/runner/**",
         "${workspaceFolder}/linux/flutter/**"

@@ -10,8 +10,10 @@ CompileFlags:
     - -I/usr/include/harfbuzz
     - -I/usr/include/x86_64-linux-gnu
     - -I/usr/include/gio-unix-2.0
+    - -I/home/louizricard/Documentos/freelanceflow/freelanceflow/linux
     - -I/home/louizricard/Documentos/freelanceflow/freelanceflow/linux/flutter/ephemeral
     - -I/home/louizricard/Documentos/freelanceflow/freelanceflow/linux/runner
     - -I/home/louizricard/Documentos/freelanceflow/freelanceflow/linux/flutter
     - -DAPPLICATION_ID="com.trabalhei.app"
     - -DGDK_WINDOWING_X11
+
