@@ -17,14 +17,14 @@ final jobRepositoryProvider = Provider<JobRepository>((ref) {
 final jobFilterProvider = StateProvider<JobFilter>((ref) => const JobFilter());
 
 /// Jobs list notifier provider reacting to filters
-final jobsListProvider = FutureProvider<List<Job>>((ref) async {
+final jobsListProvider = FutureProvider.autoDispose<List<Job>>((ref) async {
   final repository = ref.watch(jobRepositoryProvider);
   final filter = ref.watch(jobFilterProvider);
   return repository.getJobs(filter: filter);
 });
 
 /// Single job provider by ID
-final jobDetailProvider = FutureProvider.family<Job?, String>((ref, id) async {
+final jobDetailProvider = FutureProvider.family.autoDispose<Job?, String>((ref, id) async {
   final repository = ref.watch(jobRepositoryProvider);
   return repository.getJobById(id);
 });

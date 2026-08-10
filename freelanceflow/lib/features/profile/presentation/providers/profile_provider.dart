@@ -20,7 +20,7 @@ final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
 });
 
 // Perfil de qualquer usuário (por ID)
-final publicProfileProvider = FutureProvider.family<UserProfile?, String>((
+final publicProfileProvider = FutureProvider.family.autoDispose<UserProfile?, String>((
   ref,
   userId,
 ) async {
@@ -29,7 +29,7 @@ final publicProfileProvider = FutureProvider.family<UserProfile?, String>((
 });
 
 // Avaliações de qualquer usuário (por ID)
-final publicReviewsProvider = FutureProvider.family<List<UserReview>, String>((
+final publicReviewsProvider = FutureProvider.family.autoDispose<List<UserReview>, String>((
   ref,
   userId,
 ) async {
@@ -39,13 +39,13 @@ final publicReviewsProvider = FutureProvider.family<List<UserReview>, String>((
 
 // Itens de portfólio de um usuário
 final userPortfolioProvider =
-    FutureProvider.family<List<PortfolioItem>, String>((ref, userId) async {
+    FutureProvider.family.autoDispose<List<PortfolioItem>, String>((ref, userId) async {
       final repository = ref.watch(profileRepositoryProvider);
       return repository.getPortfolioItems(userId);
     });
 
 // Avaliações do usuário autenticado
-final userReviewsProvider = FutureProvider<List<UserReview>>((ref) async {
+final userReviewsProvider = FutureProvider.autoDispose<List<UserReview>>((ref) async {
   final repository = ref.watch(profileRepositoryProvider);
   final user = ref.watch(authProvider).value;
   if (user == null) return [];
@@ -146,7 +146,7 @@ final freelancerSearchFilterProvider =
     });
 
 // Lista de freelancers filtrados
-final freelancersListProvider = FutureProvider<List<UserProfile>>((ref) async {
+final freelancersListProvider = FutureProvider.autoDispose<List<UserProfile>>((ref) async {
   final repository = ref.watch(profileRepositoryProvider);
   final filter = ref.watch(freelancerSearchFilterProvider);
 

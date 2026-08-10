@@ -14,14 +14,14 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
   return ChatRepositoryImpl(ref.watch(chatDataSourceProvider));
 });
 
-final conversationsListProvider = FutureProvider<List<Conversation>>((
+final conversationsListProvider = FutureProvider.autoDispose<List<Conversation>>((
   ref,
 ) async {
   final repository = ref.watch(chatRepositoryProvider);
   return repository.getConversations();
 });
 
-final conversationDetailProvider = FutureProvider.family<Conversation?, String>(
+final conversationDetailProvider = FutureProvider.family.autoDispose<Conversation?, String>(
   (ref, id) async {
     final repository = ref.watch(chatRepositoryProvider);
     return repository.getConversationById(id);
@@ -29,7 +29,7 @@ final conversationDetailProvider = FutureProvider.family<Conversation?, String>(
 );
 
 final chatMessagesStreamProvider =
-    StreamProvider.family<List<ChatMessage>, String>((ref, conversationId) {
+    StreamProvider.family.autoDispose<List<ChatMessage>, String>((ref, conversationId) {
       final repository = ref.watch(chatRepositoryProvider);
       return repository.getMessagesStream(conversationId);
     });

@@ -13,7 +13,7 @@ final proposalRepositoryProvider = Provider<ProposalRepository>((ref) {
   return ProposalRepositoryImpl(ref.watch(proposalDataSourceProvider));
 });
 
-final jobProposalsProvider = FutureProvider.family<List<Proposal>, String>((
+final jobProposalsProvider = FutureProvider.family.autoDispose<List<Proposal>, String>((
   ref,
   jobId,
 ) async {
@@ -22,7 +22,7 @@ final jobProposalsProvider = FutureProvider.family<List<Proposal>, String>((
 });
 
 final freelancerProposalsProvider =
-    FutureProvider.family<List<Proposal>, String>((ref, freelancerId) async {
+    FutureProvider.family.autoDispose<List<Proposal>, String>((ref, freelancerId) async {
       final repository = ref.watch(proposalRepositoryProvider);
       return repository.getFreelancerProposals(freelancerId);
     });

@@ -176,7 +176,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/jobs',
-                builder: (context, state) => const JobsListScreen(),
+                builder: (context, state) => JobsListScreen(
+                  initialCategory: state.extra as String?,
+                ),
               ),
             ],
           ),
@@ -199,17 +201,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/dashboard',
                 builder: (context, state) => const _DashboardSwitcher(),
-                routes: [
-                  GoRoute(
-                    path: 'client',
-                    builder: (context, state) => const ClientDashboardScreen(),
-                  ),
-                  GoRoute(
-                    path: 'freelancer',
-                    builder: (context, state) =>
-                        const FreelancerDashboardScreen(),
-                  ),
-                ],
               ),
             ],
           ),

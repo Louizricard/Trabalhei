@@ -225,7 +225,7 @@ class ClientDashboardScreen extends ConsumerWidget {
                             Icons.chevron_right_rounded,
                             color: AppColors.textSecondaryDark,
                           ),
-                          onTap: () => context.push('/jobs'),
+                          onTap: () => context.push('/jobs', extra: 'Minhas Vagas'),
                         ),
                         const Divider(),
                         ListTile(

@@ -3,7 +3,7 @@ import '../../../../core/config/supabase_client.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../domain/entities/dashboard_stats.dart';
 
-final freelancerStatsProvider = FutureProvider<FreelancerDashboardStats>((
+final freelancerStatsProvider = FutureProvider.autoDispose<FreelancerDashboardStats>((
   ref,
 ) async {
   final supabase = ref.watch(supabaseClientProvider);
@@ -99,7 +99,7 @@ final freelancerStatsProvider = FutureProvider<FreelancerDashboardStats>((
   );
 });
 
-final clientStatsProvider = FutureProvider<ClientDashboardStats>((ref) async {
+final clientStatsProvider = FutureProvider.autoDispose<ClientDashboardStats>((ref) async {
   final supabase = ref.watch(supabaseClientProvider);
   final user = ref.watch(authProvider).value;
 

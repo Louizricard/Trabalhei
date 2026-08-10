@@ -353,20 +353,26 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
 
           return Stack(
             children: [
-              ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  // Métricas resumidas
-                  _buildSummaryMetrics(proposals),
-                  const SizedBox(height: 16),
-
-                  // Lista de propostas
-                  for (final proposal in proposals) ...[
-                    _buildProposalCard(proposal, clientId),
+              RefreshIndicator(
+                onRefresh: () async {
+                  ref.invalidate(jobProposalsProvider(widget.jobId));
+                  ref.invalidate(jobDetailProvider(widget.jobId));
+                },
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    // Métricas resumidas
+                    _buildSummaryMetrics(proposals),
                     const SizedBox(height: 16),
+
+                    // Lista de propostas
+                    for (final proposal in proposals) ...[
+                      _buildProposalCard(proposal, clientId),
+                      const SizedBox(height: 16),
+                    ],
+                    const SizedBox(height: 32),
                   ],
-                  const SizedBox(height: 32),
-                ],
+                ),
               ),
               if (_isProcessing)
                 Container(

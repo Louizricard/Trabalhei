@@ -44,7 +44,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
         );
         context.go(
-          targetRole == UserRole.client ? '/dashboard/client' : '/jobs',
+          targetRole == UserRole.client ? '/dashboard' : '/jobs',
         );
       }
     } catch (e) {

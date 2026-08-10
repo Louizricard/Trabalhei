@@ -14,7 +14,8 @@ import 'package:freelanceflow/features/chat/presentation/providers/chat_provider
 import 'package:go_router/go_router.dart';
 
 class JobsListScreen extends ConsumerStatefulWidget {
-  const JobsListScreen({super.key});
+  final String? initialCategory;
+  const JobsListScreen({super.key, this.initialCategory});
 
   @override
   ConsumerState<JobsListScreen> createState() => _JobsListScreenState();
@@ -24,15 +25,11 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
   final _searchController = TextEditingController();
   String? _selectedCategory;
 
-  final _categories = [
-    'Todos',
-    'Mobile',
-    'Design',
-    'Fullstack',
-    'Frontend',
-    'Backend',
-    'DevOps',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.initialCategory;
+  }
 
   @override
   void dispose() {
@@ -49,6 +46,17 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
     final proposalsAsync = user != null
         ? ref.watch(freelancerProposalsProvider(user.id))
         : const AsyncValue<List<Proposal>>.data([]);
+
+    final categories = [
+      'Todos',
+      if (isClient) 'Minhas Vagas',
+      'Mobile',
+      'Design',
+      'Fullstack',
+      'Frontend',
+      'Backend',
+      'DevOps',
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -101,10 +109,10 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _categories.length,
+                itemCount: categories.length,
                 separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
-                  final cat = _categories[index];
+                  final cat = categories[index];
                   final isSelected =
                       (_selectedCategory == null && cat == 'Todos') ||
                       _selectedCategory == cat;
@@ -149,13 +157,17 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                 data: (jobs) {
                   var filtered = jobs;
                   if (_selectedCategory != null) {
-                    filtered = filtered
-                        .where(
-                          (j) =>
-                              j.category.toLowerCase() ==
-                              _selectedCategory!.toLowerCase(),
-                        )
-                        .toList();
+                    if (_selectedCategory == 'Minhas Vagas') {
+                      filtered = filtered.where((j) => j.clientId == user?.id).toList();
+                    } else {
+                      filtered = filtered
+                          .where(
+                            (j) =>
+                                j.category.toLowerCase() ==
+                                _selectedCategory!.toLowerCase(),
+                          )
+                          .toList();
+                    }
                   }
                   if (_searchController.text.isNotEmpty) {
                     final query = _searchController.text.toLowerCase();
@@ -179,8 +191,20 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                     );
                   }
 
-                  return LayoutBuilder(
-                    builder: (context, constraints) {
+                  final appliedJobIds = proposalsAsync.maybeWhen(
+                    data: (list) => list.map((p) => p.jobId).toSet(),
+                    orElse: () => <String>{},
+                  );
+
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      ref.invalidate(jobsListProvider);
+                      if (user != null) {
+                        ref.invalidate(freelancerProposalsProvider(user.id));
+                      }
+                    },
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
                       if (constraints.maxWidth > 650) {
                         return GridView.builder(
                           padding: const EdgeInsets.symmetric(
@@ -196,10 +220,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                           itemCount: filtered.length,
                           itemBuilder: (context, index) {
                             final job = filtered[index];
-                            final hasApplied = proposalsAsync.maybeWhen(
-                              data: (list) => list.any((p) => p.jobId == job.id),
-                              orElse: () => false,
-                            );
+                            final hasApplied = appliedJobIds.contains(job.id);
                             final isOwner = user?.id == job.clientId;
 
                             return JobCard(
@@ -242,10 +263,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                         separatorBuilder: (_, _) => const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           final job = filtered[index];
-                          final hasApplied = proposalsAsync.maybeWhen(
-                            data: (list) => list.any((p) => p.jobId == job.id),
-                            orElse: () => false,
-                          );
+                          final hasApplied = appliedJobIds.contains(job.id);
                           final isOwner = user?.id == job.clientId;
 
                           return JobCard(
@@ -278,12 +296,13 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                         },
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
       ),
     );
   }
