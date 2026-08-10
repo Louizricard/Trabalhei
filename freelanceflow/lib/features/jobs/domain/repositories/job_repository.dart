@@ -40,5 +40,6 @@ abstract class JobRepository {
   Future<List<Job>> getJobs({JobFilter? filter});
   Future<Job?> getJobById(String id);
   Future<Job> createJob(Job job);
+  Future<Job> updateJob(Job job);
   Future<List<Job>> getClientJobs(String clientId);
 }

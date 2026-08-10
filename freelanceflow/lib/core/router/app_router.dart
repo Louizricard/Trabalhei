@@ -15,6 +15,7 @@ import '../../features/dashboard/presentation/screens/freelancer_dashboard_scree
 import '../../features/disputes/presentation/screens/dispute_detail_screen.dart';
 import '../../features/jobs/presentation/screens/create_job_screen.dart';
 import '../../features/jobs/presentation/screens/job_detail_screen.dart';
+import '../../features/jobs/domain/entities/job.dart';
 import '../../features/jobs/presentation/screens/jobs_list_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/payments/presentation/screens/payments_screen.dart';
@@ -119,6 +120,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/jobs/create',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const CreateJobScreen(),
+      ),
+      GoRoute(
+        path: '/jobs/:id/edit',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) =>
+            CreateJobScreen(jobToEdit: state.extra as Job?),
       ),
       GoRoute(
         path: '/jobs/:id',

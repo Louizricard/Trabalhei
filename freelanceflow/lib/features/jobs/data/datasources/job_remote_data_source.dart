@@ -80,6 +80,18 @@ class JobRemoteDataSource {
     return Job.fromJson(response);
   }
 
+  Future<Job> updateJob(Job job) async {
+    final payload = job.toJson();
+    // não precisamos atualizar criador, contagem de propostas, etc. mas o toJson() já resolve.
+    final response = await _supabase
+        .from('jobs')
+        .update(payload)
+        .eq('id', job.id)
+        .select('*, profiles!client_id(full_name, rating)')
+        .single();
+    return Job.fromJson(response);
+  }
+
   Future<List<Job>> getClientJobs(String clientId) async {
     final response = await _supabase
         .from('jobs')

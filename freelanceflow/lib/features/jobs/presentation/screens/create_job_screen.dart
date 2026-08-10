@@ -13,7 +13,9 @@ import '../../domain/entities/job.dart';
 import '../providers/jobs_provider.dart';
 
 class CreateJobScreen extends ConsumerStatefulWidget {
-  const CreateJobScreen({super.key});
+  final Job? jobToEdit;
+
+  const CreateJobScreen({super.key, this.jobToEdit});
 
   @override
   ConsumerState<CreateJobScreen> createState() => _CreateJobScreenState();
@@ -34,6 +36,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   bool _isUrgent = false;
   bool _isLoading = false;
   List<PickedFileData> _selectedFiles = [];
+  PickedFileData? _coverImage;
+  String? _existingCoverImageUrl;
 
   final _categories = [
     'Mobile',
@@ -43,6 +47,23 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     'Backend',
     'DevOps',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.jobToEdit != null) {
+      final job = widget.jobToEdit!;
+      _titleController.text = job.title;
+      _descController.text = job.description;
+      _budgetMinController.text = job.budgetMin.toStringAsFixed(0);
+      _budgetMaxController.text = job.budgetMax.toStringAsFixed(0);
+      _skillsController.text = job.skillsRequired.join(', ');
+      _daysController.text = job.deadlineDays.toString();
+      _category = job.category;
+      _isUrgent = job.isUrgent;
+      _existingCoverImageUrl = job.imageUrl;
+    }
+  }
 
   @override
   void dispose() {
@@ -93,11 +114,23 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
           .where((s) => s.isNotEmpty)
           .toList();
 
+      String? coverImageUrl = _existingCoverImageUrl;
+      if (_coverImage != null) {
+        final result = await storage.uploadFile(
+          bucket: 'job_covers',
+          folder: user.id,
+          file: _coverImage!,
+        );
+        coverImageUrl = result?.url;
+      }
+
+      final isEditing = widget.jobToEdit != null;
+
       final job = Job(
-        id: '',
-        clientId: user.id,
-        clientName: user.companyName ?? user.fullName,
-        clientRating: user.rating,
+        id: isEditing ? widget.jobToEdit!.id : '',
+        clientId: isEditing ? widget.jobToEdit!.clientId : user.id,
+        clientName: isEditing ? widget.jobToEdit!.clientName : (user.companyName ?? user.fullName),
+        clientRating: isEditing ? widget.jobToEdit!.clientRating : user.rating,
         title: _titleController.text.trim(),
         category: _category,
         description: _descController.text.trim(),
@@ -106,17 +139,24 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         deadlineDays: int.tryParse(_daysController.text) ?? 15,
         skillsRequired: skills,
         isUrgent: _isUrgent,
-        attachments: uploadedAttachments,
-        createdAt: DateTime.now(),
+        attachments: isEditing ? widget.jobToEdit!.attachments : uploadedAttachments, // Simplified attachment handling for edit
+        imageUrl: coverImageUrl,
+        createdAt: isEditing ? widget.jobToEdit!.createdAt : DateTime.now(),
+        status: isEditing ? widget.jobToEdit!.status : JobStatus.open,
       );
 
-      await ref.read(jobRepositoryProvider).createJob(job);
+      if (isEditing) {
+        await ref.read(jobRepositoryProvider).updateJob(job);
+      } else {
+        await ref.read(jobRepositoryProvider).createJob(job);
+      }
+      
       ref.invalidate(jobsListProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Vaga publicada com sucesso no Trabalhei!'),
+          SnackBar(
+            content: Text(isEditing ? 'Vaga atualizada com sucesso!' : 'Vaga publicada com sucesso no Trabalhei!'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -139,9 +179,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.jobToEdit != null;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Publicar Nova Vaga'),
+        title: Text(isEditing ? 'Editar Vaga' : 'Publicar Nova Vaga'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.pop(),
@@ -156,6 +197,76 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                GlassCard(
+                  padding: EdgeInsets.zero,
+                  child: InkWell(
+                    onTap: () async {
+                      final storage = ref.read(storageServiceProvider);
+                      final file = await storage.pickImage();
+                      if (file != null) {
+                        setState(() => _coverImage = file);
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      height: 160,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: AppColors.primary.withAlpha(15),
+                        image: _coverImage != null
+                            ? DecorationImage(
+                                image: MemoryImage(_coverImage!.bytes),
+                                fit: BoxFit.cover,
+                              )
+                            : (_existingCoverImageUrl != null && _existingCoverImageUrl!.isNotEmpty)
+                                ? DecorationImage(
+                                    image: NetworkImage(_existingCoverImageUrl!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                      ),
+                      child: (_coverImage == null && (_existingCoverImageUrl == null || _existingCoverImageUrl!.isEmpty))
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.add_photo_alternate_outlined,
+                                  size: 48,
+                                  color: AppColors.primary.withAlpha(150),
+                                ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Adicionar Capa (Opcional)',
+                                  style: TextStyle(
+                                    color: AppColors.primaryLight,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Stack(
+                              children: [
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: IconButton(
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: Colors.black54,
+                                    ),
+                                    icon: const Icon(Icons.close, color: Colors.white),
+                                    onPressed: () => setState(() {
+                                      _coverImage = null;
+                                      _existingCoverImageUrl = null;
+                                    }),
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
                 GlassCard(
                   padding: const EdgeInsets.all(20),
                   child: Column(

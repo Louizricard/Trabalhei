@@ -10,8 +10,22 @@ import 'package:go_router/go_router.dart';
 class JobCard extends StatelessWidget {
   final Job job;
   final VoidCallback? onTap;
+  final bool userHasApplied;
+  final VoidCallback? onApply;
+  final VoidCallback? onMessage;
+  final bool isOwner;
+  final VoidCallback? onEdit;
 
-  const JobCard({super.key, required this.job, this.onTap});
+  const JobCard({
+    super.key,
+    required this.job,
+    this.onTap,
+    this.userHasApplied = false,
+    this.onApply,
+    this.onMessage,
+    this.isOwner = false,
+    this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,158 +34,295 @@ class JobCard extends StatelessWidget {
         : '${CurrencyFormatter.format(job.budgetMin)} - ${CurrencyFormatter.format(job.budgetMax)}/h';
 
     return GlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.zero,
       onTap: onTap ?? () => context.push('/jobs/${job.id}'),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              if (job.isUrgent) ...[
-                StatusBadge.urgent(),
-                const SizedBox(width: 6),
-              ],
-              if (job.isFeatured) ...[
-                StatusBadge.featured(),
-                const SizedBox(width: 6),
-              ],
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceElevatedDark,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  job.category,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textSecondaryDark,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                DateFormatter.relativeTime(job.createdAt),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textMutedDark,
-                ),
-              ),
-            ],
+          // Header Image or Placeholder
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+            child: job.imageUrl != null && job.imageUrl!.isNotEmpty
+                ? Image.network(
+                    job.imageUrl!,
+                    height: 120,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => _buildPlaceholder(),
+                  )
+                : _buildPlaceholder(),
           ),
-          const SizedBox(height: 12),
-          Text(
-            job.title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimaryDark,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            job.description,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.textSecondaryDark,
-              height: 1.4,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 14),
-          if (job.skillsRequired.isNotEmpty) ...[
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: job.skillsRequired.take(4).map((skill) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(25),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppColors.primary.withAlpha(50)),
-                  ),
-                  child: Text(
-                    skill,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.primaryLight,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 14),
-          ],
-          const Divider(),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Column(
+          
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    job.contractType == ContractType.fixed
-                        ? 'Orçamento Estimado'
-                        : 'Valor por Hora',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.textMutedDark,
+                  // Badges
+                Row(
+                  children: [
+                    if (job.isUrgent) ...[
+                      StatusBadge.urgent(),
+                      const SizedBox(width: 6),
+                    ],
+                    if (job.isFeatured) ...[
+                      StatusBadge.featured(),
+                      const SizedBox(width: 6),
+                    ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceElevatedDark,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        job.category,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondaryDark,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    budgetText,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.success,
+                    const Spacer(),
+                    Text(
+                      DateFormatter.relativeTime(job.createdAt),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textMutedDark,
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                
+                // Title
+                Text(
+                  job.title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimaryDark,
                   ),
-                ],
-              ),
-              const Spacer(),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.description_outlined,
-                    size: 14,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                
+                // Description
+                Text(
+                  job.description,
+                  style: const TextStyle(
+                    fontSize: 13,
                     color: AppColors.textSecondaryDark,
+                    height: 1.4,
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${job.proposalsCount} propostas',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondaryDark,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 14),
+                
+                // Tags / Skills
+                if (job.skillsRequired.isNotEmpty) ...[
+                  SizedBox(
+                    height: 26,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: job.skillsRequired.length > 4 ? 4 : job.skillsRequired.length,
+                      separatorBuilder: (_, _) => const SizedBox(width: 6),
+                      itemBuilder: (context, index) {
+                        final skill = job.skillsRequired[index];
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withAlpha(25),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: AppColors.primary.withAlpha(50)),
+                          ),
+                          child: Center(
+                            child: Text(
+                              skill,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.primaryLight,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  const Icon(
-                    Icons.star_rounded,
-                    size: 16,
-                    color: AppColors.warning,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    job.clientRating.toStringAsFixed(1),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimaryDark,
-                    ),
-                  ),
+                  const SizedBox(height: 12),
                 ],
-              ),
-            ],
+                const Spacer(),
+                const Divider(height: 1),
+                const SizedBox(height: 12),
+                
+                // Budget and Secondary Info
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            job.contractType == ContractType.fixed
+                                ? 'Orçamento Estimado'
+                                : 'Valor por Hora',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textMutedDark,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              budgetText,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.success,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.description_outlined,
+                          size: 14,
+                          color: AppColors.textSecondaryDark,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${job.proposalsCount} propostas',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondaryDark,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Icon(
+                          Icons.star_rounded,
+                          size: 16,
+                          color: AppColors.warning,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          job.clientRating.toStringAsFixed(1),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimaryDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                
+                // Actions
+                if (isOwner) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton.icon(
+                      onPressed: onEdit ?? () => context.push('/jobs/${job.id}/edit', extra: job),
+                      icon: const Icon(Icons.edit_rounded, size: 18),
+                      label: const Text(
+                        'Editar Vaga',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primaryLight,
+                        side: BorderSide(color: AppColors.primary.withAlpha(100)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: FilledButton(
+                      onPressed: onApply ?? () => context.push('/jobs/${job.id}/apply'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.onPrimary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Enviar proposta',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  if (userHasApplied) ...[
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: OutlinedButton.icon(
+                        onPressed: onMessage ?? () {}, // Handle chat routing in parent
+                        icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                        label: const Text(
+                          'Enviar mensagem',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primaryLight,
+                          side: BorderSide(color: AppColors.primary.withAlpha(100)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ],
+            ),
           ),
-        ],
+        ),
+      ],
+    ),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      height: 120,
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF132B47),
+            Color(0xFF19E6A7),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.work_outline_rounded,
+          size: 48,
+          color: AppColors.surfaceDark.withAlpha(150),
+        ),
       ),
     );
   }

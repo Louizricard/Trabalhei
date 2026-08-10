@@ -23,6 +23,11 @@ class JobRepositoryImpl implements JobRepository {
   }
 
   @override
+  Future<Job> updateJob(Job job) {
+    return _remoteDataSource.updateJob(job);
+  }
+
+  @override
   Future<List<Job>> getClientJobs(String clientId) {
     return _remoteDataSource.getClientJobs(clientId);
   }

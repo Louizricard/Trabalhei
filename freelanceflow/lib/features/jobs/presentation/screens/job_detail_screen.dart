@@ -268,6 +268,14 @@ class JobDetailScreen extends ConsumerWidget {
                       onPressed: () =>
                           context.push('/jobs/${job.id}/proposals'),
                     ),
+                    const SizedBox(height: 12),
+                    CustomButton(
+                      text: 'Editar Vaga',
+                      icon: Icons.edit_rounded,
+                      variant: ButtonVariant.outline,
+                      width: double.infinity,
+                      onPressed: () => context.push('/jobs/${job.id}/edit', extra: job),
+                    ),
                   ] else if (isOtherClient) ...[
                     Container(
                       width: double.infinity,

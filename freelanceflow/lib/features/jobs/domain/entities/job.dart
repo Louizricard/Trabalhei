@@ -24,6 +24,7 @@ class Job {
   final List<String> screeningQuestions;
   final List<Map<String, dynamic>> attachments;
   final int proposalsCount;
+  final String? imageUrl;
   final DateTime createdAt;
 
   const Job({
@@ -46,6 +47,7 @@ class Job {
     this.screeningQuestions = const [],
     this.attachments = const [],
     this.proposalsCount = 0,
+    this.imageUrl,
     required this.createdAt,
   });
 
@@ -112,6 +114,7 @@ class Job {
           [],
       attachments: parsedAttachments,
       proposalsCount: proposalsCount,
+      imageUrl: json['image_url'] as String?,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
@@ -136,6 +139,7 @@ class Job {
       'skills_required': skillsRequired,
       'screening_questions': screeningQuestions,
       'attachments': attachments,
+      'image_url': imageUrl,
     };
   }
 
