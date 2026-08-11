@@ -186,10 +186,11 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
           onPressed: () => context.pop(),
         ),
       ),
-      body: ResponsiveLayout(
-        maxWidth: 720,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+      body: SafeArea(
+        child: ResponsiveLayout(
+          maxWidth: 720,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
           child: Form(
             key: _formKey,
             child: Column(
@@ -422,6 +423,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                 const SizedBox(height: 20),
               ],
             ),
+          ),
           ),
         ),
       ),
