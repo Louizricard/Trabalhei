@@ -8,6 +8,7 @@ import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/skills_input_widget.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../domain/entities/job.dart';
 import '../providers/jobs_provider.dart';
@@ -27,7 +28,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   final _descController = TextEditingController();
   final _budgetMinController = TextEditingController();
   final _budgetMaxController = TextEditingController();
-  final _skillsController = TextEditingController();
+  List<String> _skills = [];
   final _daysController = TextEditingController();
 
   String _category = 'Mobile';
@@ -55,7 +56,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       _descController.text = job.description;
       _budgetMinController.text = job.budgetMin.toStringAsFixed(0);
       _budgetMaxController.text = job.budgetMax.toStringAsFixed(0);
-      _skillsController.text = job.skillsRequired.join(', ');
+      _skills = List.from(job.skillsRequired);
       _daysController.text = job.deadlineDays.toString();
       _category = job.category;
       _isUrgent = job.isUrgent;
@@ -69,13 +70,13 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     _descController.dispose();
     _budgetMinController.dispose();
     _budgetMaxController.dispose();
-    _skillsController.dispose();
-    _daysController.dispose();
+        _daysController.dispose();
     super.dispose();
   }
 
   Future<void> _submitJob() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    _formKey.currentState?.save();
 
     final user = ref.read(authProvider).value;
     if (user == null) {
@@ -106,11 +107,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         }
       }
 
-      final skills = _skillsController.text
-          .split(',')
-          .map((s) => s.trim())
-          .where((s) => s.isNotEmpty)
-          .toList();
+      final skills = _skills;
 
       String? coverImageUrl = _existingCoverImageUrl;
       if (_coverImage != null) {
@@ -371,11 +368,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                         validator: (v) => v == null || v.isEmpty ? 'Obrigatório' : null,
                       ),
                       const SizedBox(height: 16),
-                      CustomTextField(
-                        controller: _skillsController,
-                        label: 'Habilidades Desejadas (separadas por vírgula)',
-                        hint: 'Flutter, Riverpod, GoRouter, Supabase',
-                        validator: (v) => v == null || v.isEmpty ? 'Obrigatório' : null,
+                      SkillsInputWidget(
+                        initialValue: _skills,
+                        onSaved: (v) => _skills = v ?? [],
+                        validator: (v) => v == null || v.isEmpty ? 'Adicione pelo menos uma habilidade' : null,
                       ),
                       const SizedBox(height: 12),
                       SwitchListTile(
