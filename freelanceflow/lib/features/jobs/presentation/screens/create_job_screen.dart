@@ -25,12 +25,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
-  final _budgetMinController = TextEditingController(text: '3000');
-  final _budgetMaxController = TextEditingController(text: '6000');
-  final _skillsController = TextEditingController(
-    text: 'Flutter, Riverpod, Supabase',
-  );
-  final _daysController = TextEditingController(text: '20');
+  final _budgetMinController = TextEditingController();
+  final _budgetMaxController = TextEditingController();
+  final _skillsController = TextEditingController();
+  final _daysController = TextEditingController();
 
   String _category = 'Mobile';
   bool _isUrgent = false;
@@ -344,6 +342,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                               controller: _budgetMinController,
                               label: 'Orçamento Mínimo (R\$)',
                               keyboardType: TextInputType.number,
+                              validator: (v) => v == null || v.isEmpty ? 'Obrigatório' : null,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -352,6 +351,13 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                               controller: _budgetMaxController,
                               label: 'Orçamento Máximo (R\$)',
                               keyboardType: TextInputType.number,
+                              validator: (v) {
+                                if (v == null || v.isEmpty) return 'Obrigatório';
+                                final min = double.tryParse(_budgetMinController.text) ?? 0;
+                                final max = double.tryParse(v) ?? 0;
+                                if (max < min) return 'Não pode ser menor que o mín.';
+                                return null;
+                              },
                             ),
                           ),
                         ],
@@ -361,12 +367,14 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                         controller: _daysController,
                         label: 'Prazo Previsto de Execução (Dias)',
                         keyboardType: TextInputType.number,
+                        validator: (v) => v == null || v.isEmpty ? 'Obrigatório' : null,
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
                         controller: _skillsController,
                         label: 'Habilidades Desejadas (separadas por vírgula)',
                         hint: 'Flutter, Riverpod, GoRouter, Supabase',
+                        validator: (v) => v == null || v.isEmpty ? 'Obrigatório' : null,
                       ),
                       const SizedBox(height: 12),
                       SwitchListTile(
