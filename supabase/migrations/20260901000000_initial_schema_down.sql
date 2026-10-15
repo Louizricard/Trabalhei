@@ -1,0 +1,50 @@
+-- Rollback do schema inicial do FreelanceFlow (destrutivo: apaga todos os dados).
+drop trigger if exists on_auth_user_created on auth.users;
+
+drop table if exists public.billing_events cascade;
+drop table if exists public.job_featurings cascade;
+drop table if exists public.subscriptions cascade;
+drop table if exists public.billing_customers cascade;
+drop table if exists public.reviews cascade;
+drop table if exists public.notifications cascade;
+drop table if exists public.messages cascade;
+drop table if exists public.conversations cascade;
+drop table if exists public.milestone_revisions cascade;
+drop table if exists public.milestones cascade;
+drop table if exists public.contracts cascade;
+drop table if exists public.proposals cascade;
+drop table if exists public.jobs cascade;
+drop table if exists public.portfolio_items cascade;
+drop table if exists public.profiles cascade;
+
+drop function if exists public.handle_new_user() cascade;
+drop function if exists public.touch_updated_at() cascade;
+drop function if exists public.free_monthly_proposal_limit() cascade;
+drop function if exists public.is_pro(uuid) cascade;
+drop function if exists public.switch_role(text) cascade;
+drop function if exists public.cancel_job(uuid) cascade;
+drop function if exists public.notify(uuid, text, text, text, jsonb) cascade;
+drop function if exists public.mark_all_notifications_as_read() cascade;
+drop function if exists public.proposal_quota() cascade;
+drop function if exists public.get_or_create_conversation(uuid, uuid, uuid) cascade;
+drop function if exists public.get_or_create_conversation_internal(uuid, uuid, uuid) cascade;
+drop function if exists public.mark_conversation_read(uuid) cascade;
+drop function if exists public._system_message(uuid, uuid, text) cascade;
+drop function if exists public.submit_proposal(uuid, numeric, int, text, jsonb) cascade;
+drop function if exists public._create_contract(uuid) cascade;
+drop function if exists public.accept_proposal(uuid) cascade;
+drop function if exists public.reject_proposal(uuid) cascade;
+drop function if exists public.make_counter_offer(uuid, numeric, int, text) cascade;
+drop function if exists public.accept_counter_offer(uuid) cascade;
+drop function if exists public.reject_counter_offer(uuid) cascade;
+drop function if exists public._milestone_context(uuid) cascade;
+drop function if exists public.submit_deliverable(uuid, text, jsonb) cascade;
+drop function if exists public.request_revision(uuid, text, jsonb) cascade;
+drop function if exists public.approve_milestone(uuid) cascade;
+drop function if exists public.on_message_inserted() cascade;
+drop function if exists public.refresh_profile_rating() cascade;
+drop function if exists public.jobs_require_client() cascade;
+
+drop policy if exists storage_read_public_buckets on storage.objects;
+drop policy if exists storage_insert_own_folder on storage.objects;
+drop policy if exists storage_delete_own_folder on storage.objects;
