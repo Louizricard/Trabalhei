@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/errors/backend_errors.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/custom_button.dart';
@@ -8,6 +9,7 @@ import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
+import '../../../chat/presentation/providers/chat_provider.dart';
 import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../../domain/entities/proposal.dart';
 import '../providers/proposals_provider.dart';
@@ -23,8 +25,8 @@ class ApplyJobScreen extends ConsumerStatefulWidget {
 
 class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _bidController = TextEditingController(text: '3000');
-  final _daysController = TextEditingController(text: '15');
+  final _bidController = TextEditingController();
+  final _daysController = TextEditingController();
   final _coverLetterController = TextEditingController();
   bool _isLoading = false;
   bool _isEditing = false;
@@ -32,18 +34,8 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
   Proposal? _existingProposal;
   bool _initializedFromExisting = false;
 
-  List<ProposedMilestone> _milestones = [
-    const ProposedMilestone(
-      title: 'Estrutura base & Telas iniciais',
-      amount: 1500,
-      days: 7,
-    ),
-    const ProposedMilestone(
-      title: 'Integrações, Testes e Entrega',
-      amount: 1500,
-      days: 8,
-    ),
-  ];
+  // Sem marcos informados, o servidor cria um marco único com o valor total.
+  List<ProposedMilestone> _milestones = [];
 
   @override
   void initState() {
@@ -89,8 +81,6 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
   }
 
   double get _bidAmount => double.tryParse(_bidController.text) ?? 0.0;
-  double get _platformFee => _bidAmount * 0.10;
-  double get _netEarnings => _bidAmount - _platformFee;
 
   Future<void> _handleAcceptCounterOffer() async {
     if (_existingProposalId == null) return;
@@ -98,7 +88,8 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
     setState(() => _isLoading = true);
     try {
       final repo = ref.read(proposalRepositoryProvider);
-      await repo.acceptCounterOffer(_existingProposalId!);
+      final result = await repo.acceptCounterOffer(_existingProposalId!);
+      final conversationId = result['conversation_id'] as String?;
 
       final user = ref.read(authProvider).value;
       if (user != null) {
@@ -106,17 +97,20 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
       }
       ref.invalidate(jobProposalsProvider(widget.jobId));
       ref.invalidate(jobDetailProvider(widget.jobId));
+      ref.invalidate(conversationsListProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
-              '🎉 Contraproposta aceita! O contrato foi criado e o Escrow inicializado.',
-            ),
+            content: Text('🎉 Contraproposta aceita! O contrato foi criado.'),
             backgroundColor: AppColors.success,
           ),
         );
-        context.pop();
+        if (conversationId != null) {
+          context.go('/chat/$conversationId');
+        } else {
+          context.pop();
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -164,6 +158,7 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
       ref.invalidate(jobProposalsProvider(widget.jobId));
       ref.invalidate(freelancerProposalsProvider(user.id));
       ref.invalidate(jobDetailProvider(widget.jobId));
+      ref.invalidate(proposalQuotaProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -181,12 +176,20 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        final errText = e.toString().contains('duplicate key')
-            ? 'Você já enviou uma proposta para esta vaga. Os dados foram sincronizados.'
-            : 'Falha ao processar proposta: ${e.toString().replaceAll("Exception: ", "")}';
+        final errText = friendlyError(e);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errText), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text(errText),
+            backgroundColor: AppColors.error,
+            action: e.toString().contains('PROPOSAL_QUOTA_EXCEEDED')
+                ? SnackBarAction(
+                    label: 'Ver planos',
+                    textColor: AppColors.pureWhite,
+                    onPressed: () => context.push('/plans'),
+                  )
+                : null,
+          ),
         );
       }
     }
@@ -312,6 +315,7 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                     ),
                   ),
                 ],
+                _QuotaBanner(isEditing: _isEditing),
                 if (job != null) ...[
                   GlassCard(
                     padding: const EdgeInsets.all(16),
@@ -389,60 +393,6 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceElevatedDark,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.borderDark),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Taxa de serviço Trabalhei (10%)',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.textSecondaryDark,
-                                  ),
-                                ),
-                                Text(
-                                  '- ${CurrencyFormatter.format(_platformFee)}',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.error,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Divider(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Você receberá (Líquido em Escrow)',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textPrimaryDark,
-                                  ),
-                                ),
-                                Text(
-                                  CurrencyFormatter.format(_netEarnings),
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.success,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -489,6 +439,58 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Mostra quantas propostas gratuitas restam no mês (somente para novos envios).
+class _QuotaBanner extends ConsumerWidget {
+  final bool isEditing;
+
+  const _QuotaBanner({required this.isEditing});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (isEditing) return const SizedBox.shrink();
+    final quota = ref.watch(proposalQuotaProvider).value;
+    if (quota == null || quota.isUnlimited) return const SizedBox.shrink();
+
+    final exhausted = quota.isExhausted;
+    final color = exhausted ? AppColors.error : AppColors.primaryLight;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withAlpha(25),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withAlpha(90)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            exhausted
+                ? Icons.lock_outline_rounded
+                : Icons.local_activity_outlined,
+            color: color,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              exhausted
+                  ? 'Você usou as ${quota.monthlyLimit} propostas gratuitas deste mês.'
+                  : 'Propostas gratuitas restantes este mês: ${quota.remaining} de ${quota.monthlyLimit}.',
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textPrimaryDark,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => context.push('/plans'),
+            child: const Text('Assinar Pro'),
+          ),
+        ],
       ),
     );
   }

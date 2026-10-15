@@ -1,3 +1,4 @@
+import 'package:freelanceflow/core/utils/rating_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -97,6 +98,27 @@ class FreelancerCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        if (freelancer.isPro) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 1,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryContainer,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              'PRO',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
                         if (freelancer.isVerified) ...[
                           const SizedBox(width: 4),
                           const Icon(
@@ -132,7 +154,7 @@ class FreelancerCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 3),
                         Text(
-                          freelancer.rating.toStringAsFixed(1),
+                          RatingFormatter.format(freelancer.rating),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/user_profile.dart';
 
@@ -19,25 +20,10 @@ class AuthRemoteDataSource {
           .eq('id', user.id)
           .maybeSingle();
 
-      if (response != null) {
-        return UserProfile.fromJson(response);
-      }
-
-      // If profile record isn't found, construct from auth metadata and ensure record exists
-      final profile = UserProfile(
-        id: user.id,
-        email: user.email ?? '',
-        fullName: user.userMetadata?['full_name'] as String? ?? 'Usuário',
-        role: UserRole.fromString(user.userMetadata?['role'] as String?),
-        createdAt: DateTime.tryParse(user.createdAt) ?? DateTime.now(),
-      );
-
-      try {
-        await _supabase.from('profiles').upsert(profile.toJson());
-      } catch (_) {}
-
-      return profile;
-    } catch (_) {
+      if (response == null) return null;
+      return UserProfile.fromJson({...response, 'email': user.email ?? ''});
+    } catch (e, st) {
+      debugPrint('🚨 [Auth] Falha ao carregar perfil: $e\n$st');
       return null;
     }
   }
@@ -87,19 +73,16 @@ class AuthRemoteDataSource {
       final user = response.user;
       if (user == null) throw Exception('Falha ao cadastrar usuário.');
 
-      final profile = UserProfile(
-        id: user.id,
-        email: email.trim(),
-        fullName: fullName.trim(),
-        role: role,
-        createdAt: DateTime.now(),
-      );
-
-      try {
-        await _supabase.from('profiles').upsert(profile.toJson());
-      } catch (_) {}
-
-      return profile;
+      // O perfil é criado no servidor (trigger em auth.users). Se a confirmação
+      // de e-mail estiver ativa não há sessão ainda, então devolvemos os dados locais.
+      return await getCurrentUserProfile() ??
+          UserProfile(
+            id: user.id,
+            email: email.trim(),
+            fullName: fullName.trim(),
+            role: role,
+            createdAt: DateTime.now(),
+          );
     } on AuthException catch (e) {
       throw Exception(_mapAuthErrorMessage(e.message));
     } catch (e) {
@@ -133,7 +116,6 @@ class AuthRemoteDataSource {
 
   Future<UserProfile> updateProfile(UserProfile profile) async {
     final payload = profile.toUpdateJson();
-    payload['updated_at'] = DateTime.now().toIso8601String();
     await _supabase.from('profiles').update(payload).eq('id', profile.id);
 
     try {
@@ -154,33 +136,11 @@ class AuthRemoteDataSource {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception('Usuário não autenticado.');
 
-    final roleStr = newRole.toDbString();
+    await _supabase.rpc('switch_role', params: {'p_role': newRole.toDbString()});
 
-    // 1. Atualiza na tabela profiles do PostgreSQL
-    await _supabase
-        .from('profiles')
-        .update({
-          'role': roleStr,
-          'updated_at': DateTime.now().toIso8601String(),
-        })
-        .eq('id', user.id);
-
-    // 2. Atualiza nos metadados de autenticação do Supabase Auth
-    try {
-      await _supabase.auth.updateUser(UserAttributes(data: {'role': roleStr}));
-    } catch (_) {}
-
-    // 3. Retorna o perfil completo e atualizado
     final updated = await getCurrentUserProfile();
-    if (updated != null) return updated;
-
-    return UserProfile(
-      id: user.id,
-      email: user.email ?? '',
-      fullName: user.userMetadata?['full_name'] as String? ?? 'Usuário',
-      role: newRole,
-      createdAt: DateTime.now(),
-    );
+    if (updated == null) throw Exception('Não foi possível carregar o perfil.');
+    return updated;
   }
 
   String _mapAuthErrorMessage(String msg) {

@@ -58,7 +58,7 @@ class TermsAndPrivacyScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      '2. Sistema de Pagamento em Escrow',
+                      '2. Pagamentos e Planos',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -67,7 +67,7 @@ class TermsAndPrivacyScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Para garantir a segurança financeira de ambas as partes, todos os valores acordados são retidos em conta de custódia (Escrow) e liberados apenas após a aprovação expressa dos marcos pelo contratante.',
+                      'O Trabalhei não intermedeia nem retém pagamentos entre clientes e freelancers: valores e formas de pagamento dos projetos são combinados diretamente entre as partes. A plataforma é mantida por planos de assinatura opcionais (Pro) e por destaque pago de vagas.',
                       style: TextStyle(
                         fontSize: 13,
                         height: 1.6,
@@ -85,7 +85,7 @@ class TermsAndPrivacyScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Seus dados pessoais, mensagens e dados cadastrais são protegidos com criptografia de ponta a ponta e jamais serão comercializados para terceiros. Você pode solicitar a exclusão de sua conta a qualquer momento através do suporte.',
+                      'Seus dados pessoais, mensagens e dados cadastrais são protegidos com criptografia em trânsito e controle de acesso por usuário, e jamais serão comercializados para terceiros. Você pode solicitar a exclusão de sua conta a qualquer momento através do suporte.',
                       style: TextStyle(
                         fontSize: 13,
                         height: 1.6,
@@ -94,7 +94,7 @@ class TermsAndPrivacyScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      '4. Resolução de Disputas e Mediação',
+                      '4. Conduta e Denúncias',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -103,7 +103,7 @@ class TermsAndPrivacyScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Em caso de divergências na entrega dos marcos de um projeto, qualquer uma das partes poderá acionar o botão "Abrir Mediação" para intervenção imparcial da equipe de suporte do Trabalhei.',
+                      'Como o pagamento é combinado entre as partes, recomendamos formalizar o acordo por escrito no chat. Em caso de conduta inadequada, entre em contato com o suporte do Trabalhei.',
                       style: TextStyle(
                         fontSize: 13,
                         height: 1.6,

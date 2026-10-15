@@ -36,13 +36,6 @@ class StatusBadge extends StatelessWidget {
     icon: Icons.verified_rounded,
   );
 
-  factory StatusBadge.escrowHold() => const StatusBadge(
-    label: 'Escrow Garantido',
-    backgroundColor: AppColors.escrowBg,
-    textColor: AppColors.escrow,
-    icon: Icons.shield_outlined,
-  );
-
   factory StatusBadge.urgent() => const StatusBadge(
     label: 'Urgente',
     backgroundColor: AppColors.errorBg,

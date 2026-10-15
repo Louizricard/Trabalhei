@@ -1,14 +1,13 @@
+import 'package:freelanceflow/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freelanceflow/core/theme/app_colors.dart';
-import 'package:freelanceflow/core/utils/currency_formatter.dart';
-import 'package:freelanceflow/core/widgets/custom_button.dart';
 import 'package:freelanceflow/core/widgets/empty_state.dart';
 import 'package:freelanceflow/core/widgets/glass_card.dart';
 import 'package:freelanceflow/core/widgets/responsive_layout.dart';
 import 'package:freelanceflow/features/auth/presentation/providers/auth_state_provider.dart';
 import 'package:freelanceflow/features/dashboard/presentation/providers/dashboard_provider.dart';
-import 'package:freelanceflow/features/dashboard/presentation/widgets/earnings_chart.dart';
+import 'package:freelanceflow/features/dashboard/presentation/widgets/activity_chart.dart';
 import 'package:go_router/go_router.dart';
 
 class FreelancerDashboardScreen extends ConsumerWidget {
@@ -24,9 +23,9 @@ class FreelancerDashboardScreen extends ConsumerWidget {
         title: const Text('Dashboard Freelancer'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_balance_wallet_outlined),
-            tooltip: 'Minha Carteira',
-            onPressed: () => context.push('/payments'),
+            icon: const Icon(Icons.workspace_premium_outlined),
+            tooltip: 'Planos',
+            onPressed: () => context.push('/plans'),
           ),
         ],
       ),
@@ -36,7 +35,7 @@ class FreelancerDashboardScreen extends ConsumerWidget {
           error: (err, _) => EmptyStateWidget(
             icon: Icons.error_outline_rounded,
             title: 'Erro ao carregar dashboard',
-            description: err.toString(),
+            description: friendlyError(err),
           ),
           data: (stats) {
             return SingleChildScrollView(
@@ -77,7 +76,7 @@ class FreelancerDashboardScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Job Success Score: ${stats.jobSuccessScore}% • 18 Projetos Concluídos',
+                                'Taxa de sucesso: ${stats.proposalSuccessRate.toStringAsFixed(0)}% • ${stats.completedContractsCount} projeto(s) concluído(s)',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: AppColors.primaryLight,
@@ -94,88 +93,23 @@ class FreelancerDashboardScreen extends ConsumerWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: GlassCard(
-                          padding: const EdgeInsets.all(18),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Row(
-                                children: [
-                                  Icon(
-                                    Icons.lock_clock_outlined,
-                                    size: 18,
-                                    color: AppColors.info,
-                                  ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    'Em Escrow (Garantido)',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.textSecondaryDark,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                CurrencyFormatter.format(stats.escrowBalance),
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.info,
-                                ),
-                              ),
-                            ],
-                          ),
+                        child: _StatCard(
+                          icon: Icons.handshake_outlined,
+                          color: AppColors.success,
+                          label: 'Contratos ativos',
+                          value: '${stats.activeContractsCount}',
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: GlassCard(
-                          padding: const EdgeInsets.all(18),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Row(
-                                children: [
-                                  Icon(
-                                    Icons.check_circle_outline,
-                                    size: 18,
-                                    color: AppColors.success,
-                                  ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    'Saldo Disponível',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.textSecondaryDark,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                CurrencyFormatter.format(
-                                  stats.availableBalance,
-                                ),
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.success,
-                                ),
-                              ),
-                            ],
-                          ),
+                        child: _StatCard(
+                          icon: Icons.hourglass_top_rounded,
+                          color: AppColors.info,
+                          label: 'Propostas pendentes',
+                          value: '${stats.pendingProposalsCount}',
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 16),
-                  CustomButton(
-                    text: 'Solicitar Saque Instantâneo via Pix',
-                    icon: Icons.pix_rounded,
-                    width: double.infinity,
-                    onPressed: () => context.push('/payments'),
                   ),
                   const SizedBox(height: 20),
                   GlassCard(
@@ -187,25 +121,17 @@ class FreelancerDashboardScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              'Evolução do Faturamento',
+                              'Projetos concluídos por mês',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.textPrimaryDark,
                               ),
                             ),
-                            Text(
-                              'Total mês: ${CurrencyFormatter.format(stats.monthlyEarnings)}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.success,
-                              ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
-                        EarningsChart(data: stats.monthlyChartData),
+                        ActivityChart(data: stats.monthlyCompleted),
                       ],
                     ),
                   ),
@@ -214,6 +140,56 @@ class FreelancerDashboardScreen extends ConsumerWidget {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String value;
+
+  const _StatCard({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 18, color: color),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondaryDark,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }

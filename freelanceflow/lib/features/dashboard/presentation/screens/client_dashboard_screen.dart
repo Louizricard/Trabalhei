@@ -1,8 +1,8 @@
+import 'package:freelanceflow/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/glass_card.dart';
@@ -40,7 +40,7 @@ class ClientDashboardScreen extends ConsumerWidget {
           error: (err, _) => EmptyStateWidget(
             icon: Icons.error_outline_rounded,
             title: 'Erro ao carregar dashboard',
-            description: err.toString(),
+            description: friendlyError(err),
           ),
           data: (stats) {
             return SingleChildScrollView(
@@ -82,9 +82,9 @@ class ClientDashboardScreen extends ConsumerWidget {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
-                                'Contratante Verificado • Trabalhei Protegido',
-                                style: TextStyle(
+                              Text(
+                                '${stats.completedContractsCount} projeto(s) concluído(s)',
+                                style: const TextStyle(
                                   fontSize: 12,
                                   color: AppColors.primaryLight,
                                   fontWeight: FontWeight.w600,
@@ -98,62 +98,21 @@ class ClientDashboardScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Balanço Escrow e Total
                   Row(
                     children: [
                       Expanded(
-                        child: GlassCard(
-                          padding: const EdgeInsets.all(18),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Garantido em Escrow',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.textSecondaryDark,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                CurrencyFormatter.format(
-                                  stats.activeEscrowBalance,
-                                ),
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.info,
-                                ),
-                              ),
-                            ],
-                          ),
+                        child: _StatCard(
+                          label: 'Propostas p/ analisar',
+                          value: '${stats.unreviewedProposalsCount}',
+                          color: AppColors.info,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: GlassCard(
-                          padding: const EdgeInsets.all(18),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Total Investido',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.textSecondaryDark,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                CurrencyFormatter.format(stats.totalSpent),
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.success,
-                                ),
-                              ),
-                            ],
-                          ),
+                        child: _StatCard(
+                          label: 'Contratos concluídos',
+                          value: '${stats.completedContractsCount}',
+                          color: AppColors.success,
                         ),
                       ),
                     ],
@@ -245,7 +204,7 @@ class ClientDashboardScreen extends ConsumerWidget {
                             ),
                           ),
                           subtitle: const Text(
-                            'Acompanhe entregas e liberação de marcos',
+                            'Acompanhe entregas e aprovação de marcos',
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textMutedDark,
@@ -295,6 +254,46 @@ class ClientDashboardScreen extends ConsumerWidget {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _StatCard({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondaryDark,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }

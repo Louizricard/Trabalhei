@@ -18,10 +18,9 @@ class Job {
   final int deadlineDays;
   final ExperienceLevel experienceLevel;
   final JobStatus status;
-  final bool isFeatured;
+  final DateTime? featuredUntil;
   final bool isUrgent;
   final List<String> skillsRequired;
-  final List<String> screeningQuestions;
   final List<Map<String, dynamic>> attachments;
   final int proposalsCount;
   final String? imageUrl;
@@ -31,7 +30,7 @@ class Job {
     required this.id,
     required this.clientId,
     required this.clientName,
-    this.clientRating = 5.0,
+    this.clientRating = 0.0,
     required this.title,
     required this.category,
     required this.description,
@@ -41,28 +40,28 @@ class Job {
     this.deadlineDays = 30,
     this.experienceLevel = ExperienceLevel.all,
     this.status = JobStatus.open,
-    this.isFeatured = false,
+    this.featuredUntil,
     this.isUrgent = false,
     this.skillsRequired = const [],
-    this.screeningQuestions = const [],
     this.attachments = const [],
     this.proposalsCount = 0,
     this.imageUrl,
     required this.createdAt,
   });
 
+  /// Vaga em destaque (pago) enquanto `featured_until` estiver no futuro.
+  bool get isFeatured =>
+      featuredUntil != null && featuredUntil!.isAfter(DateTime.now());
+
   factory Job.fromJson(Map<String, dynamic> json) {
     String clientName = 'Cliente';
-    double clientRating = 5.0;
+    double clientRating = 0.0;
     int proposalsCount = 0;
 
     if (json['profiles'] != null && json['profiles'] is Map) {
       final p = json['profiles'] as Map<String, dynamic>;
       clientName = p['full_name'] as String? ?? 'Cliente';
-      clientRating = (p['rating'] as num?)?.toDouble() ?? 5.0;
-    } else if (json['client_name'] != null) {
-      clientName = json['client_name'] as String;
-      clientRating = (json['client_rating'] as num?)?.toDouble() ?? 5.0;
+      clientRating = (p['rating'] as num?)?.toDouble() ?? 0.0;
     }
 
     if (json['proposals'] != null &&
@@ -72,8 +71,6 @@ class Job {
       if (first is Map && first.containsKey('count')) {
         proposalsCount = (first['count'] as num?)?.toInt() ?? 0;
       }
-    } else if (json['proposals_count'] != null) {
-      proposalsCount = (json['proposals_count'] as num).toInt();
     }
 
     final rawAttachments = json['attachments'];
@@ -100,15 +97,12 @@ class Job {
       deadlineDays: (json['deadline_days'] as num?)?.toInt() ?? 30,
       experienceLevel: _parseExpLevel(json['experience_level'] as String?),
       status: _parseJobStatus(json['status'] as String?),
-      isFeatured: json['is_featured'] as bool? ?? false,
+      featuredUntil: json['featured_until'] != null
+          ? DateTime.tryParse(json['featured_until'] as String)
+          : null,
       isUrgent: json['is_urgent'] as bool? ?? false,
       skillsRequired:
           (json['skills_required'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
-      screeningQuestions:
-          (json['screening_questions'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
@@ -121,10 +115,9 @@ class Job {
     );
   }
 
-  Map<String, dynamic> toJson() {
+  /// Apenas colunas editáveis pelo cliente (status, destaque e dono são do servidor).
+  Map<String, dynamic> toWriteJson() {
     return {
-      'id': id,
-      'client_id': clientId,
       'title': title,
       'category': category,
       'description': description,
@@ -133,27 +126,11 @@ class Job {
       'budget_max': budgetMax,
       'deadline_days': deadlineDays,
       'experience_level': experienceLevel.name,
-      'status': _jobStatusToString(status),
-      'is_featured': isFeatured,
       'is_urgent': isUrgent,
       'skills_required': skillsRequired,
-      'screening_questions': screeningQuestions,
       'attachments': attachments,
       'image_url': imageUrl,
     };
-  }
-
-  static String _jobStatusToString(JobStatus s) {
-    switch (s) {
-      case JobStatus.inProgress:
-        return 'in_progress';
-      case JobStatus.completed:
-        return 'completed';
-      case JobStatus.cancelled:
-        return 'cancelled';
-      case JobStatus.open:
-        return 'open';
-    }
   }
 
   static ExperienceLevel _parseExpLevel(String? level) {

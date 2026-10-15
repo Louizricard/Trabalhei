@@ -1,11 +1,6 @@
-enum MilestoneStatus {
-  pending,
-  fundedInEscrow,
-  submitted,
-  inRevision,
-  approvedAndReleased,
-  disputed,
-}
+/// Estado de um marco de entrega. Não há custódia de valores: o `amount` é
+/// apenas o valor acordado entre as partes, pago fora da plataforma.
+enum MilestoneStatus { pending, submitted, inRevision, approved }
 
 class ContractMilestone {
   final String id;
@@ -77,16 +72,12 @@ class ContractMilestone {
 
   static String _statusToDb(MilestoneStatus s) {
     switch (s) {
-      case MilestoneStatus.fundedInEscrow:
-        return 'funded_in_escrow';
       case MilestoneStatus.submitted:
         return 'submitted';
       case MilestoneStatus.inRevision:
         return 'in_revision';
-      case MilestoneStatus.approvedAndReleased:
-        return 'approved_and_released';
-      case MilestoneStatus.disputed:
-        return 'disputed';
+      case MilestoneStatus.approved:
+        return 'approved';
       case MilestoneStatus.pending:
         return 'pending';
     }
@@ -117,19 +108,12 @@ class ContractMilestone {
 
   static MilestoneStatus _parseStatus(String? s) {
     switch (s) {
-      case 'funded_in_escrow':
-      case 'fundedInEscrow':
-        return MilestoneStatus.fundedInEscrow;
       case 'submitted':
         return MilestoneStatus.submitted;
       case 'in_revision':
-      case 'inRevision':
         return MilestoneStatus.inRevision;
-      case 'approved_and_released':
-      case 'approvedAndReleased':
-        return MilestoneStatus.approvedAndReleased;
-      case 'disputed':
-        return MilestoneStatus.disputed;
+      case 'approved':
+        return MilestoneStatus.approved;
       default:
         return MilestoneStatus.pending;
     }

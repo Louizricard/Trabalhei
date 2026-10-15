@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/supabase_client.dart';
+import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../data/datasources/job_remote_data_source.dart';
 import '../../data/repositories/job_repository_impl.dart';
 import '../../domain/entities/job.dart';
@@ -27,4 +28,12 @@ final jobsListProvider = FutureProvider.autoDispose<List<Job>>((ref) async {
 final jobDetailProvider = FutureProvider.family.autoDispose<Job?, String>((ref, id) async {
   final repository = ref.watch(jobRepositoryProvider);
   return repository.getJobById(id);
+});
+
+/// Vagas abertas do cliente logado (independe dos filtros do mural).
+final myOpenJobsProvider = FutureProvider.autoDispose<List<Job>>((ref) async {
+  final user = ref.watch(authProvider).value;
+  if (user == null) return [];
+  final jobs = await ref.watch(jobRepositoryProvider).getClientJobs(user.id);
+  return jobs.where((j) => j.status == JobStatus.open).toList();
 });

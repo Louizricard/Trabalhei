@@ -1,3 +1,4 @@
+import 'package:freelanceflow/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -89,7 +90,7 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao enviar contraproposta: $e'),
+            content: Text('Erro ao enviar contraproposta: ${friendlyError(e)}'),
             backgroundColor: AppColors.error,
           ),
         );

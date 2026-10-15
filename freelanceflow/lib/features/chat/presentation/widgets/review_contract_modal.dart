@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/supabase_client.dart';
+import '../../../../core/errors/backend_errors.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
-import '../../../auth/domain/entities/user_profile.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
@@ -40,29 +40,20 @@ class _ReviewContractModalState extends ConsumerState<ReviewContractModal> {
       final currentUser = ref.read(authProvider).value;
       if (currentUser == null) throw Exception('Não autenticado');
 
-      final isClient =
-          (widget.conversation.clientId != null &&
-              currentUser.id == widget.conversation.clientId) ||
-          (currentUser.role == UserRole.client &&
-              widget.conversation.freelancerId != currentUser.id);
+      final contractId = widget.conversation.contractId;
+      if (contractId == null) {
+        throw Exception('Esta conversa não possui um contrato para avaliar.');
+      }
 
-      final targetId = isClient
-          ? (widget.conversation.freelancerId ??
-                widget.conversation.otherParticipantId)
-          : (widget.conversation.clientId ??
-                widget.conversation.otherParticipantId);
+      final targetId = widget.conversation.otherParticipantId;
+      final comment = _commentController.text.trim();
 
       await supabase.from('reviews').insert({
-        if (widget.conversation.contractId != null)
-          'contract_id': widget.conversation.contractId,
+        'contract_id': contractId,
         'reviewer_id': currentUser.id,
         'target_id': targetId,
         'rating': _rating.toInt(),
-        'comment': _commentController.text.trim().isEmpty
-            ? (isClient
-                  ? 'Excelente trabalho e ótima comunicação!'
-                  : 'Excelente cliente, comunicação clara e ágil!')
-            : _commentController.text.trim(),
+        'comment': comment.isEmpty ? null : comment,
       });
 
       ref.invalidate(userReviewsProvider);
@@ -70,7 +61,6 @@ class _ReviewContractModalState extends ConsumerState<ReviewContractModal> {
       ref.invalidate(conversationDetailProvider(widget.conversation.id));
       ref.invalidate(clientStatsProvider);
       ref.invalidate(freelancerStatsProvider);
-      ref.invalidate(authProvider);
 
       if (mounted) {
         Navigator.of(context).pop();
@@ -89,7 +79,10 @@ class _ReviewContractModalState extends ConsumerState<ReviewContractModal> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Erro ao enviar avaliação: ${e.toString().replaceAll("Exception: ", "")}',
+              e.toString().contains('23505') ||
+                      e.toString().contains('duplicate key')
+                  ? 'Você já avaliou este contrato.'
+                  : 'Erro ao enviar avaliação: ${friendlyError(e)}',
             ),
             backgroundColor: AppColors.error,
           ),
@@ -101,11 +94,7 @@ class _ReviewContractModalState extends ConsumerState<ReviewContractModal> {
   @override
   Widget build(BuildContext context) {
     final currentUser = ref.watch(authProvider).value;
-    final isClient =
-        (widget.conversation.clientId != null &&
-            currentUser?.id == widget.conversation.clientId) ||
-        (currentUser?.role == UserRole.client &&
-            widget.conversation.freelancerId != currentUser?.id);
+    final isClient = currentUser?.id == widget.conversation.clientId;
 
     return Container(
       padding: EdgeInsets.only(

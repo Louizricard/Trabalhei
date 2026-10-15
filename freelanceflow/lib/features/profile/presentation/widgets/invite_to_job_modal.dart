@@ -1,3 +1,4 @@
+import 'package:freelanceflow/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -98,7 +99,7 @@ class _InviteToJobModalState extends ConsumerState<InviteToJobModal> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Erro ao enviar convite: ${e.toString().replaceAll("Exception: ", "")}',
+              'Erro ao enviar convite: ${friendlyError(e)}',
             ),
             backgroundColor: AppColors.error,
           ),
@@ -111,8 +112,7 @@ class _InviteToJobModalState extends ConsumerState<InviteToJobModal> {
 
   @override
   Widget build(BuildContext context) {
-    final client = ref.watch(authProvider).value;
-    final allJobsAsync = ref.watch(jobsListProvider);
+    final allJobsAsync = ref.watch(myOpenJobsProvider);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -129,14 +129,11 @@ class _InviteToJobModalState extends ConsumerState<InviteToJobModal> {
         error: (err, _) => Padding(
           padding: const EdgeInsets.all(20),
           child: Text(
-            'Erro ao carregar vagas: $err',
+            'Erro ao carregar vagas: ${friendlyError(err)}',
             style: const TextStyle(color: AppColors.error),
           ),
         ),
-        data: (allJobs) {
-          final myJobs = allJobs
-              .where((j) => j.clientId == client?.id)
-              .toList();
+        data: (myJobs) {
 
           return Column(
             mainAxisSize: MainAxisSize.min,

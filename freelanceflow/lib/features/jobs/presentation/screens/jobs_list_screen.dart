@@ -1,3 +1,4 @@
+import 'package:freelanceflow/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freelanceflow/core/theme/app_colors.dart';
@@ -152,7 +153,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                 error: (err, _) => EmptyStateWidget(
                   icon: Icons.error_outline_rounded,
                   title: 'Erro ao carregar vagas',
-                  description: err.toString(),
+                  description: friendlyError(err),
                 ),
                 data: (jobs) {
                   var filtered = jobs;
@@ -244,7 +245,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                                 } catch (e) {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Erro ao abrir chat: $e')),
+                                      SnackBar(content: Text('Erro ao abrir chat: ${friendlyError(e)}')),
                                     );
                                   }
                                 }
@@ -287,7 +288,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                               } catch (e) {
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Erro ao abrir chat: $e')),
+                                    SnackBar(content: Text('Erro ao abrir chat: ${friendlyError(e)}')),
                                   );
                                 }
                               }

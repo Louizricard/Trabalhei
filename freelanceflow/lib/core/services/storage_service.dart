@@ -191,9 +191,12 @@ class StorageService {
     required PickedFileData file,
   }) async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) throw StateError('Usuário não autenticado.');
       final fileId = const Uuid().v4();
       final cleanName = file.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
-      final path = '$folder/${fileId}_$cleanName';
+      // A policy de storage exige que a primeira pasta seja o id do dono.
+      final path = '$userId/$folder/${fileId}_$cleanName';
 
       await _supabase.storage
           .from(bucket)

@@ -1,3 +1,4 @@
+import 'package:freelanceflow/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -185,7 +186,7 @@ class _FreelancersSearchScreenState
                     child: EmptyStateWidget(
                       icon: Icons.error_outline_rounded,
                       title: 'Erro ao carregar freelancers',
-                      description: err.toString(),
+                      description: friendlyError(err),
                       actionText: 'Tentar novamente',
                       onAction: () => ref.refresh(freelancersListProvider),
                     ),

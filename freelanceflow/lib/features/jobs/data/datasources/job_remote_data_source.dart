@@ -36,7 +36,7 @@ class JobRemoteDataSource {
     final response = await query.order('created_at', ascending: false);
     final List<dynamic> data = response as List<dynamic>;
 
-    var list = data
+    final list = data
         .map((json) => Job.fromJson(json as Map<String, dynamic>))
         .toList();
 
@@ -46,7 +46,10 @@ class JobRemoteDataSource {
       list.sort((a, b) => a.proposalsCount.compareTo(b.proposalsCount));
     }
 
-    return list;
+    // Vagas em destaque (pagas) primeiro; a ordenação anterior é preservada (sort estável).
+    final featured = list.where((j) => j.isFeatured).toList();
+    final regular = list.where((j) => !j.isFeatured).toList();
+    return [...featured, ...regular];
   }
 
   Future<Job?> getJobById(String id) async {
@@ -62,34 +65,27 @@ class JobRemoteDataSource {
 
   Future<Job> createJob(Job job) async {
     final user = _supabase.auth.currentUser;
-    final payload = job.toJson();
-    if (user != null) {
-      payload['client_id'] = user.id;
-    }
-    // Remove client-generated id if not valid uuid or let supabase generate default gen_random_uuid
-    if (!payload['id'].toString().contains('-') ||
-        payload['id'].toString().startsWith('job-')) {
-      payload.remove('id');
-    }
-
+    if (user == null) throw Exception('Usuário não autenticado.');
     final response = await _supabase
         .from('jobs')
-        .insert(payload)
+        .insert({...job.toWriteJson(), 'client_id': user.id})
         .select('*, profiles!client_id(full_name, rating)')
         .single();
     return Job.fromJson(response);
   }
 
   Future<Job> updateJob(Job job) async {
-    final payload = job.toJson();
-    // não precisamos atualizar criador, contagem de propostas, etc. mas o toJson() já resolve.
     final response = await _supabase
         .from('jobs')
-        .update(payload)
+        .update(job.toWriteJson())
         .eq('id', job.id)
         .select('*, profiles!client_id(full_name, rating)')
         .single();
     return Job.fromJson(response);
+  }
+
+  Future<void> cancelJob(String jobId) async {
+    await _supabase.rpc('cancel_job', params: {'p_job_id': jobId});
   }
 
   Future<List<Job>> getClientJobs(String clientId) async {

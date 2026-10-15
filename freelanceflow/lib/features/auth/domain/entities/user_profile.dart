@@ -43,17 +43,17 @@ class UserProfile {
   final String fullName;
   final UserRole role;
   final String? avatarUrl;
-  final String? phone;
   final String? companyName;
   final String? bio;
   final double hourlyRate;
   final List<String> skills;
   final double rating;
+  final int reviewsCount;
   final int completedJobsCount;
   final String availabilityStatus;
   final bool isVerified;
-  final double walletBalance;
-  final double escrowBalance;
+  final String plan;
+  final DateTime? planExpiresAt;
   final DateTime createdAt;
 
   const UserProfile({
@@ -62,35 +62,40 @@ class UserProfile {
     required this.fullName,
     required this.role,
     this.avatarUrl,
-    this.phone,
     this.companyName,
     this.bio,
     this.hourlyRate = 0.0,
     this.skills = const [],
-    this.rating = 5.0,
+    this.rating = 0.0,
+    this.reviewsCount = 0,
     this.completedJobsCount = 0,
     this.availabilityStatus = 'available',
     this.isVerified = false,
-    this.walletBalance = 0.0,
-    this.escrowBalance = 0.0,
+    this.plan = 'free',
+    this.planExpiresAt,
     required this.createdAt,
   });
+
+  /// Plano Pro ativo (a assinatura é gerenciada exclusivamente pelo servidor).
+  bool get isPro =>
+      plan == 'pro' &&
+      (planExpiresAt == null || planExpiresAt!.isAfter(DateTime.now()));
 
   UserProfile copyWith({
     String? fullName,
     UserRole? role,
     String? avatarUrl,
-    String? phone,
     String? companyName,
     String? bio,
     double? hourlyRate,
     List<String>? skills,
     double? rating,
+    int? reviewsCount,
     int? completedJobsCount,
     String? availabilityStatus,
     bool? isVerified,
-    double? walletBalance,
-    double? escrowBalance,
+    String? plan,
+    DateTime? planExpiresAt,
   }) {
     return UserProfile(
       id: id,
@@ -98,17 +103,17 @@ class UserProfile {
       fullName: fullName ?? this.fullName,
       role: role ?? this.role,
       avatarUrl: avatarUrl ?? this.avatarUrl,
-      phone: phone ?? this.phone,
       companyName: companyName ?? this.companyName,
       bio: bio ?? this.bio,
       hourlyRate: hourlyRate ?? this.hourlyRate,
       skills: skills ?? this.skills,
       rating: rating ?? this.rating,
+      reviewsCount: reviewsCount ?? this.reviewsCount,
       completedJobsCount: completedJobsCount ?? this.completedJobsCount,
       availabilityStatus: availabilityStatus ?? this.availabilityStatus,
       isVerified: isVerified ?? this.isVerified,
-      walletBalance: walletBalance ?? this.walletBalance,
-      escrowBalance: escrowBalance ?? this.escrowBalance,
+      plan: plan ?? this.plan,
+      planExpiresAt: planExpiresAt ?? this.planExpiresAt,
       createdAt: createdAt,
     );
   }
@@ -120,7 +125,6 @@ class UserProfile {
       fullName: json['full_name'] as String? ?? 'Usuário',
       role: UserRole.fromString(json['role'] as String?),
       avatarUrl: json['avatar_url'] as String?,
-      phone: json['phone'] as String?,
       companyName: json['company_name'] as String?,
       bio: json['bio'] as String?,
       hourlyRate: (json['hourly_rate'] as num?)?.toDouble() ?? 0.0,
@@ -129,47 +133,28 @@ class UserProfile {
               ?.map((e) => e.toString())
               .toList() ??
           [],
-      rating: (json['rating'] as num?)?.toDouble() ?? 5.0,
-      completedJobsCount: json['completed_jobs_count'] as int? ?? 0,
+      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
+      reviewsCount: (json['reviews_count'] as num?)?.toInt() ?? 0,
+      completedJobsCount: (json['completed_jobs_count'] as num?)?.toInt() ?? 0,
       availabilityStatus: json['availability_status'] as String? ?? 'available',
       isVerified: json['is_verified'] as bool? ?? false,
-      walletBalance: (json['wallet_balance'] as num?)?.toDouble() ?? 0.0,
-      escrowBalance: (json['escrow_balance'] as num?)?.toDouble() ?? 0.0,
+      plan: json['plan'] as String? ?? 'free',
+      planExpiresAt: json['plan_expires_at'] != null
+          ? DateTime.tryParse(json['plan_expires_at'] as String)
+          : null,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'email': email,
-      'full_name': fullName,
-      'role': role.toDbString(),
-      'avatar_url': avatarUrl,
-      'phone': phone,
-      'company_name': companyName,
-      'bio': bio,
-      'hourly_rate': hourlyRate,
-      'skills': skills,
-      'rating': rating,
-      'completed_jobs_count': completedJobsCount,
-      'availability_status': availabilityStatus,
-      'is_verified': isVerified,
-      'wallet_balance': walletBalance,
-      'escrow_balance': escrowBalance,
-    };
-  }
-
   /// Serializa exclusivamente os campos cadastrais editáveis pelo usuário.
-  /// Campos financeiros, administrativos e métricas (wallet_balance, role, rating, etc.)
+  /// Campos administrativos, de plano e métricas (plan, role, rating, etc.)
   /// são deliberadamente omitidos para proteger a integridade do RLS.
   Map<String, dynamic> toUpdateJson() {
     return {
       'full_name': fullName,
       'avatar_url': avatarUrl,
-      'phone': phone,
       'company_name': companyName,
       'bio': bio,
       'hourly_rate': hourlyRate,

@@ -2,10 +2,11 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
-class EarningsChart extends StatelessWidget {
+/// Gráfico de contratos concluídos por mês (últimos 6 meses).
+class ActivityChart extends StatelessWidget {
   final List<double> data;
 
-  const EarningsChart({super.key, required this.data});
+  const ActivityChart({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class EarningsChart extends StatelessWidget {
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
-            horizontalInterval: 4000,
+            horizontalInterval: 1,
             getDrawingHorizontalLine: (_) =>
                 const FlLine(color: AppColors.borderDark, strokeWidth: 1),
           ),
@@ -32,9 +33,11 @@ class EarningsChart extends StatelessWidget {
                 showTitles: true,
                 reservedSize: 42,
                 getTitlesWidget: (val, _) {
-                  if (val == 0) return const SizedBox.shrink();
+                  if (val == 0 || val != val.roundToDouble()) {
+                    return const SizedBox.shrink();
+                  }
                   return Text(
-                    '${(val / 1000).toInt()}k',
+                    '${val.toInt()}',
                     style: const TextStyle(
                       fontSize: 10,
                       color: AppColors.textMutedDark,
@@ -47,7 +50,20 @@ class EarningsChart extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (val, _) {
-                  final months = ['Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago'];
+                  const names = [
+                    'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+                    'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez',
+                  ];
+                  final now = DateTime.now();
+                  final months = List.generate(
+                    data.length,
+                    (i) =>
+                        names[DateTime(
+                              now.year,
+                              now.month - (data.length - 1 - i),
+                            ).month -
+                            1],
+                  );
                   final index = val.toInt();
                   if (index >= 0 && index < months.length) {
                     return Padding(
@@ -70,7 +86,8 @@ class EarningsChart extends StatelessWidget {
           minX: 0,
           maxX: (data.length - 1).toDouble(),
           minY: 0,
-          maxY: 15000,
+          maxY: (data.fold<double>(0, (m, v) => v > m ? v : m) + 1)
+              .ceilToDouble(),
           lineBarsData: [
             LineChartBarData(
               spots: data
@@ -78,7 +95,7 @@ class EarningsChart extends StatelessWidget {
                   .entries
                   .map((e) => FlSpot(e.key.toDouble(), e.value))
                   .toList(),
-              isCurved: true,
+              isCurved: false,
               color: AppColors.primaryLight,
               barWidth: 3,
               isStrokeCapRound: true,

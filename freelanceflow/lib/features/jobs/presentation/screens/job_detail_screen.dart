@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freelanceflow/core/errors/backend_errors.dart';
 import 'package:freelanceflow/core/theme/app_colors.dart';
 import 'package:freelanceflow/core/utils/currency_formatter.dart';
 import 'package:freelanceflow/core/utils/date_formatter.dart';
@@ -11,6 +12,7 @@ import 'package:freelanceflow/core/widgets/responsive_layout.dart';
 import 'package:freelanceflow/core/widgets/status_badge.dart';
 import 'package:freelanceflow/features/auth/domain/entities/user_profile.dart';
 import 'package:freelanceflow/features/auth/presentation/providers/auth_state_provider.dart';
+import 'package:freelanceflow/features/billing/presentation/widgets/feature_job_action.dart';
 import 'package:freelanceflow/features/jobs/domain/entities/job.dart';
 import 'package:freelanceflow/features/jobs/presentation/providers/jobs_provider.dart';
 import 'package:freelanceflow/features/proposals/domain/entities/proposal.dart';
@@ -47,7 +49,7 @@ class JobDetailScreen extends ConsumerWidget {
         error: (err, _) => EmptyStateWidget(
           icon: Icons.error_outline_rounded,
           title: 'Erro ao carregar detalhes',
-          description: err.toString(),
+          description: friendlyError(err),
         ),
         data: (job) {
           if (job == null) {
@@ -228,12 +230,6 @@ class JobDetailScreen extends ConsumerWidget {
                                     fontSize: 14,
                                   ),
                                 ),
-                                const SizedBox(width: 6),
-                                const Icon(
-                                  Icons.verified,
-                                  size: 16,
-                                  color: AppColors.primaryLight,
-                                ),
                               ],
                             ),
                             const SizedBox(height: 2),
@@ -246,7 +242,9 @@ class JobDetailScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '${job.clientRating.toStringAsFixed(1)} (12 contratações)',
+                                  job.clientRating > 0
+                                      ? job.clientRating.toStringAsFixed(1)
+                                      : 'Sem avaliações ainda',
                                   style: const TextStyle(
                                     fontSize: 12,
                                     color: AppColors.textSecondaryDark,
@@ -269,13 +267,36 @@ class JobDetailScreen extends ConsumerWidget {
                           context.push('/jobs/${job.id}/proposals'),
                     ),
                     const SizedBox(height: 12),
-                    CustomButton(
-                      text: 'Editar Vaga',
-                      icon: Icons.edit_rounded,
-                      variant: ButtonVariant.outline,
-                      width: double.infinity,
-                      onPressed: () => context.push('/jobs/${job.id}/edit', extra: job),
-                    ),
+                    if (job.status == JobStatus.open) ...[
+                      CustomButton(
+                        text: job.isFeatured
+                            ? 'Vaga em destaque até ${DateFormatter.simpleDate(job.featuredUntil!)}'
+                            : 'Destacar Vaga por 7 dias',
+                        icon: Icons.star_rounded,
+                        variant: ButtonVariant.secondary,
+                        width: double.infinity,
+                        onPressed: job.isFeatured
+                            ? null
+                            : () => startFeatureJobFlow(context, ref, job),
+                      ),
+                      const SizedBox(height: 12),
+                      CustomButton(
+                        text: 'Editar Vaga',
+                        icon: Icons.edit_rounded,
+                        variant: ButtonVariant.outline,
+                        width: double.infinity,
+                        onPressed: () =>
+                            context.push('/jobs/${job.id}/edit', extra: job),
+                      ),
+                      const SizedBox(height: 12),
+                      CustomButton(
+                        text: 'Cancelar Vaga',
+                        icon: Icons.cancel_outlined,
+                        variant: ButtonVariant.danger,
+                        width: double.infinity,
+                        onPressed: () => _confirmCancel(context, ref, job),
+                      ),
+                    ],
                   ] else if (isOtherClient) ...[
                     Container(
                       width: double.infinity,
@@ -323,6 +344,54 @@ class JobDetailScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  Future<void> _confirmCancel(
+    BuildContext context,
+    WidgetRef ref,
+    Job job,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cancelar vaga?'),
+        content: const Text(
+          'A vaga sai do mural e as propostas pendentes serão recusadas. '
+          'Esta ação não pode ser desfeita.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Voltar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Cancelar vaga'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      await ref.read(jobRepositoryProvider).cancelJob(job.id);
+      ref.invalidate(jobDetailProvider(job.id));
+      ref.invalidate(jobsListProvider);
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Vaga cancelada.'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(friendlyError(e)),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   Widget _buildStatusBadge(JobStatus status) {

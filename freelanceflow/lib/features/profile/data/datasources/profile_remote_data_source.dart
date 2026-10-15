@@ -150,10 +150,14 @@ class ProfileRemoteDataSource {
       }
 
       final response = await transform;
-      final list = response as List<dynamic>;
-      return list
+      final profiles = (response as List<dynamic>)
           .map((json) => UserProfile.fromJson(json as Map<String, dynamic>))
           .toList();
+      // Plano Pro tem prioridade na busca (mantém a ordenação escolhida dentro de cada grupo).
+      return [
+        ...profiles.where((p) => p.isPro),
+        ...profiles.where((p) => !p.isPro),
+      ];
     } catch (_) {
       return [];
     }
@@ -166,9 +170,7 @@ class ProfileRemoteDataSource {
     double? hourlyRate,
     List<String>? skills,
   }) async {
-    final updates = <String, dynamic>{
-      'updated_at': DateTime.now().toIso8601String(),
-    };
+    final updates = <String, dynamic>{};
     if (fullName != null) updates['full_name'] = fullName;
     if (bio != null) updates['bio'] = bio;
     if (hourlyRate != null) updates['hourly_rate'] = hourlyRate;
@@ -182,9 +184,8 @@ class ProfileRemoteDataSource {
     required dynamic bytes,
     required String fileExt,
   }) async {
-    final fileName =
-        '${userId}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
-    final path = fileName;
+    // Convenção de storage: <bucket>/<user_id>/<arquivo> (policy exige a pasta do dono).
+    final path = '$userId/${DateTime.now().millisecondsSinceEpoch}.$fileExt';
 
     await _supabase.storage.from('avatars').uploadBinary(path, bytes);
 
@@ -192,10 +193,7 @@ class ProfileRemoteDataSource {
 
     await _supabase
         .from('profiles')
-        .update({
-          'avatar_url': publicUrl,
-          'updated_at': DateTime.now().toIso8601String(),
-        })
+        .update({'avatar_url': publicUrl})
         .eq('id', userId);
 
     return publicUrl;

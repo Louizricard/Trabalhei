@@ -21,7 +21,7 @@ class ProposedMilestone {
       ProposedMilestone(
         title: json['title'] as String? ?? 'Marco',
         amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
-        days: json['days'] as int? ?? 7,
+        days: (json['days'] as num?)?.toInt() ?? 7,
       );
 }
 
@@ -48,7 +48,7 @@ class Proposal {
     required this.jobId,
     required this.freelancerId,
     required this.freelancerName,
-    this.freelancerRating = 5.0,
+    this.freelancerRating = 0.0,
     required this.bidAmount,
     required this.estimatedDays,
     required this.coverLetter,
@@ -105,19 +105,14 @@ class Proposal {
 
   factory Proposal.fromJson(Map<String, dynamic> json) {
     String freelancerName = 'Freelancer';
-    double freelancerRating = 5.0;
+    double freelancerRating = 0.0;
 
     if (json['profiles'] != null && json['profiles'] is Map) {
       final p = json['profiles'] as Map<String, dynamic>;
       freelancerName = p['full_name'] as String? ?? 'Freelancer';
-      freelancerRating = (p['rating'] as num?)?.toDouble() ?? 5.0;
-    } else if (json['freelancer_name'] != null) {
-      freelancerName = json['freelancer_name'] as String;
-      freelancerRating = (json['freelancer_rating'] as num?)?.toDouble() ?? 5.0;
+      freelancerRating = (p['rating'] as num?)?.toDouble() ?? 0.0;
     }
 
-    final rawAmount = json['bid_amount'] ?? json['amount'];
-    final rawLetter = json['cover_letter'] ?? json['message'] ?? '';
 
     return Proposal(
       id: json['id'] as String,
@@ -125,9 +120,9 @@ class Proposal {
       freelancerId: json['freelancer_id'] as String? ?? '',
       freelancerName: freelancerName,
       freelancerRating: freelancerRating,
-      bidAmount: (rawAmount as num?)?.toDouble() ?? 0.0,
-      estimatedDays: json['estimated_days'] as int? ?? 14,
-      coverLetter: rawLetter as String,
+      bidAmount: (json['bid_amount'] as num?)?.toDouble() ?? 0.0,
+      estimatedDays: (json['estimated_days'] as num?)?.toInt() ?? 14,
+      coverLetter: json['cover_letter'] as String? ?? '',
       proposedMilestones:
           (json['proposed_milestones'] as List<dynamic>?)
               ?.map(
@@ -147,26 +142,6 @@ class Proposal {
           ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'job_id': jobId,
-      'freelancer_id': freelancerId,
-      'bid_amount': bidAmount,
-      'amount': bidAmount,
-      'estimated_days': estimatedDays,
-      'cover_letter': coverLetter,
-      'message': coverLetter,
-      'proposed_milestones': proposedMilestones.map((m) => m.toJson()).toList(),
-      'status': statusToString(status),
-      'counter_price': counterPrice,
-      'counter_estimated_days': counterEstimatedDays,
-      'counter_message': counterMessage,
-      'counter_by_user_id': counterByUserId,
-      'counter_created_at': counterCreatedAt?.toIso8601String(),
-    };
   }
 
   static String statusToString(ProposalStatus s) {
