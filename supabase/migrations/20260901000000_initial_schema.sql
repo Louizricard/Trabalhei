@@ -18,13 +18,13 @@ create extension if not exists pgcrypto;
 -- Constantes de negócio
 -- ----------------------------------------------------------------------------
 create or replace function public.free_monthly_proposal_limit()
-returns int language sql immutable as $$ select 5 $$;
+returns int language sql immutable set search_path = public as $$ select 5 $$;
 
 -- ----------------------------------------------------------------------------
 -- Utilitários
 -- ----------------------------------------------------------------------------
 create or replace function public.touch_updated_at()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = public as $$
 begin
   new.updated_at = now();
   return new;
