@@ -384,10 +384,10 @@ class _NotificationTile extends StatelessWidget {
       case NotificationType.milestoneInRevision:
         return const _TypeConfig(Icons.replay_rounded, Colors.orangeAccent);
       case NotificationType.milestoneApproved:
-      case NotificationType.paymentReceived:
-        return const _TypeConfig(Icons.payments_rounded, Colors.greenAccent);
-      case NotificationType.disputeOpened:
-        return const _TypeConfig(Icons.gavel_rounded, Colors.redAccent);
+        return const _TypeConfig(
+          Icons.check_circle_rounded,
+          Colors.greenAccent,
+        );
       case NotificationType.system:
         return const _TypeConfig(
           Icons.notifications_active_rounded,

@@ -26,21 +26,15 @@ abstract class ChatRepository {
     required AppAttachment attachment,
     String? caption,
   });
-  Future<void> updateMilestoneStatus(
-    String conversationId,
-    String milestoneId,
-    MilestoneStatus status,
-  );
+  Future<void> markConversationRead(String conversationId);
+  Future<void> approveMilestone(String milestoneId);
   Future<void> submitMilestoneDeliverable({
-    required String conversationId,
     required String milestoneId,
     required String notes,
     List<Map<String, dynamic>> attachments = const [],
   });
   Future<void> requestMilestoneRevision({
-    required String conversationId,
     required String milestoneId,
-    required String contractId,
     required String comment,
     List<Map<String, dynamic>> attachments = const [],
   });

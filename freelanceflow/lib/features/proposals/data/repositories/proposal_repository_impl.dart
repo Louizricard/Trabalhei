@@ -1,4 +1,5 @@
 import '../../domain/entities/proposal.dart';
+import '../../domain/entities/proposal_quota.dart';
 import '../../domain/repositories/proposal_repository.dart';
 import '../datasources/proposal_remote_data_source.dart';
 
@@ -18,6 +19,9 @@ class ProposalRepositoryImpl implements ProposalRepository {
   }
 
   @override
+  Future<ProposalQuota> getQuota() => _remoteDataSource.getQuota();
+
+  @override
   Future<Proposal> submitProposal(Proposal proposal) {
     return _remoteDataSource.submitProposal(proposal);
   }
@@ -29,7 +33,7 @@ class ProposalRepositoryImpl implements ProposalRepository {
 
   @override
   Future<void> rejectProposal(String proposalId) {
-    return _remoteDataSource.updateStatus(proposalId, ProposalStatus.rejected);
+    return _remoteDataSource.rejectProposal(proposalId);
   }
 
   @override
@@ -48,7 +52,7 @@ class ProposalRepositoryImpl implements ProposalRepository {
   }
 
   @override
-  Future<void> acceptCounterOffer(String proposalId) {
+  Future<Map<String, dynamic>> acceptCounterOffer(String proposalId) {
     return _remoteDataSource.acceptCounterOffer(proposalId);
   }
 

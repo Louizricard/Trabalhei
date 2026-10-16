@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'package:freelanceflow/core/utils/currency_formatter.dart';
-import '../../../auth/domain/entities/user_profile.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/conversation.dart';
 import 'request_revision_modal.dart';
@@ -27,12 +26,7 @@ Widget build(BuildContext context) {
 
 
 
-    final isClient =
-        (conv != null &&
-            conv.clientId != null &&
-            currentUser?.id == conv.clientId) ||
-        (currentUser?.role == UserRole.client &&
-            conv?.freelancerId != currentUser?.id);
+    final isClient = conv != null && currentUser?.id == conv.clientId;
 
     final isDelivery =
         msg.content.contains('Entrega') || msg.content.contains('📦');
@@ -42,7 +36,6 @@ Widget build(BuildContext context) {
         msg.content.contains('Ajustes');
     final isApproved =
         msg.content.contains('aprovado') ||
-        msg.content.contains('liberado') ||
         msg.content.contains('🎉');
 
     if (isDelivery &&
@@ -53,7 +46,7 @@ Widget build(BuildContext context) {
             m.status == MilestoneStatus.submitted ||
             m.status == MilestoneStatus.inRevision,
         orElse: () => conv.milestones.firstWhere(
-          (m) => m.status == MilestoneStatus.fundedInEscrow,
+          (m) => m.status == MilestoneStatus.pending,
           orElse: () => conv.milestones.first,
         ),
       );
@@ -184,7 +177,7 @@ Widget build(BuildContext context) {
                   ),
                   label: Text(
                     isClient
-                        ? 'Revisar Arquivos & Liberar Pagamento'
+                        ? 'Revisar Arquivos & Aprovar'
                         : 'Visualizar Detalhes da Entrega',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
@@ -389,7 +382,7 @@ Widget build(BuildContext context) {
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
-                      '🎉 Pagamento Liberado com Sucesso!',
+                      '🎉 Entrega Aprovada!',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,

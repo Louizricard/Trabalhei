@@ -1,3 +1,4 @@
+import 'package:freelanceflow/core/errors/backend_errors.dart';
 import '../widgets/chat_system_event_card.dart';
 import '../widgets/chat_delivery_action_banner.dart';
 import 'package:flutter/material.dart';
@@ -38,13 +39,45 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     super.dispose();
   }
 
-  void _sendMessage() {
+  @override
+  void initState() {
+    super.initState();
+    _markRead();
+  }
+
+  /// Marca como lidas as mensagens recebidas (zera o contador na lista).
+  Future<void> _markRead() async {
+    try {
+      await ref
+          .read(chatRepositoryProvider)
+          .markConversationRead(widget.conversationId);
+      ref.invalidate(conversationsListProvider);
+    } catch (_) {
+      // Falha ao marcar leitura não deve interromper o chat.
+    }
+  }
+
+  Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
 
-    ref.read(chatRepositoryProvider).sendMessage(widget.conversationId, text);
     _messageController.clear();
     _scrollToBottom();
+    try {
+      await ref
+          .read(chatRepositoryProvider)
+          .sendMessage(widget.conversationId, text);
+    } catch (e) {
+      if (!mounted) return;
+      // Devolve o texto ao campo para o usuário não perdê-lo.
+      _messageController.text = text;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Não foi possível enviar: ${friendlyError(e)}'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   void _scrollToBottom() {
@@ -275,6 +308,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     ref.listen(chatMessagesStreamProvider(widget.conversationId), (prev, next) {
       if (next.hasValue && (prev?.value?.length != next.value?.length)) {
         ref.invalidate(conversationDetailProvider(widget.conversationId));
+        _markRead();
       }
     });
 
@@ -345,7 +379,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 error: (err, _) => EmptyStateWidget(
                   icon: Icons.error_outline_rounded,
                   title: 'Erro ao carregar mensagens',
-                  description: err.toString(),
+                  description: friendlyError(err),
                 ),
                 data: (messages) {
                   return ListView.separated(

@@ -12,19 +12,20 @@ import '../../features/chat/presentation/screens/chat_list_screen.dart';
 import '../../features/chat/presentation/screens/chat_room_screen.dart';
 import '../../features/dashboard/presentation/screens/client_dashboard_screen.dart';
 import '../../features/dashboard/presentation/screens/freelancer_dashboard_screen.dart';
-import '../../features/disputes/presentation/screens/dispute_detail_screen.dart';
 import '../../features/jobs/presentation/screens/create_job_screen.dart';
 import '../../features/jobs/presentation/screens/job_detail_screen.dart';
 import '../../features/jobs/domain/entities/job.dart';
+import '../../features/jobs/presentation/providers/jobs_provider.dart';
 import '../../features/jobs/presentation/screens/jobs_list_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
-import '../../features/payments/presentation/screens/payments_screen.dart';
+import '../../features/billing/presentation/screens/plans_screen.dart';
 import '../../features/profile/presentation/screens/freelancers_search_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/public_profile_screen.dart';
 import '../../features/profile/presentation/screens/terms_and_privacy_screen.dart';
 import '../../features/proposals/presentation/screens/apply_job_screen.dart';
 import '../../features/proposals/presentation/screens/job_proposals_screen.dart';
+import '../errors/backend_errors.dart';
 import '../widgets/app_scaffold.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -107,9 +108,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const NotificationsScreen(),
       ),
       GoRoute(
-        path: '/payments',
+        path: '/plans',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const PaymentsScreen(),
+        builder: (context, state) => const PlansScreen(),
       ),
       GoRoute(
         path: '/freelancers',
@@ -124,8 +125,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/jobs/:id/edit',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) =>
-            CreateJobScreen(jobToEdit: state.extra as Job?),
+        builder: (context, state) => _EditJobLoader(
+          jobId: state.pathParameters['id']!,
+          initial: state.extra as Job?,
+        ),
       ),
       GoRoute(
         path: '/jobs/:id',
@@ -156,12 +159,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) =>
             ChatRoomScreen(conversationId: state.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: '/disputes/:id',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) =>
-            DisputeDetailScreen(disputeId: state.pathParameters['id']!),
       ),
 
       // Stateful Shell with 4 Navigation Branches
@@ -231,5 +228,33 @@ class _DashboardSwitcher extends ConsumerWidget {
       return const ClientDashboardScreen();
     }
     return const FreelancerDashboardScreen();
+  }
+}
+
+/// Carrega a vaga pelo id quando a rota é aberta sem `extra` (reload/deep link).
+class _EditJobLoader extends ConsumerWidget {
+  final String jobId;
+  final Job? initial;
+
+  const _EditJobLoader({required this.jobId, this.initial});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (initial != null) return CreateJobScreen(jobToEdit: initial);
+    final jobAsync = ref.watch(jobDetailProvider(jobId));
+    return jobAsync.when(
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, _) => Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text(friendlyError(e))),
+      ),
+      data: (job) => job == null
+          ? Scaffold(
+              appBar: AppBar(),
+              body: const Center(child: Text('Vaga não encontrada.')),
+            )
+          : CreateJobScreen(jobToEdit: job),
+    );
   }
 }

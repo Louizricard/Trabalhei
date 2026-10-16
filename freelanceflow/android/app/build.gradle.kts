@@ -1,13 +1,11 @@
 plugins {
     id("com.android.application")
-    // Add the Google services Gradle plugin
-    id("com.google.gms.google-services")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
-    namespace = "com.trabelhei.app"
+    namespace = "com.freelanceflow.app"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
@@ -18,7 +16,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.trabelhei.app"
+        applicationId = "com.freelanceflow.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -43,9 +41,7 @@ flutter {
 }
 
 dependencies {
-    // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:34.17.0"))
-    // Core library desugaring required by flutter_local_notifications
+    // Core library desugaring (java.time e APIs modernas em Android antigo)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }
 

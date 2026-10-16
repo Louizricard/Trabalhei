@@ -1,3 +1,4 @@
+import 'package:freelanceflow/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freelanceflow/core/theme/app_colors.dart';
@@ -23,7 +24,7 @@ class ChatListScreen extends ConsumerWidget {
           error: (err, _) => EmptyStateWidget(
             icon: Icons.error_outline_rounded,
             title: 'Erro ao carregar conversas',
-            description: err.toString(),
+            description: friendlyError(err),
           ),
           data: (conversations) {
             if (conversations.isEmpty) {

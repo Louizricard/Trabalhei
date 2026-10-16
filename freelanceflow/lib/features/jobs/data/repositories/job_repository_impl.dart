@@ -28,6 +28,11 @@ class JobRepositoryImpl implements JobRepository {
   }
 
   @override
+  Future<void> cancelJob(String jobId) {
+    return _remoteDataSource.cancelJob(jobId);
+  }
+
+  @override
   Future<List<Job>> getClientJobs(String clientId) {
     return _remoteDataSource.getClientJobs(clientId);
   }

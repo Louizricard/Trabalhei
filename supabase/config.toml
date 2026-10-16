@@ -1,0 +1,23 @@
+# Configuração mínima do Supabase CLI para desenvolvimento local.
+# Gere o restante com `supabase init` se precisar customizar portas/auth.
+project_id = "freelanceflow"
+
+[api]
+enabled = true
+
+[db]
+major_version = 15
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+
+# O webhook do Asaas não envia JWT do Supabase; a autenticação é feita pelo
+# token compartilhado (ASAAS_WEBHOOK_TOKEN) validado dentro da função.
+[functions.asaas-webhook]
+verify_jwt = false

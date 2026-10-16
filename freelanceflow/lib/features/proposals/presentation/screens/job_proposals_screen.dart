@@ -1,3 +1,5 @@
+import 'package:freelanceflow/core/utils/rating_formatter.dart';
+import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +11,6 @@ import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../../chat/presentation/providers/chat_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../jobs/presentation/providers/jobs_provider.dart';
-import '../../../payments/presentation/widgets/payment_method_selector_modal.dart';
 import '../../domain/entities/proposal.dart';
 import '../providers/proposals_provider.dart';
 import '../widgets/counter_offer_modal.dart';
@@ -33,67 +34,46 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
     setState(() => _isProcessing = true);
     try {
       final repository = ref.read(proposalRepositoryProvider);
-      // 1. Cria o contrato atômico em 'awaiting_payment'
+      // Cria o contrato de forma atômica no servidor (sem custódia de valores).
       final contractResult = await repository.acceptProposal(proposal.id);
       final contractId = contractResult['contract_id'] as String?;
-      final totalAmount =
-          (contractResult['total_amount'] as num?)?.toDouble() ??
-          proposal.bidAmount;
 
-      if (!mounted) return;
-      setState(() => _isProcessing = false);
+      final cId = clientId ?? ref.read(authProvider).value?.id;
+      if (cId == null) throw Exception('Faça login para continuar.');
 
-      // Invalida estados para atualizar UI
+      final conv = await ref
+          .read(chatRepositoryProvider)
+          .getOrCreateConversation(
+            jobId: widget.jobId,
+            freelancerId: proposal.freelancerId,
+            clientId: cId,
+            contractId: contractId,
+          );
+
       ref.invalidate(jobProposalsProvider(widget.jobId));
       ref.invalidate(jobDetailProvider(widget.jobId));
       ref.invalidate(jobsListProvider);
       ref.invalidate(conversationsListProvider);
+      ref.invalidate(conversationDetailProvider(conv.id));
+      ref.invalidate(clientStatsProvider);
+      ref.invalidate(freelancerStatsProvider);
 
-      // 2. Abre o checkout de custódia (Escrow) com o contractId
-      await PaymentMethodSelectorModal.show(
-        context,
-        amount: totalAmount,
-        contractId: contractId,
-        title: 'Garantia de Custódia (Escrow) - ${proposal.freelancerName}',
-        onPaymentSuccess: () async {
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                '🎉 Pagamento confirmado! O contrato está ativo e protegido no Escrow.',
-              ),
-              backgroundColor: AppColors.success,
-            ),
-          );
-
-          final cId = clientId ?? ref.read(authProvider).value?.id;
-          if (cId != null) {
-            final chatRepo = ref.read(chatRepositoryProvider);
-            final conv = await chatRepo.getOrCreateConversation(
-              jobId: widget.jobId,
-              freelancerId: proposal.freelancerId,
-              clientId: cId,
-              contractId: contractId,
-            );
-            ref.invalidate(jobProposalsProvider(widget.jobId));
-            ref.invalidate(jobDetailProvider(widget.jobId));
-            ref.invalidate(conversationsListProvider);
-            ref.invalidate(conversationDetailProvider(conv.id));
-            ref.invalidate(clientStatsProvider);
-            ref.invalidate(freelancerStatsProvider);
-            if (mounted) {
-              context.push('/chat/${conv.id}');
-            }
-          }
-        },
+      if (!mounted) return;
+      setState(() => _isProcessing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('🎉 Proposta aceita! O contrato foi criado.'),
+          backgroundColor: AppColors.success,
+        ),
       );
+      context.push('/chat/${conv.id}');
     } catch (e) {
       if (mounted) {
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Erro ao aceitar proposta: ${e.toString().replaceAll("Exception: ", "")}',
+              'Erro ao aceitar proposta: ${friendlyError(e)}',
             ),
             backgroundColor: AppColors.error,
           ),
@@ -534,7 +514,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            proposal.freelancerRating.toStringAsFixed(1),
+                            RatingFormatter.format(proposal.freelancerRating),
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,

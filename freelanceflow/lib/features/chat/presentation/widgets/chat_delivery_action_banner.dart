@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../auth/domain/entities/user_profile.dart';
 import '../../domain/entities/conversation.dart';
 
 import 'package:freelanceflow/core/utils/currency_formatter.dart';
@@ -21,11 +20,7 @@ class ChatDeliveryActionBanner extends StatelessWidget {
 
   @override
 Widget build(BuildContext context) {
-    final isClient =
-        (conversation.clientId != null &&
-            currentUser?.id == conversation.clientId) ||
-        (currentUser?.role == UserRole.client &&
-            conversation.freelancerId != currentUser?.id);
+    final isClient = currentUser?.id == conversation.clientId;
 
     final milestones = List<ContractMilestone>.from(conversation.milestones);
     if (milestones.isEmpty) return const SizedBox.shrink();
@@ -36,16 +31,16 @@ Widget build(BuildContext context) {
           m.status == MilestoneStatus.submitted ||
           m.status == MilestoneStatus.inRevision,
       orElse: () => milestones.firstWhere(
-        (m) => m.status == MilestoneStatus.fundedInEscrow,
+        (m) => m.status == MilestoneStatus.pending,
         orElse: () => milestones.first,
       ),
     );
 
     final allApproved = milestones.every(
-      (m) => m.status == MilestoneStatus.approvedAndReleased,
+      (m) => m.status == MilestoneStatus.approved,
     );
 
-    // 1. Caso: Projeto 100% Concluído & Pagamento Liberado
+    // 1. Caso: Projeto 100% concluído
     if (allApproved) {
       return Container(
         margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
@@ -72,7 +67,7 @@ Widget build(BuildContext context) {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Projeto Concluído & Pago! 🎉',
+                    'Projeto Concluído! 🎉',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
@@ -80,7 +75,7 @@ Widget build(BuildContext context) {
                     ),
                   ),
                   Text(
-                    'Todos os valores de Escrow foram transferidos.',
+                    'Todas as entregas foram aprovadas.',
                     style: TextStyle(
                       fontSize: 11,
                       color: AppColors.textSecondaryDark,
@@ -178,8 +173,8 @@ Widget build(BuildContext context) {
                   ),
                   Text(
                     isClient
-                        ? 'Analise os arquivos e aprove para liberar o pagamento.'
-                        : 'Aguardando o contratante analisar e liberar o pagamento.',
+                        ? 'Analise os arquivos e aprove a entrega.'
+                        : 'Aguardando o contratante analisar a entrega.',
                     style: const TextStyle(
                       fontSize: 11,
                       color: AppColors.textSecondaryDark,
@@ -339,8 +334,8 @@ Widget build(BuildContext context) {
       );
     }
 
-    // 4. Caso: Marco com Pagamento em Custódia (Escrow Ativo)
-    if (activeMilestone.status == MilestoneStatus.fundedInEscrow) {
+    // 4. Caso: Marco em andamento
+    if (activeMilestone.status == MilestoneStatus.pending) {
       return Container(
         margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -355,7 +350,7 @@ Widget build(BuildContext context) {
               radius: 18,
               backgroundColor: AppColors.successBg,
               child: Icon(
-                Icons.lock_rounded,
+                Icons.work_outline_rounded,
                 color: AppColors.success,
                 size: 18,
               ),
@@ -368,7 +363,7 @@ Widget build(BuildContext context) {
                   Row(
                     children: [
                       const Text(
-                        'Escrow Ativo: ',
+                        'Em andamento: ',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
@@ -387,7 +382,7 @@ Widget build(BuildContext context) {
                   ),
                   Text(
                     isClient
-                        ? 'Valor seguro em custódia até sua aprovação.'
+                        ? 'Acompanhe o andamento e aprove quando a entrega chegar.'
                         : 'Marco: ${activeMilestone.title}. Realize a entrega quando concluir.',
                     style: const TextStyle(
                       fontSize: 11,

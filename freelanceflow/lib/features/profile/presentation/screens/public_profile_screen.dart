@@ -1,3 +1,4 @@
+import 'package:freelanceflow/core/utils/rating_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -309,9 +310,7 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                                       child: _buildMetricCard(
                                         icon: Icons.star_rounded,
                                         iconColor: AppColors.warning,
-                                        value: profile.rating.toStringAsFixed(
-                                          1,
-                                        ),
+                                        value: RatingFormatter.format(profile.rating),
                                         label: 'Avaliação',
                                       ),
                                     ),
@@ -569,7 +568,7 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '100% Protegido por Escrow',
+                        'Contrate com tranquilidade',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -578,7 +577,7 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                       ),
                       SizedBox(height: 2),
                       Text(
-                        'O pagamento só é liberado para o freelancer após sua aprovação das entregas.',
+                        'Converse, alinhe entregas por marcos e avalie o freelancer ao final do projeto.',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondaryDark,

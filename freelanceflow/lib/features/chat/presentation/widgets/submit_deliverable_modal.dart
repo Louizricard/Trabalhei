@@ -1,3 +1,4 @@
+import 'package:freelanceflow/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/storage_service.dart';
@@ -64,7 +65,6 @@ class _SubmitDeliverableModalState
       await ref
           .read(chatRepositoryProvider)
           .submitMilestoneDeliverable(
-            conversationId: widget.conversation.id,
             milestoneId: widget.milestone.id,
             notes: _notesController.text.trim(),
             attachments: uploadedAttachments,
@@ -90,7 +90,7 @@ class _SubmitDeliverableModalState
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Falha ao enviar entrega: $e'),
+            content: Text('Falha ao enviar entrega: ${friendlyError(e)}'),
             backgroundColor: AppColors.error,
           ),
         );

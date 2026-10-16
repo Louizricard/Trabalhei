@@ -4,7 +4,7 @@ Este arquivo é o ponto de entrada para qualquer agente de IA (Gemini 3.1 Pro no
 
 ## O que é o FreelanceFlow
 
-Marketplace de dois lados conectando clientes a freelancers: publicação de vagas, propostas, contratação, chat, pagamento com escrow e avaliações. App mobile-first em Flutter, rodando simultaneamente em Android, iOS e Web a partir da mesma base de código.
+Marketplace de dois lados conectando clientes a freelancers: publicação de vagas, propostas, contratação com marcos de entrega, chat e avaliações. Sem custódia de pagamentos; monetização por assinatura Pro e destaque de vaga. App mobile-first em Flutter, rodando simultaneamente em Android, iOS e Web a partir da mesma base de código.
 
 ## Stack e decisões de arquitetura (fixas para esta fase do projeto)
 
@@ -16,7 +16,7 @@ Marketplace de dois lados conectando clientes a freelancers: publicação de vag
 | Navegação | `go_router` | Recomendado oficialmente pelo time do Flutter; suporta deep link e URLs reais na Web |
 | Injeção de dependência | Providers do próprio Riverpod (sem `get_it` em paralelo) | Riverpod já é o grafo de DI; duplicar com outro sistema gera dois grafos concorrentes |
 | Backend | Supabase (Postgres + Auth + Storage + Realtime) | Realtime resolve o chat, SDK oficial em Dart, evita construir um backend do zero |
-| Pagamento | Gateway com split de marketplace (Mercado Pago, Pagar.me ou Asaas) | Pix nativo e suporte a escrow/split |
+| Cobrança | Asaas (Pix e cartão) via faturas hospedadas, Edge Functions e webhook idempotente | Assinatura Pro e destaque de vaga sem tocar em dados de cartão e sem custódia de valores |
 
 Detalhes de cada ponto, incluindo a estrutura de pastas completa: ver `.agents/rules/02-arquitetura.md`.
 

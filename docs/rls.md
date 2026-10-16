@@ -1,48 +1,44 @@
-# FreelanceFlow — Políticas de Row Level Security (RLS)
+# FreelanceFlow — Segurança (RLS e permissões)
 
-Este documento descreve detalhadamente cada política de segurança em nível de linha (RLS) configurada no Postgres do Supabase, conforme exigido pelas regras de arquitetura e banco de dados (`06-banco-de-dados.md` e `08-seguranca.md`).
+Fonte da verdade: `supabase/migrations/20260901000000_initial_schema.sql`.
 
----
+Princípios:
 
-## 1. Tabela `profiles`
-- **Leitura (`SELECT`)**: Pública para qualquer usuário autenticado ou visitante (`true`). Necessário para que clientes vejam perfis de freelancers no mural e vice-versa.
-- **Inserção (`INSERT`)**: Permitida apenas para o próprio usuário autenticado (`auth.uid() = id`), disparada após o cadastro no Auth.
-- **Atualização (`UPDATE`)**: Exclusiva do proprietário (`auth.uid() = id`). Ninguém pode alterar o perfil de outro usuário.
+1. **RLS ligado em todas as tabelas.**
+2. **Escrita só por onde deve:** o papel `authenticated` tem `GRANT` apenas nas colunas editáveis;
+   plano, rating, status, destaque e contratos são alterados exclusivamente por funções `SECURITY DEFINER`.
+3. **Billing é do servidor:** tabelas de cobrança só são escritas pelo `service_role` (Edge Functions).
 
----
+| Tabela | Leitura | Escrita direta (cliente) | Escrita via RPC / servidor |
+|---|---|---|---|
+| `profiles` | Qualquer usuário autenticado | `UPDATE` do próprio perfil, só `full_name, avatar_url, company_name, bio, hourly_rate, skills, availability_status` | Criação por trigger em `auth.users`; papel via `switch_role` (nunca `admin`); plano via webhook |
+| `portfolio_items` | Autenticados | `INSERT`/`DELETE` dos próprios itens | — |
+| `jobs` | Autenticados | `INSERT` (somente clientes) e `UPDATE` de campos de conteúdo em vagas **abertas** próprias | Status via `cancel_job`/contratos; `featured_until` via webhook |
+| `proposals` | Freelancer autor e cliente dono da vaga | Nenhuma | `submit_proposal` (cota do plano), `accept_proposal`, `reject_proposal`, `make_counter_offer`, `accept_counter_offer`, `reject_counter_offer` |
+| `contracts`, `milestones`, `milestone_revisions` | Apenas as partes do contrato | Nenhuma | `accept_*` cria o contrato; `submit_deliverable`, `request_revision`, `approve_milestone` |
+| `conversations` | Apenas os dois participantes | Nenhuma | `get_or_create_conversation` |
+| `messages` | Apenas os participantes da conversa | `INSERT` como remetente próprio e tipos não-sistema | Mensagens de sistema geradas pelas RPCs; `mark_conversation_read` |
+| `notifications` | Somente o dono | `UPDATE is_read` e `DELETE` do dono | Criadas por `notify()` (triggers/RPCs) |
+| `reviews` | Autenticados | `INSERT` pelas partes do contrato, uma por contrato | Rating do perfil recalculado por trigger |
+| `subscriptions`, `job_featurings` | Somente o dono | Nenhuma | Edge Functions (service_role) |
+| `billing_customers`, `billing_events` | Ninguém (cliente) | Nenhuma | Edge Functions (service_role) |
 
-## 2. Tabela `jobs`
-- **Leitura (`SELECT`)**: Aberta para vagas com `visibility = 'public'` ou quando o usuário autenticado for o cliente criador (`auth.uid() = client_id`). Vagas privadas/por convite só são visíveis pelo criador e convidados.
-- **Criação (`INSERT`)**: Permitida apenas se `auth.uid() = client_id`.
-- **Edição/Exclusão (`UPDATE` / `DELETE`)**: Restrita ao cliente proprietário da vaga (`auth.uid() = client_id`).
+## Storage
 
----
+Buckets públicos para leitura: `avatars`, `portfolio`, `job_attachments`, `job_covers`, `chat_attachments`.
+Escrita/remoção apenas na pasta do próprio usuário: o primeiro segmento do caminho deve ser o `auth.uid()`
+(`<bucket>/<user_id>/...`). O app já prefixa uploads com o id do usuário.
 
-## 3. Tabela `proposals`
-- **Leitura (`SELECT`)**: Restrita ao freelancer autor (`auth.uid() = freelancer_id`) e ao cliente dono da respectiva vaga (`auth.uid() = jobs.client_id`). Garante sigilo nas propostas concorrentes.
-- **Criação (`INSERT`)**: Apenas freelancers autenticados (`auth.uid() = freelancer_id`).
-- **Atualização (`UPDATE`)**: Apenas pelo freelancer autor ou pelo cliente contratante (para aceitar/rejeitar).
+> Atenção: arquivos de chat/entregas ficam em buckets públicos (URL difícil de adivinhar, porém sem
+> autenticação). Para conteúdo confidencial, migre `chat_attachments` para bucket privado com URLs assinadas.
 
----
+## Testando as políticas
 
-## 4. Tabela `contracts` e `milestones`
-- **Leitura (`SELECT`)**: Visível exclusivamente pelas partes envolvidas no contrato (`client_id` ou `freelancer_id`).
-- **Criação (`INSERT`)**: Efetuada pelo cliente no ato do aceite da proposta.
+Com `supabase start`, use o SQL Editor/`psql` simulando usuários:
 
----
-
-## 5. Tabela `conversations` e `messages`
-- **Leitura e Envio**: Totalmente isoladas entre os dois participantes (`participant_a` e `participant_b`). Nenhum terceiro tem acesso aos chats ou anexos.
-
----
-
-## 6. Tabela `transactions` (Escrow e Pagamentos)
-- **Leitura (`SELECT`)**: Privada ao usuário titular (`auth.uid() = user_id`).
-- **Inserção (`INSERT`)**: Permitida ao usuário autenticado para registro de depósitos e pedidos de saque.
-
----
-
-## 7. Tabela `reviews`
-- **Leitura (`SELECT`)**: Pública para alimentar a reputação de clientes e freelancers.
-- **Criação (`INSERT`)**: Apenas o autor de um contrato concluído pode avaliar (`auth.uid() = reviewer_id`).
-- **Resposta (`UPDATE`)**: Apenas o destinatário avaliado pode preencher o campo `public_response`.
+```sql
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "<uuid-do-usuario>", "role": "authenticated"}';
+select * from proposals;                       -- só as propostas visíveis a esse usuário
+update profiles set plan = 'pro' where id = '<uuid>';   -- deve falhar (permission denied)
+```

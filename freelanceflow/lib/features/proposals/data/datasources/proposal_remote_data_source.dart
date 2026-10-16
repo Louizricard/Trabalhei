@@ -1,152 +1,73 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/proposal.dart';
+import '../../domain/entities/proposal_quota.dart';
 
+/// Toda escrita em propostas passa por funções (RPC) do servidor, que aplicam
+/// a máquina de estados, a cota do plano e as notificações.
 class ProposalRemoteDataSource {
+  static const _select = '*, profiles!freelancer_id(full_name, rating)';
+
   final SupabaseClient _supabase;
 
   ProposalRemoteDataSource(this._supabase);
 
   Future<List<Proposal>> getProposalsByJob(String jobId) async {
-    try {
-      final response = await _supabase
-          .from('v_job_proposals')
-          .select('*')
-          .eq('job_id', jobId)
-          .order('created_at', ascending: false);
-
-      final List<dynamic> data = response as List<dynamic>;
-      return data
-          .map((json) => Proposal.fromJson(json as Map<String, dynamic>))
-          .toList();
-    } catch (_) {
-      final response = await _supabase
-          .from('proposals')
-          .select('*, profiles!freelancer_id(full_name, rating)')
-          .eq('job_id', jobId)
-          .order('created_at', ascending: false);
-
-      final List<dynamic> data = response as List<dynamic>;
-      return data
-          .map((json) => Proposal.fromJson(json as Map<String, dynamic>))
-          .toList();
-    }
+    final response = await _supabase
+        .from('proposals')
+        .select(_select)
+        .eq('job_id', jobId)
+        .order('created_at', ascending: false);
+    return (response as List)
+        .map((json) => Proposal.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<Proposal>> getFreelancerProposals(String freelancerId) async {
-    try {
-      final response = await _supabase
-          .from('v_job_proposals')
-          .select('*')
-          .eq('freelancer_id', freelancerId)
-          .order('created_at', ascending: false);
+    final response = await _supabase
+        .from('proposals')
+        .select(_select)
+        .eq('freelancer_id', freelancerId)
+        .order('created_at', ascending: false);
+    return (response as List)
+        .map((json) => Proposal.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
 
-      final List<dynamic> data = response as List<dynamic>;
-      return data
-          .map((json) => Proposal.fromJson(json as Map<String, dynamic>))
-          .toList();
-    } catch (_) {
-      final response = await _supabase
-          .from('proposals')
-          .select('*, profiles!freelancer_id(full_name, rating)')
-          .eq('freelancer_id', freelancerId)
-          .order('created_at', ascending: false);
-
-      final List<dynamic> data = response as List<dynamic>;
-      return data
-          .map((json) => Proposal.fromJson(json as Map<String, dynamic>))
-          .toList();
-    }
+  Future<ProposalQuota> getQuota() async {
+    final response = await _supabase.rpc('proposal_quota');
+    return ProposalQuota.fromJson(Map<String, dynamic>.from(response as Map));
   }
 
   Future<Proposal> submitProposal(Proposal proposal) async {
-    final user = _supabase.auth.currentUser;
-    final freelancerId = user?.id ?? proposal.freelancerId;
-    final payload = proposal.toJson();
-    payload['freelancer_id'] = freelancerId;
-    payload['amount'] = proposal.bidAmount;
-    payload['bid_amount'] = proposal.bidAmount;
-    payload['message'] = proposal.coverLetter;
-    payload['cover_letter'] = proposal.coverLetter;
-
-    if (payload['id'] == null ||
-        payload['id'].toString().isEmpty ||
-        !payload['id'].toString().contains('-') ||
-        payload['id'].toString().startsWith('prop-')) {
-      payload.remove('id');
-    }
-
-    // Verificar se o freelancer já possui proposta cadastrada para esta vaga
-    final existing = await _supabase
-        .from('proposals')
-        .select('id')
-        .eq('job_id', proposal.jobId)
-        .eq('freelancer_id', freelancerId)
-        .maybeSingle();
-
-    Map<String, dynamic> response;
-    if (existing != null) {
-      final existingId = existing['id'] as String;
-      payload.remove('id');
-      payload['status'] = 'pending';
-      payload['updated_at'] = DateTime.now().toIso8601String();
-
-      response = await _supabase
-          .from('proposals')
-          .update(payload)
-          .eq('id', existingId)
-          .select('*, profiles!freelancer_id(full_name, rating)')
-          .single();
-    } else {
-      response = await _supabase
-          .from('proposals')
-          .insert(payload)
-          .select('*, profiles!freelancer_id(full_name, rating)')
-          .single();
-    }
-
-    return Proposal.fromJson(response);
+    final response = await _supabase.rpc(
+      'submit_proposal',
+      params: {
+        'p_job_id': proposal.jobId,
+        'p_bid_amount': proposal.bidAmount,
+        'p_estimated_days': proposal.estimatedDays,
+        'p_cover_letter': proposal.coverLetter,
+        'p_milestones': proposal.proposedMilestones
+            .map((m) => m.toJson())
+            .toList(),
+      },
+    );
+    return Proposal.fromJson(Map<String, dynamic>.from(response as Map));
   }
 
+  /// Cliente aceita a proposta; o servidor cria contrato, marcos e conversa.
   Future<Map<String, dynamic>> acceptProposal(String proposalId) async {
     final response = await _supabase.rpc(
-      'accept_proposal_and_create_contract',
+      'accept_proposal',
       params: {'p_proposal_id': proposalId},
     );
-
-    // Garante que o status da vaga seja alterado para 'in_progress' saindo do mural
-    try {
-      final propRes = await _supabase
-          .from('proposals')
-          .select('job_id')
-          .eq('id', proposalId)
-          .maybeSingle();
-      if (propRes != null && propRes['job_id'] != null) {
-        await _supabase
-            .from('jobs')
-            .update({
-              'status': 'in_progress',
-              'updated_at': DateTime.now().toIso8601String(),
-            })
-            .eq('id', propRes['job_id']);
-      }
-    } catch (_) {}
-
-    if (response is Map<String, dynamic>) {
-      return response;
-    }
     return Map<String, dynamic>.from(response as Map);
   }
 
-  Future<void> updateStatus(String proposalId, ProposalStatus status) async {
-    if (status == ProposalStatus.accepted) {
-      await acceptProposal(proposalId);
-      return;
-    }
-    final statusStr = Proposal.statusToString(status);
-    await _supabase
-        .from('proposals')
-        .update({'status': statusStr})
-        .eq('id', proposalId);
+  Future<void> rejectProposal(String proposalId) async {
+    await _supabase.rpc(
+      'reject_proposal',
+      params: {'p_proposal_id': proposalId},
+    );
   }
 
   Future<void> makeCounterOffer({
@@ -155,72 +76,30 @@ class ProposalRemoteDataSource {
     required int counterEstimatedDays,
     String? counterMessage,
   }) async {
-    final user = _supabase.auth.currentUser;
-    if (user == null) throw Exception('Usuário não autenticado.');
-
-    // 1. Atualizar proposta com a contraproposta
-    await _supabase
-        .from('proposals')
-        .update({
-          'status': 'counter_offered',
-          'counter_price': counterPrice,
-          'counter_estimated_days': counterEstimatedDays,
-          'counter_message': counterMessage?.trim(),
-          'counter_by_user_id': user.id,
-          'counter_created_at': DateTime.now().toIso8601String(),
-        })
-        .eq('id', proposalId);
-
-    // 2. Registrar no histórico de contrapropostas
-    try {
-      await _supabase.from('proposal_counter_offers').insert({
-        'proposal_id': proposalId,
-        'offered_by': user.id,
-        'amount': counterPrice,
-        'estimated_days': counterEstimatedDays,
-        'message': counterMessage?.trim(),
-      });
-    } catch (_) {}
+    await _supabase.rpc(
+      'make_counter_offer',
+      params: {
+        'p_proposal_id': proposalId,
+        'p_price': counterPrice,
+        'p_days': counterEstimatedDays,
+        'p_message': counterMessage,
+      },
+    );
   }
 
-  Future<void> acceptCounterOffer(String proposalId) async {
-    final prop = await _supabase
-        .from('proposals')
-        .select('*')
-        .eq('id', proposalId)
-        .single();
-    final counterPrice =
-        (prop['counter_price'] as num?)?.toDouble() ??
-        (prop['bid_amount'] as num?)?.toDouble() ??
-        0.0;
-    final counterDays =
-        (prop['counter_estimated_days'] as num?)?.toInt() ??
-        (prop['estimated_days'] as num?)?.toInt() ??
-        14;
-
-    // Atualizar valores da proposta e aceitar
-    await _supabase
-        .from('proposals')
-        .update({
-          'bid_amount': counterPrice,
-          'amount': counterPrice,
-          'estimated_days': counterDays,
-          'status': 'accepted',
-        })
-        .eq('id', proposalId);
-
-    await updateStatus(proposalId, ProposalStatus.accepted);
+  /// Freelancer aceita a contraproposta; o servidor cria o contrato.
+  Future<Map<String, dynamic>> acceptCounterOffer(String proposalId) async {
+    final response = await _supabase.rpc(
+      'accept_counter_offer',
+      params: {'p_proposal_id': proposalId},
+    );
+    return Map<String, dynamic>.from(response as Map);
   }
 
   Future<void> rejectCounterOffer(String proposalId) async {
-    await _supabase
-        .from('proposals')
-        .update({
-          'status': 'pending',
-          'counter_price': null,
-          'counter_estimated_days': null,
-          'counter_message': null,
-        })
-        .eq('id', proposalId);
+    await _supabase.rpc(
+      'reject_counter_offer',
+      params: {'p_proposal_id': proposalId},
+    );
   }
 }

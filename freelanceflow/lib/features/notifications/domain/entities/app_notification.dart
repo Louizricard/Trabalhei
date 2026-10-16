@@ -9,8 +9,6 @@ enum NotificationType {
   milestoneSubmitted,
   milestoneInRevision,
   milestoneApproved,
-  disputeOpened,
-  paymentReceived,
   system;
 
   static NotificationType fromString(String? value) {
@@ -29,10 +27,6 @@ enum NotificationType {
         return NotificationType.milestoneInRevision;
       case 'milestone_approved':
         return NotificationType.milestoneApproved;
-      case 'dispute_opened':
-        return NotificationType.disputeOpened;
-      case 'payment_received':
-        return NotificationType.paymentReceived;
       default:
         return NotificationType.system;
     }
@@ -54,10 +48,6 @@ enum NotificationType {
         return 'milestone_in_revision';
       case NotificationType.milestoneApproved:
         return 'milestone_approved';
-      case NotificationType.disputeOpened:
-        return 'dispute_opened';
-      case NotificationType.paymentReceived:
-        return 'payment_received';
       case NotificationType.system:
         return 'system';
     }

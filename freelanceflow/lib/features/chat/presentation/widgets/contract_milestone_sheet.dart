@@ -5,12 +5,9 @@ import 'package:freelanceflow/core/utils/currency_formatter.dart';
 import 'package:freelanceflow/core/widgets/custom_button.dart';
 import 'package:freelanceflow/core/widgets/glass_card.dart';
 import 'package:freelanceflow/core/widgets/status_badge.dart';
-import 'package:freelanceflow/features/auth/domain/entities/user_profile.dart';
 import 'package:freelanceflow/features/auth/presentation/providers/auth_state_provider.dart';
 import 'package:freelanceflow/features/chat/domain/entities/conversation.dart';
 import 'package:freelanceflow/features/chat/presentation/providers/chat_provider.dart';
-import 'package:freelanceflow/features/disputes/presentation/widgets/open_dispute_modal.dart';
-import 'package:freelanceflow/features/payments/presentation/widgets/payment_method_selector_modal.dart';
 
 import 'request_revision_modal.dart';
 import 'review_contract_modal.dart';
@@ -27,9 +24,7 @@ class ContractMilestoneSheet extends ConsumerWidget {
         ref.watch(conversationDetailProvider(conversation.id)).value ??
         conversation;
     final user = ref.watch(authProvider).value;
-    final isClient =
-        (liveConv.clientId != null && user?.id == liveConv.clientId) ||
-        (user?.role == UserRole.client && liveConv.freelancerId != user?.id);
+    final isClient = user?.id == liveConv.clientId;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -46,7 +41,7 @@ class ContractMilestoneSheet extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Marcos do Contrato & Escrow',
+                  'Marcos do Contrato',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -164,28 +159,8 @@ class ContractMilestoneSheet extends ConsumerWidget {
                         children: [
                           _buildMilestoneBadge(m.status),
                           const Spacer(),
-                          if (m.status == MilestoneStatus.pending &&
-                              isClient) ...[
-                            CustomButton(
-                              text: 'Garantir no Escrow',
-                              icon: Icons.shield_outlined,
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                PaymentMethodSelectorModal.show(
-                                  context,
-                                  amount: m.amount,
-                                  contractId: liveConv.contractId,
-                                  title: 'Garantia de Custódia - ${m.title}',
-                                  onPaymentSuccess: () {
-                                    ref.invalidate(
-                                      conversationDetailProvider(liveConv.id),
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ] else if ((m.status ==
-                                      MilestoneStatus.fundedInEscrow ||
+                          if ((m.status ==
+                                      MilestoneStatus.pending ||
                                   m.status == MilestoneStatus.inRevision) &&
                               !isClient) ...[
                             CustomButton(
@@ -259,7 +234,7 @@ class ContractMilestoneSheet extends ConsumerWidget {
                               },
                             ),
                           ] else if (m.status ==
-                                  MilestoneStatus.approvedAndReleased &&
+                                  MilestoneStatus.approved &&
                               hasAttachments) ...[
                             OutlinedButton.icon(
                               style: OutlinedButton.styleFrom(
@@ -302,7 +277,7 @@ class ContractMilestoneSheet extends ConsumerWidget {
             }),
             const SizedBox(height: 12),
             if (liveConv.milestones.any(
-              (m) => m.status == MilestoneStatus.approvedAndReleased,
+              (m) => m.status == MilestoneStatus.approved,
             )) ...[
               CustomButton(
                 text: isClient ? 'Avaliar Profissional' : 'Avaliar Contratante',
@@ -319,27 +294,6 @@ class ContractMilestoneSheet extends ConsumerWidget {
               ),
               const SizedBox(height: 10),
             ],
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.error,
-                side: const BorderSide(color: AppColors.error),
-                minimumSize: const Size(double.infinity, 44),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              icon: const Icon(Icons.gavel_rounded, size: 18),
-              label: const Text('Abrir Mediação / Disputa'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                showModalBottomSheet(
-                  context: context,
-                  backgroundColor: AppColors.transparent,
-                  isScrollControlled: true,
-                  builder: (_) => OpenDisputeModal(conversation: liveConv),
-                );
-              },
-            ),
           ],
         ),
       ),
@@ -348,8 +302,12 @@ class ContractMilestoneSheet extends ConsumerWidget {
 
   Widget _buildMilestoneBadge(MilestoneStatus status) {
     switch (status) {
-      case MilestoneStatus.fundedInEscrow:
-        return StatusBadge.escrowHold();
+      case MilestoneStatus.pending:
+        return const StatusBadge(
+          label: 'Em andamento',
+          backgroundColor: AppColors.surfaceElevatedDark,
+          textColor: AppColors.textMutedDark,
+        );
       case MilestoneStatus.submitted:
         return const StatusBadge(
           label: 'Entregue p/ Revisão',
@@ -362,23 +320,11 @@ class ContractMilestoneSheet extends ConsumerWidget {
           backgroundColor: AppColors.warningBg,
           textColor: AppColors.warning,
         );
-      case MilestoneStatus.approvedAndReleased:
+      case MilestoneStatus.approved:
         return const StatusBadge(
-          label: 'Aprovado e Pago',
+          label: 'Aprovado',
           backgroundColor: AppColors.successBg,
           textColor: AppColors.success,
-        );
-      case MilestoneStatus.disputed:
-        return const StatusBadge(
-          label: 'Em Disputa',
-          backgroundColor: AppColors.errorBg,
-          textColor: AppColors.error,
-        );
-      default:
-        return const StatusBadge(
-          label: 'Aguardando Depósito',
-          backgroundColor: AppColors.surfaceElevatedDark,
-          textColor: AppColors.textMutedDark,
         );
     }
   }

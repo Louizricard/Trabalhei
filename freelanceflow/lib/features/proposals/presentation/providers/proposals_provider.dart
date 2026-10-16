@@ -3,6 +3,7 @@ import '../../../../core/config/supabase_client.dart';
 import '../../data/datasources/proposal_remote_data_source.dart';
 import '../../data/repositories/proposal_repository_impl.dart';
 import '../../domain/entities/proposal.dart';
+import '../../domain/entities/proposal_quota.dart';
 import '../../domain/repositories/proposal_repository.dart';
 
 final proposalDataSourceProvider = Provider<ProposalRemoteDataSource>((ref) {
@@ -26,3 +27,8 @@ final freelancerProposalsProvider =
       final repository = ref.watch(proposalRepositoryProvider);
       return repository.getFreelancerProposals(freelancerId);
     });
+
+/// Cota mensal de propostas do usuário logado.
+final proposalQuotaProvider = FutureProvider.autoDispose<ProposalQuota>((ref) {
+  return ref.watch(proposalRepositoryProvider).getQuota();
+});

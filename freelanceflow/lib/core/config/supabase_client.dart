@@ -10,13 +10,15 @@ final supabaseClientProvider = Provider<SupabaseClient>((ref) {
 /// Helper to initialize Supabase on app startup
 class SupabaseInit {
   static Future<void> initialize() async {
-    await EnvConfig.init();
-    // ignore: deprecated_member_use
+    if (!EnvConfig.isConfigured) {
+      throw StateError(
+        'SUPABASE_URL e SUPABASE_ANON_KEY não definidos. '
+        'Rode com --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...',
+      );
+    }
     await Supabase.initialize(
       url: EnvConfig.supabaseUrl,
-      // ignore: deprecated_member_use
-      anonKey: EnvConfig.supabaseAnonKey,
-      debug: false,
+      publishableKey: EnvConfig.supabaseAnonKey,
     );
   }
 }

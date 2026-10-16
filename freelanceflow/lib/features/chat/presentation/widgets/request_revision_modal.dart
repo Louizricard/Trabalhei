@@ -1,3 +1,4 @@
+import 'package:freelanceflow/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/storage_service.dart';
@@ -7,7 +8,6 @@ import '../../../../core/widgets/attachment_widgets.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
-import '../../../auth/domain/entities/user_profile.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../domain/entities/conversation.dart';
@@ -41,16 +41,16 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
     super.dispose();
   }
 
-  Future<void> _approveAndRelease() async {
+  Future<void> _approveDelivery() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surfaceDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Aprovar e Liberar Pagamento?'),
+        title: const Text('Aprovar entrega?'),
         content: Text(
           'Você confirma que a entrega do marco "${widget.milestone.title}" atende aos requisitos acordados?\n\n'
-          'O valor de ${CurrencyFormatter.format(widget.milestone.amount)} será liberado imediatamente do Escrow para a carteira do Freelancer.',
+          'O pagamento de ${CurrencyFormatter.format(widget.milestone.amount)} deve ser combinado diretamente com o freelancer, fora da plataforma.',
         ),
         actions: [
           TextButton(
@@ -63,7 +63,7 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Sim, Liberar Pagamento'),
+            child: const Text('Sim, aprovar'),
           ),
         ],
       ),
@@ -76,23 +76,18 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
     try {
       await ref
           .read(chatRepositoryProvider)
-          .updateMilestoneStatus(
-            widget.conversation.id,
-            widget.milestone.id,
-            MilestoneStatus.approvedAndReleased,
-          );
+          .approveMilestone(widget.milestone.id);
 
       ref.invalidate(conversationDetailProvider(widget.conversation.id));
       ref.invalidate(conversationsListProvider);
       ref.invalidate(clientStatsProvider);
       ref.invalidate(freelancerStatsProvider);
-      ref.invalidate(authProvider);
 
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('🎉 Pagamento liberado com sucesso ao Freelancer!'),
+            content: Text('🎉 Entrega aprovada!'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -102,7 +97,7 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
         setState(() => _isApproving = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao liberar pagamento: $e'),
+            content: Text('Erro ao aprovar entrega: ${friendlyError(e)}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -141,9 +136,7 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
       await ref
           .read(chatRepositoryProvider)
           .requestMilestoneRevision(
-            conversationId: widget.conversation.id,
             milestoneId: widget.milestone.id,
-            contractId: widget.milestone.contractId,
             comment: text,
             attachments: uploadedAttachments,
           );
@@ -167,7 +160,7 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
         setState(() => _isRequestingRevision = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao solicitar revisão: $e'),
+            content: Text('Erro ao solicitar revisão: ${friendlyError(e)}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -178,13 +171,9 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).value;
-    final isClient =
-        (widget.conversation.clientId != null &&
-            user?.id == widget.conversation.clientId) ||
-        (user?.role == UserRole.client &&
-            widget.conversation.freelancerId != user?.id);
+    final isClient = user?.id == widget.conversation.clientId;
     final isApproved =
-        widget.milestone.status == MilestoneStatus.approvedAndReleased;
+        widget.milestone.status == MilestoneStatus.approved;
 
     return Container(
       padding: EdgeInsets.only(
@@ -317,7 +306,7 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Esta entrega foi aprovada e o valor foi creditado na carteira do Freelancer.',
+                        'Esta entrega foi aprovada pelo cliente.',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.textPrimaryDark,
@@ -332,11 +321,11 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
             ] else if (isClient) ...[
               if (!_showRevisionForm) ...[
                 CustomButton(
-                  text: 'Aprovar Entrega & Liberar Pagamento',
+                  text: 'Aprovar Entrega',
                   icon: Icons.check_circle_outline_rounded,
                   isLoading: _isApproving,
                   width: double.infinity,
-                  onPressed: _approveAndRelease,
+                  onPressed: _approveDelivery,
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
@@ -428,7 +417,7 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                       child: Text(
                         widget.milestone.status == MilestoneStatus.inRevision
                             ? 'O cliente solicitou ajustes neste marco. Você pode reescrever a entrega e enviar novos arquivos.'
-                            : 'Entrega enviada com sucesso! Aguardando o cliente aprovar para transferir ${CurrencyFormatter.format(widget.milestone.amount)} para sua carteira.',
+                            : 'Entrega enviada com sucesso! Aguardando o cliente analisar e aprovar a entrega.',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textPrimaryDark,

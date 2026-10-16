@@ -74,27 +74,22 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<void> updateMilestoneStatus(
-    String conversationId,
-    String milestoneId,
-    MilestoneStatus status,
-  ) {
-    return _remoteDataSource.updateMilestoneStatus(
-      conversationId,
-      milestoneId,
-      status,
-    );
+  Future<void> markConversationRead(String conversationId) {
+    return _remoteDataSource.markConversationRead(conversationId);
+  }
+
+  @override
+  Future<void> approveMilestone(String milestoneId) {
+    return _remoteDataSource.approveMilestone(milestoneId);
   }
 
   @override
   Future<void> submitMilestoneDeliverable({
-    required String conversationId,
     required String milestoneId,
     required String notes,
     List<Map<String, dynamic>> attachments = const [],
   }) {
     return _remoteDataSource.submitMilestoneDeliverable(
-      conversationId: conversationId,
       milestoneId: milestoneId,
       notes: notes,
       attachments: attachments,
@@ -103,16 +98,12 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Future<void> requestMilestoneRevision({
-    required String conversationId,
     required String milestoneId,
-    required String contractId,
     required String comment,
     List<Map<String, dynamic>> attachments = const [],
   }) {
     return _remoteDataSource.requestMilestoneRevision(
-      conversationId: conversationId,
       milestoneId: milestoneId,
-      contractId: contractId,
       comment: comment,
       attachments: attachments,
     );

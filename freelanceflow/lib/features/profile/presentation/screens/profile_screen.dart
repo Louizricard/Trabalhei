@@ -1,3 +1,4 @@
+import 'package:freelanceflow/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -52,7 +53,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Falha ao alternar modo: ${e.toString().replaceAll("Exception: ", "")}',
+              'Falha ao alternar modo: ${friendlyError(e)}',
             ),
             backgroundColor: AppColors.error,
           ),
@@ -98,7 +99,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Erro ao enviar foto: ${e.toString().replaceAll("Exception: ", "")}',
+              'Erro ao enviar foto: ${friendlyError(e)}',
             ),
             backgroundColor: AppColors.error,
           ),
@@ -298,6 +299,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         icon: Icons.visibility_outlined,
                         width: double.infinity,
                         onPressed: () => context.push('/profile/${user.id}'),
+                      ),
+                      const SizedBox(height: 10),
+                      CustomButton(
+                        text: user.isPro ? 'Meu Plano: Pro' : 'Meu Plano: Grátis',
+                        variant: ButtonVariant.outline,
+                        icon: Icons.workspace_premium_outlined,
+                        width: double.infinity,
+                        onPressed: () => context.push('/plans'),
                       ),
                     ],
                   ],

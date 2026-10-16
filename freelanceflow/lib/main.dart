@@ -1,16 +1,11 @@
 import 'dart:ui';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'core/config/firebase_options.dart';
 import 'core/config/supabase_client.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
-import 'features/notifications/presentation/providers/notification_provider.dart';
-import 'features/notifications/presentation/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -79,60 +74,14 @@ void main() async {
     debugPrint('🚨 [SupabaseInit] Erro ao inicializar Supabase: $e\n$st');
   }
 
-  // Inicialização segura do Firebase e Push Notifications
-  if (kIsWeb ||
-      defaultTargetPlatform == TargetPlatform.android ||
-      defaultTargetPlatform == TargetPlatform.iOS) {
-    try {
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
-      }
-      if (!kIsWeb) {
-        FirebaseMessaging.onBackgroundMessage(
-          firebaseMessagingBackgroundHandler,
-        );
-      }
-      await NotificationService().initialize();
-    } catch (e) {
-      debugPrint('⚠️ [Firebase] Inicialização pendente ou não configurada: $e');
-    }
-  } else {
-    // Plataformas desktop (Linux/Windows) utilizam notificações locais e realtime do Supabase
-    await NotificationService().initialize();
-  }
-
   runApp(const ProviderScope(child: TrabalheiApp()));
 }
 
-class TrabalheiApp extends ConsumerStatefulWidget {
+class TrabalheiApp extends ConsumerWidget {
   const TrabalheiApp({super.key});
 
   @override
-  ConsumerState<TrabalheiApp> createState() => _TrabalheiAppState();
-}
-
-class _TrabalheiAppState extends ConsumerState<TrabalheiApp> {
-  @override
-  void initState() {
-    super.initState();
-    // Escuta eventos de navegação acionados por cliques em notificações push
-    NotificationService().onNotificationNavigation.listen((route) {
-      if (mounted && route.isNotEmpty) {
-        try {
-          ref.read(appRouterProvider).push(route);
-        } catch (e) {
-          debugPrint('🚨 [Navigation] Erro ao navegar para $route: $e');
-        }
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Mantém o gerenciador de push tokens ativo e sincronizado com o ciclo de vida
-    ref.watch(pushNotificationProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(

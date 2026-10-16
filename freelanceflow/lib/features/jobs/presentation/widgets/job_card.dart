@@ -1,3 +1,4 @@
+import 'package:freelanceflow/core/utils/rating_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:freelanceflow/core/theme/app_colors.dart';
 import 'package:freelanceflow/core/utils/currency_formatter.dart';
@@ -218,7 +219,7 @@ class JobCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 2),
                         Text(
-                          job.clientRating.toStringAsFixed(1),
+                          RatingFormatter.format(job.clientRating),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
