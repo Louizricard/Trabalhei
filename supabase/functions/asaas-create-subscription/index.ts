@@ -39,7 +39,7 @@ Deno.serve(handle(async (req) => {
         value: price,
         nextDueDate: isoDate(new Date()),
         cycle: "MONTHLY",
-        description: "FreelanceFlow Pro",
+        description: "Trabalhei Pro",
         externalReference: `sub:${user.id}`,
       },
     });
