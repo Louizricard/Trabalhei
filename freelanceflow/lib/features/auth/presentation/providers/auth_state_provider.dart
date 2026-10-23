@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/supabase_client.dart';
+import '../../../../core/errors/backend_errors.dart';
 import '../../data/datasources/auth_remote_data_source.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user_profile.dart';
@@ -70,6 +71,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
         role: role,
       );
       state = AsyncValue.data(user);
+    } on EmailConfirmationPendingException {
+      // Cadastro feito, porém sem sessão: segue deslogado.
+      state = const AsyncValue.data(null);
+      rethrow;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
       rethrow;

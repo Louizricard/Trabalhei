@@ -64,6 +64,16 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     }
   }
 
+  static const double _maxBudget = 10000000;
+
+  String? _validateBudget(String? v) {
+    final value = double.tryParse((v ?? '').trim().replaceAll(',', '.'));
+    if (value == null) return 'Informe um valor válido';
+    if (value < 0) return 'Não pode ser negativo';
+    if (value > _maxBudget) return 'Máximo de R\$ 10.000.000';
+    return null;
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -340,7 +350,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                               controller: _budgetMinController,
                               label: 'Orçamento Mínimo (R\$)',
                               keyboardType: TextInputType.number,
-                              validator: (v) => v == null || v.isEmpty ? 'Obrigatório' : null,
+                              validator: _validateBudget,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -350,9 +360,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                               label: 'Orçamento Máximo (R\$)',
                               keyboardType: TextInputType.number,
                               validator: (v) {
-                                if (v == null || v.isEmpty) return 'Obrigatório';
+                                final invalid = _validateBudget(v);
+                                if (invalid != null) return invalid;
                                 final min = double.tryParse(_budgetMinController.text) ?? 0;
-                                final max = double.tryParse(v) ?? 0;
+                                final max = double.tryParse(v!) ?? 0;
                                 if (max < min) return 'Não pode ser menor que o mín.';
                                 return null;
                               },
@@ -365,7 +376,12 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                         controller: _daysController,
                         label: 'Prazo Previsto de Execução (Dias)',
                         keyboardType: TextInputType.number,
-                        validator: (v) => v == null || v.isEmpty ? 'Obrigatório' : null,
+                        validator: (v) {
+                          final days = int.tryParse((v ?? '').trim());
+                          if (days == null) return 'Informe um número de dias';
+                          if (days < 1 || days > 3650) return 'Use entre 1 e 3650 dias';
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 16),
                       SkillsInputWidget(

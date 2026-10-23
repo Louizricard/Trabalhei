@@ -64,3 +64,13 @@ String _functionMessage(FunctionException e) {
   }
   return details?.toString() ?? 'Falha ao chamar o servidor (${e.status}).';
 }
+
+/// O cadastro foi criado, mas o Supabase exige confirmar o e-mail antes de abrir sessão.
+class EmailConfirmationPendingException implements Exception {
+  final String email;
+  const EmailConfirmationPendingException(this.email);
+
+  @override
+  String toString() =>
+      'Enviamos um link de confirmação para $email. Confirme o e-mail e depois entre.';
+}

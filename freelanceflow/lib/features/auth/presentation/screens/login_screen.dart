@@ -9,7 +9,10 @@ import '../../../../core/widgets/responsive_layout.dart';
 import '../providers/auth_state_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  /// Mensagem opcional exibida ao abrir a tela (ex.: confirmar e-mail).
+  final String? notice;
+
+  const LoginScreen({super.key, this.notice});
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -20,6 +23,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final notice = widget.notice;
+    if (notice != null && notice.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(notice),
+            duration: const Duration(seconds: 8),
+          ),
+        );
+      });
+    }
+  }
 
   @override
   void dispose() {

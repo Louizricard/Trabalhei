@@ -1,3 +1,4 @@
+import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -47,6 +48,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           );
       if (mounted) {
         context.go('/jobs');
+      }
+    } on EmailConfirmationPendingException catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        context.go('/login?notice=${Uri.encodeComponent(e.toString())}');
       }
     } catch (e) {
       if (mounted) {
