@@ -1,3 +1,4 @@
+import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/user_profile.dart';
@@ -73,16 +74,16 @@ class AuthRemoteDataSource {
       final user = response.user;
       if (user == null) throw Exception('Falha ao cadastrar usuário.');
 
-      // O perfil é criado no servidor (trigger em auth.users). Se a confirmação
-      // de e-mail estiver ativa não há sessão ainda, então devolvemos os dados locais.
-      return await getCurrentUserProfile() ??
-          UserProfile(
-            id: user.id,
-            email: email.trim(),
-            fullName: fullName.trim(),
-            role: role,
-            createdAt: DateTime.now(),
-          );
+      // Com confirmação de e-mail ativa não há sessão: o usuário só entra depois
+      // de clicar no link. Nunca tratamos como logado sem sessão real.
+      if (response.session == null) {
+        throw EmailConfirmationPendingException(email.trim());
+      }
+      final profile = await getCurrentUserProfile();
+      if (profile == null) throw Exception('Não foi possível carregar o perfil.');
+      return profile;
+    } on EmailConfirmationPendingException {
+      rethrow;
     } on AuthException catch (e) {
       throw Exception(_mapAuthErrorMessage(e.message));
     } catch (e) {

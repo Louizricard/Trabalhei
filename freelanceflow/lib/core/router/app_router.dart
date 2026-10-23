@@ -57,6 +57,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authProvider);
       final isLoggedIn = authState.value != null;
       final loc = state.matchedLocation;
+
+      // Links de e-mail do Supabase (confirmação/recuperação) chegam como
+      // fragmento na URL; o SDK já processa a sessão, então só tratamos a rota.
+      final raw = state.uri.toString();
+      if (raw.contains('error_code=')) {
+        final expired = raw.contains('otp_expired');
+        return '/login?notice=${Uri.encodeComponent(expired ? 'O link do e-mail expirou ou já foi usado. Entre com sua senha ou peça um novo link.' : 'Não foi possível validar o link do e-mail.')}';
+      }
+      if (raw.contains('access_token=') || raw.contains('type=signup')) {
+        return '/jobs';
+      }
       final isAuthRoute =
           loc == '/splash' ||
           loc == '/login' ||
@@ -84,7 +95,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/splash',
         builder: (context, state) => const SplashScreen(),
       ),
-      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(
+        path: '/login',
+        builder: (context, state) =>
+            LoginScreen(notice: state.uri.queryParameters['notice']),
+      ),
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),

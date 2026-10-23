@@ -102,7 +102,7 @@ async function handleSubscriptionPaid(admin: any, asaasSubscriptionId: string) {
   if (pErr) throw pErr;
   await admin.rpc("notify", {
     p_user: sub.user_id, p_type: "system", p_title: "Plano Pro ativo 🎉",
-    p_body: "Propostas ilimitadas liberadas. Obrigado por apoiar o FreelanceFlow!",
+    p_body: "Propostas ilimitadas liberadas. Obrigado por apoiar o Trabalhei!",
     p_data: { route: "/plans" },
   });
 }

@@ -57,7 +57,7 @@ export async function asaas<T = Record<string, unknown>>(
     headers: {
       "Content-Type": "application/json",
       access_token: env("ASAAS_API_KEY"),
-      "User-Agent": "freelanceflow",
+      "User-Agent": "trabalhei",
     },
     body: init.body ? JSON.stringify(init.body) : undefined,
   });
@@ -105,7 +105,7 @@ export async function getOrCreateCustomer(
   const customer = await asaas<{ id: string }>("/customers", {
     method: "POST",
     body: {
-      name: profile?.full_name ?? "Cliente FreelanceFlow",
+      name: profile?.full_name ?? "Cliente Trabalhei",
       email: user.email,
       cpfCnpj,
       externalReference: user.id,
