@@ -123,6 +123,12 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
     state = const AsyncValue.data(null);
   }
 
+  /// Exclui a conta permanentemente. Em caso de erro o usuário segue logado.
+  Future<void> deleteAccount() async {
+    await _repository.deleteAccount();
+    state = const AsyncValue.data(null);
+  }
+
   @override
   void dispose() {
     _authSubscription?.cancel();

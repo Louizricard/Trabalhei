@@ -27,7 +27,7 @@ class TermsAndPrivacyScreen extends StatelessWidget {
               ),
               SizedBox(height: 8),
               Text(
-                'Última atualização: Agosto de 2026',
+                'Última atualização: Outubro de 2026',
                 style: TextStyle(
                   fontSize: 13,
                   color: AppColors.textSecondaryDark,
@@ -85,7 +85,7 @@ class TermsAndPrivacyScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Seus dados pessoais, mensagens e dados cadastrais são protegidos com criptografia em trânsito e controle de acesso por usuário, e jamais serão comercializados para terceiros. Você pode solicitar a exclusão de sua conta a qualquer momento através do suporte.',
+                      'Seus dados pessoais, mensagens e dados cadastrais são protegidos com criptografia em trânsito e controle de acesso por usuário, e jamais serão comercializados para terceiros. Você pode excluir sua conta a qualquer momento em Perfil > Excluir minha conta. Perfil, portfólio, vagas abertas, propostas pendentes, notificações e arquivos são apagados e a assinatura Pro é cancelada. Contratos já concluídos permanecem no histórico da outra parte, com seu nome anonimizado. Com contratos em andamento, conclua-os antes ou fale com o suporte.',
                       style: TextStyle(
                         fontSize: 13,
                         height: 1.6,

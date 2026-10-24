@@ -118,6 +118,24 @@ export async function getOrCreateCustomer(
   return customer.id;
 }
 
+/**
+ * Cancela no Asaas a assinatura em aberto do usuário, se houver.
+ * O plano segue ativo até o fim do período já pago. Retorna false se não havia assinatura.
+ */
+export async function cancelOpenSubscription(admin: SupabaseClient, userId: string): Promise<boolean> {
+  const { data: sub } = await admin
+    .from("subscriptions")
+    .select("id, asaas_subscription_id")
+    .eq("user_id", userId)
+    .in("status", ["pending", "active", "overdue"])
+    .maybeSingle();
+  if (!sub) return false;
+
+  await asaas(`/subscriptions/${sub.asaas_subscription_id}`, { method: "DELETE" });
+  await admin.from("subscriptions").update({ status: "cancelled" }).eq("id", sub.id);
+  return true;
+}
+
 export function handle(fn: (req: Request) => Promise<Response>) {
   return async (req: Request): Promise<Response> => {
     if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });

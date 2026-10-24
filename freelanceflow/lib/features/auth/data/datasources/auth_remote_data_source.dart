@@ -115,6 +115,13 @@ class AuthRemoteDataSource {
     await _supabase.auth.signOut();
   }
 
+  /// Exclui a conta no servidor (Edge Function `delete-account`) e encerra a
+  /// sessão local. O token já não vale no servidor, então o logout é só local.
+  Future<void> deleteAccount() async {
+    await _supabase.functions.invoke('delete-account');
+    await _supabase.auth.signOut(scope: SignOutScope.local);
+  }
+
   Future<UserProfile> updateProfile(UserProfile profile) async {
     final payload = profile.toUpdateJson();
     await _supabase.from('profiles').update(payload).eq('id', profile.id);

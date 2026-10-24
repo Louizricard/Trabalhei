@@ -103,7 +103,11 @@ class ProfileRemoteDataSource {
     String orderBy = 'rating_desc',
   }) async {
     try {
-      var q = _supabase.from('profiles').select().eq('role', 'freelancer');
+      var q = _supabase
+          .from('profiles')
+          .select()
+          .eq('role', 'freelancer')
+          .isFilter('deleted_at', null);
 
       if (query != null && query.trim().isNotEmpty) {
         final term = query.trim();

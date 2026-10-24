@@ -23,6 +23,20 @@ Princípios:
 | `subscriptions`, `job_featurings` | Somente o dono | Nenhuma | Edge Functions (service_role) |
 | `billing_customers`, `billing_events` | Ninguém (cliente) | Nenhuma | Edge Functions (service_role) |
 
+## Exclusão de conta (LGPD)
+
+A Edge Function `delete-account` (autenticada) recusa a exclusão se houver contrato `active`, cancela a
+assinatura no Asaas e chama `delete_account_data(user)`, executável **só pelo `service_role`**:
+
+- **Sem histórico de contratos:** o `auth.users` é apagado e o `ON DELETE CASCADE` remove todo o resto.
+- **Com histórico de contratos:** contratos, marcos, mensagens e avaliações ficam para a outra parte;
+  o perfil é anonimizado (`deleted_at` preenchido, nome "Usuário removido"), portfólio, notificações,
+  propostas sem contrato e vínculo de cobrança são apagados, vagas abertas são canceladas e o
+  `auth.users` recebe soft delete (e-mail e identidades descartados).
+
+Arquivos do usuário no Storage também são removidos (só avatar e portfólio quando há contratos).
+A busca de freelancers ignora perfis com `deleted_at`.
+
 ## Storage
 
 Buckets públicos para leitura: `avatars`, `portfolio`, `job_attachments`, `job_covers`, `chat_attachments`.
