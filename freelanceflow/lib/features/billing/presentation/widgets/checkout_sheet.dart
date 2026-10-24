@@ -147,7 +147,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
                 const SizedBox(height: 8),
                 const Text(
                   'O pagamento é processado com segurança pelo Asaas. '
-                  'O FreelanceFlow não armazena dados de cartão nem seu documento.',
+                  'O Trabalhei não armazena dados de cartão nem seu documento.',
                   style: TextStyle(fontSize: 11, color: AppColors.textMutedDark),
                 ),
                 const SizedBox(height: 16),

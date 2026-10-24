@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/conversation.dart';
 
-import 'package:freelanceflow/core/utils/currency_formatter.dart';
+import 'package:trabalhei/core/utils/currency_formatter.dart';
 import 'request_revision_modal.dart';
 import 'review_contract_modal.dart';
 import 'contract_milestone_sheet.dart';

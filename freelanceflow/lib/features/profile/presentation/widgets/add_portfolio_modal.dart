@@ -135,7 +135,7 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
               CustomTextField(
                 controller: _titleController,
                 label: 'Título do Projeto',
-                hint: 'Ex: App FreelanceFlow Mobile & Web',
+                hint: 'Ex: App de delivery Mobile & Web',
                 validator: (v) => v == null || v.trim().isEmpty
                     ? 'Informe o título do projeto'
                     : null,

@@ -1,4 +1,4 @@
-import 'package:freelanceflow/core/errors/backend_errors.dart';
+import 'package:trabalhei/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/storage_service.dart';

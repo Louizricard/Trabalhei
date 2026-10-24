@@ -1,4 +1,4 @@
-# freelanceflow (app Flutter)
+# Trabalhei — app Flutter
 
 Código do aplicativo. A documentação completa (modelo de negócio, backend, como rodar) está no
 [README da raiz](../README.md).

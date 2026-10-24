@@ -1,4 +1,4 @@
-import 'package:freelanceflow/core/errors/backend_errors.dart';
+import 'package:trabalhei/core/errors/backend_errors.dart';
 import '../widgets/chat_system_event_card.dart';
 import '../widgets/chat_delivery_action_banner.dart';
 import 'package:flutter/material.dart';

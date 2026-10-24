@@ -1,4 +1,4 @@
-# FreelanceFlow — Segurança (RLS e permissões)
+# Trabalhei — Segurança (RLS e permissões)
 
 Fonte da verdade: `supabase/migrations/20260901000000_initial_schema.sql`.
 

@@ -1,4 +1,4 @@
-# FreelanceFlow
+# Trabalhei
 
 Marketplace de freelancers em **Flutter** (Android, iOS e Web) com backend **Supabase**.
 Clientes publicam vagas, freelancers enviam propostas, as partes conversam em tempo real,
@@ -6,7 +6,7 @@ acompanham entregas por marcos e se avaliam ao final.
 
 ## Modelo de negócio
 
-O FreelanceFlow **não custodia pagamentos**. O valor do projeto é combinado e pago diretamente
+O Trabalhei **não custodia pagamentos**. O valor do projeto é combinado e pago diretamente
 entre cliente e freelancer. A plataforma monetiza com:
 
 | Produto | Quem paga | Como funciona |

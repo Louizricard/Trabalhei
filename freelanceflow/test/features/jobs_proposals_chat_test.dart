@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:freelanceflow/features/chat/domain/entities/conversation.dart';
-import 'package:freelanceflow/features/dashboard/domain/entities/dashboard_stats.dart';
-import 'package:freelanceflow/features/jobs/domain/entities/job.dart';
-import 'package:freelanceflow/features/proposals/domain/entities/proposal.dart';
-import 'package:freelanceflow/features/proposals/domain/entities/proposal_quota.dart';
+import 'package:trabalhei/features/chat/domain/entities/conversation.dart';
+import 'package:trabalhei/features/dashboard/domain/entities/dashboard_stats.dart';
+import 'package:trabalhei/features/jobs/domain/entities/job.dart';
+import 'package:trabalhei/features/proposals/domain/entities/proposal.dart';
+import 'package:trabalhei/features/proposals/domain/entities/proposal_quota.dart';
 
 Map<String, dynamic> _jobJson({String? featuredUntil}) => {
   'id': 'j1',

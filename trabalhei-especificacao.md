@@ -1,14 +1,14 @@
-# FreelanceFlow — Especificação de Produto e Arquitetura Técnica
+# Trabalhei — Especificação de Produto e Arquitetura Técnica
 
 > **Decisão de produto (atualização):** o escrow descrito nas seções 2.8 e 3 foi **descartado** por custo
-> regulatório e de implementação. O FreelanceFlow não custodia pagamentos: cliente e freelancer combinam o
+> regulatório e de implementação. O Trabalhei não custodia pagamentos: cliente e freelancer combinam o
 > pagamento fora da plataforma, e a receita vem de **assinatura Pro do freelancer** e **destaque pago de vagas**
 > (seção 10), cobrados via Asaas. As seções 2.8 e 3 permanecem apenas como registro do plano original; a
 > disputa financeira e o saque deixam de existir.
 
 ## Visão Geral
 
-FreelanceFlow é um marketplace de dois lados que conecta clientes a freelancers. O maior desafio de qualquer plataforma assim não são as telas — é resolver três problemas de confiança ao mesmo tempo: (1) o cliente confia que o freelancer vai entregar, (2) o freelancer confia que vai receber, e (3) ambos confiam que a plataforma vai mediar bem quando algo der errado. Boa parte do que foi acrescentado abaixo gira em torno de fortalecer exatamente esses três pontos, que no plano original ainda estavam rasos — principalmente pagamentos, avaliações e moderação.
+Trabalhei é um marketplace de dois lados que conecta clientes a freelancers. O maior desafio de qualquer plataforma assim não são as telas — é resolver três problemas de confiança ao mesmo tempo: (1) o cliente confia que o freelancer vai entregar, (2) o freelancer confia que vai receber, e (3) ambos confiam que a plataforma vai mediar bem quando algo der errado. Boa parte do que foi acrescentado abaixo gira em torno de fortalecer exatamente esses três pontos, que no plano original ainda estavam rasos — principalmente pagamentos, avaliações e moderação.
 
 Diferenciais possíveis frente a concorrentes como Workana, 99Freelas e Upwork:
 - Foco em nicho (ex.: só tech, só design, ou um setor específico) em vez de marketplace genérico

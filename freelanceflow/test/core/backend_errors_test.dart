@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:freelanceflow/core/errors/backend_errors.dart';
-import 'package:freelanceflow/core/utils/rating_formatter.dart';
+import 'package:trabalhei/core/errors/backend_errors.dart';
+import 'package:trabalhei/core/utils/rating_formatter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {

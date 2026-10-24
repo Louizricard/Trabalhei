@@ -1,8 +1,8 @@
-# FreelanceFlow — Contexto do Projeto para Agentes de IA
+# Trabalhei — Contexto do Projeto para Agentes de IA
 
 Este arquivo é o ponto de entrada para qualquer agente de IA (Gemini 3.1 Pro no Antigravity, ou qualquer outro) trabalhando neste repositório. Leia isto e os arquivos em `.agents/rules/` **antes** de escrever qualquer código.
 
-## O que é o FreelanceFlow
+## O que é o Trabalhei
 
 Marketplace de dois lados conectando clientes a freelancers: publicação de vagas, propostas, contratação com marcos de entrega, chat e avaliações. Sem custódia de pagamentos; monetização por assinatura Pro e destaque de vaga. App mobile-first em Flutter, rodando simultaneamente em Android, iOS e Web a partir da mesma base de código.
 

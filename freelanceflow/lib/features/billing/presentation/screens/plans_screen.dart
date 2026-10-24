@@ -58,7 +58,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
   Future<void> _subscribe() async {
     final data = await CheckoutSheet.show(
       context,
-      title: 'Assinar FreelanceFlow Pro',
+      title: 'Assinar Trabalhei Pro',
       summary:
           '${CurrencyFormatter.format(BillingConfig.proMonthlyPrice)} por mês. '
           'Cancele quando quiser.',

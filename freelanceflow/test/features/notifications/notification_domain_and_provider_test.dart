@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:freelanceflow/features/notifications/domain/entities/app_notification.dart';
-import 'package:freelanceflow/features/notifications/domain/repositories/notification_repository.dart';
-import 'package:freelanceflow/features/notifications/data/repositories/notification_repository_impl.dart';
-import 'package:freelanceflow/features/notifications/data/datasources/notification_remote_data_source.dart';
-import 'package:freelanceflow/features/notifications/presentation/providers/notification_provider.dart';
+import 'package:trabalhei/features/notifications/domain/entities/app_notification.dart';
+import 'package:trabalhei/features/notifications/domain/repositories/notification_repository.dart';
+import 'package:trabalhei/features/notifications/data/repositories/notification_repository_impl.dart';
+import 'package:trabalhei/features/notifications/data/datasources/notification_remote_data_source.dart';
+import 'package:trabalhei/features/notifications/presentation/providers/notification_provider.dart';
 
 class MockNotificationRemoteDataSource implements NotificationRemoteDataSource {
   final List<AppNotification> notifications = [];
