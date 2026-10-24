@@ -1,11 +1,11 @@
-import 'package:freelanceflow/core/utils/rating_formatter.dart';
+import 'package:trabalhei/core/utils/rating_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:freelanceflow/core/theme/app_colors.dart';
-import 'package:freelanceflow/core/utils/currency_formatter.dart';
-import 'package:freelanceflow/core/utils/date_formatter.dart';
-import 'package:freelanceflow/core/widgets/glass_card.dart';
-import 'package:freelanceflow/core/widgets/status_badge.dart';
-import 'package:freelanceflow/features/jobs/domain/entities/job.dart';
+import 'package:trabalhei/core/theme/app_colors.dart';
+import 'package:trabalhei/core/utils/currency_formatter.dart';
+import 'package:trabalhei/core/utils/date_formatter.dart';
+import 'package:trabalhei/core/widgets/glass_card.dart';
+import 'package:trabalhei/core/widgets/status_badge.dart';
+import 'package:trabalhei/features/jobs/domain/entities/job.dart';
 import 'package:go_router/go_router.dart';
 
 class JobCard extends StatelessWidget {

@@ -1,4 +1,4 @@
-import 'package:freelanceflow/core/errors/backend_errors.dart';
+import 'package:trabalhei/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +14,7 @@ import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../providers/profile_provider.dart';
 
 import 'package:image_picker/image_picker.dart';
+import '../widgets/delete_account_button.dart';
 import '../widgets/edit_profile_modal.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -487,6 +488,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   onPressed: () => context.push('/terms'),
                 ),
               ),
+              const Center(child: DeleteAccountButton()),
               const SizedBox(height: 16),
             ],
           ),

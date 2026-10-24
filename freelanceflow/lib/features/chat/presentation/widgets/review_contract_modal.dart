@@ -44,6 +44,11 @@ class _ReviewContractModalState extends ConsumerState<ReviewContractModal> {
       if (contractId == null) {
         throw Exception('Esta conversa não possui um contrato para avaliar.');
       }
+      if (!widget.conversation.isContractCompleted) {
+        throw Exception(
+          'A avaliação é liberada quando o contrato é concluído.',
+        );
+      }
 
       final targetId = widget.conversation.otherParticipantId;
       final comment = _commentController.text.trim();

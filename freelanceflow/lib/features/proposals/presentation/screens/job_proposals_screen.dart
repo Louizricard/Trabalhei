@@ -1,4 +1,4 @@
-import 'package:freelanceflow/core/utils/rating_formatter.dart';
+import 'package:trabalhei/core/utils/rating_formatter.dart';
 import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

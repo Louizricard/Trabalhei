@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:freelanceflow/features/auth/domain/entities/user_profile.dart';
-import 'package:freelanceflow/features/billing/domain/entities/billing.dart';
-import 'package:freelanceflow/features/billing/presentation/widgets/checkout_sheet.dart';
+import 'package:trabalhei/features/auth/domain/entities/user_profile.dart';
+import 'package:trabalhei/features/billing/domain/entities/billing.dart';
+import 'package:trabalhei/features/billing/presentation/widgets/checkout_sheet.dart';
 
 UserProfile _user({String plan = 'free', DateTime? expires}) => UserProfile(
   id: 'u1',

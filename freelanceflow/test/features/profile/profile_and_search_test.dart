@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:freelanceflow/features/auth/domain/entities/user_profile.dart';
-import 'package:freelanceflow/features/profile/domain/entities/portfolio_item.dart';
-import 'package:freelanceflow/features/profile/presentation/providers/profile_provider.dart';
-import 'package:freelanceflow/features/profile/presentation/widgets/freelancer_card.dart';
+import 'package:trabalhei/features/auth/domain/entities/user_profile.dart';
+import 'package:trabalhei/features/profile/domain/entities/portfolio_item.dart';
+import 'package:trabalhei/features/profile/presentation/providers/profile_provider.dart';
+import 'package:trabalhei/features/profile/presentation/widgets/freelancer_card.dart';
 
 void main() {
   group('PortfolioItem Entity Tests', () {

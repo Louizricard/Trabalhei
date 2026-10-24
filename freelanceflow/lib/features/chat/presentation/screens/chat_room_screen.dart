@@ -1,4 +1,4 @@
-import 'package:freelanceflow/core/errors/backend_errors.dart';
+import 'package:trabalhei/core/errors/backend_errors.dart';
 import '../widgets/chat_system_event_card.dart';
 import '../widgets/chat_delivery_action_banner.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +11,7 @@ import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/attachment_widgets.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/storage_image.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/conversation.dart';
@@ -531,7 +532,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                       maxHeight: 240,
                       maxWidth: 360,
                     ),
-                    child: Image.network(
+                    child: StorageImage(
                       msg.attachmentUrl!,
                       fit: BoxFit.cover,
                       loadingBuilder: (ctx, child, progress) {

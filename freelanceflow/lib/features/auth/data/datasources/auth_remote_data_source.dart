@@ -1,7 +1,9 @@
+import '../../../../core/config/legal.dart';
 import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/user_profile.dart';
+import '../../domain/password_policy.dart';
 
 class AuthRemoteDataSource {
   final SupabaseClient _supabase;
@@ -68,7 +70,13 @@ class AuthRemoteDataSource {
       final response = await _supabase.auth.signUp(
         email: email.trim(),
         password: password,
-        data: {'full_name': fullName.trim(), 'role': role.toDbString()},
+        data: {
+          'full_name': fullName.trim(),
+          'role': role.toDbString(),
+          // O cadastro só é enviado com o aceite marcado; guarda a versão aceita.
+          'terms_version': LegalInfo.termsVersion,
+          'terms_accepted_at': DateTime.now().toUtc().toIso8601String(),
+        },
       );
 
       final user = response.user;
@@ -80,7 +88,9 @@ class AuthRemoteDataSource {
         throw EmailConfirmationPendingException(email.trim());
       }
       final profile = await getCurrentUserProfile();
-      if (profile == null) throw Exception('Não foi possível carregar o perfil.');
+      if (profile == null) {
+        throw Exception('Não foi possível carregar o perfil.');
+      }
       return profile;
     } on EmailConfirmationPendingException {
       rethrow;
@@ -115,6 +125,13 @@ class AuthRemoteDataSource {
     await _supabase.auth.signOut();
   }
 
+  /// Exclui a conta no servidor (Edge Function `delete-account`) e encerra a
+  /// sessão local. O token já não vale no servidor, então o logout é só local.
+  Future<void> deleteAccount() async {
+    await _supabase.functions.invoke('delete-account');
+    await _supabase.auth.signOut(scope: SignOutScope.local);
+  }
+
   Future<UserProfile> updateProfile(UserProfile profile) async {
     final payload = profile.toUpdateJson();
     await _supabase.from('profiles').update(payload).eq('id', profile.id);
@@ -137,7 +154,10 @@ class AuthRemoteDataSource {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception('Usuário não autenticado.');
 
-    await _supabase.rpc('switch_role', params: {'p_role': newRole.toDbString()});
+    await _supabase.rpc(
+      'switch_role',
+      params: {'p_role': newRole.toDbString()},
+    );
 
     final updated = await getCurrentUserProfile();
     if (updated == null) throw Exception('Não foi possível carregar o perfil.');
@@ -161,7 +181,7 @@ class AuthRemoteDataSource {
       return 'Este e-mail já está cadastrado no sistema.';
     }
     if (lower.contains('password should be at least')) {
-      return 'A senha deve conter no mínimo 6 caracteres.';
+      return 'A senha deve conter no mínimo $minPasswordLength caracteres.';
     }
     if (lower.contains('rate limit')) {
       return 'Muitas tentativas. Aguarde alguns instantes e tente novamente.';

@@ -6,6 +6,7 @@ import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
+import '../../domain/password_policy.dart';
 import '../providers/auth_state_provider.dart';
 
 class ResetPasswordScreen extends ConsumerStatefulWidget {
@@ -161,15 +162,15 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                             CustomTextField(
                               controller: _newPasswordController,
                               label: 'Nova Senha',
-                              hint: 'Mínimo 6 caracteres',
+                              hint: 'Mínimo $minPasswordLength caracteres',
                               prefixIcon: Icons.lock_outline_rounded,
                               obscureText: true,
                               validator: (v) {
                                 if (v == null || v.isEmpty) {
                                   return 'Informe a nova senha';
                                 }
-                                if (v.length < 6) {
-                                  return 'Mínimo de 6 caracteres';
+                                if (v.length < minPasswordLength) {
+                                  return 'Mínimo de $minPasswordLength caracteres';
                                 }
                                 return null;
                               },

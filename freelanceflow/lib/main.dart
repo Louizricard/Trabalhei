@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'core/config/env_config.dart';
 import 'core/config/supabase_client.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_colors.dart';
@@ -67,11 +69,22 @@ void main() async {
     );
   };
 
+  // Sentry encadeia os handlers acima: os erros continuam no console e também
+  // são enviados ao Sentry. Sem SENTRY_DSN, nada é enviado.
+  if (EnvConfig.sentryDsn.isNotEmpty) {
+    await SentryFlutter.init((options) {
+      options.dsn = EnvConfig.sentryDsn;
+      options.environment = EnvConfig.sentryEnvironment;
+      options.sendDefaultPii = false;
+    });
+  }
+
   // Inicialização do Supabase
   try {
     await SupabaseInit.initialize();
   } catch (e, st) {
     debugPrint('🚨 [SupabaseInit] Erro ao inicializar Supabase: $e\n$st');
+    await Sentry.captureException(e, stackTrace: st);
   }
 
   runApp(const ProviderScope(child: TrabalheiApp()));

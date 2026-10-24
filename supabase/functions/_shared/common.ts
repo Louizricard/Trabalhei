@@ -1,5 +1,34 @@
 // Utilitários compartilhados pelas Edge Functions de cobrança (Asaas).
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import * as Sentry from "npm:@sentry/deno@11.6.0";
+
+// Sem SENTRY_DSN, os erros só vão para os logs da função.
+const sentryDsn = Deno.env.get("SENTRY_DSN");
+if (sentryDsn) {
+  // As integrações padrão compartilham contexto entre requisições no Edge Runtime;
+  // cada erro leva o próprio contexto via withScope (guia de Sentry do Supabase).
+  Sentry.init({
+    dsn: sentryDsn,
+    defaultIntegrations: false,
+    environment: Deno.env.get("SENTRY_ENVIRONMENT") ?? "production",
+  });
+}
+
+/** Registra o erro no log e, se configurado, no Sentry, marcado com o nome da função. */
+export async function reportError(
+  functionName: string,
+  error: unknown,
+  extra: Record<string, unknown> = {},
+): Promise<void> {
+  console.error(`[${functionName}]`, error, extra);
+  if (!sentryDsn) return;
+  Sentry.withScope((scope) => {
+    scope.setTag("function", functionName);
+    scope.setExtras(extra);
+    Sentry.captureException(error);
+  });
+  await Sentry.flush(2000);
+}
 
 export const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,8 +44,8 @@ export function json(body: unknown, status = 200): Response {
 }
 
 export class HttpError extends Error {
-  constructor(public status: number, message: string) {
-    super(message);
+  constructor(public status: number, message: string, options?: { cause?: unknown }) {
+    super(message, options);
   }
 }
 
@@ -66,7 +95,9 @@ export async function asaas<T = Record<string, unknown>>(
   if (!res.ok) {
     const detail = data?.errors?.[0]?.description ?? `HTTP ${res.status}`;
     console.error("[asaas]", path, res.status, text);
-    throw new HttpError(502, `Falha no provedor de pagamento: ${detail}`);
+    throw new HttpError(502, `Falha no provedor de pagamento: ${detail}`, {
+      cause: new Error(`Asaas ${init.method ?? "GET"} ${path}: HTTP ${res.status} - ${detail}`),
+    });
   }
   return data as T;
 }
@@ -118,14 +149,37 @@ export async function getOrCreateCustomer(
   return customer.id;
 }
 
+/**
+ * Cancela no Asaas a assinatura em aberto do usuário, se houver.
+ * O plano segue ativo até o fim do período já pago. Retorna false se não havia assinatura.
+ */
+export async function cancelOpenSubscription(admin: SupabaseClient, userId: string): Promise<boolean> {
+  const { data: sub } = await admin
+    .from("subscriptions")
+    .select("id, asaas_subscription_id")
+    .eq("user_id", userId)
+    .in("status", ["pending", "active", "overdue"])
+    .maybeSingle();
+  if (!sub) return false;
+
+  await asaas(`/subscriptions/${sub.asaas_subscription_id}`, { method: "DELETE" });
+  await admin.from("subscriptions").update({ status: "cancelled" }).eq("id", sub.id);
+  return true;
+}
+
+/** Trata OPTIONS e erros. Falhas 5xx (do servidor ou do Asaas) vão para reportError. */
 export function handle(fn: (req: Request) => Promise<Response>) {
   return async (req: Request): Promise<Response> => {
     if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
     try {
       return await fn(req);
     } catch (e) {
-      if (e instanceof HttpError) return json({ error: e.message }, e.status);
-      console.error("[unhandled]", e);
+      const functionName = new URL(req.url).pathname.split("/").filter(Boolean).pop() ?? "unknown";
+      if (e instanceof HttpError) {
+        if (e.status >= 500) await reportError(functionName, e.cause ?? e, { status: e.status });
+        return json({ error: e.message }, e.status);
+      }
+      await reportError(functionName, e);
       return json({ error: "Erro interno." }, 500);
     }
   };

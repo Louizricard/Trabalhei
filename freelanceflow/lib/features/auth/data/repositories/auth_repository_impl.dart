@@ -58,6 +58,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> deleteAccount() {
+    return _remoteDataSource.deleteAccount();
+  }
+
+  @override
   Future<UserProfile> updateProfile(UserProfile profile) {
     return _remoteDataSource.updateProfile(profile);
   }

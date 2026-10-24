@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
-import 'package:freelanceflow/core/utils/currency_formatter.dart';
+import 'package:trabalhei/core/utils/currency_formatter.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/conversation.dart';
 import 'request_revision_modal.dart';
@@ -405,7 +405,7 @@ Widget build(BuildContext context) {
                 ),
                 textAlign: TextAlign.center,
               ),
-              if (isClient) ...[
+              if (isClient && conv.isContractCompleted) ...[
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,

@@ -1,6 +1,6 @@
-# FreelanceFlow — Segurança (RLS e permissões)
+# Trabalhei — Segurança (RLS e permissões)
 
-Fonte da verdade: `supabase/migrations/20260901000000_initial_schema.sql`.
+Fonte da verdade: `supabase/migrations/` (schema inicial em `20261015211818_initial_schema.sql` e as migrations seguintes).
 
 Princípios:
 
@@ -19,18 +19,41 @@ Princípios:
 | `conversations` | Apenas os dois participantes | Nenhuma | `get_or_create_conversation` |
 | `messages` | Apenas os participantes da conversa | `INSERT` como remetente próprio e tipos não-sistema | Mensagens de sistema geradas pelas RPCs; `mark_conversation_read` |
 | `notifications` | Somente o dono | `UPDATE is_read` e `DELETE` do dono | Criadas por `notify()` (triggers/RPCs) |
-| `reviews` | Autenticados | `INSERT` pelas partes do contrato, uma por contrato | Rating do perfil recalculado por trigger |
+| `reviews` | Autenticados | `INSERT` pelas partes do contrato, uma por contrato, **só com o contrato `completed`** | Rating do perfil recalculado por trigger |
 | `subscriptions`, `job_featurings` | Somente o dono | Nenhuma | Edge Functions (service_role) |
 | `billing_customers`, `billing_events` | Ninguém (cliente) | Nenhuma | Edge Functions (service_role) |
 
+## Exclusão de conta (LGPD)
+
+A Edge Function `delete-account` (autenticada) recusa a exclusão se houver contrato `active`, cancela a
+assinatura no Asaas e chama `delete_account_data(user)`, executável **só pelo `service_role`**:
+
+- **Sem histórico de contratos:** o `auth.users` é apagado e o `ON DELETE CASCADE` remove todo o resto.
+- **Com histórico de contratos:** contratos, marcos, mensagens e avaliações ficam para a outra parte;
+  o perfil é anonimizado (`deleted_at` preenchido, nome "Usuário removido"), portfólio, notificações,
+  propostas sem contrato e vínculo de cobrança são apagados, vagas abertas são canceladas e o
+  `auth.users` recebe soft delete (e-mail e identidades descartados).
+
+Arquivos do usuário no Storage também são removidos (só avatar e portfólio quando há contratos).
+A busca de freelancers ignora perfis com `deleted_at`.
+
 ## Storage
 
-Buckets públicos para leitura: `avatars`, `portfolio`, `job_attachments`, `job_covers`, `chat_attachments`.
+Buckets públicos para leitura: `avatars`, `portfolio`, `job_attachments`, `job_covers`.
 Escrita/remoção apenas na pasta do próprio usuário: o primeiro segmento do caminho deve ser o `auth.uid()`
 (`<bucket>/<user_id>/...`). O app já prefixa uploads com o id do usuário.
 
-> Atenção: arquivos de chat/entregas ficam em buckets públicos (URL difícil de adivinhar, porém sem
-> autenticação). Para conteúdo confidencial, migre `chat_attachments` para bucket privado com URLs assinadas.
+`chat_attachments` (arquivos do chat, entregas e revisões) é **privado**. A leitura é liberada ao dono e
+às partes envolvidas, conforme o caminho:
+
+| Caminho | Quem lê |
+|---|---|
+| `<dono>/<conversation_id>/<arquivo>` | Dono e as duas partes da conversa |
+| `<dono>/deliverables/<milestone_id>/<arquivo>` | Dono e as partes do contrato do marco |
+| `<dono>/revisions/<milestone_id>/<arquivo>` | Dono e as partes do contrato do marco |
+
+O app guarda a URL no formato público como identificador do arquivo e, ao exibir ou abrir, troca por
+uma URL assinada válida por 1 hora (`StorageService.resolveUrl` e o widget `StorageImage`).
 
 ## Testando as políticas
 

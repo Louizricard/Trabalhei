@@ -1,17 +1,17 @@
-import 'package:freelanceflow/core/errors/backend_errors.dart';
+import 'package:trabalhei/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freelanceflow/core/theme/app_colors.dart';
-import 'package:freelanceflow/core/widgets/empty_state.dart';
-import 'package:freelanceflow/core/widgets/notification_bell_button.dart';
-import 'package:freelanceflow/core/widgets/responsive_layout.dart';
-import 'package:freelanceflow/features/auth/domain/entities/user_profile.dart';
-import 'package:freelanceflow/features/auth/presentation/providers/auth_state_provider.dart';
-import 'package:freelanceflow/features/jobs/presentation/providers/jobs_provider.dart';
-import 'package:freelanceflow/features/jobs/presentation/widgets/job_card.dart';
-import 'package:freelanceflow/features/proposals/domain/entities/proposal.dart';
-import 'package:freelanceflow/features/proposals/presentation/providers/proposals_provider.dart';
-import 'package:freelanceflow/features/chat/presentation/providers/chat_provider.dart';
+import 'package:trabalhei/core/theme/app_colors.dart';
+import 'package:trabalhei/core/widgets/empty_state.dart';
+import 'package:trabalhei/core/widgets/notification_bell_button.dart';
+import 'package:trabalhei/core/widgets/responsive_layout.dart';
+import 'package:trabalhei/features/auth/domain/entities/user_profile.dart';
+import 'package:trabalhei/features/auth/presentation/providers/auth_state_provider.dart';
+import 'package:trabalhei/features/jobs/presentation/providers/jobs_provider.dart';
+import 'package:trabalhei/features/jobs/presentation/widgets/job_card.dart';
+import 'package:trabalhei/features/proposals/domain/entities/proposal.dart';
+import 'package:trabalhei/features/proposals/presentation/providers/proposals_provider.dart';
+import 'package:trabalhei/features/chat/presentation/providers/chat_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class JobsListScreen extends ConsumerStatefulWidget {

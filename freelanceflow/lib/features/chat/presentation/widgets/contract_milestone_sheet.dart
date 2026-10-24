@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freelanceflow/core/theme/app_colors.dart';
-import 'package:freelanceflow/core/utils/currency_formatter.dart';
-import 'package:freelanceflow/core/widgets/custom_button.dart';
-import 'package:freelanceflow/core/widgets/glass_card.dart';
-import 'package:freelanceflow/core/widgets/status_badge.dart';
-import 'package:freelanceflow/features/auth/presentation/providers/auth_state_provider.dart';
-import 'package:freelanceflow/features/chat/domain/entities/conversation.dart';
-import 'package:freelanceflow/features/chat/presentation/providers/chat_provider.dart';
+import 'package:trabalhei/core/theme/app_colors.dart';
+import 'package:trabalhei/core/utils/currency_formatter.dart';
+import 'package:trabalhei/core/widgets/custom_button.dart';
+import 'package:trabalhei/core/widgets/glass_card.dart';
+import 'package:trabalhei/core/widgets/status_badge.dart';
+import 'package:trabalhei/features/auth/presentation/providers/auth_state_provider.dart';
+import 'package:trabalhei/features/chat/domain/entities/conversation.dart';
+import 'package:trabalhei/features/chat/presentation/providers/chat_provider.dart';
 
 import 'request_revision_modal.dart';
 import 'review_contract_modal.dart';
@@ -276,9 +276,7 @@ class ContractMilestoneSheet extends ConsumerWidget {
               );
             }),
             const SizedBox(height: 12),
-            if (liveConv.milestones.any(
-              (m) => m.status == MilestoneStatus.approved,
-            )) ...[
+            if (liveConv.isContractCompleted) ...[
               CustomButton(
                 text: isClient ? 'Avaliar Profissional' : 'Avaliar Contratante',
                 icon: Icons.star_rate_rounded,

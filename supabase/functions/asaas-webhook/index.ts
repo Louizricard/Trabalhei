@@ -2,7 +2,7 @@
 //   URL:   https://<projeto>.functions.supabase.co/asaas-webhook
 //   Token: o mesmo valor do secret ASAAS_WEBHOOK_TOKEN
 // Eventos: PAYMENT_* e SUBSCRIPTION_*. Esta função é idempotente (billing_events).
-import { adminClient, corsHeaders, env, json } from "../_shared/common.ts";
+import { adminClient, corsHeaders, env, json, reportError } from "../_shared/common.ts";
 
 const PAID_EVENTS = new Set(["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"]);
 const REVOKE_EVENTS = new Set(["PAYMENT_REFUNDED", "PAYMENT_CHARGEBACK_REQUESTED"]);
@@ -19,6 +19,16 @@ function timingSafeEqual(a: string, b: string): boolean {
 }
 
 Deno.serve(async (req) => {
+  try {
+    return await webhook(req);
+  } catch (e) {
+    // Ex.: secret ausente. O Asaas reenvia o evento depois do 500.
+    await reportError("asaas-webhook", e, { step: "inesperado" });
+    return json({ error: "Erro interno." }, 500);
+  }
+});
+
+async function webhook(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Método não permitido." }, 405);
 
@@ -47,7 +57,7 @@ Deno.serve(async (req) => {
     .insert({ id: eventId, event, payload: body });
   if (dupError) {
     if (dupError.code === "23505") return json({ ok: true, duplicate: true });
-    console.error("[webhook] billing_events", dupError);
+    await reportError("asaas-webhook", dupError, { eventId, event, step: "billing_events" });
     return json({ error: "Falha ao registrar evento." }, 500);
   }
 
@@ -77,12 +87,12 @@ Deno.serve(async (req) => {
   } catch (e) {
     // Desfaz o registro para o Asaas reenviar o evento.
     await admin.from("billing_events").delete().eq("id", eventId);
-    console.error("[webhook] processamento falhou", e);
+    await reportError("asaas-webhook", e, { eventId, event, step: "processamento" });
     return json({ error: "Falha ao processar." }, 500);
   }
 
   return json({ ok: true });
-});
+}
 
 // deno-lint-ignore no-explicit-any
 async function handleSubscriptionPaid(admin: any, asaasSubscriptionId: string) {
