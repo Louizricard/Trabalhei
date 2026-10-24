@@ -4,6 +4,9 @@ Itens que dependem de painel, conta ou decisão do responsável. O que é códig
 
 ## 1. Supabase › Authentication
 
+URL Configuration feita (Site URL e Redirect URLs abaixo). Pendente: *Minimum password length* ainda
+está em 6 no painel.
+
 **URL Configuration** (Authentication › URL Configuration)
 
 - Site URL: `https://trabalhei.vercel.app`
@@ -19,6 +22,8 @@ O app não envia `emailRedirectTo`, então os links de confirmação e de redefi
   gratuito, então o advisor continua acusando o item até um upgrade.
 
 ## 2. E-mail (SMTP próprio)
+
+Pendente: depende de registrar um domínio próprio.
 
 O remetente padrão do Supabase só envia para membros da organização: para qualquer outro endereço o
 cadastro falha com *Email address not authorized*. Ele também tem um limite baixo de envios por hora.
@@ -36,21 +41,20 @@ Para cadastros reais é preciso um SMTP próprio, em Authentication › Emails �
 
 - O build do app web já está configurado (`vercel.json`), com `SUPABASE_URL` e `SUPABASE_ANON_KEY`
   definidas em Production e Preview.
-- A produção (`trabalhei.vercel.app`) só passa a ter o app compilado depois do merge na `main`.
+- A produção (`trabalhei.vercel.app`) é recompilada a cada merge na `main`.
 - Os previews exigem login no Vercel (Deployment Protection). A produção é pública.
 
 ## 4. Sentry
 
-1. Crie uma conta em sentry.io e dois projetos: um **Flutter** (app) e um **Deno** (Edge Functions).
-2. App: adicione `SENTRY_DSN` (DSN do projeto Flutter) nas variáveis do Vercel, em Production e
-   Preview, e faça um novo deploy.
-3. Funções: `supabase secrets set SENTRY_DSN=<DSN do projeto Deno>`. As funções leem o valor na
-   próxima execução, sem novo deploy.
-4. Em Alerts, confirme que o alerta de novo tipo de erro (*new issue*) envia e-mail.
-
-Sem o DSN, nada é enviado e os erros ficam só no console e nos logs das funções.
+Configurado: projetos `app` (Flutter) e `edge-functions` (Deno) na organização `louizvolution`;
+`SENTRY_DSN` do app no Vercel (Production e Preview) e o das funções em Edge Functions › Secrets do
+Supabase. Os dois projetos receberam erro de teste e o alerta *high priority issues* envia e-mail.
+Para trocar o DSN, atualize os dois lugares e refaça o deploy do Vercel (as funções leem o secret na
+próxima execução).
 
 ## 5. Asaas
+
+Pendente.
 
 - No cadastro do webhook, preencha o e-mail de notificação. O Asaas avisa quando a fila de webhooks
   é interrompida depois de falhas seguidas.
@@ -58,8 +62,8 @@ Sem o DSN, nada é enviado e os erros ficam só no console e nos logs das funç�
 
 ## 6. Termos de uso
 
-- Preencha nome ou razão social, CPF ou CNPJ e e-mail em `freelanceflow/lib/core/config/legal.dart`.
-  Hoje esses campos aparecem entre colchetes na tela.
+- Nome, documento e e-mail do responsável estão em `freelanceflow/lib/core/config/legal.dart` e
+  aparecem publicamente na tela de termos.
 - Peça uma revisão jurídica, em especial dos trechos sobre arrependimento e reembolso, foro e prazo
   de guarda dos registros de acesso. O Marco Civil exige 6 meses, e o plano gratuito do Supabase
   guarda logs por bem menos tempo.
@@ -68,6 +72,7 @@ Sem o DSN, nada é enviado e os erros ficam só no console e nos logs das funç�
 
 ## 7. Limpeza
 
-- Edge Functions do modelo antigo ainda publicadas e sem login:
-  `supabase functions delete create-payment-intent mercadopago-webhook process-pix-payout check-payment-status`
-- Tabela `supabase_migrations.legacy_history_backup`: pode ser apagada quando não for mais útil.
+Feita em 24/10/2026: as Edge Functions do modelo antigo (`create-payment-intent`, `mercadopago-webhook`,
+`process-pix-payout`, `check-payment-status`) foram excluídas, e a tabela
+`supabase_migrations.legacy_history_backup` foi apagada. O código delas segue no histórico do git
+(commit `56b46f9`).
