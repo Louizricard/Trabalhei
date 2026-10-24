@@ -180,7 +180,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 ? null
                                 : 'Mínimo 6 caracteres',
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
+                          const _TermsAcceptanceField(),
+                          const SizedBox(height: 16),
                           CustomButton(
                             text: 'Finalizar Cadastro',
                             isLoading: _isLoading,
@@ -258,6 +260,69 @@ class _RoleTab extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Aceite obrigatório dos Termos de Uso e da Política de Privacidade. Valida
+/// junto com o restante do formulário.
+class _TermsAcceptanceField extends StatelessWidget {
+  const _TermsAcceptanceField();
+
+  @override
+  Widget build(BuildContext context) {
+    return FormField<bool>(
+      initialValue: false,
+      validator: (accepted) => accepted == true
+          ? null
+          : 'Aceite os Termos de Uso e a Política de Privacidade',
+      builder: (field) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Checkbox(
+                value: field.value ?? false,
+                activeColor: AppColors.primary,
+                onChanged: field.didChange,
+              ),
+              Expanded(
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    const Text(
+                      'Li e aceito os ',
+                      style: TextStyle(
+                        color: AppColors.textSecondaryDark,
+                        fontSize: 13,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => context.push('/terms'),
+                      child: const Text(
+                        'Termos de Uso e a Política de Privacidade',
+                        style: TextStyle(
+                          color: AppColors.primaryLight,
+                          fontSize: 13,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (field.hasError)
+            Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Text(
+                field.errorText!,
+                style: const TextStyle(color: AppColors.error, fontSize: 12),
+              ),
+            ),
+        ],
       ),
     );
   }

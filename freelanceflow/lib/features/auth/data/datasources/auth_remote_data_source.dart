@@ -1,3 +1,4 @@
+import '../../../../core/config/legal.dart';
 import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -68,7 +69,13 @@ class AuthRemoteDataSource {
       final response = await _supabase.auth.signUp(
         email: email.trim(),
         password: password,
-        data: {'full_name': fullName.trim(), 'role': role.toDbString()},
+        data: {
+          'full_name': fullName.trim(),
+          'role': role.toDbString(),
+          // O cadastro só é enviado com o aceite marcado; guarda a versão aceita.
+          'terms_version': LegalInfo.termsVersion,
+          'terms_accepted_at': DateTime.now().toUtc().toIso8601String(),
+        },
       );
 
       final user = response.user;
@@ -80,7 +87,9 @@ class AuthRemoteDataSource {
         throw EmailConfirmationPendingException(email.trim());
       }
       final profile = await getCurrentUserProfile();
-      if (profile == null) throw Exception('Não foi possível carregar o perfil.');
+      if (profile == null) {
+        throw Exception('Não foi possível carregar o perfil.');
+      }
       return profile;
     } on EmailConfirmationPendingException {
       rethrow;
@@ -144,7 +153,10 @@ class AuthRemoteDataSource {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception('Usuário não autenticado.');
 
-    await _supabase.rpc('switch_role', params: {'p_role': newRole.toDbString()});
+    await _supabase.rpc(
+      'switch_role',
+      params: {'p_role': newRole.toDbString()},
+    );
 
     final updated = await getCurrentUserProfile();
     if (updated == null) throw Exception('Não foi possível carregar o perfil.');
