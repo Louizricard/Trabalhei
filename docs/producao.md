@@ -36,19 +36,16 @@ Para cadastros reais é preciso um SMTP próprio, em Authentication › Emails �
 
 - O build do app web já está configurado (`vercel.json`), com `SUPABASE_URL` e `SUPABASE_ANON_KEY`
   definidas em Production e Preview.
-- A produção (`trabalhei.vercel.app`) só passa a ter o app compilado depois do merge na `main`.
+- A produção (`trabalhei.vercel.app`) é recompilada a cada merge na `main`.
 - Os previews exigem login no Vercel (Deployment Protection). A produção é pública.
 
 ## 4. Sentry
 
-1. Crie uma conta em sentry.io e dois projetos: um **Flutter** (app) e um **Deno** (Edge Functions).
-2. App: adicione `SENTRY_DSN` (DSN do projeto Flutter) nas variáveis do Vercel, em Production e
-   Preview, e faça um novo deploy.
-3. Funções: `supabase secrets set SENTRY_DSN=<DSN do projeto Deno>`. As funções leem o valor na
-   próxima execução, sem novo deploy.
-4. Em Alerts, confirme que o alerta de novo tipo de erro (*new issue*) envia e-mail.
-
-Sem o DSN, nada é enviado e os erros ficam só no console e nos logs das funções.
+Configurado: projetos `app` (Flutter) e `edge-functions` (Deno) na organização `louizvolution`;
+`SENTRY_DSN` do app no Vercel (Production e Preview) e o das funções em Edge Functions › Secrets do
+Supabase. Os dois projetos receberam erro de teste e o alerta *high priority issues* envia e-mail.
+Para trocar o DSN, atualize os dois lugares e refaça o deploy do Vercel (as funções leem o secret na
+próxima execução).
 
 ## 5. Asaas
 
@@ -68,6 +65,7 @@ Sem o DSN, nada é enviado e os erros ficam só no console e nos logs das funç�
 
 ## 7. Limpeza
 
-- Edge Functions do modelo antigo ainda publicadas e sem login:
-  `supabase functions delete create-payment-intent mercadopago-webhook process-pix-payout check-payment-status`
-- Tabela `supabase_migrations.legacy_history_backup`: pode ser apagada quando não for mais útil.
+Feita em 24/10/2026: as Edge Functions do modelo antigo (`create-payment-intent`, `mercadopago-webhook`,
+`process-pix-payout`, `check-payment-status`) foram excluídas, e a tabela
+`supabase_migrations.legacy_history_backup` foi apagada. O código delas segue no histórico do git
+(commit `56b46f9`).
