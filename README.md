@@ -23,7 +23,8 @@ o pagamento.
 ```
 freelanceflow/        App Flutter (lib/, test/, android/, ios/, web/ ...)
 supabase/
-  migrations/         Schema, RLS e funções (RPC) do banco
+  migrations/         Schema, RLS e funções (RPC) do banco (só migrations de ida)
+  rollbacks/          Rollback de cada migration (<versão>_<nome>_down.sql), fora do alcance do CLI
   functions/          Edge Functions (Deno): cobrança Asaas e webhook
 docs/rls.md           Políticas de segurança por tabela
 ```
@@ -58,6 +59,9 @@ cp supabase/.env.example supabase/.env           # preencha os segredos do Asaas
 supabase secrets set --env-file supabase/.env
 supabase functions deploy asaas-create-subscription asaas-cancel-subscription asaas-feature-job asaas-webhook
 ```
+
+Antes do `db push`, `supabase migration list` deve mostrar as mesmas versões no local e no remoto.
+Os rollbacks ficam em `supabase/rollbacks/` e são aplicados à mão (`psql -f`), nunca pelo CLI.
 
 No painel do Asaas, cadastre o webhook em `https://<ref>.functions.supabase.co/asaas-webhook`
 com o mesmo token de `ASAAS_WEBHOOK_TOKEN` e os eventos `PAYMENT_*` e `SUBSCRIPTION_*`.

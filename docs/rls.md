@@ -1,6 +1,6 @@
 # Trabalhei — Segurança (RLS e permissões)
 
-Fonte da verdade: `supabase/migrations/20260901000000_initial_schema.sql`.
+Fonte da verdade: `supabase/migrations/` (schema inicial em `20261015211818_initial_schema.sql` e as migrations seguintes).
 
 Princípios:
 
