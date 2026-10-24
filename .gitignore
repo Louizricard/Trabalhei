@@ -129,3 +129,6 @@ supabase/.env
 .vscode/mcp.json
 .vscode/settings.json
 .clangd
+
+# SDK do Flutter baixado pelo build do Vercel
+/.flutter/
