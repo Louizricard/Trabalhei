@@ -4,6 +4,9 @@ Itens que dependem de painel, conta ou decisão do responsável. O que é códig
 
 ## 1. Supabase › Authentication
 
+URL Configuration feita (Site URL e Redirect URLs abaixo). Pendente: *Minimum password length* ainda
+está em 6 no painel.
+
 **URL Configuration** (Authentication › URL Configuration)
 
 - Site URL: `https://trabalhei.vercel.app`
@@ -19,6 +22,8 @@ O app não envia `emailRedirectTo`, então os links de confirmação e de redefi
   gratuito, então o advisor continua acusando o item até um upgrade.
 
 ## 2. E-mail (SMTP próprio)
+
+Pendente: depende de registrar um domínio próprio.
 
 O remetente padrão do Supabase só envia para membros da organização: para qualquer outro endereço o
 cadastro falha com *Email address not authorized*. Ele também tem um limite baixo de envios por hora.
@@ -49,14 +54,16 @@ próxima execução).
 
 ## 5. Asaas
 
+Pendente.
+
 - No cadastro do webhook, preencha o e-mail de notificação. O Asaas avisa quando a fila de webhooks
   é interrompida depois de falhas seguidas.
 - Antes de produção, troque `ASAAS_BASE_URL` e `ASAAS_API_KEY` para os valores de produção.
 
 ## 6. Termos de uso
 
-- Preencha nome ou razão social, CPF ou CNPJ e e-mail em `freelanceflow/lib/core/config/legal.dart`.
-  Hoje esses campos aparecem entre colchetes na tela.
+- Nome, documento e e-mail do responsável estão em `freelanceflow/lib/core/config/legal.dart` e
+  aparecem publicamente na tela de termos.
 - Peça uma revisão jurídica, em especial dos trechos sobre arrependimento e reembolso, foro e prazo
   de guarda dos registros de acesso. O Marco Civil exige 6 meses, e o plano gratuito do Supabase
   guarda logs por bem menos tempo.
