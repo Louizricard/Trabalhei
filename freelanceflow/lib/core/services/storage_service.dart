@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,6 +81,24 @@ class AppAttachment {
     if (size < 1024 * 1024) return '${(size / 1024).toStringAsFixed(1)} KB';
     return '${(size / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
+}
+
+/// Buckets sem leitura pública. O app guarda a URL no formato público como
+/// identificador estável do arquivo e troca por uma URL assinada ao exibir/abrir.
+const privateBuckets = {'chat_attachments'};
+
+/// Validade das URLs assinadas dos buckets privados.
+const signedUrlTtl = Duration(hours: 1);
+
+final _storageObjectUrl = RegExp(
+  r'/storage/v1/object/(?:public|sign)/([^/]+)/([^?]+)',
+);
+
+/// Bucket e caminho do arquivo quando a URL aponta para um bucket privado.
+({String bucket, String path})? privateStorageObject(String url) {
+  final match = _storageObjectUrl.firstMatch(url);
+  if (match == null || !privateBuckets.contains(match.group(1))) return null;
+  return (bucket: match.group(1)!, path: Uri.decodeComponent(match.group(2)!));
 }
 
 /// Service providing unified, cross-platform file picking and Supabase Storage uploads
@@ -243,10 +263,19 @@ class StorageService {
     return results;
   }
 
+  /// URL utilizável do arquivo: assinada para buckets privados, a própria nos demais.
+  Future<String> resolveUrl(String url) async {
+    final object = privateStorageObject(url);
+    if (object == null) return url;
+    return _supabase.storage
+        .from(object.bucket)
+        .createSignedUrl(object.path, signedUrlTtl.inSeconds);
+  }
+
   /// Opens or downloads an attachment URL in external browser/viewer
   Future<bool> launchAttachment(String url) async {
     try {
-      final uri = Uri.parse(url);
+      final uri = Uri.parse(await resolveUrl(url));
       return await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {
       debugPrint('🚨 [StorageService] Erro ao abrir URL do anexo: $e');
@@ -286,3 +315,16 @@ final storageServiceProvider = Provider<StorageService>((ref) {
   final supabase = ref.watch(supabaseClientProvider);
   return StorageService(supabase);
 });
+
+/// URL resolvida (assinada, se privada). Fica em cache um pouco menos que a
+/// validade da assinatura, para não gerar uma nova a cada rebuild.
+final resolvedStorageUrlProvider = FutureProvider.autoDispose
+    .family<String, String>((ref, url) async {
+      final link = ref.keepAlive();
+      final timer = Timer(
+        signedUrlTtl - const Duration(minutes: 5),
+        link.close,
+      );
+      ref.onDispose(timer.cancel);
+      return ref.read(storageServiceProvider).resolveUrl(url);
+    });

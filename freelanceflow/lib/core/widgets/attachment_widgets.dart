@@ -1,10 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../services/storage_service.dart';
 import '../theme/app_colors.dart';
 import 'glass_card.dart';
+import 'storage_image.dart';
 
 /// Utilitários para detecção de tipo de anexo
 class AttachmentHelper {
@@ -55,17 +55,18 @@ void showImageViewerGallery(
   );
 }
 
-class _ImageViewerDialog extends StatefulWidget {
+class _ImageViewerDialog extends ConsumerStatefulWidget {
   final List<Map<String, dynamic>> images;
   final int initialIndex;
 
   const _ImageViewerDialog({required this.images, this.initialIndex = 0});
 
   @override
-  State<_ImageViewerDialog> createState() => _ImageViewerDialogState();
+  ConsumerState<_ImageViewerDialog> createState() =>
+      _ImageViewerDialogState();
 }
 
-class _ImageViewerDialogState extends State<_ImageViewerDialog> {
+class _ImageViewerDialogState extends ConsumerState<_ImageViewerDialog> {
   late PageController _pageController;
   late int _currentIndex;
 
@@ -131,7 +132,7 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
                         horizontal: 16,
                         vertical: 80,
                       ),
-                      child: Image.network(
+                      child: StorageImage(
                         url,
                         fit: BoxFit.contain,
                         loadingBuilder: (ctx, child, progress) {
@@ -258,10 +259,9 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
                           size: 20,
                         ),
                         tooltip: 'Abrir original',
-                        onPressed: () => launchUrl(
-                          Uri.parse(currentUrl),
-                          mode: LaunchMode.externalApplication,
-                        ),
+                        onPressed: () => ref
+                            .read(storageServiceProvider)
+                            .launchAttachment(currentUrl),
                       ),
                   ],
                 ),
@@ -371,7 +371,7 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog> {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
+                                child: StorageImage(
                                   thumbUrl,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
@@ -887,7 +887,7 @@ class AttachmentCardsList extends ConsumerWidget {
           fit: StackFit.expand,
           children: [
             // Imagem com loading e erro elegantes
-            Image.network(
+            StorageImage(
               url,
               fit: BoxFit.cover,
               loadingBuilder: (ctx, child, progress) {

@@ -39,12 +39,21 @@ A busca de freelancers ignora perfis com `deleted_at`.
 
 ## Storage
 
-Buckets públicos para leitura: `avatars`, `portfolio`, `job_attachments`, `job_covers`, `chat_attachments`.
+Buckets públicos para leitura: `avatars`, `portfolio`, `job_attachments`, `job_covers`.
 Escrita/remoção apenas na pasta do próprio usuário: o primeiro segmento do caminho deve ser o `auth.uid()`
 (`<bucket>/<user_id>/...`). O app já prefixa uploads com o id do usuário.
 
-> Atenção: arquivos de chat/entregas ficam em buckets públicos (URL difícil de adivinhar, porém sem
-> autenticação). Para conteúdo confidencial, migre `chat_attachments` para bucket privado com URLs assinadas.
+`chat_attachments` (arquivos do chat, entregas e revisões) é **privado**. A leitura é liberada ao dono e
+às partes envolvidas, conforme o caminho:
+
+| Caminho | Quem lê |
+|---|---|
+| `<dono>/<conversation_id>/<arquivo>` | Dono e as duas partes da conversa |
+| `<dono>/deliverables/<milestone_id>/<arquivo>` | Dono e as partes do contrato do marco |
+| `<dono>/revisions/<milestone_id>/<arquivo>` | Dono e as partes do contrato do marco |
+
+O app guarda a URL no formato público como identificador do arquivo e, ao exibir ou abrir, troca por
+uma URL assinada válida por 1 hora (`StorageService.resolveUrl` e o widget `StorageImage`).
 
 ## Testando as políticas
 
