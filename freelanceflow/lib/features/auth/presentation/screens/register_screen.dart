@@ -8,6 +8,7 @@ import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../domain/entities/user_profile.dart';
+import '../../domain/password_policy.dart';
 import '../providers/auth_state_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -173,12 +174,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           CustomTextField(
                             controller: _passwordController,
                             label: 'Senha',
-                            hint: 'Mínimo 6 caracteres',
+                            hint: 'Mínimo $minPasswordLength caracteres',
                             prefixIcon: Icons.lock_outline_rounded,
                             obscureText: true,
-                            validator: (v) => v != null && v.length >= 6
+                            validator: (v) =>
+                                v != null && v.length >= minPasswordLength
                                 ? null
-                                : 'Mínimo 6 caracteres',
+                                : 'Mínimo $minPasswordLength caracteres',
                           ),
                           const SizedBox(height: 16),
                           const _TermsAcceptanceField(),

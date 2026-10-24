@@ -3,6 +3,7 @@ import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/user_profile.dart';
+import '../../domain/password_policy.dart';
 
 class AuthRemoteDataSource {
   final SupabaseClient _supabase;
@@ -180,7 +181,7 @@ class AuthRemoteDataSource {
       return 'Este e-mail já está cadastrado no sistema.';
     }
     if (lower.contains('password should be at least')) {
-      return 'A senha deve conter no mínimo 6 caracteres.';
+      return 'A senha deve conter no mínimo $minPasswordLength caracteres.';
     }
     if (lower.contains('rate limit')) {
       return 'Muitas tentativas. Aguarde alguns instantes e tente novamente.';
