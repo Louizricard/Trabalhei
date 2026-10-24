@@ -4,8 +4,7 @@ Itens que dependem de painel, conta ou decisão do responsável. O que é códig
 
 ## 1. Supabase › Authentication
 
-URL Configuration feita (Site URL e Redirect URLs abaixo). Pendente: *Minimum password length* ainda
-está em 6 no painel.
+Feito: URL Configuration e *Minimum password length* = 8 conferidos no painel.
 
 **URL Configuration** (Authentication › URL Configuration)
 
@@ -76,3 +75,16 @@ Feita em 24/10/2026: as Edge Functions do modelo antigo (`create-payment-intent`
 `process-pix-payout`, `check-payment-status`) foram excluídas, e a tabela
 `supabase_migrations.legacy_history_backup` foi apagada. O código delas segue no histórico do git
 (commit `56b46f9`).
+
+## 8. Android (APK)
+
+- O APK de release é assinado com a chave `trabalhei-release.jks`, guardada fora do repositório em
+  `C:\Users\luizr\Documents\trabalhei\android-release-key\`, junto com uma cópia do `key.properties`
+  (senha e alias).
+- **Faça backup desses dois arquivos** (pen drive, cofre de senhas). Sem eles não é possível publicar
+  uma atualização que instale por cima da versão anterior, nem usar o mesmo app na Play Store.
+- Para gerar uma versão nova: suba `version` no `pubspec.yaml`, copie o `key.properties` para
+  `freelanceflow/android/` e rode, dentro de `freelanceflow/`:
+  `flutter build apk --release --dart-define-from-file=dart_defines.json --dart-define=SENTRY_DSN=<DSN do app> --dart-define=SENTRY_ENVIRONMENT=production`
+- Sem o `key.properties`, o build de release usa a chave de debug da máquina (serve para testes,
+  não para publicar).
