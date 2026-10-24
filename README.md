@@ -73,6 +73,26 @@ com o mesmo token de `ASAAS_WEBHOOK_TOKEN` e os eventos `PAYMENT_*` e `SUBSCRIPT
 Os preços exibidos no app (`BillingConfig`) devem espelhar `PRO_PRICE` e `FEATURE_PRICE`.
 Comece pelo sandbox (`ASAAS_BASE_URL` padrão) e só troque para produção depois de testar o ciclo completo.
 
+## App web no Vercel
+
+O `vercel.json` chama `scripts/vercel-build.sh`, que baixa a versão fixada do Flutter e roda
+`flutter build web`. Variáveis do projeto no Vercel (Production e Preview):
+
+| Variável | Valor |
+|---|---|
+| `SUPABASE_URL` | URL do projeto Supabase |
+| `SUPABASE_ANON_KEY` | Chave publicável do Supabase |
+| `SENTRY_DSN` | Opcional; DSN do projeto Flutter no Sentry |
+
+O ambiente enviado ao Sentry vem de `VERCEL_ENV` (production/preview). Produção: `https://trabalhei.vercel.app`.
+
+## Monitoramento (Sentry)
+
+Erros não tratados do app e falhas 5xx das Edge Functions (incluindo o webhook do Asaas) vão para o
+Sentry quando `SENTRY_DSN` está definido; sem ele, nada é enviado. No app, defina `SENTRY_DSN` no
+Vercel (ou no `dart_defines.json`); nas funções, `supabase secrets set SENTRY_DSN=...`. O Sentry
+avisa por e-mail a cada novo tipo de erro.
+
 ## Qualidade
 
 ```bash

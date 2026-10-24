@@ -28,8 +28,7 @@ Deno.serve(handle(async (req) => {
 
   const { data: hardDelete, error } = await admin.rpc("delete_account_data", { p_user: user.id });
   if (error) {
-    console.error("[delete-account] delete_account_data", error);
-    throw new HttpError(500, "Não foi possível excluir a conta. Tente novamente.");
+    throw new HttpError(500, "Não foi possível excluir a conta. Tente novamente.", { cause: error });
   }
 
   await removeUserFiles(admin, user.id, hardDelete ? ALL_BUCKETS : PROFILE_BUCKETS);
@@ -38,8 +37,7 @@ Deno.serve(handle(async (req) => {
   // descarta e-mail e identidades mas mantém o id referenciado pelos contratos.
   const { error: authError } = await admin.auth.admin.deleteUser(user.id, !hardDelete);
   if (authError) {
-    console.error("[delete-account] deleteUser", authError);
-    throw new HttpError(500, "Não foi possível excluir a conta. Tente novamente.");
+    throw new HttpError(500, "Não foi possível excluir a conta. Tente novamente.", { cause: authError });
   }
   return json({ ok: true });
 }));

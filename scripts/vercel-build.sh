@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build do app web no Vercel (chamado pelo vercel.json). O Vercel não traz o
 # Flutter: baixa a versão fixada abaixo e compila com as variáveis do projeto
-# (Vercel > Settings > Environment Variables).
+# (Vercel > Settings > Environment Variables). SENTRY_DSN é opcional.
 set -euo pipefail
 
 FLUTTER_VERSION="3.47.7"
@@ -19,4 +19,4 @@ cd freelanceflow
 flutter pub get
 flutter build web --release \
   --dart-define=SUPABASE_URL="$SUPABASE_URL" \
-  --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
+  --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"   --dart-define=SENTRY_DSN="${SENTRY_DSN:-}"   --dart-define=SENTRY_ENVIRONMENT="${VERCEL_ENV:-production}"

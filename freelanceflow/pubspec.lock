@@ -504,6 +504,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  package_info_plus:
+    dependency: transitive
+    description:
+      name: package_info_plus
+      sha256: "468c26b4254ab01979fa5e4a98cb343ea3631b9acee6f21028997419a80e1a20"
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.0.1"
+  package_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: package_info_plus_platform_interface
+      sha256: "202a487f08836a592a6bd4f901ac69b3a8f146af552bbd14407b6b41e1c3f086"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.1"
   passkeys_platform_interface:
     dependency: transitive
     description:
@@ -632,6 +648,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.6.1"
+  sentry:
+    dependency: transitive
+    description:
+      name: sentry
+      sha256: f8219c441f6b0903f88475058373c08ac62cac753195b344cc1f8c540a6e490a
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.2.0"
+  sentry_flutter:
+    dependency: "direct main"
+    description:
+      name: sentry_flutter
+      sha256: a4dd14fee180b0a6dfd16133bc617a8cfc8c7cbc2e991851e5765ebcbbfcc9a8
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.2.0"
   shared_preferences:
     dependency: transitive
     description:
