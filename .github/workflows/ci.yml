@@ -20,3 +20,9 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter test
+      # Garante que o Android continua compilando (ex.: minSdk exigido por plugins).
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: flutter build apk --debug
