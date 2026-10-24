@@ -28,6 +28,7 @@ supabase/
   functions/          Edge Functions (Deno): cobrança Asaas, webhook e exclusão de conta
     _shared/          Código comum (importado como ../_shared/common.ts)
 docs/rls.md           Políticas de segurança por tabela
+docs/producao.md      Checklist do que configurar nos painéis antes de produção
 ```
 
 O app segue Clean Architecture por feature (`domain` / `data` / `presentation`) com Riverpod e go_router.
