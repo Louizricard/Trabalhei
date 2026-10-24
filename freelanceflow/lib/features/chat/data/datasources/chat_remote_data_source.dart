@@ -252,6 +252,7 @@ class ChatRemoteDataSource {
     return Conversation(
       id: json['id'] as String,
       contractId: json['contract_id'] as String?,
+      contractStatus: contract is Map ? contract['status'] as String? : null,
       clientId: clientId,
       freelancerId: freelancerId,
       jobTitle: jobTitle,

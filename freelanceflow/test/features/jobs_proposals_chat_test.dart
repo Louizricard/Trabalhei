@@ -36,13 +36,15 @@ void main() {
       final future = DateTime.now().add(const Duration(days: 2));
       final past = DateTime.now().subtract(const Duration(days: 2));
       expect(
-        Job.fromJson(_jobJson(featuredUntil: future.toIso8601String()))
-            .isFeatured,
+        Job.fromJson(
+          _jobJson(featuredUntil: future.toIso8601String()),
+        ).isFeatured,
         isTrue,
       );
       expect(
-        Job.fromJson(_jobJson(featuredUntil: past.toIso8601String()))
-            .isFeatured,
+        Job.fromJson(
+          _jobJson(featuredUntil: past.toIso8601String()),
+        ).isFeatured,
         isFalse,
       );
       expect(Job.fromJson(_jobJson()).isFeatured, isFalse);
@@ -57,7 +59,11 @@ void main() {
         'featured_until',
         'is_featured',
       ]) {
-        expect(json.containsKey(protectedColumn), isFalse, reason: protectedColumn);
+        expect(
+          json.containsKey(protectedColumn),
+          isFalse,
+          reason: protectedColumn,
+        );
       }
       expect(json['title'], 'App de delivery');
     });
@@ -127,6 +133,36 @@ void main() {
       expect(m('in_revision').status, MilestoneStatus.inRevision);
       expect(m('approved').status, MilestoneStatus.approved);
       expect(m('qualquer').status, MilestoneStatus.pending);
+    });
+  });
+
+  group('Conversation', () {
+    Conversation conv({String? contractId, String? contractStatus}) =>
+        Conversation(
+          id: 'conv1',
+          contractId: contractId,
+          contractStatus: contractStatus,
+          jobTitle: 'App de delivery',
+          otherParticipantId: 'f1',
+          otherParticipantName: 'Freelancer',
+          lastMessage: '',
+          lastMessageAt: DateTime(2026),
+        );
+
+    test('avaliação só é liberada com o contrato concluído', () {
+      expect(conv().isContractCompleted, isFalse);
+      expect(
+        conv(contractId: 'k1', contractStatus: 'active').isContractCompleted,
+        isFalse,
+      );
+      expect(
+        conv(contractId: 'k1', contractStatus: 'cancelled').isContractCompleted,
+        isFalse,
+      );
+      expect(
+        conv(contractId: 'k1', contractStatus: 'completed').isContractCompleted,
+        isTrue,
+      );
     });
   });
 

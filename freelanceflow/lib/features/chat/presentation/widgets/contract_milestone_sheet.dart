@@ -276,9 +276,7 @@ class ContractMilestoneSheet extends ConsumerWidget {
               );
             }),
             const SizedBox(height: 12),
-            if (liveConv.milestones.any(
-              (m) => m.status == MilestoneStatus.approved,
-            )) ...[
+            if (liveConv.isContractCompleted) ...[
               CustomButton(
                 text: isClient ? 'Avaliar Profissional' : 'Avaliar Contratante',
                 icon: Icons.star_rate_rounded,

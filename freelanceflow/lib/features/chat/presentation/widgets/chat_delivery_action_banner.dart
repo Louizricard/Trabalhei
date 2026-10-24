@@ -84,6 +84,7 @@ Widget build(BuildContext context) {
                 ],
               ),
             ),
+            if (conversation.isContractCompleted == true) ...[
             const SizedBox(width: 8),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
@@ -109,6 +110,7 @@ Widget build(BuildContext context) {
                 );
               },
             ),
+            ],
           ],
         ),
       );

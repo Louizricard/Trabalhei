@@ -134,9 +134,13 @@ class Conversation {
   final int unreadCount;
   final List<ContractMilestone> milestones;
 
+  /// Status do contrato vinculado (`active`, `completed`, `cancelled`), se houver.
+  final String? contractStatus;
+
   const Conversation({
     required this.id,
     this.contractId,
+    this.contractStatus,
     this.clientId,
     this.freelancerId,
     required this.jobTitle,
@@ -148,4 +152,8 @@ class Conversation {
     this.unreadCount = 0,
     this.milestones = const [],
   });
+
+  /// Avaliações só são liberadas depois que o contrato é concluído.
+  bool get isContractCompleted =>
+      contractId != null && contractStatus == 'completed';
 }

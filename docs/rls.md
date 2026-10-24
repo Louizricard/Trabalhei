@@ -19,7 +19,7 @@ Princípios:
 | `conversations` | Apenas os dois participantes | Nenhuma | `get_or_create_conversation` |
 | `messages` | Apenas os participantes da conversa | `INSERT` como remetente próprio e tipos não-sistema | Mensagens de sistema geradas pelas RPCs; `mark_conversation_read` |
 | `notifications` | Somente o dono | `UPDATE is_read` e `DELETE` do dono | Criadas por `notify()` (triggers/RPCs) |
-| `reviews` | Autenticados | `INSERT` pelas partes do contrato, uma por contrato | Rating do perfil recalculado por trigger |
+| `reviews` | Autenticados | `INSERT` pelas partes do contrato, uma por contrato, **só com o contrato `completed`** | Rating do perfil recalculado por trigger |
 | `subscriptions`, `job_featurings` | Somente o dono | Nenhuma | Edge Functions (service_role) |
 | `billing_customers`, `billing_events` | Ninguém (cliente) | Nenhuma | Edge Functions (service_role) |
 

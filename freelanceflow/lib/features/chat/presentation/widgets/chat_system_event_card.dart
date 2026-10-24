@@ -405,7 +405,7 @@ Widget build(BuildContext context) {
                 ),
                 textAlign: TextAlign.center,
               ),
-              if (isClient) ...[
+              if (isClient && conv.isContractCompleted) ...[
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
