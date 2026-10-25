@@ -72,9 +72,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Erro ao aceitar proposta: ${friendlyError(e)}',
-            ),
+            content: Text('Erro ao aceitar proposta: ${friendlyError(e)}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -773,7 +771,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   flex: 2,
-                  child: OutlinedButton.icon(
+                  child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.warning,
                       side: const BorderSide(color: AppColors.warning),
@@ -782,13 +780,9 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    icon: const Icon(Icons.handshake_outlined, size: 16),
-                    label: const Text(
-                      'Negociar',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
+                    child: const _CompactButtonLabel(
+                      icon: Icons.handshake_outlined,
+                      text: 'Negociar',
                     ),
                     onPressed: () {
                       showModalBottomSheet(
@@ -803,7 +797,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   flex: 2,
-                  child: OutlinedButton.icon(
+                  child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primaryLight,
                       side: const BorderSide(color: AppColors.primaryLight),
@@ -812,13 +806,9 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    icon: const Icon(Icons.chat_outlined, size: 16),
-                    label: const Text(
-                      'Chat',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
+                    child: const _CompactButtonLabel(
+                      icon: Icons.chat_outlined,
+                      text: 'Chat',
                     ),
                     onPressed: () => _handleStartChat(proposal, clientId),
                   ),
@@ -905,6 +895,32 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
       child: Text(
         text,
         style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: fg),
+      ),
+    );
+  }
+}
+
+/// Ícone e rótulo que encolhem juntos em botões estreitos, em vez de cortar.
+class _CompactButtonLabel extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _CompactButtonLabel({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+          ),
+        ],
       ),
     );
   }

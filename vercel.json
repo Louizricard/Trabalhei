@@ -3,5 +3,14 @@
   "framework": null,
   "installCommand": "true",
   "buildCommand": "bash scripts/vercel-build.sh",
-  "outputDirectory": "freelanceflow/build/web"
+  "outputDirectory": "dist",
+  "redirects": [
+    { "source": "/app", "destination": "/app/", "permanent": true }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }]
+    }
+  ]
 }

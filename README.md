@@ -22,6 +22,8 @@ o pagamento.
 
 ```
 freelanceflow/        App Flutter (lib/, test/, android/, ios/, web/ ...)
+  tool/showcase/      App de demonstração e scripts que geram os prints da homepage
+site/                 Homepage pública (raiz de trabalhei.site; o app fica em /app/)
 supabase/
   migrations/         Schema, RLS e funções (RPC) do banco (só migrations de ida)
   rollbacks/          Rollback de cada migration (<versão>_<nome>_down.sql), fora do alcance do CLI
@@ -88,6 +90,48 @@ O `vercel.json` chama `scripts/vercel-build.sh`, que baixa a versão fixada do F
 
 O ambiente enviado ao Sentry vem de `VERCEL_ENV` (production/preview). Produção: `https://trabalhei.site`
 (DNS no Vercel; `www` redireciona para o domínio principal e `trabalhei.vercel.app` continua respondendo).
+
+O build publica a pasta `dist/`: a homepage (`site/`) na raiz e o app Flutter em `/app/`
+(`--base-href /app/`). Links antigos do app (`/#/login`, links de e-mail com `?code=...`) e o app
+instalado como PWA são levados para `/app/` por um script no topo de `site/index.html`.
+
+## Versões para Android e Windows
+
+```bash
+cd freelanceflow
+flutter build apk --release --dart-define-from-file=dart_defines.json      # assinado com key.properties
+flutter build windows --release --dart-define-from-file=dart_defines.json
+cd ..
+powershell -ExecutionPolicy Bypass -File scripts/windows-installer/build.ps1
+```
+
+O `build.ps1` gera em `release/` o ZIP portátil e o instalador `.exe`, montado pelo IExpress (já vem no
+Windows). O instalador copia o app para `%LOCALAPPDATA%\Programs\Trabalhei` sem pedir administrador,
+cria o atalho no menu Iniciar e registra a desinstalação em "Aplicativos instalados". O executável não
+tem assinatura digital, então o Windows SmartScreen avisa na primeira execução.
+
+## Homepage (`site/`)
+
+HTML, CSS e JavaScript sem dependências nem etapa de build. Os botões de download leem a última
+versão do GitHub Releases: o `.apk` vira o botão do Android, `*-windows-*-setup.exe` o instalador do
+Windows e `*-windows-*.zip` o ZIP portátil. Se a consulta falhar, os botões levam à página de versões.
+O aparelho em destaque muda com a tela (`html[data-mode]`, definido no `<head>`): notebook em telas
+largas e deitadas, celular nas demais.
+Preços citados no texto (Pro e destaque) devem acompanhar o `BillingConfig`.
+
+Os prints são telas reais do app com dados fictícios, gerados pelo app de demonstração em
+`freelanceflow/tool/showcase` (mesmos widgets do app, repositórios em memória):
+
+```bash
+cd freelanceflow
+flutter build web -t tool/showcase/main.dart -o build/showcase
+python -m http.server 8091 --directory build/showcase   # em outro terminal
+BROWSER="<caminho do Edge ou Chrome>" node tool/showcase/capture.mjs <pasta>
+BROWSER="<caminho do Edge ou Chrome>" node tool/showcase/resize.mjs <pasta>/phone-jobs.png:../site/assets/screens/phone-jobs-sm.webp:585
+```
+
+Os destaques da demonstração guiada (`DEMO_STEPS` em `site/assets/js/site.js`) usam posições em %
+de cada print; ao trocar um print, confira se continuam no lugar.
 
 ## Monitoramento (Sentry)
 

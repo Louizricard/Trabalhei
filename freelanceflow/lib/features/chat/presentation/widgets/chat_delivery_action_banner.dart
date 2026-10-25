@@ -152,17 +152,21 @@ Widget build(BuildContext context) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  // Em telas estreitas o valor desce para a linha de baixo.
+                  Wrap(
+                    spacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
                         isClient ? '📦 Entrega Recebida!' : '⏳ Entrega Enviada',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                           color: AppColors.primaryLight,
                         ),
                       ),
-                      const SizedBox(width: 6),
                       Text(
                         CurrencyFormatter.format(activeMilestone.amount),
                         style: const TextStyle(

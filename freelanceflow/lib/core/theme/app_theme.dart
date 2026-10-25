@@ -3,6 +3,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 class AppTheme {
+  /// Baixa a fonte antes do primeiro frame. Sem isso a Web mede os textos com
+  /// a fonte provisória e alguns rótulos (ex.: chips de categoria) ficavam
+  /// cortados depois que a Plus Jakarta Sans chegava.
+  static Future<void> preloadFonts() async {
+    darkTheme;
+    try {
+      await GoogleFonts.pendingFonts();
+    } catch (_) {
+      // Sem rede: segue com a fonte padrão.
+    }
+  }
+
   static ThemeData get darkTheme {
     final baseTextTheme = GoogleFonts.plusJakartaSansTextTheme(
       ThemeData.dark().textTheme,
