@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/errors/backend_errors.dart';
+import '../../domain/entities/profile_update.dart';
 import '../../../../core/config/supabase_client.dart';
 import '../../../auth/domain/entities/user_profile.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
@@ -20,32 +22,30 @@ final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
 });
 
 // Perfil de qualquer usuário (por ID)
-final publicProfileProvider = FutureProvider.family.autoDispose<UserProfile?, String>((
-  ref,
-  userId,
-) async {
-  final repository = ref.watch(profileRepositoryProvider);
-  return repository.getProfileById(userId);
-});
+final publicProfileProvider = FutureProvider.family
+    .autoDispose<UserProfile?, String>((ref, userId) async {
+      final repository = ref.watch(profileRepositoryProvider);
+      return repository.getProfileById(userId);
+    });
 
 // Avaliações de qualquer usuário (por ID)
-final publicReviewsProvider = FutureProvider.family.autoDispose<List<UserReview>, String>((
-  ref,
-  userId,
-) async {
-  final repository = ref.watch(profileRepositoryProvider);
-  return repository.getUserReviews(userId);
-});
+final publicReviewsProvider = FutureProvider.family
+    .autoDispose<List<UserReview>, String>((ref, userId) async {
+      final repository = ref.watch(profileRepositoryProvider);
+      return repository.getUserReviews(userId);
+    });
 
 // Itens de portfólio de um usuário
-final userPortfolioProvider =
-    FutureProvider.family.autoDispose<List<PortfolioItem>, String>((ref, userId) async {
+final userPortfolioProvider = FutureProvider.family
+    .autoDispose<List<PortfolioItem>, String>((ref, userId) async {
       final repository = ref.watch(profileRepositoryProvider);
       return repository.getPortfolioItems(userId);
     });
 
 // Avaliações do usuário autenticado
-final userReviewsProvider = FutureProvider.autoDispose<List<UserReview>>((ref) async {
+final userReviewsProvider = FutureProvider.autoDispose<List<UserReview>>((
+  ref,
+) async {
   final repository = ref.watch(profileRepositoryProvider);
   final user = ref.watch(authProvider).value;
   if (user == null) return [];
@@ -146,7 +146,9 @@ final freelancerSearchFilterProvider =
     });
 
 // Lista de freelancers filtrados
-final freelancersListProvider = FutureProvider.autoDispose<List<UserProfile>>((ref) async {
+final freelancersListProvider = FutureProvider.autoDispose<List<UserProfile>>((
+  ref,
+) async {
   final repository = ref.watch(profileRepositoryProvider);
   final filter = ref.watch(freelancerSearchFilterProvider);
 
@@ -213,32 +215,21 @@ final deletePortfolioItemProvider =
     });
 
 // Atualizar perfil
-final updateProfileProvider =
-    Provider<
-      Future<void> Function({
-        String? fullName,
-        String? bio,
-        double? hourlyRate,
-        List<String>? skills,
-      })
-    >((ref) {
-      final repository = ref.watch(profileRepositoryProvider);
-      final user = ref.watch(authProvider).value;
+final updateProfileProvider = Provider<Future<void> Function(ProfileUpdate)>((
+  ref,
+) {
+  final repository = ref.watch(profileRepositoryProvider);
+  final user = ref.watch(authProvider).value;
 
-      return ({fullName, bio, hourlyRate, skills}) async {
-        if (user == null) throw Exception('Não autenticado');
-
-        await repository.updateProfile(
-          userId: user.id,
-          fullName: fullName,
-          bio: bio,
-          hourlyRate: hourlyRate,
-          skills: skills,
-        );
-        ref.invalidate(authProvider);
-        ref.invalidate(publicProfileProvider(user.id));
-      };
-    });
+  return (update) async {
+    if (user == null) {
+      throw const AppMessageException('Entre de novo para editar o perfil.');
+    }
+    await repository.updateProfile(userId: user.id, update: update);
+    ref.invalidate(authProvider);
+    ref.invalidate(publicProfileProvider(user.id));
+  };
+});
 
 // Upload de avatar
 final uploadAvatarProvider =

@@ -1,5 +1,6 @@
 import 'package:trabalhei/core/utils/rating_formatter.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -12,6 +13,7 @@ import '../../../auth/domain/entities/user_profile.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../../chat/presentation/providers/chat_provider.dart';
 import '../providers/profile_provider.dart';
+import '../widgets/profile_links.dart';
 import '../widgets/add_portfolio_modal.dart';
 import '../widgets/invite_to_job_modal.dart';
 
@@ -236,7 +238,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                                 const SizedBox(height: 4),
 
                                 Text(
-                                  profile.role == UserRole.client
+                                  profile.headline?.isNotEmpty == true
+                                      ? profile.headline!
+                                      : profile.role == UserRole.client
                                       ? (profile.companyName ??
                                             'Empresa Contratante')
                                       : (profile.skills.isNotEmpty
@@ -462,6 +466,10 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (ProfileLinks.hasContent(profile)) ...[
+            ProfileLinks(profile: profile),
+            const SizedBox(height: 20),
+          ],
           // Bio
           const Text(
             'Sobre o Profissional',
@@ -603,7 +611,7 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
         child: CircularProgressIndicator(color: AppColors.primary),
       ),
       error: (err, _) =>
-          Center(child: Text('Erro ao carregar portfólio: $err')),
+          Center(child: Text('Erro ao carregar portfólio: ${friendlyError(err)}')),
       data: (items) {
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -754,7 +762,7 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
         child: CircularProgressIndicator(color: AppColors.primary),
       ),
       error: (err, _) =>
-          Center(child: Text('Erro ao carregar avaliações: $err')),
+          Center(child: Text('Erro ao carregar avaliações: ${friendlyError(err)}')),
       data: (reviews) {
         if (reviews.isEmpty) {
           return const Center(

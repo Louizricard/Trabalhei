@@ -1,5 +1,7 @@
 import '../../../auth/domain/entities/user_profile.dart';
+import 'dart:typed_data';
 import '../entities/portfolio_item.dart';
+import '../entities/profile_update.dart';
 
 abstract class ProfileRepository {
   Future<UserProfile?> getProfileById(String userId);
@@ -31,11 +33,17 @@ abstract class ProfileRepository {
 
   Future<void> updateProfile({
     required String userId,
-    String? fullName,
-    String? bio,
-    double? hourlyRate,
-    List<String>? skills,
+    required ProfileUpdate update,
   });
+
+  /// Envia o currículo (PDF já validado) e devolve o endereço salvo no perfil.
+  Future<String> uploadResume({
+    required String userId,
+    required Uint8List bytes,
+    String? previousUrl,
+  });
+
+  Future<void> removeResume({required String userId, required String url});
 
   Future<String> uploadAvatar({
     required String userId,

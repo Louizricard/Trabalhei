@@ -12,8 +12,9 @@ import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../providers/profile_provider.dart';
 
-import 'package:image_picker/image_picker.dart';
+import '../../../../core/services/storage_service.dart';
 import '../widgets/delete_account_button.dart';
+import '../widgets/profile_links.dart';
 import '../widgets/profile_header_card.dart';
 import '../widgets/profile_settings.dart';
 import '../widgets/edit_profile_modal.dart';
@@ -66,23 +67,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> _pickAndUploadAvatar() async {
     try {
-      final picker = ImagePicker();
-      final image = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 600,
-        maxHeight: 600,
-        imageQuality: 80,
-      );
-
+      // Só aceita imagem de verdade (confere o conteúdo, não a extensão).
+      final image = await ref
+          .read(storageServiceProvider)
+          .pickImage(imageQuality: 80);
       if (image == null) return;
 
       setState(() => _isUploadingAvatar = true);
 
-      final bytes = await image.readAsBytes();
-      final ext = image.name.split('.').last.toLowerCase();
-
       final uploadFn = ref.read(uploadAvatarProvider);
-      await uploadFn(bytes, ext.isEmpty ? 'jpg' : ext);
+      await uploadFn(image.bytes, image.mimeType.split('/').last);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -144,6 +138,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (user?.headline?.isNotEmpty == true) ...[
+                      Text(
+                        user!.headline!,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimaryDark,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
                     Text(
                       user?.bio?.isNotEmpty == true
                           ? user!.bio!
@@ -155,6 +160,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         color: AppColors.textSecondaryDark,
                       ),
                     ),
+                    if (user != null && ProfileLinks.hasContent(user)) ...[
+                      const SizedBox(height: 14),
+                      ProfileLinks(profile: user),
+                    ],
                     if (isFreelancer && (user?.hourlyRate ?? 0) > 0) ...[
                       const Divider(height: 24, color: AppColors.borderDark),
                       Row(

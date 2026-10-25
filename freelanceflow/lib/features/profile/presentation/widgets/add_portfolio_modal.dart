@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
@@ -81,7 +83,7 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Erro ao salvar projeto: ${e.toString().replaceAll("Exception: ", "")}',
+              'Erro ao salvar projeto: ${friendlyError(e)}',
             ),
             backgroundColor: AppColors.error,
           ),
@@ -136,6 +138,7 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
                 controller: _titleController,
                 label: 'Título do Projeto',
                 hint: 'Ex: App de delivery Mobile & Web',
+                maxLength: 120,
                 validator: (v) => v == null || v.trim().isEmpty
                     ? 'Informe o título do projeto'
                     : null,
@@ -148,6 +151,7 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
                 hint:
                     'Descreva os desafios, arquitetura e resultados alcançados...',
                 maxLines: 3,
+                maxLength: 1000,
                 validator: (v) => v == null || v.trim().isEmpty
                     ? 'Informe uma descrição'
                     : null,
@@ -160,7 +164,7 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
                 hint: 'https://exemplo.com/imagem.png',
                 validator: (v) => v == null || v.trim().isEmpty
                     ? 'Informe a URL da imagem'
-                    : null,
+                    : Validators.optionalUrl(v),
               ),
               const SizedBox(height: 14),
 
@@ -168,6 +172,7 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
                 controller: _projectUrlController,
                 label: 'Link do Projeto (Opcional)',
                 hint: 'https://github.com/... ou https://meuapp.com',
+                validator: Validators.optionalUrl,
               ),
               const SizedBox(height: 14),
 

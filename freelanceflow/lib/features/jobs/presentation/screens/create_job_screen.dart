@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/services/storage_service.dart';
@@ -173,7 +174,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Falha ao publicar vaga: ${e.toString().replaceAll("Exception: ", "")}',
+              'Falha ao publicar vaga: ${friendlyError(e)}',
             ),
             backgroundColor: AppColors.error,
           ),
@@ -208,9 +209,17 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                   child: InkWell(
                     onTap: () async {
                       final storage = ref.read(storageServiceProvider);
-                      final file = await storage.pickImage();
-                      if (file != null) {
-                        setState(() => _coverImage = file);
+                      try {
+                        final file = await storage.pickImage();
+                        if (file != null) setState(() => _coverImage = file);
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(friendlyError(e)),
+                            backgroundColor: AppColors.error,
+                          ),
+                        );
                       }
                     },
                     borderRadius: BorderRadius.circular(16),
@@ -291,9 +300,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                         label: 'Título do Projeto',
                         hint:
                             'Ex: Desenvolvimento de App em Flutter com Chat Realtime',
-                        validator: (v) => v != null && v.length >= 10
+                        validator: (v) => v != null && v.trim().length >= 10
                             ? null
                             : 'Mínimo de 10 caracteres',
+                        maxLength: 140,
                       ),
                       const SizedBox(height: 16),
                       const Text(
@@ -322,7 +332,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                         hint:
                             'Explique os objetivos, entregáveis esperados, integrações e escopo do projeto...',
                         maxLines: 5,
-                        validator: (v) => v != null && v.length >= 30
+                        maxLength: 5000,
+                        validator: (v) => v != null && v.trim().length >= 30
                             ? null
                             : 'Mínimo de 30 caracteres',
                       ),
