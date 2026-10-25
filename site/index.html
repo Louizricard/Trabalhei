@@ -6,7 +6,7 @@
   <script>
     // Links antigos do app (/#/login, links de e-mail com ?code=...) e o app
     // instalado como PWA continuam abrindo o app, que agora fica em /app/.
-    (function (l) {
+    (function (l, root) {
       var toApp = function () {
         var legacy = /^#\//.test(l.hash) ||
           /(^|[?&])(code|error|error_code|token_hash)=/.test(l.search.slice(1)) ||
@@ -16,8 +16,13 @@
       };
       toApp();
       addEventListener('hashchange', toApp);
-      document.documentElement.className += ' js';
-    })(location);
+      root.className += ' js';
+      // Tela larga e deitada mostra o notebook em destaque; nas demais, o celular.
+      var wide = matchMedia('(min-width: 900px) and (min-aspect-ratio: 1/1)');
+      var setMode = function () { root.dataset.mode = wide.matches ? 'desk' : 'phone'; };
+      setMode();
+      wide.addEventListener('change', setMode);
+    })(location, document.documentElement);
   </script>
   <title>Trabalhei — freelancers e projetos, do anúncio à entrega</title>
   <meta name="description" content="Publique vagas, receba propostas, converse em tempo real e acompanhe a entrega até a aprovação. Trabalhei para Android, Windows e navegador.">
@@ -35,7 +40,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="/assets/screens/phone-jobs.webp" fetchpriority="high">
   <link rel="stylesheet" href="/assets/css/site.css">
   <script type="module" src="/assets/js/site.js"></script>
 </head>
@@ -56,7 +60,6 @@
         <a href="#duvidas">Dúvidas</a>
       </nav>
       <div class="header-actions">
-        <a class="btn btn-ghost btn-sm hide-sm" href="#downloads">Baixar app</a>
         <a class="btn btn-primary btn-sm" href="/app/">Acessar versão web</a>
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
           <span class="sr-only">Abrir menu</span>
@@ -67,70 +70,80 @@
   </header>
 
   <main id="conteudo">
-    <!-- Abertura: a tela real do mural se monta em camadas -->
+    <!-- Abertura: a tela real do mural se monta em camadas no aparelho em destaque -->
     <section class="hero" aria-labelledby="hero-title">
       <div class="container hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow">Android · Windows · Web</p>
           <h1 id="hero-title">Contrate freelancers ou encontre projetos, do anúncio à entrega.</h1>
           <p class="lead">O Trabalhei conecta clientes e freelancers: publique vagas, receba e compare propostas, converse em tempo real e acompanhe a entrega até a aprovação.</p>
           <div class="hero-actions">
-            <a class="btn btn-primary btn-lg" href="/app/">Acessar versão web</a>
-            <div class="store-row">
-              <span class="store-label">Baixe o app</span>
-              <a class="btn btn-outline" href="https://github.com/Louizricard/Trabalhei/releases/latest" data-download="android">
-                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22a11.4 11.4 0 0 0-9.84 0L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
-                Android
-              </a>
-              <a class="btn btn-outline is-pending" aria-disabled="true" data-download="windows" title="O app para Windows ainda não foi publicado">
-                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5.5 10 4.5v7H3zm8-1.15L21 3v8.5H11zM3 12.5h7v7l-7-1zm8 0h10V21l-10-1.4z"/></svg>
-                <span data-download-label>Windows em breve</span>
-              </a>
-            </div>
+            <a class="btn btn-primary btn-lg" href="/app/#/register">Criar conta grátis</a>
+            <a class="btn btn-quiet btn-lg" href="/app/#/login">Já tenho conta</a>
           </div>
-          <p class="hero-note">Cadastro gratuito. Uma conta para o celular, o computador e o navegador.</p>
+          <div class="store-row">
+            <span class="store-label">Baixe o app</span>
+            <a class="store-btn" href="https://github.com/Louizricard/Trabalhei/releases/latest" data-download="android">
+              <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22a11.4 11.4 0 0 0-9.84 0L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
+              Android
+            </a>
+            <a class="store-btn" href="https://github.com/Louizricard/Trabalhei/releases/latest" data-download="windows">
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5.5 10 4.5v7H3zm8-1.15L21 3v8.5H11zM3 12.5h7v7l-7-1zm8 0h10V21l-10-1.4z"/></svg>
+              Windows
+            </a>
+          </div>
         </div>
 
         <div class="hero-stage" data-tilt aria-hidden="true">
           <div class="stage-inner">
-            <figure class="browser-back">
-              <div class="browser-chrome">
-                <span class="dots"><i></i><i></i><i></i></span>
-                <span class="address">trabalhei.site/app</span>
+            <div class="laptop hero-laptop">
+              <div class="laptop-lid">
+                <div class="laptop-screen build" style="--img: url('/assets/screens/desktop-jobs-sm.webp')">
+                  <img class="layer-base" src="/assets/screens/desktop-jobs-sm.webp" alt="" width="1280" height="800" decoding="async">
+                  <div class="layer l1" style="--t: 0; --h: 15.2"></div>
+                  <div class="layer l2" style="--t: 15.2; --h: 5.8"></div>
+                  <div class="layer l3" style="--t: 21; --h: 70.4"></div>
+                  <div class="layer l4" style="--t: 91.4; --h: 8.6"></div>
+                  <span class="spotlight" style="--x: 14.6; --y: 39.6; --w: 8.4; --h: 4.4"></span>
+                </div>
               </div>
-              <img src="/assets/screens/desktop-jobs-sm.webp" alt="" width="1280" height="800" decoding="async">
-            </figure>
+              <div class="laptop-base"></div>
+              <p class="callout"><strong>Destaque</strong> leva a vaga ao topo do mural por 7 dias</p>
+            </div>
             <div class="phone hero-phone">
-              <div class="phone-screen" data-hero-screen>
-                <img class="layer-base" src="/assets/screens/phone-jobs.webp" alt="" width="1170" height="2532" decoding="async" fetchpriority="high">
-                <div class="layer layer-bar"></div>
-                <div class="layer layer-chips"></div>
-                <div class="layer layer-card"></div>
-                <div class="layer layer-nav"></div>
-                <span class="spotlight"></span>
+              <div class="phone-screen build" style="--img: url('/assets/screens/phone-jobs.webp')">
+                <img class="layer-base" src="/assets/screens/phone-jobs.webp" alt="" width="1170" height="2532" decoding="async">
+                <div class="layer l1" style="--t: 0; --h: 14.6"></div>
+                <div class="layer l2" style="--t: 14.6; --h: 6.2"></div>
+                <div class="layer l3" style="--t: 21.6; --h: 63"></div>
+                <div class="layer l4" style="--t: 90.4; --h: 9.6"></div>
+                <span class="spotlight" style="--x: 7.6; --y: 37.6; --w: 25.4; --h: 4"></span>
               </div>
               <p class="callout"><strong>Destaque</strong> leva a vaga ao topo do mural por 7 dias</p>
             </div>
-            <span class="glare"></span>
           </div>
         </div>
       </div>
-      <p class="container demo-disclaimer">Telas reais do app, com dados fictícios de demonstração.</p>
+      <div class="container hero-foot">
+        <a class="scroll-hint" href="#para-quem" data-scroll-hint>
+          <span>Role para conhecer</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <p class="demo-disclaimer">Telas reais do app, com dados fictícios de demonstração.</p>
+      </div>
     </section>
 
     <!-- Para quem -->
     <section class="section" id="para-quem" aria-labelledby="para-quem-title">
       <div class="container">
-        <header class="section-head">
-          <p class="eyebrow">Para quem</p>
-          <h2 id="para-quem-title">Feito para os dois lados do trabalho</h2>
+        <header class="section-head reveal">
+          <h2 id="para-quem-title">Para quem contrata e para quem trabalha</h2>
         </header>
         <div class="audience-grid">
-          <article class="audience-card">
+          <article class="audience-card reveal">
             <div class="audience-icon" aria-hidden="true">
-              <svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M10 3h4a2 2 0 0 1 2 2v1h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3V5a2 2 0 0 1 2-2zm4 3V5h-4v1h4z"/></svg>
+              <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M10 3h4a2 2 0 0 1 2 2v1h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3V5a2 2 0 0 1 2-2zm4 3V5h-4v1h4z"/></svg>
             </div>
-            <h3>Para quem contrata</h3>
+            <h3>Quem contrata</h3>
             <ul class="check-list">
               <li>Publique a vaga com categoria, orçamento, prazo e habilidades. Capa e anexos são opcionais.</li>
               <li>Receba propostas e compare valores e prazos na mesma tela.</li>
@@ -139,11 +152,11 @@
               <li>Destaque a vaga no topo do mural por 7 dias, por R$ 19,90.</li>
             </ul>
           </article>
-          <article class="audience-card">
+          <article class="audience-card reveal">
             <div class="audience-icon" aria-hidden="true">
-              <svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="m8.6 16.6-4.6-4.6 4.6-4.6L10 8.8 6.8 12l3.2 3.2zm6.8 0L14 15.2l3.2-3.2L14 8.8l1.4-1.4 4.6 4.6z"/></svg>
+              <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="m8.6 16.6-4.6-4.6 4.6-4.6L10 8.8 6.8 12l3.2 3.2zm6.8 0L14 15.2l3.2-3.2L14 8.8l1.4-1.4 4.6 4.6z"/></svg>
             </div>
-            <h3>Para freelancers</h3>
+            <h3>Freelancers</h3>
             <ul class="check-list">
               <li>Mural de vagas com busca por título, tecnologia ou cliente e filtros por categoria.</li>
               <li>Envie propostas com valor, prazo e carta de apresentação.</li>
@@ -153,7 +166,7 @@
             </ul>
           </article>
         </div>
-        <p class="callout-note">
+        <p class="callout-note reveal">
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>
           O valor do projeto é combinado e pago diretamente entre cliente e freelancer. O Trabalhei não retém nem intermedia esse pagamento.
         </p>
@@ -161,16 +174,29 @@
     </section>
 
     <!-- Demonstração guiada pela rolagem -->
-    <section class="demo" id="como-funciona" aria-label="Como funciona" data-demo>
-      <div class="container mobile-head">
-        <header class="section-head">
-          <p class="eyebrow">Como funciona</p>
-          <h2>Uma contratação, do começo ao fim</h2>
+    <section class="demo" id="como-funciona" aria-labelledby="demo-title" data-demo>
+      <div class="container demo-head">
+        <header class="section-head reveal">
+          <h2 id="demo-title">Como funciona uma contratação</h2>
+          <p class="section-sub">Cada etapa mostra a tela do app em que ela acontece.</p>
         </header>
       </div>
-      <div class="demo-sticky">
+      <div class="scene-track" data-track>
+      <div class="scene-sticky">
         <div class="container demo-grid">
           <div class="demo-device">
+            <div class="laptop demo-laptop">
+              <div class="laptop-lid">
+                <div class="laptop-screen">
+                  <img class="demo-screen is-active" src="/assets/screens/desktop-create-job-sm.webp" alt="Tela Publicar Nova Vaga com título, categoria e descrição preenchidos" width="1280" height="800" loading="lazy" decoding="async">
+                  <img class="demo-screen" src="/assets/screens/desktop-apply-sm.webp" alt="Tela Enviar Proposta com valor, prazo e carta de apresentação" width="1280" height="800" loading="lazy" decoding="async">
+                  <img class="demo-screen" src="/assets/screens/desktop-proposals-sm.webp" alt="Tela Propostas Recebidas com resumo de valores e botões Aceitar, Negociar e Chat" width="1280" height="800" loading="lazy" decoding="async">
+                  <img class="demo-screen" src="/assets/screens/desktop-chat-sm.webp" alt="Chat do contrato com a entrega recebida e o botão Revisar e Aprovar" width="1280" height="800" loading="lazy" decoding="async">
+                  <span class="focus-ring" data-ring aria-hidden="true"></span>
+                </div>
+              </div>
+              <div class="laptop-base"></div>
+            </div>
             <div class="phone demo-phone">
               <div class="phone-screen">
                 <img class="demo-screen is-active" src="/assets/screens/phone-create-job-sm.webp" alt="Tela Publicar Nova Vaga com título, categoria e descrição preenchidos" width="585" height="1266" loading="lazy" decoding="async">
@@ -183,12 +209,8 @@
             <p class="focus-note" data-note aria-live="polite"></p>
           </div>
           <div class="demo-copy">
-            <header class="section-head">
-              <p class="eyebrow">Como funciona</p>
-              <h2 id="demo-title">Uma contratação, do começo ao fim</h2>
-            </header>
             <ol class="demo-steps">
-              <li class="demo-step is-active" data-step="0">
+              <li class="demo-step is-active">
                 <button type="button" class="step-button" data-step-button="0">
                   <span class="step-num">1</span>
                   <span class="step-text">
@@ -197,7 +219,7 @@
                   </span>
                 </button>
               </li>
-              <li class="demo-step" data-step="1">
+              <li class="demo-step">
                 <button type="button" class="step-button" data-step-button="1">
                   <span class="step-num">2</span>
                   <span class="step-text">
@@ -206,7 +228,7 @@
                   </span>
                 </button>
               </li>
-              <li class="demo-step" data-step="2">
+              <li class="demo-step">
                 <button type="button" class="step-button" data-step-button="2">
                   <span class="step-num">3</span>
                   <span class="step-text">
@@ -215,61 +237,63 @@
                   </span>
                 </button>
               </li>
-              <li class="demo-step" data-step="3">
+              <li class="demo-step">
                 <button type="button" class="step-button" data-step-button="3">
                   <span class="step-num">4</span>
                   <span class="step-text">
                     <strong>Acompanhe a entrega</strong>
-                    <span>Com o contrato fechado, o chat reúne arquivos e entregas. Aprove ou peça revisão e, no fim, as duas partes se avaliam.</span>
+                    <span>Com o contrato fechado, as entregas chegam pelo chat. Revise os arquivos e aprove ou peça revisão; no fim, as duas partes se avaliam.</span>
                   </span>
                 </button>
               </li>
             </ol>
-            <div class="demo-progress" aria-hidden="true"><span data-demo-progress></span></div>
+            <div class="scene-progress" aria-hidden="true"><span data-demo-progress></span></div>
+            <p class="scene-hint" data-scene-hint aria-hidden="true">Continue rolando</p>
           </div>
         </div>
+      </div>
       </div>
     </section>
 
     <!-- Transformação entre plataformas -->
-    <section class="platforms" id="plataformas" aria-label="Plataformas" data-morph>
+    <section class="platforms" id="plataformas" aria-labelledby="platforms-title" data-morph>
       <div class="container mobile-head">
-        <header class="section-head">
-          <p class="eyebrow">Plataformas</p>
+        <header class="section-head reveal">
           <h2>A mesma conta no celular, no Windows e no navegador</h2>
           <p class="section-sub">Vagas, propostas e conversas ficam na sua conta. Entre em qualquer versão e continue de onde parou.</p>
         </header>
       </div>
-      <div class="platforms-sticky">
+      <div class="scene-track" data-track>
+      <div class="scene-sticky">
         <div class="container platforms-grid">
           <div class="platforms-copy">
-            <header class="section-head">
-              <p class="eyebrow">Plataformas</p>
+            <header class="section-head desk-head">
               <h2 id="platforms-title">A mesma conta no celular, no Windows e no navegador</h2>
               <p class="section-sub">Vagas, propostas e conversas ficam na sua conta. Entre em qualquer versão e continue de onde parou.</p>
             </header>
             <div class="platform-tabs" role="tablist" aria-label="Escolha a plataforma">
               <button type="button" role="tab" class="platform-tab is-active" aria-selected="true" aria-controls="panel-android" id="tab-android" data-platform-tab="0">Android</button>
-              <button type="button" role="tab" class="platform-tab" aria-selected="false" aria-controls="panel-windows" id="tab-windows" data-platform-tab="1">Windows</button>
-              <button type="button" role="tab" class="platform-tab" aria-selected="false" aria-controls="panel-web" id="tab-web" data-platform-tab="2">Web</button>
+              <button type="button" role="tab" class="platform-tab" aria-selected="false" aria-controls="panel-windows" id="tab-windows" data-platform-tab="1" tabindex="-1">Windows</button>
+              <button type="button" role="tab" class="platform-tab" aria-selected="false" aria-controls="panel-web" id="tab-web" data-platform-tab="2" tabindex="-1">Web</button>
             </div>
             <div class="platform-panels">
               <div class="platform-panel is-active" role="tabpanel" id="panel-android" aria-labelledby="tab-android" data-platform-panel="0">
                 <h3>No celular</h3>
                 <p>Instale o aplicativo para Android (8.0 ou mais novo) e acompanhe conversas e entregas onde estiver.</p>
-                <a class="btn btn-primary" href="https://github.com/Louizricard/Trabalhei/releases/latest" data-download="android">Baixar APK</a>
+                <a class="btn btn-primary" href="https://github.com/Louizricard/Trabalhei/releases/latest" data-download="android">Baixar para Android</a>
               </div>
               <div class="platform-panel" role="tabpanel" id="panel-windows" aria-labelledby="tab-windows" data-platform-panel="1" hidden>
                 <h3>No Windows</h3>
-                <p>Aplicativo para Windows 10 e 11 (64 bits), com a mesma interface pensada para telas grandes.</p>
-                <a class="btn btn-primary is-pending" aria-disabled="true" data-download="windows"><span data-download-label>Windows em breve</span></a>
+                <p>Aplicativo para Windows 10 e 11 (64 bits), com a interface pensada para telas grandes.</p>
+                <a class="btn btn-primary" href="https://github.com/Louizricard/Trabalhei/releases/latest" data-download="windows">Baixar para Windows</a>
               </div>
               <div class="platform-panel" role="tabpanel" id="panel-web" aria-labelledby="tab-web" data-platform-panel="2" hidden>
                 <h3>No navegador</h3>
                 <p>Sem instalar nada: abra <strong>trabalhei.site/app</strong> no Chrome, Edge, Firefox ou Safari.</p>
-                <a class="btn btn-primary" href="/app/">Acessar versão web</a>
+                <a class="btn btn-primary" href="/app/">Abrir no navegador</a>
               </div>
             </div>
+            <div class="scene-progress" aria-hidden="true"><span data-morph-progress></span></div>
           </div>
 
           <div class="morph-stage" aria-hidden="true">
@@ -294,19 +318,20 @@
           </div>
         </div>
       </div>
+      </div>
     </section>
 
     <!-- Downloads -->
     <section class="section" id="downloads" aria-labelledby="downloads-title">
       <div class="container">
-        <header class="section-head center">
-          <p class="eyebrow">Downloads</p>
-          <h2 id="downloads-title">Escolha a sua versão</h2>
+        <header class="section-head center reveal">
+          <h2 id="downloads-title">Downloads</h2>
+          <p class="section-sub">Instale no celular ou no computador, ou use direto no navegador.</p>
         </header>
         <div class="download-grid">
-          <article class="download-card">
+          <article class="download-card reveal">
             <div class="download-head">
-              <span class="platform-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22a11.4 11.4 0 0 0-9.84 0L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg></span>
+              <span class="platform-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22a11.4 11.4 0 0 0-9.84 0L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg></span>
               <h3>Android</h3>
             </div>
             <dl class="specs">
@@ -316,28 +341,32 @@
               <div><dt>Tamanho</dt><dd data-android-size>—</dd></div>
             </dl>
             <p class="download-help">Abra o arquivo baixado no celular. Se o Android pedir, permita instalar apps desta fonte.</p>
-            <a class="btn btn-primary btn-block" href="https://github.com/Louizricard/Trabalhei/releases/latest" data-download="android">Baixar APK</a>
-            <a class="text-link" href="https://github.com/Louizricard/Trabalhei/releases/latest" data-release-notes>Notas da versão, SHA-256 e assinatura</a>
+            <div class="download-actions">
+              <a class="btn btn-primary btn-block" href="https://github.com/Louizricard/Trabalhei/releases/latest" data-download="android">Baixar APK</a>
+            </div>
           </article>
 
-          <article class="download-card">
+          <article class="download-card reveal">
             <div class="download-head">
-              <span class="platform-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5.5 10 4.5v7H3zm8-1.15L21 3v8.5H11zM3 12.5h7v7l-7-1zm8 0h10V21l-10-1.4z"/></svg></span>
+              <span class="platform-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5.5 10 4.5v7H3zm8-1.15L21 3v8.5H11zM3 12.5h7v7l-7-1zm8 0h10V21l-10-1.4z"/></svg></span>
               <h3>Windows</h3>
             </div>
             <dl class="specs">
-              <div><dt>Formato</dt><dd data-windows-format>ZIP (extrair e abrir)</dd></div>
+              <div><dt>Formato</dt><dd>Instalador .exe ou ZIP</dd></div>
               <div><dt>Requisitos</dt><dd>Windows 10 ou 11, 64 bits</dd></div>
               <div><dt>Versão</dt><dd data-windows-version>—</dd></div>
               <div><dt>Tamanho</dt><dd data-windows-size>—</dd></div>
             </dl>
-            <p class="download-help" data-windows-help>O instalador para Windows ainda não foi publicado. Enquanto isso, use a versão web no navegador.</p>
-            <a class="btn btn-primary btn-block is-pending" aria-disabled="true" data-download="windows"><span data-download-label>Windows em breve</span></a>
+            <p class="download-help">O instalador cria o atalho no menu Iniciar. O ZIP não instala nada: extraia e abra o Trabalhei.exe. Como o app ainda não tem assinatura digital, o Windows pode mostrar um aviso na primeira vez: clique em “Mais informações” e depois em “Executar assim mesmo”.</p>
+            <div class="download-actions">
+              <a class="btn btn-primary btn-block" href="https://github.com/Louizricard/Trabalhei/releases/latest" data-download="windows">Baixar instalador (.exe)</a>
+              <a class="btn btn-outline btn-block" href="https://github.com/Louizricard/Trabalhei/releases/latest" data-download="windows-zip">Baixar ZIP</a>
+            </div>
           </article>
 
-          <article class="download-card">
+          <article class="download-card reveal">
             <div class="download-head">
-              <span class="platform-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm6.9 6h-2.9a15.7 15.7 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8zM12 4a14 14 0 0 1 1.9 4h-3.8A14 14 0 0 1 12 4zM4.3 14a8 8 0 0 1 0-4h3.4a16.5 16.5 0 0 0 0 4zm.8 2h2.9a15.7 15.7 0 0 0 1.4 3.6A8 8 0 0 1 5.1 16zM8 8H5.1a8 8 0 0 1 4.3-3.6A15.7 15.7 0 0 0 8 8zm4 12a14 14 0 0 1-1.9-4h3.8A14 14 0 0 1 12 20zm2.3-6H9.7a14.7 14.7 0 0 1 0-4h4.6a14.7 14.7 0 0 1 0 4zm.3 5.6a15.7 15.7 0 0 0 1.4-3.6h2.9a8 8 0 0 1-4.3 3.6zm1.7-5.6a16.5 16.5 0 0 0 0-4h3.4a8 8 0 0 1 0 4z"/></svg></span>
+              <span class="platform-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm6.9 6h-2.9a15.7 15.7 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8zM12 4a14 14 0 0 1 1.9 4h-3.8A14 14 0 0 1 12 4zM4.3 14a8 8 0 0 1 0-4h3.4a16.5 16.5 0 0 0 0 4zm.8 2h2.9a15.7 15.7 0 0 0 1.4 3.6A8 8 0 0 1 5.1 16zM8 8H5.1a8 8 0 0 1 4.3-3.6A15.7 15.7 0 0 0 8 8zm4 12a14 14 0 0 1-1.9-4h3.8A14 14 0 0 1 12 20zm2.3-6H9.7a14.7 14.7 0 0 1 0-4h4.6a14.7 14.7 0 0 1 0 4zm.3 5.6a15.7 15.7 0 0 0 1.4-3.6h2.9a8 8 0 0 1-4.3 3.6zm1.7-5.6a16.5 16.5 0 0 0 0-4h3.4a8 8 0 0 1 0 4z"/></svg></span>
               <h3>Web</h3>
             </div>
             <dl class="specs">
@@ -347,7 +376,9 @@
               <div><dt>Conta</dt><dd>A mesma dos apps</dd></div>
             </dl>
             <p class="download-help">Funciona no computador e no celular, inclusive no iPhone pelo Safari.</p>
-            <a class="btn btn-outline btn-block" href="/app/">Acessar versão web</a>
+            <div class="download-actions">
+              <a class="btn btn-outline btn-block" href="/app/">Abrir no navegador</a>
+            </div>
           </article>
         </div>
       </div>
@@ -356,11 +387,10 @@
     <!-- Perguntas frequentes -->
     <section class="section" id="duvidas" aria-labelledby="faq-title">
       <div class="container narrow">
-        <header class="section-head center">
-          <p class="eyebrow">Dúvidas</p>
+        <header class="section-head center reveal">
           <h2 id="faq-title">Perguntas frequentes</h2>
         </header>
-        <div class="faq">
+        <div class="faq reveal">
           <details>
             <summary>O Trabalhei é gratuito?</summary>
             <p>O cadastro e o uso são gratuitos. Freelancers enviam até 5 propostas por mês no plano grátis; o Pro custa R$ 29,90 por mês e libera propostas ilimitadas, selo PRO e prioridade na busca. Clientes podem destacar uma vaga por 7 dias por R$ 19,90. Pro e destaque são pagos por Pix ou cartão.</p>
@@ -371,7 +401,11 @@
           </details>
           <details>
             <summary>Como instalo o app no Android?</summary>
-            <p>Baixe o APK no celular e abra o arquivo. Na primeira vez, o Android pode pedir permissão para instalar apps baixados pelo navegador. Requer Android 8.0 ou mais novo. As notas de cada versão trazem o SHA-256 do arquivo para conferência.</p>
+            <p>Baixe o APK no celular e abra o arquivo. Na primeira vez, o Android pode pedir permissão para instalar apps baixados pelo navegador. Requer Android 8.0 ou mais novo.</p>
+          </details>
+          <details>
+            <summary>Como instalo no Windows?</summary>
+            <p>Baixe o instalador (.exe) e abra o arquivo; ele instala o Trabalhei na sua conta do Windows e cria o atalho no menu Iniciar. Se preferir não instalar, baixe o ZIP, extraia e abra o Trabalhei.exe. Na primeira vez, o Windows pode avisar que o app não é reconhecido: clique em “Mais informações” e em “Executar assim mesmo”.</p>
           </details>
           <details>
             <summary>Tem app para iPhone?</summary>
@@ -394,12 +428,12 @@
     </section>
 
     <section class="final-cta" aria-labelledby="final-title">
-      <div class="container final-inner">
-        <h2 id="final-title">Comece pelo navegador agora mesmo</h2>
-        <p>Crie sua conta em poucos minutos e instale o app quando quiser.</p>
-        <div class="cta-row center">
-          <a class="btn btn-primary btn-lg" href="/app/">Acessar versão web</a>
-          <a class="btn btn-outline btn-lg" href="#downloads">Ver downloads</a>
+      <div class="container final-inner reveal">
+        <h2 id="final-title">Publique sua primeira vaga ou proposta</h2>
+        <p>Crie a conta pelo navegador e instale o app quando quiser.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary btn-lg" href="/app/#/register">Criar conta grátis</a>
+          <a class="btn btn-quiet btn-lg" href="#downloads">Ver downloads</a>
         </div>
       </div>
     </section>
@@ -428,7 +462,7 @@
       </nav>
     </div>
     <div class="container footer-bottom">
-      <p>© <span data-year>2026</span> Trabalhei · Operado por LouizVolution</p>
+      <p>© <span data-year>2026</span> Trabalhei · Operado por LouizVolution · Desenvolvido por <a href="https://www.linkedin.com/in/louizricard/" target="_blank" rel="noopener">Louizricard</a></p>
     </div>
   </footer>
 </body>

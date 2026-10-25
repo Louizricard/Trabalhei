@@ -18,7 +18,7 @@ const OUT = process.argv[2];
 const PORT = 9333;
 
 const phone = { width: 390, height: 844, scale: 3, mobile: true };
-const desktop = { width: 1440, height: 900, scale: 2, mobile: false };
+const desktop = { width: 1280, height: 800, scale: 2, mobile: false };
 
 export const SHOTS = [
   ['phone-jobs', 'freelancer', '/jobs', phone],
@@ -41,6 +41,15 @@ export const SHOTS = [
   ['desktop-chat', 'client', '/chat/demo-conv-1', desktop],
   ['desktop-dashboard', 'freelancer', '/dashboard', desktop],
   ['desktop-proposals', 'client', '/jobs/demo-job-1/proposals', desktop],
+  ['desktop-create-job', 'client', '/jobs/create', desktop, [
+    [640, 363, 'App para clínica veterinária'],
+    [640, 563, 'Precisamos de um app para os tutores marcarem consultas e banho e tosa, receberem lembretes e acompanharem o histórico de cada pet.'],
+  ]],
+  ['desktop-apply', 'freelancer', '/jobs/demo-job-1/apply', desktop, [
+    [480, 384, '5200'],
+    [797, 384, '28'],
+    [640, 589, 'Já entreguei dois apps de agendamento em Flutter. Posso começar esta semana e validar o fluxo com a recepção antes da publicação.'],
+  ]],
 ];
 
 // Preenche campos de formulário: [x, y, texto] em pixels CSS da tela.
