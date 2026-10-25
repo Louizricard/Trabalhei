@@ -9,7 +9,8 @@ const Map<String, String> _knownErrors = {
       'Você atingiu o limite de propostas gratuitas deste mês. Assine o Pro para enviar propostas ilimitadas.',
   'ONLY_FREELANCERS_CAN_APPLY':
       'Apenas contas de freelancer podem enviar propostas.',
-  'ONLY_CLIENTS_CAN_POST_JOBS': 'Apenas contas de cliente podem publicar vagas.',
+  'ONLY_CLIENTS_CAN_POST_JOBS':
+      'Apenas contas de cliente podem publicar vagas.',
   'JOB_NOT_OPEN': 'Esta vaga não está mais aberta.',
   'JOB_NOT_CANCELLABLE': 'Esta vaga não pode ser cancelada.',
   'CANNOT_APPLY_TO_OWN_JOB': 'Você não pode se candidatar à sua própria vaga.',
@@ -74,6 +75,16 @@ class EmailConfirmationPendingException implements Exception {
   String toString() =>
       'Conta criada! Enviamos um link de confirmação para $email. '
       'Abra o e-mail, confirme e depois entre aqui.';
+}
+
+/// Login de uma conta que ainda não confirmou o e-mail.
+class EmailNotConfirmedException implements Exception {
+  final String email;
+  const EmailNotConfirmedException(this.email);
+
+  @override
+  String toString() =>
+      'Confirme seu e-mail antes de entrar. Enviamos o link para $email.';
 }
 
 /// Cadastro com um e-mail que já tem conta.

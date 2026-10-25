@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/auth_state_provider.dart';
+import '../providers/pending_confirmation_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -39,14 +41,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     // Garantir exibição da splash por pelo menos 1.8 segundos para visualização da marca
     _timer = Timer(const Duration(milliseconds: 1800), () {
       if (!mounted) return;
-      final authState = ref.read(authProvider);
-      if (authState.value != null) {
+      // valueOrNull: em estado de erro, `.value` lançava e a splash travava.
+      if (ref.read(authProvider).valueOrNull != null) {
         context.go('/jobs');
+      } else if (_cameFromEmailLink()) {
+        ref.read(pendingConfirmationProvider.notifier).clear();
+        context.go(
+          '/login?notice=${Uri.encodeComponent('E-mail confirmado! Agora é só entrar com seu e-mail e senha.')}',
+        );
       } else {
         context.go('/login');
       }
     });
   }
+
+  /// Link de confirmação do e-mail (fluxo PKCE: `?code=...` na URL). Aberto em
+  /// outro navegador a sessão não é criada, mas a conta já está confirmada.
+  bool _cameFromEmailLink() =>
+      kIsWeb && Uri.base.queryParameters.containsKey('code');
 
   @override
   void dispose() {

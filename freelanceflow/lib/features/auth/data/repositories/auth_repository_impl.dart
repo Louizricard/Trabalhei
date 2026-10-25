@@ -53,6 +53,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> resendSignupConfirmation(String email) {
+    return _remoteDataSource.resendSignupConfirmation(email);
+  }
+
+  @override
   Future<void> signOut() {
     return _remoteDataSource.signOut();
   }

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/errors/backend_errors.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../providers/auth_state_provider.dart';
+import '../providers/pending_confirmation_provider.dart';
+import '../widgets/pending_confirmation_banner.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   /// Mensagem opcional exibida ao abrir a tela (ex.: confirmar e-mail).
@@ -27,18 +30,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    final notice = widget.notice;
-    if (notice != null && notice.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(notice),
-            duration: const Duration(seconds: 8),
-          ),
-        );
-      });
-    }
+    _showNotice(widget.notice);
+    // Cadastro pendente: já deixa o e-mail preenchido (o valor salvo pode
+    // chegar depois da abertura da tela).
+    ref.listenManual(pendingConfirmationProvider, (previous, email) {
+      if (email != null && _emailController.text.isEmpty) {
+        _emailController.text = email;
+      } else if (email == null && _emailController.text == previous) {
+        // "Usar outro e-mail": tira o e-mail que tínhamos preenchido.
+        _emailController.clear();
+      }
+    }, fireImmediately: true);
+  }
+
+  // O go_router reaproveita a tela de login quando só o aviso da URL muda
+  // (ex.: voltando de outra tela de autenticação); initState não roda de novo.
+  @override
+  void didUpdateWidget(covariant LoginScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.notice != oldWidget.notice) _showNotice(widget.notice);
+  }
+
+  void _showNotice(String? notice) {
+    if (notice == null || notice.isEmpty) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(notice), duration: const Duration(seconds: 8)),
+      );
+    });
   }
 
   @override
@@ -58,6 +78,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           .signIn(_emailController.text.trim(), _passwordController.text);
       if (mounted) {
         context.go('/jobs');
+      }
+    } on EmailNotConfirmedException catch (e) {
+      ref.read(pendingConfirmationProvider.notifier).set(e.email);
+      if (mounted) {
+        setState(() => _isLoading = false);
+        context.push('/confirm-email?email=${Uri.encodeComponent(e.email)}');
       }
     } catch (e) {
       if (mounted) {
@@ -132,6 +158,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
+                    const PendingConfirmationBanner(),
 
                     GlassCard(
                       padding: const EdgeInsets.all(24),

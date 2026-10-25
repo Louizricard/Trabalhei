@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/domain/entities/user_profile.dart';
 import '../../features/auth/presentation/providers/auth_state_provider.dart';
+import '../../features/auth/presentation/providers/pending_confirmation_provider.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
+import '../../features/auth/presentation/screens/email_confirmation_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/chat/presentation/screens/chat_list_screen.dart';
@@ -38,7 +40,13 @@ class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
 
   RouterNotifier(this._ref) {
-    _ref.listen(authProvider, (_, _) => notifyListeners());
+    _ref.listen(authProvider, (_, next) {
+      // Entrou: o e-mail está confirmado e o aviso de cadastro pendente some.
+      if (next.valueOrNull != null) {
+        _ref.read(pendingConfirmationProvider.notifier).clear();
+      }
+      notifyListeners();
+    });
   }
 }
 
@@ -73,6 +81,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           loc == '/splash' ||
           loc == '/login' ||
           loc == '/register' ||
+          loc == '/confirm-email' ||
           loc == '/forgot-password' ||
           loc == '/reset-password' ||
           loc == '/terms';
@@ -104,6 +113,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: '/confirm-email',
+        builder: (context, state) => EmailConfirmationScreen(
+          email: state.uri.queryParameters['email'] ?? '',
+        ),
       ),
       GoRoute(
         path: '/forgot-password',
@@ -189,9 +204,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/jobs',
-                builder: (context, state) => JobsListScreen(
-                  initialCategory: state.extra as String?,
-                ),
+                builder: (context, state) =>
+                    JobsListScreen(initialCategory: state.extra as String?),
               ),
             ],
           ),

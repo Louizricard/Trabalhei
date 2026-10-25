@@ -36,8 +36,11 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
       (user) {
         state = AsyncValue.data(user);
       },
-      onError: (Object err, StackTrace st) {
-        state = AsyncValue.error(err, st);
+      // Ex.: link de confirmação aberto em outro navegador (PKCE sem o code
+      // verifier). A conta já foi confirmada pelo Supabase; o usuário segue
+      // com o estado que tinha e entra com a senha.
+      onError: (Object _, StackTrace _) {
+        state = AsyncValue.data(state.valueOrNull);
       },
     );
   }
@@ -81,6 +84,9 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
       rethrow;
     }
   }
+
+  Future<void> resendSignupConfirmation(String email) =>
+      _repository.resendSignupConfirmation(email);
 
   Future<void> resetPassword(String email) async {
     await _repository.sendPasswordReset(email);
