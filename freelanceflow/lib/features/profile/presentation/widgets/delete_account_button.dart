@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/errors/backend_errors.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
+import 'profile_settings.dart';
 
 /// Exclusão de conta pelo próprio usuário (LGPD). Pede que o usuário digite
 /// a palavra de confirmação antes de chamar o servidor.
@@ -43,26 +44,13 @@ class _DeleteAccountButtonState extends ConsumerState<DeleteAccountButton> {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton.icon(
-      icon: _isDeleting
-          ? const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.error,
-              ),
-            )
-          : const Icon(
-              Icons.delete_forever_outlined,
-              size: 16,
-              color: AppColors.error,
-            ),
-      label: const Text(
-        'Excluir minha conta',
-        style: TextStyle(color: AppColors.error, fontSize: 12),
-      ),
-      onPressed: _isDeleting ? null : _handleDelete,
+    return ProfileSettingsTile(
+      icon: Icons.delete_forever_outlined,
+      title: 'Excluir minha conta',
+      subtitle: 'Apaga seu perfil e seus dados de forma permanente',
+      isDestructive: true,
+      isLoading: _isDeleting,
+      onTap: _handleDelete,
     );
   }
 }
