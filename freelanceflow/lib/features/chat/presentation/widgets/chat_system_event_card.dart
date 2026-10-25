@@ -3,6 +3,7 @@ import '../../../../core/theme/app_colors.dart';
 import 'package:trabalhei/core/utils/currency_formatter.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/conversation.dart';
+import '../../domain/entities/system_event.dart';
 import 'request_revision_modal.dart';
 import 'review_contract_modal.dart';
 import 'submit_deliverable_modal.dart';
@@ -19,37 +20,38 @@ class ChatSystemEventCard extends StatelessWidget {
     required this.currentUser,
   });
 
+  /// Marco citado na mensagem; sem título reconhecível, o marco em andamento.
+  static ContractMilestone _milestoneFor(Conversation conv, String content) {
+    final title = milestoneTitleOf(content);
+    final inProgress = conv.milestones.firstWhere(
+      (m) =>
+          m.status == MilestoneStatus.submitted ||
+          m.status == MilestoneStatus.inRevision,
+      orElse: () => conv.milestones.firstWhere(
+        (m) => m.status == MilestoneStatus.pending,
+        orElse: () => conv.milestones.first,
+      ),
+    );
+    if (title == null) return inProgress;
+    final matches = conv.milestones.where((m) => m.title == title).toList();
+    if (matches.isEmpty) return inProgress;
+    return matches.contains(inProgress) ? inProgress : matches.first;
+  }
+
   @override
-Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     final conv = conversation;
-
-
-
-
     final isClient = conv != null && currentUser?.id == conv.clientId;
+    final kind = systemEventKindOf(msg.content);
 
-    final isDelivery =
-        msg.content.contains('Entrega') || msg.content.contains('📦');
-    final isRevision =
-        msg.content.contains('Revisão') ||
-        msg.content.contains('🔄') ||
-        msg.content.contains('Ajustes');
-    final isApproved =
-        msg.content.contains('aprovado') ||
-        msg.content.contains('🎉');
+    final isDelivery = kind == SystemEventKind.delivery;
+    final isRevision = kind == SystemEventKind.revision;
+    final isApproved = kind == SystemEventKind.approval;
 
-    if (isDelivery &&
-        conv != null &&
-        conv.milestones.isNotEmpty) {
-      final activeMilestone = conv.milestones.firstWhere(
-        (m) =>
-            m.status == MilestoneStatus.submitted ||
-            m.status == MilestoneStatus.inRevision,
-        orElse: () => conv.milestones.firstWhere(
-          (m) => m.status == MilestoneStatus.pending,
-          orElse: () => conv.milestones.first,
-        ),
-      );
+    if (isDelivery && conv != null && conv.milestones.isNotEmpty) {
+      final activeMilestone = _milestoneFor(conv, msg.content);
+      final alreadyApproved =
+          activeMilestone.status == MilestoneStatus.approved;
 
       return Center(
         child: Container(
@@ -156,62 +158,75 @@ Widget build(BuildContext context) {
                 ),
               ],
               const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isClient
-                        ? AppColors.success
-                        : AppColors.primary,
-                    foregroundColor: AppColors.pureWhite,
-                    padding: const EdgeInsets.symmetric(vertical: 11),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+              if (alreadyApproved)
+                const Row(
+                  children: [
+                    Icon(
+                      Icons.check_circle_rounded,
+                      size: 18,
+                      color: AppColors.success,
                     ),
-                  ),
-                  icon: Icon(
-                    isClient
-                        ? Icons.check_circle_outline_rounded
-                        : Icons.visibility_outlined,
-                    size: 18,
-                  ),
-                  label: Text(
-                    isClient
-                        ? 'Revisar Arquivos & Aprovar'
-                        : 'Visualizar Detalhes da Entrega',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      backgroundColor: AppColors.transparent,
-                      isScrollControlled: true,
-                      builder: (_) => RequestRevisionModal(
-                        conversation: conv,
-                        milestone: activeMilestone,
+                    SizedBox(width: 6),
+                    Text(
+                      'Entrega aprovada',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.success,
                       ),
-                    );
-                  },
+                    ),
+                  ],
+                )
+              else
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isClient
+                          ? AppColors.success
+                          : AppColors.primary,
+                      foregroundColor: AppColors.pureWhite,
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    icon: Icon(
+                      isClient
+                          ? Icons.check_circle_outline_rounded
+                          : Icons.visibility_outlined,
+                      size: 18,
+                    ),
+                    label: Text(
+                      isClient
+                          ? 'Revisar Arquivos & Aprovar'
+                          : 'Visualizar Detalhes da Entrega',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: AppColors.transparent,
+                        isScrollControlled: true,
+                        builder: (_) => RequestRevisionModal(
+                          conversation: conv,
+                          milestone: activeMilestone,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
         ),
       );
     }
 
-    if (isRevision &&
-        conv != null &&
-        conv.milestones.isNotEmpty) {
-      final activeMilestone = conv.milestones.firstWhere(
-        (m) =>
-            m.status == MilestoneStatus.inRevision ||
-            m.status == MilestoneStatus.submitted,
-        orElse: () => conv.milestones.first,
-      );
+    if (isRevision && conv != null && conv.milestones.isNotEmpty) {
+      final activeMilestone = _milestoneFor(conv, msg.content);
 
       return Center(
         child: Container(
@@ -431,8 +446,7 @@ Widget build(BuildContext context) {
                         context: context,
                         backgroundColor: AppColors.transparent,
                         isScrollControlled: true,
-                        builder: (_) =>
-                            ReviewContractModal(conversation: conv),
+                        builder: (_) => ReviewContractModal(conversation: conv),
                       );
                     },
                   ),
