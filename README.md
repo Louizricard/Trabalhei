@@ -95,11 +95,28 @@ O build publica a pasta `dist/`: a homepage (`site/`) na raiz e o app Flutter em
 (`--base-href /app/`). Links antigos do app (`/#/login`, links de e-mail com `?code=...`) e o app
 instalado como PWA são levados para `/app/` por um script no topo de `site/index.html`.
 
+## Versões para Android e Windows
+
+```bash
+cd freelanceflow
+flutter build apk --release --dart-define-from-file=dart_defines.json      # assinado com key.properties
+flutter build windows --release --dart-define-from-file=dart_defines.json
+cd ..
+powershell -ExecutionPolicy Bypass -File scripts/windows-installer/build.ps1
+```
+
+O `build.ps1` gera em `release/` o ZIP portátil e o instalador `.exe`, montado pelo IExpress (já vem no
+Windows). O instalador copia o app para `%LOCALAPPDATA%\Programs\Trabalhei` sem pedir administrador,
+cria o atalho no menu Iniciar e registra a desinstalação em "Aplicativos instalados". O executável não
+tem assinatura digital, então o Windows SmartScreen avisa na primeira execução.
+
 ## Homepage (`site/`)
 
 HTML, CSS e JavaScript sem dependências nem etapa de build. Os botões de download leem a última
-versão do GitHub Releases: o `.apk` vira o botão do Android e um arquivo com `windows` no nome
-(`.zip`, `.exe` ou `.msix`) ativa o botão do Windows; sem ele, o botão fica como "em breve".
+versão do GitHub Releases: o `.apk` vira o botão do Android, `*-windows-*-setup.exe` o instalador do
+Windows e `*-windows-*.zip` o ZIP portátil. Se a consulta falhar, os botões levam à página de versões.
+O aparelho em destaque muda com a tela (`html[data-mode]`, definido no `<head>`): notebook em telas
+largas e deitadas, celular nas demais.
 Preços citados no texto (Pro e destaque) devem acompanhar o `BillingConfig`.
 
 Os prints são telas reais do app com dados fictícios, gerados pelo app de demonstração em

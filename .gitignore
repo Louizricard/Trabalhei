@@ -135,3 +135,6 @@ supabase/.env
 
 # Saída montada pelo build do Vercel (homepage + app)
 /dist/
+
+# Pacotes gerados por scripts/windows-installer/build.ps1
+/release/
