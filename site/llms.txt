@@ -1,0 +1,33 @@
+# Trabalhei
+
+> Plataforma brasileira que conecta clientes a freelancers. Quem contrata publica vagas e recebe propostas; quem trabalha encontra projetos, envia propostas e entrega pelo chat, com marcos de entrega e avaliações. Disponível no Android, no Windows e no navegador (https://trabalhei.site/app/).
+
+## O que dá para fazer
+
+- Publicar vagas com categoria, orçamento, prazo, habilidades, capa e anexos.
+- Enviar propostas com valor, prazo e carta de apresentação.
+- Comparar propostas (total, menor e maior valor, prazo médio), fazer contraproposta e contratar.
+- Conversar em tempo real no chat do contrato, enviar arquivos e entregas por marco.
+- Aprovar a entrega ou pedir revisão; no fim, cliente e freelancer se avaliam.
+- Buscar freelancers e ver perfis com título profissional, habilidades, portfólio, links, currículo e avaliações.
+- Painel com contratos ativos, propostas e projetos concluídos.
+
+## Preços
+
+- Cadastro e uso gratuitos.
+- Freelancers: 5 propostas grátis por mês; Plano Pro por R$ 29,90/mês com propostas ilimitadas, selo PRO e prioridade na busca.
+- Clientes: destaque de vaga no topo do mural por 7 dias, R$ 19,90.
+- O Trabalhei não intermedia nem retém o pagamento dos projetos: o valor é combinado e pago diretamente entre cliente e freelancer.
+
+## Plataformas
+
+- Web: https://trabalhei.site/app/ (sem instalação, inclusive no iPhone pelo Safari).
+- Android 8.0 ou mais novo: APK em https://github.com/Louizricard/Trabalhei/releases/latest
+- Windows 10 e 11 (64 bits): instalador .exe ou ZIP em https://github.com/Louizricard/Trabalhei/releases/latest
+- A mesma conta funciona em todas as versões.
+
+## Links
+
+- Página inicial: https://trabalhei.site/
+- Perguntas frequentes: https://trabalhei.site/#duvidas
+- Termos de Uso e Política de Privacidade: https://trabalhei.site/app/#/terms
