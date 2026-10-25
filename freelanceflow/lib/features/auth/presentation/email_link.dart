@@ -38,8 +38,11 @@ class EmailLink {
           : 'Este link de confirmação expirou ou já foi usado. Entre com sua senha ou peça um novo link.';
       return '/login?notice=${Uri.encodeComponent(notice)}';
     } finally {
-      // Recarregar a página não deve tentar usar o mesmo link de novo.
-      clearUrlQuery();
+      // Recarregar a página não deve tentar usar o mesmo link de novo. Uma
+      // falha aqui nunca pode impedir a navegação.
+      try {
+        clearUrlQuery();
+      } catch (_) {}
     }
   }
 }

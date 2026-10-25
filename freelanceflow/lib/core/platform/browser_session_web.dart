@@ -19,10 +19,11 @@ void clearUrlQuery() {
   final path = (location['pathname'] as JSString).toDart;
   final hash = (location['hash'] as JSString).toDart;
   final history = globalContext['history'] as JSObject;
-  history.callMethod<JSAny?>(
-    'replaceState'.toJS,
+  // callMethodVarArgs: com callMethod, um primeiro argumento null faz o
+  // dart2js chamar replaceState() sem argumentos, o que lança erro.
+  history.callMethodVarArgs<JSAny?>('replaceState'.toJS, [
     null,
     ''.toJS,
     '$path$hash'.toJS,
-  );
+  ]);
 }
