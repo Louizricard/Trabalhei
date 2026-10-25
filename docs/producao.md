@@ -8,8 +8,10 @@ Feito: URL Configuration e *Minimum password length* = 8 conferidos no painel.
 
 **URL Configuration** (Authentication › URL Configuration)
 
-- Site URL: `https://trabalhei.vercel.app`
-- Redirect URLs: `https://trabalhei.vercel.app/**` e, para desenvolvimento, `http://localhost:*/**`
+- Site URL: `https://trabalhei.vercel.app` (passa a ser `https://trabalhei.site` quando o domínio
+  estiver no ar)
+- Redirect URLs: `https://trabalhei.site/**`, `https://trabalhei.vercel.app/**` e, para
+  desenvolvimento, `http://localhost:*/**`
 
 O app não envia `emailRedirectTo`, então os links de confirmação e de redefinição de senha usam a Site URL.
 
@@ -22,29 +24,37 @@ O app não envia `emailRedirectTo`, então os links de confirmação e de redefi
 
 ## 2. E-mail (SMTP próprio)
 
-Pendente: depende de registrar um domínio próprio.
+Em andamento com o domínio `trabalhei.site` (registrado na Hostinger) e o **Resend**:
+
+- [x] Domínio adicionado no Resend, região São Paulo (`sa-east-1`), sem rastreamento de abertura/clique.
+- [x] Nameservers da Hostinger trocados para `ns1.vercel-dns.com` e `ns2.vercel-dns.com`.
+- [ ] Registros de DNS do Resend criados no Vercel (assim que os nameservers propagarem):
+  `TXT resend._domainkey` (DKIM), `MX send` → `feedback-smtp.sa-east-1.amazonses.com` (prioridade 10),
+  `TXT send` → `v=spf1 include:amazonses.com ~all`, `CNAME rsend` → `send.forge.rmta.net` e
+  `TXT _dmarc` → `v=DMARC1; p=none;`.
+- [ ] Domínio verificado no Resend.
+- [ ] Resend conectado ao Supabase (Resend › Integrations › Supabase), remetente
+  `Trabalhei <no-reply@trabalhei.site>`.
+- [ ] Modelos em português de `supabase/templates/` colados em Authentication › Emails › Templates
+  (o painel só libera a edição depois do SMTP próprio). Assuntos em `supabase/config.toml`.
+- [ ] Rate limit de e-mails ajustado (o padrão com SMTP próprio é 30 por hora).
+- [ ] Site URL trocada para `https://trabalhei.site`.
+- [ ] **Confirm email religado** e cadastro testado com um e-mail de fora da organização.
 
 Enquanto isso, **Confirm email está desligado** (Authentication › Sign In / Providers › User Signups,
-desde 25/10/2026): o cadastro já entra logado, sem verificar o e-mail. Depois de configurar o SMTP,
-**religue** essa opção.
+desde 25/10/2026): o cadastro já entra logado, sem verificar o e-mail.
 
-O remetente padrão do Supabase só envia para membros da organização: para qualquer outro endereço o
-cadastro falha com *Email address not authorized*. Ele também tem um limite baixo de envios por hora.
-Para cadastros reais é preciso um SMTP próprio, em Authentication › Emails › SMTP Settings.
-
-- Provedores com plano gratuito: Resend, Brevo ou Amazon SES.
-- Todos exigem um **domínio próprio verificado** (registros SPF/DKIM no DNS). Não dá para verificar
-  `vercel.app`, então o SMTP próprio depende de registrar um domínio, por exemplo `trabalhei.com.br`.
-- Com o domínio registrado, ele também pode virar o endereço do app no Vercel. Nesse caso, atualize a
-  Site URL do item 1.
-- Com o SMTP próprio configurado, o Supabase começa limitando a 30 e-mails por hora. Ajuste esse
-  valor em Authentication › Rate Limits e teste o cadastro com um e-mail de fora da organização.
+Por que é necessário: o remetente padrão do Supabase só envia para membros da organização (para
+qualquer outro endereço o cadastro falha com *Email address not authorized*) e tem limite baixo de
+envios por hora.
 
 ## 3. Vercel
 
 - O build do app web já está configurado (`vercel.json`), com `SUPABASE_URL` e `SUPABASE_ANON_KEY`
   definidas em Production e Preview.
-- A produção (`trabalhei.vercel.app`) é recompilada a cada merge na `main`.
+- A produção é recompilada a cada merge na `main` e responde em `https://trabalhei.site`
+  (`www.trabalhei.site` redireciona para ele) e em `https://trabalhei.vercel.app`.
+- O DNS de `trabalhei.site` fica no Vercel (Domains › trabalhei.site): é lá que se criam registros.
 - Os previews exigem login no Vercel (Deployment Protection). A produção é pública.
 
 ## 4. Sentry

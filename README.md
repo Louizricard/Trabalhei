@@ -26,6 +26,7 @@ supabase/
   migrations/         Schema, RLS e funções (RPC) do banco (só migrations de ida)
   rollbacks/          Rollback de cada migration (<versão>_<nome>_down.sql), fora do alcance do CLI
   functions/          Edge Functions (Deno): cobrança Asaas, webhook e exclusão de conta
+  templates/          E-mails de autenticação em português (cadastro, senha, etc.)
     _shared/          Código comum (importado como ../_shared/common.ts)
 docs/rls.md           Políticas de segurança por tabela
 docs/producao.md      Checklist do que configurar nos painéis antes de produção
@@ -85,7 +86,8 @@ O `vercel.json` chama `scripts/vercel-build.sh`, que baixa a versão fixada do F
 | `SUPABASE_ANON_KEY` | Chave publicável do Supabase |
 | `SENTRY_DSN` | Opcional; DSN do projeto Flutter no Sentry |
 
-O ambiente enviado ao Sentry vem de `VERCEL_ENV` (production/preview). Produção: `https://trabalhei.vercel.app`.
+O ambiente enviado ao Sentry vem de `VERCEL_ENV` (production/preview). Produção: `https://trabalhei.site`
+(DNS no Vercel; `www` redireciona para o domínio principal e `trabalhei.vercel.app` continua respondendo).
 
 ## Monitoramento (Sentry)
 
