@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/storage_service.dart';
+import '../../../../core/utils/realtime_retry.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/conversation.dart';
 
@@ -100,12 +101,17 @@ class ChatRemoteDataSource {
   }
 
   Stream<List<ChatMessage>> getMessagesStream(String conversationId) {
-    return _supabase
-        .from('messages')
-        .stream(primaryKey: ['id'])
-        .eq('conversation_id', conversationId)
-        .order('created_at', ascending: true)
-        .map((list) => list.map((json) => ChatMessage.fromJson(json)).toList());
+    return resilientRealtimeStream(
+      _supabase,
+      () => _supabase
+          .from('messages')
+          .stream(primaryKey: ['id'])
+          .eq('conversation_id', conversationId)
+          .order('created_at', ascending: true)
+          .map(
+            (list) => list.map((json) => ChatMessage.fromJson(json)).toList(),
+          ),
+    );
   }
 
   Future<void> markConversationRead(String conversationId) async {

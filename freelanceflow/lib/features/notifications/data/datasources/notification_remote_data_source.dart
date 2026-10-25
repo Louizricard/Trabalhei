@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/app_notification.dart';
+import '../../../../core/utils/realtime_retry.dart';
 
 abstract class NotificationRemoteDataSource {
   Future<List<AppNotification>> getNotifications({
@@ -44,15 +45,18 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     final user = _supabase.auth.currentUser;
     if (user == null) return Stream.value([]);
 
-    return _supabase
-        .from('notifications')
-        .stream(primaryKey: ['id'])
-        .eq('user_id', user.id)
-        .order('created_at', ascending: false)
-        .map(
-          (records) =>
-              records.map((row) => AppNotification.fromJson(row)).toList(),
-        );
+    return resilientRealtimeStream(
+      _supabase,
+      () => _supabase
+          .from('notifications')
+          .stream(primaryKey: ['id'])
+          .eq('user_id', user.id)
+          .order('created_at', ascending: false)
+          .map(
+            (records) =>
+                records.map((row) => AppNotification.fromJson(row)).toList(),
+          ),
+    );
   }
 
   @override
