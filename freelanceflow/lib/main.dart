@@ -87,6 +87,8 @@ void main() async {
     await Sentry.captureException(e, stackTrace: st);
   }
 
+  await AppTheme.preloadFonts();
+
   runApp(const ProviderScope(child: TrabalheiApp()));
 }
 
