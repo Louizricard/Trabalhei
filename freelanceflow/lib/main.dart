@@ -3,11 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/config/env_config.dart';
 import 'core/config/supabase_client.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/data/session_policy.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -82,6 +84,7 @@ void main() async {
   // Inicialização do Supabase
   try {
     await SupabaseInit.initialize();
+    await SessionPolicy.enforceOnStartup(Supabase.instance.client.auth);
   } catch (e, st) {
     debugPrint('🚨 [SupabaseInit] Erro ao inicializar Supabase: $e\n$st');
     await Sentry.captureException(e, stackTrace: st);

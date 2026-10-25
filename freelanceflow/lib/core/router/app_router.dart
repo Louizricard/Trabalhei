@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/supabase_client.dart';
 import '../../features/auth/domain/entities/user_profile.dart';
 import '../../features/auth/presentation/providers/auth_state_provider.dart';
+import '../../features/auth/presentation/providers/password_recovery_provider.dart';
 import '../../features/auth/presentation/providers/pending_confirmation_provider.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
@@ -38,8 +42,20 @@ final _profileNavigatorKey = GlobalKey<NavigatorState>();
 
 class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
+  StreamSubscription<AuthState>? _recoverySub;
 
   RouterNotifier(this._ref) {
+    // Link de redefinição aberto no mesmo navegador que pediu (fluxo PKCE).
+    _recoverySub = _ref
+        .read(supabaseClientProvider)
+        .auth
+        .onAuthStateChange
+        .listen((state) {
+          if (state.event == AuthChangeEvent.passwordRecovery) {
+            _ref.read(passwordRecoveryProvider.notifier).state = true;
+            notifyListeners();
+          }
+        }, onError: (Object _) {});
     _ref.listen(authProvider, (_, next) {
       // Entrou: o e-mail está confirmado e o aviso de cadastro pendente some.
       if (next.valueOrNull != null) {
@@ -47,6 +63,12 @@ class RouterNotifier extends ChangeNotifier {
       }
       notifyListeners();
     });
+  }
+
+  @override
+  void dispose() {
+    _recoverySub?.cancel();
+    super.dispose();
   }
 }
 
@@ -89,6 +111,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (loc == '/splash') return null;
 
       if (authState.isLoading) return null;
+
+      if (isLoggedIn &&
+          ref.read(passwordRecoveryProvider) &&
+          loc != '/reset-password') {
+        return '/reset-password';
+      }
 
       if (!isLoggedIn && !isAuthRoute) {
         return '/login';

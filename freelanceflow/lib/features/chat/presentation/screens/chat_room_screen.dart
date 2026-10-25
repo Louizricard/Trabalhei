@@ -98,7 +98,17 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     final user = ref.read(authProvider).value;
     if (user == null) return;
 
-    final picked = await storage.pickImage(source: source);
+    final PickedFileData? picked;
+    try {
+      picked = await storage.pickImage(source: source, maxBytes: 50 * 1024 * 1024);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(friendlyError(e)), backgroundColor: AppColors.error),
+        );
+      }
+      return;
+    }
     if (picked == null) return;
 
     await _uploadAndSendFile(picked, user.id);
@@ -165,7 +175,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Falha ao enviar arquivo: $e'),
+            content: Text('Falha ao enviar arquivo: ${friendlyError(e)}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -373,7 +383,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
         child: Column(
           children: [
             if (conversation != null && conversation.milestones.isNotEmpty)
-              ChatDeliveryActionBanner(conversation: conversation, currentUser: currentUser),
+              ChatDeliveryActionBanner(
+                conversation: conversation,
+                currentUser: currentUser,
+              ),
             Expanded(
               child: messagesAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -456,6 +469,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   Expanded(
                     child: TextField(
                       controller: _messageController,
+                      // Limite do banco; sem contador para não poluir o chat.
+                      maxLength: 5000,
+                      buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
                       style: const TextStyle(
                         color: AppColors.textPrimaryDark,
                         fontSize: 14,
@@ -501,7 +517,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   ) {
     if (msg.messageType == MessageType.systemEvent ||
         msg.messageType == MessageType.milestoneUpdate) {
-      return ChatSystemEventCard(msg: msg, conversation: conversation, currentUser: currentUser);
+      return ChatSystemEventCard(
+        msg: msg,
+        conversation: conversation,
+        currentUser: currentUser,
+      );
     }
 
     final isMe = msg.senderId == currentUserId;
@@ -659,8 +679,6 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     );
   }
 
-  
-
   void _openImageDialog(ChatMessage msg) {
     showImageViewerGallery(
       context,
@@ -673,6 +691,4 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
       ],
     );
   }
-
-  
 }

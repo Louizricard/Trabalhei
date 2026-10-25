@@ -27,14 +27,61 @@
   <title>Trabalhei — freelancers e projetos, do anúncio à entrega</title>
   <meta name="description" content="Publique vagas, receba propostas, converse em tempo real e acompanhe a entrega até a aprovação. Trabalhei para Android, Windows e navegador.">
   <meta name="theme-color" content="#081A2F">
+  <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="canonical" href="https://trabalhei.site/">
+  <link rel="alternate" hreflang="pt-BR" href="https://trabalhei.site/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:title" content="Trabalhei — freelancers e projetos, do anúncio à entrega">
   <meta property="og:description" content="Publique vagas, receba propostas, converse e acompanhe a entrega. Android, Windows e Web.">
   <meta property="og:url" content="https://trabalhei.site/">
   <meta property="og:image" content="https://trabalhei.site/assets/img/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Telas do Trabalhei no celular e no computador">
+  <meta property="og:site_name" content="Trabalhei">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Trabalhei — freelancers e projetos, do anúncio à entrega">
+  <meta name="twitter:description" content="Publique vagas, receba propostas, converse e acompanhe a entrega. Android, Windows e Web.">
+  <meta name="twitter:image" content="https://trabalhei.site/assets/img/og.jpg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://trabalhei.site/#organizacao",
+        "name": "Trabalhei",
+        "url": "https://trabalhei.site/",
+        "logo": "https://trabalhei.site/assets/img/logo-192.png"
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://trabalhei.site/#site",
+        "url": "https://trabalhei.site/",
+        "name": "Trabalhei",
+        "inLanguage": "pt-BR",
+        "publisher": { "@id": "https://trabalhei.site/#organizacao" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Trabalhei",
+        "url": "https://trabalhei.site/",
+        "description": "Plataforma que conecta clientes a freelancers: publicação de vagas, propostas com valor e prazo, chat em tempo real, entregas por marcos e avaliações.",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Android 8.0+, Windows 10, Windows 11, Web",
+        "inLanguage": "pt-BR",
+        "image": "https://trabalhei.site/assets/img/og.jpg",
+        "publisher": { "@id": "https://trabalhei.site/#organizacao" },
+        "offers": [
+          { "@type": "Offer", "name": "Plano grátis", "price": "0", "priceCurrency": "BRL" },
+          { "@type": "Offer", "name": "Plano Pro (mensal)", "price": "29.90", "priceCurrency": "BRL" }
+        ]
+      }
+    ]
+  }
+  </script>
+  <!-- faq-jsonld: gerado no build (scripts/site-seo.mjs) a partir das perguntas da página -->
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
   <link rel="apple-touch-icon" href="/assets/img/logo-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -391,6 +438,10 @@
           <h2 id="faq-title">Perguntas frequentes</h2>
         </header>
         <div class="faq reveal">
+          <details>
+            <summary>O que é o Trabalhei?</summary>
+            <p>Uma plataforma que conecta clientes a freelancers. Quem contrata publica a vaga e recebe propostas; quem trabalha encontra projetos, envia propostas e entrega pelo chat do contrato, com marcos de entrega e avaliação das duas partes no final. Funciona no Android, no Windows e no navegador.</p>
+          </details>
           <details>
             <summary>O Trabalhei é gratuito?</summary>
             <p>O cadastro e o uso são gratuitos. Freelancers enviam até 5 propostas por mês no plano grátis; o Pro custa R$ 29,90 por mês e libera propostas ilimitadas, selo PRO e prioridade na busca. Clientes podem destacar uma vaga por 7 dias por R$ 19,90. Pro e destaque são pagos por Pix ou cartão.</p>

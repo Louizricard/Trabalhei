@@ -117,7 +117,7 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao aceitar contraproposta: $e'),
+            content: Text('Erro ao aceitar contraproposta: ${friendlyError(e)}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -417,7 +417,8 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                         hint:
                             'Apresente suas experiências relevantes, abordagem técnica e links para projetos similares...',
                         maxLines: 6,
-                        validator: (v) => v != null && v.length >= 30
+                        maxLength: 3000,
+                        validator: (v) => v != null && v.trim().length >= 30
                             ? null
                             : 'Mínimo de 30 caracteres para uma proposta competitiva',
                       ),

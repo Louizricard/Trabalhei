@@ -1,5 +1,6 @@
 import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/utils/validators.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -63,7 +64,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
+            content: Text(friendlyError(e)),
             backgroundColor: AppColors.error,
           ),
         );
@@ -159,9 +160,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             label: 'Nome Completo',
                             hint: 'Ex: Carlos Oliveira',
                             prefixIcon: Icons.person_outline_rounded,
-                            validator: (v) => v != null && v.length >= 3
+                            validator: (v) => v != null && v.trim().length >= 3
                                 ? null
                                 : 'Insira seu nome completo',
+                            maxLength: 120,
+                            autofillHints: const [AutofillHints.name],
                           ),
                           const SizedBox(height: 16),
                           CustomTextField(
@@ -170,9 +173,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             hint: 'seu@email.com',
                             prefixIcon: Icons.mail_outline_rounded,
                             keyboardType: TextInputType.emailAddress,
-                            validator: (v) => v != null && v.contains('@')
-                                ? null
-                                : 'E-mail inválido',
+                            validator: Validators.email,
+                            autofillHints: const [AutofillHints.email],
                           ),
                           const SizedBox(height: 16),
                           CustomTextField(
@@ -181,6 +183,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             hint: 'Mínimo $minPasswordLength caracteres',
                             prefixIcon: Icons.lock_outline_rounded,
                             obscureText: true,
+                            autofillHints: const [AutofillHints.newPassword],
                             validator: (v) =>
                                 v != null && v.length >= minPasswordLength
                                 ? null

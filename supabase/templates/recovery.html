@@ -9,9 +9,9 @@
         <td style="padding:8px 28px 28px;font-size:15px;line-height:1.6;">
           <p style="margin:0;">Recebemos um pedido para redefinir a senha da sua conta.</p>
           <p style="margin:24px 0;">
-            <a href="{{ .ConfirmationURL }}" style="background:#19e6a7;color:#081a2f;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">Criar nova senha</a>
+            <a href="{{ .SiteURL }}/app/?token_hash={{ .TokenHash }}&amp;type=recovery" style="background:#19e6a7;color:#081a2f;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">Criar nova senha</a>
           </p>
-          <p style="font-size:12px;color:#64748b;">Se o botão não funcionar, copie e cole este endereço no navegador:<br>{{ .ConfirmationURL }}</p>
+          <p style="font-size:12px;color:#64748b;">Se o botão não funcionar, copie e cole este endereço no navegador:<br>{{ .SiteURL }}/app/?token_hash={{ .TokenHash }}&amp;type=recovery</p>
           <p style="font-size:12px;color:#64748b;">O link vale por 1 hora.</p>
         </td>
       </tr>

@@ -8,6 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import '../config/supabase_client.dart';
+import '../errors/backend_errors.dart';
+import 'file_validation.dart';
 
 /// Data structure representing a selected file prior to upload
 class PickedFileData {
@@ -85,7 +87,7 @@ class AppAttachment {
 
 /// Buckets sem leitura pública. O app guarda a URL no formato público como
 /// identificador estável do arquivo e troca por uma URL assinada ao exibir/abrir.
-const privateBuckets = {'chat_attachments'};
+const privateBuckets = {'chat_attachments', 'resumes'};
 
 /// Validade das URLs assinadas dos buckets privados.
 const signedUrlTtl = Duration(hours: 1);
@@ -176,32 +178,40 @@ class StorageService {
     }
   }
 
-  /// Picks an image from camera or gallery
+  /// Escolhe uma imagem da galeria ou da câmera. Arquivos que não são
+  /// imagem de verdade (mesmo com extensão de imagem) ou acima de [maxBytes]
+  /// são recusados com [AppMessageException], para a tela avisar o usuário.
   Future<PickedFileData?> pickImage({
     ImageSource source = ImageSource.gallery,
     int imageQuality = 85,
+    int maxBytes = 5 * 1024 * 1024,
   }) async {
+    final XFile? xFile;
     try {
-      final xFile = await _imagePicker.pickImage(
+      xFile = await _imagePicker.pickImage(
         source: source,
         imageQuality: imageQuality,
-      );
-      if (xFile == null) return null;
-
-      final bytes = await xFile.readAsBytes();
-      final name = xFile.name;
-      final extension = name.split('.').last.toLowerCase();
-
-      return PickedFileData(
-        name: name,
-        bytes: bytes,
-        size: bytes.length,
-        mimeType: _guessMimeType(extension),
       );
     } catch (e) {
       debugPrint('🚨 [StorageService] Erro ao selecionar imagem: $e');
       return null;
     }
+    if (xFile == null) return null;
+
+    final bytes = await xFile.readAsBytes();
+    final mime = FileValidation.imageMime(bytes);
+    if (mime == null) {
+      throw const AppMessageException(
+        'Esse arquivo não é uma imagem. Escolha uma foto em ${FileValidation.imageTypesLabel}.',
+      );
+    }
+    FileValidation.checkSize(bytes.length, maxBytes);
+    return PickedFileData(
+      name: xFile.name,
+      bytes: bytes,
+      size: bytes.length,
+      mimeType: mime,
+    );
   }
 
   /// Uploads a file to a specific Supabase storage bucket

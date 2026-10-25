@@ -27,6 +27,7 @@ cd ..
 rm -rf dist
 mkdir -p dist
 cp -R site/. dist/
+node scripts/site-seo.mjs dist/index.html
 cp -R freelanceflow/build/web dist/app
 # Quem tinha o app aberto na raiz recebe o service worker de limpeza do Flutter,
 # que se desregistra e recarrega a página (agora a homepage).

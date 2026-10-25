@@ -4,9 +4,6 @@ class LegalInfo {
   /// Nome completo ou razão social de quem opera o Trabalhei.
   static const String controllerName = 'LouizVolution';
 
-  /// CPF ou CNPJ do responsável.
-  static const String controllerDocument = '06765405119';
-
   /// E-mail para suporte e pedidos sobre dados pessoais (LGPD).
   static const String contactEmail = 'luizricardorodrigues0102@gmail.com';
 

@@ -16,6 +16,14 @@ class CustomTextField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final TextCapitalization textCapitalization;
 
+  /// Limite de caracteres (o mesmo do banco); mostra o contador abaixo.
+  final int? maxLength;
+
+  /// Dicas para o preenchimento automático e gerenciadores de senha.
+  final Iterable<String>? autofillHints;
+  final TextInputAction? textInputAction;
+  final void Function(String)? onFieldSubmitted;
+
   const CustomTextField({
     super.key,
     required this.controller,
@@ -30,6 +38,10 @@ class CustomTextField extends StatelessWidget {
     this.onChanged,
     this.inputFormatters,
     this.textCapitalization = TextCapitalization.none,
+    this.maxLength,
+    this.autofillHints,
+    this.textInputAction,
+    this.onFieldSubmitted,
   });
 
   @override
@@ -55,6 +67,10 @@ class CustomTextField extends StatelessWidget {
           onChanged: onChanged,
           inputFormatters: inputFormatters,
           textCapitalization: textCapitalization,
+          maxLength: maxLength,
+          autofillHints: autofillHints,
+          textInputAction: textInputAction,
+          onFieldSubmitted: onFieldSubmitted,
           style: const TextStyle(
             color: AppColors.textPrimaryDark,
             fontSize: 14,

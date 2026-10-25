@@ -10,7 +10,7 @@ import 'package:trabalhei/features/chat/domain/entities/conversation.dart';
 import 'package:trabalhei/features/chat/presentation/providers/chat_provider.dart';
 
 import 'request_revision_modal.dart';
-import 'review_contract_modal.dart';
+import 'review_contract_button.dart';
 import 'submit_deliverable_modal.dart';
 
 class ContractMilestoneSheet extends ConsumerWidget {
@@ -159,8 +159,7 @@ class ContractMilestoneSheet extends ConsumerWidget {
                         children: [
                           _buildMilestoneBadge(m.status),
                           const Spacer(),
-                          if ((m.status ==
-                                      MilestoneStatus.pending ||
+                          if ((m.status == MilestoneStatus.pending ||
                                   m.status == MilestoneStatus.inRevision) &&
                               !isClient) ...[
                             CustomButton(
@@ -233,8 +232,7 @@ class ContractMilestoneSheet extends ConsumerWidget {
                                 );
                               },
                             ),
-                          ] else if (m.status ==
-                                  MilestoneStatus.approved &&
+                          ] else if (m.status == MilestoneStatus.approved &&
                               hasAttachments) ...[
                             OutlinedButton.icon(
                               style: OutlinedButton.styleFrom(
@@ -277,18 +275,12 @@ class ContractMilestoneSheet extends ConsumerWidget {
             }),
             const SizedBox(height: 12),
             if (liveConv.isContractCompleted) ...[
-              CustomButton(
-                text: isClient ? 'Avaliar Profissional' : 'Avaliar Contratante',
-                icon: Icons.star_rate_rounded,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  showModalBottomSheet(
-                    context: context,
-                    backgroundColor: AppColors.transparent,
-                    isScrollControlled: true,
-                    builder: (_) => ReviewContractModal(conversation: liveConv),
-                  );
-                },
+              ReviewContractButton(
+                conversation: liveConv,
+                label: isClient
+                    ? 'Avaliar Profissional'
+                    : 'Avaliar Contratante',
+                beforeOpen: () => Navigator.of(context).pop(),
               ),
               const SizedBox(height: 10),
             ],

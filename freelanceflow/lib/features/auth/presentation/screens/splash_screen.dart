@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../email_link.dart';
 import '../providers/auth_state_provider.dart';
 import '../providers/pending_confirmation_provider.dart';
 
@@ -38,6 +39,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   void _checkAuthAndNavigate() {
+    final link = kIsWeb ? EmailLink.fromUri(Uri.base) : null;
+    if (link != null) {
+      link.open(ref).then((route) {
+        if (mounted) context.go(route);
+      });
+      return;
+    }
     // Garantir exibição da splash por pelo menos 1.8 segundos para visualização da marca
     _timer = Timer(const Duration(milliseconds: 1800), () {
       if (!mounted) return;

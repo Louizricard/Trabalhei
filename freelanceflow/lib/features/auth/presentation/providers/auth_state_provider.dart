@@ -88,6 +88,12 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
   Future<void> resendSignupConfirmation(String email) =>
       _repository.resendSignupConfirmation(email);
 
+  /// A sessão aberta pelo link chega pelo stream de autenticação.
+  Future<void> verifyEmailLink({
+    required String tokenHash,
+    required bool recovery,
+  }) => _repository.verifyEmailLink(tokenHash: tokenHash, recovery: recovery);
+
   Future<void> resetPassword(String email) async {
     await _repository.sendPasswordReset(email);
   }

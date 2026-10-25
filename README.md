@@ -119,6 +119,10 @@ O aparelho em destaque muda com a tela (`html[data-mode]`, definido no `<head>`)
 largas e deitadas, celular nas demais.
 Preços citados no texto (Pro e destaque) devem acompanhar o `BillingConfig`.
 
+SEO: `robots.txt`, `sitemap.xml` (atualize o `lastmod` ao mudar a página), `llms.txt` para buscadores de
+IA e JSON-LD (organização, app e perguntas frequentes). O JSON-LD das perguntas é gerado no build por
+`scripts/site-seo.mjs` a partir das próprias perguntas da página. O app em `/app/` tem `noindex`.
+
 Os prints são telas reais do app com dados fictícios, gerados pelo app de demonstração em
 `freelanceflow/tool/showcase` (mesmos widgets do app, repositórios em memória):
 

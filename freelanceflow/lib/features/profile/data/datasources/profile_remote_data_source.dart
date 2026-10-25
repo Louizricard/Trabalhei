@@ -1,6 +1,9 @@
+import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../../core/services/storage_service.dart';
 import '../../../auth/domain/entities/user_profile.dart';
 import '../../domain/entities/portfolio_item.dart';
+import '../../domain/entities/profile_update.dart';
 
 class ProfileRemoteDataSource {
   final SupabaseClient _supabase;
@@ -169,18 +172,55 @@ class ProfileRemoteDataSource {
 
   Future<void> updateProfile({
     required String userId,
-    String? fullName,
-    String? bio,
-    double? hourlyRate,
-    List<String>? skills,
+    required ProfileUpdate update,
   }) async {
-    final updates = <String, dynamic>{};
-    if (fullName != null) updates['full_name'] = fullName;
-    if (bio != null) updates['bio'] = bio;
-    if (hourlyRate != null) updates['hourly_rate'] = hourlyRate;
-    if (skills != null) updates['skills'] = skills;
+    await _supabase.from('profiles').update(update.toJson()).eq('id', userId);
+  }
 
-    await _supabase.from('profiles').update(updates).eq('id', userId);
+  /// Currículo em PDF no bucket privado `resumes` (`<user_id>/curriculo-*.pdf`).
+  /// O perfil guarda o endereço no formato público, trocado por um link
+  /// assinado ao abrir; o arquivo anterior é apagado.
+  Future<String> uploadResume({
+    required String userId,
+    required Uint8List bytes,
+    String? previousUrl,
+  }) async {
+    final bucket = _supabase.storage.from('resumes');
+    final path =
+        '$userId/curriculo-${DateTime.now().millisecondsSinceEpoch}.pdf';
+    await bucket.uploadBinary(
+      path,
+      bytes,
+      fileOptions: const FileOptions(contentType: 'application/pdf'),
+    );
+    final url = bucket.getPublicUrl(path);
+    await _supabase
+        .from('profiles')
+        .update({'resume_url': url})
+        .eq('id', userId);
+    if (previousUrl != null) await _deleteResumeFile(previousUrl);
+    return url;
+  }
+
+  Future<void> removeResume({
+    required String userId,
+    required String url,
+  }) async {
+    await _supabase
+        .from('profiles')
+        .update({'resume_url': null})
+        .eq('id', userId);
+    await _deleteResumeFile(url);
+  }
+
+  Future<void> _deleteResumeFile(String url) async {
+    final object = privateStorageObject(url);
+    if (object == null) return;
+    try {
+      await _supabase.storage.from(object.bucket).remove([object.path]);
+    } catch (_) {
+      // Arquivo antigo que não sai não impede a troca do currículo.
+    }
   }
 
   Future<String> uploadAvatar({
@@ -191,7 +231,13 @@ class ProfileRemoteDataSource {
     // Convenção de storage: <bucket>/<user_id>/<arquivo> (policy exige a pasta do dono).
     final path = '$userId/${DateTime.now().millisecondsSinceEpoch}.$fileExt';
 
-    await _supabase.storage.from('avatars').uploadBinary(path, bytes);
+    await _supabase.storage
+        .from('avatars')
+        .uploadBinary(
+          path,
+          bytes,
+          fileOptions: FileOptions(contentType: 'image/$fileExt'),
+        );
 
     final publicUrl = _supabase.storage.from('avatars').getPublicUrl(path);
 

@@ -1,5 +1,7 @@
 import '../../../auth/domain/entities/user_profile.dart';
+import 'dart:typed_data';
 import '../../domain/entities/portfolio_item.dart';
+import '../../domain/entities/profile_update.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../datasources/profile_remote_data_source.dart';
 
@@ -71,18 +73,27 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<void> updateProfile({
     required String userId,
-    String? fullName,
-    String? bio,
-    double? hourlyRate,
-    List<String>? skills,
+    required ProfileUpdate update,
   }) {
-    return _remoteDataSource.updateProfile(
+    return _remoteDataSource.updateProfile(userId: userId, update: update);
+  }
+
+  @override
+  Future<String> uploadResume({
+    required String userId,
+    required Uint8List bytes,
+    String? previousUrl,
+  }) {
+    return _remoteDataSource.uploadResume(
       userId: userId,
-      fullName: fullName,
-      bio: bio,
-      hourlyRate: hourlyRate,
-      skills: skills,
+      bytes: bytes,
+      previousUrl: previousUrl,
     );
+  }
+
+  @override
+  Future<void> removeResume({required String userId, required String url}) {
+    return _remoteDataSource.removeResume(userId: userId, url: url);
   }
 
   @override
