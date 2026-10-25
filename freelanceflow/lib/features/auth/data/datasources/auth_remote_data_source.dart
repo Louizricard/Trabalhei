@@ -82,6 +82,12 @@ class AuthRemoteDataSource {
       final user = response.user;
       if (user == null) throw Exception('Falha ao cadastrar usuário.');
 
+      // E-mail já cadastrado: o Supabase responde "sucesso" com um usuário sem
+      // identidades (para não revelar quais e-mails existem) e não envia nada.
+      if (response.session == null && (user.identities?.isEmpty ?? false)) {
+        throw const EmailAlreadyRegisteredException();
+      }
+
       // Com confirmação de e-mail ativa não há sessão: o usuário só entra depois
       // de clicar no link. Nunca tratamos como logado sem sessão real.
       if (response.session == null) {
@@ -93,6 +99,8 @@ class AuthRemoteDataSource {
       }
       return profile;
     } on EmailConfirmationPendingException {
+      rethrow;
+    } on EmailAlreadyRegisteredException {
       rethrow;
     } on AuthException catch (e) {
       throw Exception(_mapAuthErrorMessage(e.message));
