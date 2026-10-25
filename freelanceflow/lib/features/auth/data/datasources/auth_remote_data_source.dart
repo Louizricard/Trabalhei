@@ -54,6 +54,10 @@ class AuthRemoteDataSource {
             createdAt: DateTime.now(),
           );
     } on AuthException catch (e) {
+      if (e.code == 'email_not_confirmed' ||
+          e.message.toLowerCase().contains('email not confirmed')) {
+        throw EmailNotConfirmedException(email.trim());
+      }
       throw Exception(_mapAuthErrorMessage(e.message));
     } catch (e) {
       throw Exception(_mapAuthErrorMessage(e.toString()));
@@ -116,6 +120,15 @@ class AuthRemoteDataSource {
       throw Exception(_mapAuthErrorMessage(e.message));
     } catch (e) {
       throw Exception(_mapAuthErrorMessage(e.toString()));
+    }
+  }
+
+  /// Reenvia o e-mail de confirmação de cadastro.
+  Future<void> resendSignupConfirmation(String email) async {
+    try {
+      await _supabase.auth.resend(type: OtpType.signup, email: email.trim());
+    } on AuthException catch (e) {
+      throw Exception(_mapAuthErrorMessage(e.message));
     }
   }
 
@@ -191,7 +204,8 @@ class AuthRemoteDataSource {
     if (lower.contains('password should be at least')) {
       return 'A senha deve conter no mínimo $minPasswordLength caracteres.';
     }
-    if (lower.contains('rate limit')) {
+    if (lower.contains('rate limit') ||
+        lower.contains('for security purposes')) {
       return 'Muitas tentativas. Aguarde alguns instantes e tente novamente.';
     }
     return msg.replaceAll('Exception: ', '');

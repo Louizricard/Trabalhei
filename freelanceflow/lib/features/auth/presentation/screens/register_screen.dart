@@ -10,6 +10,8 @@ import '../../../../core/widgets/responsive_layout.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/password_policy.dart';
 import '../providers/auth_state_provider.dart';
+import '../providers/pending_confirmation_provider.dart';
+import '../widgets/pending_confirmation_banner.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -51,9 +53,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         context.go('/jobs');
       }
     } on EmailConfirmationPendingException catch (e) {
+      ref.read(pendingConfirmationProvider.notifier).set(e.email);
       if (mounted) {
         setState(() => _isLoading = false);
-        context.go('/login?notice=${Uri.encodeComponent(e.toString())}');
+        context.go('/confirm-email?email=${Uri.encodeComponent(e.email)}');
       }
     } catch (e) {
       if (mounted) {
@@ -89,6 +92,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const PendingConfirmationBanner(),
                     const Text(
                       'Criar Nova Conta',
                       style: TextStyle(
