@@ -132,3 +132,6 @@ supabase/.env
 
 # SDK do Flutter baixado pelo build do Vercel
 /.flutter/
+
+# Saída montada pelo build do Vercel (homepage + app)
+/dist/

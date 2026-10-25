@@ -22,6 +22,8 @@ o pagamento.
 
 ```
 freelanceflow/        App Flutter (lib/, test/, android/, ios/, web/ ...)
+  tool/showcase/      App de demonstração e scripts que geram os prints da homepage
+site/                 Homepage pública (raiz de trabalhei.site; o app fica em /app/)
 supabase/
   migrations/         Schema, RLS e funções (RPC) do banco (só migrations de ida)
   rollbacks/          Rollback de cada migration (<versão>_<nome>_down.sql), fora do alcance do CLI
@@ -88,6 +90,31 @@ O `vercel.json` chama `scripts/vercel-build.sh`, que baixa a versão fixada do F
 
 O ambiente enviado ao Sentry vem de `VERCEL_ENV` (production/preview). Produção: `https://trabalhei.site`
 (DNS no Vercel; `www` redireciona para o domínio principal e `trabalhei.vercel.app` continua respondendo).
+
+O build publica a pasta `dist/`: a homepage (`site/`) na raiz e o app Flutter em `/app/`
+(`--base-href /app/`). Links antigos do app (`/#/login`, links de e-mail com `?code=...`) e o app
+instalado como PWA são levados para `/app/` por um script no topo de `site/index.html`.
+
+## Homepage (`site/`)
+
+HTML, CSS e JavaScript sem dependências nem etapa de build. Os botões de download leem a última
+versão do GitHub Releases: o `.apk` vira o botão do Android e um arquivo com `windows` no nome
+(`.zip`, `.exe` ou `.msix`) ativa o botão do Windows; sem ele, o botão fica como "em breve".
+Preços citados no texto (Pro e destaque) devem acompanhar o `BillingConfig`.
+
+Os prints são telas reais do app com dados fictícios, gerados pelo app de demonstração em
+`freelanceflow/tool/showcase` (mesmos widgets do app, repositórios em memória):
+
+```bash
+cd freelanceflow
+flutter build web -t tool/showcase/main.dart -o build/showcase
+python -m http.server 8091 --directory build/showcase   # em outro terminal
+BROWSER="<caminho do Edge ou Chrome>" node tool/showcase/capture.mjs <pasta>
+BROWSER="<caminho do Edge ou Chrome>" node tool/showcase/resize.mjs <pasta>/phone-jobs.png:../site/assets/screens/phone-jobs-sm.webp:585
+```
+
+Os destaques da demonstração guiada (`DEMO_STEPS` em `site/assets/js/site.js`) usam posições em %
+de cada print; ao trocar um print, confira se continuam no lugar.
 
 ## Monitoramento (Sentry)
 
