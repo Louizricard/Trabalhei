@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -143,7 +144,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: Text(
-                    'Erro ao carregar notificações: $err',
+                    'Erro ao carregar notificações: ${friendlyError(err)}',
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: AppColors.textSecondaryDark),
                   ),

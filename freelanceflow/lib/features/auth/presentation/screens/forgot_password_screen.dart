@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -47,7 +49,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
+            content: Text(friendlyError(e)),
             backgroundColor: AppColors.error,
           ),
         );
@@ -160,9 +162,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                               hint: 'seu@email.com',
                               prefixIcon: Icons.mail_outline_rounded,
                               keyboardType: TextInputType.emailAddress,
-                              validator: (v) => v != null && v.contains('@')
-                                  ? null
-                                  : 'E-mail inválido',
+                              validator: Validators.email,
                             ),
                             const SizedBox(height: 24),
                             CustomButton(

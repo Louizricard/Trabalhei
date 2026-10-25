@@ -15,6 +15,10 @@ abstract class AuthRepository {
   });
   Future<void> sendPasswordReset(String email);
   Future<void> resendSignupConfirmation(String email);
+  Future<void> verifyEmailLink({
+    required String tokenHash,
+    required bool recovery,
+  });
   Future<void> updatePassword(String newPassword);
   Future<void> signOut();
   Future<void> deleteAccount();

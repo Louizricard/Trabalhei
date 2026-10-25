@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -8,6 +9,7 @@ import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../domain/password_policy.dart';
 import '../providers/auth_state_provider.dart';
+import '../providers/password_recovery_provider.dart';
 
 class ResetPasswordScreen extends ConsumerStatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -23,6 +25,15 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _isSuccess = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Já está na tela de redefinição: o roteador não precisa mais trazê-lo.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(passwordRecoveryProvider.notifier).state = false;
+    });
+  }
 
   @override
   void dispose() {
@@ -51,7 +62,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
+            content: Text(friendlyError(e)),
             backgroundColor: AppColors.error,
           ),
         );

@@ -3,7 +3,6 @@ import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/user_profile.dart';
-import '../../domain/password_policy.dart';
 
 class AuthRemoteDataSource {
   final SupabaseClient _supabase;
@@ -58,9 +57,7 @@ class AuthRemoteDataSource {
           e.message.toLowerCase().contains('email not confirmed')) {
         throw EmailNotConfirmedException(email.trim());
       }
-      throw Exception(_mapAuthErrorMessage(e.message));
-    } catch (e) {
-      throw Exception(_mapAuthErrorMessage(e.toString()));
+      rethrow;
     }
   }
 
@@ -70,76 +67,62 @@ class AuthRemoteDataSource {
     required String fullName,
     required UserRole role,
   }) async {
-    try {
-      final response = await _supabase.auth.signUp(
-        email: email.trim(),
-        password: password,
-        data: {
-          'full_name': fullName.trim(),
-          'role': role.toDbString(),
-          // O cadastro só é enviado com o aceite marcado; guarda a versão aceita.
-          'terms_version': LegalInfo.termsVersion,
-          'terms_accepted_at': DateTime.now().toUtc().toIso8601String(),
-        },
-      );
+    final response = await _supabase.auth.signUp(
+      email: email.trim(),
+      password: password,
+      data: {
+        'full_name': fullName.trim(),
+        'role': role.toDbString(),
+        // O cadastro só é enviado com o aceite marcado; guarda a versão aceita.
+        'terms_version': LegalInfo.termsVersion,
+        'terms_accepted_at': DateTime.now().toUtc().toIso8601String(),
+      },
+    );
 
-      final user = response.user;
-      if (user == null) throw Exception('Falha ao cadastrar usuário.');
+    final user = response.user;
+    if (user == null) throw Exception('Falha ao cadastrar usuário.');
 
-      // E-mail já cadastrado: o Supabase responde "sucesso" com um usuário sem
-      // identidades (para não revelar quais e-mails existem) e não envia nada.
-      if (response.session == null && (user.identities?.isEmpty ?? false)) {
-        throw const EmailAlreadyRegisteredException();
-      }
-
-      // Com confirmação de e-mail ativa não há sessão: o usuário só entra depois
-      // de clicar no link. Nunca tratamos como logado sem sessão real.
-      if (response.session == null) {
-        throw EmailConfirmationPendingException(email.trim());
-      }
-      final profile = await getCurrentUserProfile();
-      if (profile == null) {
-        throw Exception('Não foi possível carregar o perfil.');
-      }
-      return profile;
-    } on EmailConfirmationPendingException {
-      rethrow;
-    } on EmailAlreadyRegisteredException {
-      rethrow;
-    } on AuthException catch (e) {
-      throw Exception(_mapAuthErrorMessage(e.message));
-    } catch (e) {
-      throw Exception(_mapAuthErrorMessage(e.toString()));
+    // E-mail já cadastrado: o Supabase responde "sucesso" com um usuário sem
+    // identidades (para não revelar quais e-mails existem) e não envia nada.
+    if (response.session == null && (user.identities?.isEmpty ?? false)) {
+      throw const EmailAlreadyRegisteredException();
     }
+
+    // Com confirmação de e-mail ativa não há sessão: o usuário só entra depois
+    // de clicar no link. Nunca tratamos como logado sem sessão real.
+    if (response.session == null) {
+      throw EmailConfirmationPendingException(email.trim());
+    }
+    final profile = await getCurrentUserProfile();
+    if (profile == null) {
+      throw Exception('Não foi possível carregar o perfil.');
+    }
+    return profile;
   }
 
   Future<void> sendPasswordReset(String email) async {
-    try {
-      await _supabase.auth.resetPasswordForEmail(email.trim());
-    } on AuthException catch (e) {
-      throw Exception(_mapAuthErrorMessage(e.message));
-    } catch (e) {
-      throw Exception(_mapAuthErrorMessage(e.toString()));
-    }
+    await _supabase.auth.resetPasswordForEmail(email.trim());
+  }
+
+  /// Valida o link de confirmação ou de redefinição de senha enviado por
+  /// e-mail (`?token_hash=...&type=...`) e abre a sessão neste aparelho.
+  Future<void> verifyEmailLink({
+    required String tokenHash,
+    required bool recovery,
+  }) async {
+    await _supabase.auth.verifyOTP(
+      tokenHash: tokenHash,
+      type: recovery ? OtpType.recovery : OtpType.email,
+    );
   }
 
   /// Reenvia o e-mail de confirmação de cadastro.
   Future<void> resendSignupConfirmation(String email) async {
-    try {
-      await _supabase.auth.resend(type: OtpType.signup, email: email.trim());
-    } on AuthException catch (e) {
-      throw Exception(_mapAuthErrorMessage(e.message));
-    }
+    await _supabase.auth.resend(type: OtpType.signup, email: email.trim());
   }
 
   Future<void> updatePassword(String newPassword) async {
-    try {
-      await _supabase.auth.updateUser(UserAttributes(password: newPassword));
-    } on AuthException catch (e) {
-      throw Exception(_mapAuthErrorMessage(e.message));
-    } catch (e) {
-      throw Exception(_mapAuthErrorMessage(e.toString()));
-    }
+    await _supabase.auth.updateUser(UserAttributes(password: newPassword));
   }
 
   Future<void> signOut() async {
@@ -183,31 +166,5 @@ class AuthRemoteDataSource {
     final updated = await getCurrentUserProfile();
     if (updated == null) throw Exception('Não foi possível carregar o perfil.');
     return updated;
-  }
-
-  String _mapAuthErrorMessage(String msg) {
-    final lower = msg.toLowerCase();
-    if (lower.contains('socketexception') ||
-        lower.contains('failed host lookup') ||
-        lower.contains('network is unreachable') ||
-        lower.contains('no address associated with hostname')) {
-      return 'Sem conexão com a internet ou servidor inacessível. Reinstale o APK com as permissões de rede.';
-    }
-    if (lower.contains('invalid login credentials') ||
-        lower.contains('invalid credentials')) {
-      return 'E-mail ou senha incorretos.';
-    }
-    if (lower.contains('user already registered') ||
-        lower.contains('already registered')) {
-      return 'Este e-mail já está cadastrado no sistema.';
-    }
-    if (lower.contains('password should be at least')) {
-      return 'A senha deve conter no mínimo $minPasswordLength caracteres.';
-    }
-    if (lower.contains('rate limit') ||
-        lower.contains('for security purposes')) {
-      return 'Muitas tentativas. Aguarde alguns instantes e tente novamente.';
-    }
-    return msg.replaceAll('Exception: ', '');
   }
 }

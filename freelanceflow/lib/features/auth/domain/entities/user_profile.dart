@@ -56,6 +56,16 @@ class UserProfile {
   final DateTime? planExpiresAt;
   final DateTime createdAt;
 
+  /// Apresentação pública: título profissional, cidade e links.
+  final String? headline;
+  final String? location;
+  final String? websiteUrl;
+  final String? linkedinUrl;
+  final String? githubUrl;
+
+  /// Currículo em PDF (bucket privado `resumes`, visível a usuários logados).
+  final String? resumeUrl;
+
   const UserProfile({
     required this.id,
     required this.email,
@@ -74,6 +84,12 @@ class UserProfile {
     this.plan = 'free',
     this.planExpiresAt,
     required this.createdAt,
+    this.headline,
+    this.location,
+    this.websiteUrl,
+    this.linkedinUrl,
+    this.githubUrl,
+    this.resumeUrl,
   });
 
   /// Plano Pro ativo (a assinatura é gerenciada exclusivamente pelo servidor).
@@ -96,6 +112,12 @@ class UserProfile {
     bool? isVerified,
     String? plan,
     DateTime? planExpiresAt,
+    String? headline,
+    String? location,
+    String? websiteUrl,
+    String? linkedinUrl,
+    String? githubUrl,
+    String? resumeUrl,
   }) {
     return UserProfile(
       id: id,
@@ -115,6 +137,12 @@ class UserProfile {
       plan: plan ?? this.plan,
       planExpiresAt: planExpiresAt ?? this.planExpiresAt,
       createdAt: createdAt,
+      headline: headline ?? this.headline,
+      location: location ?? this.location,
+      websiteUrl: websiteUrl ?? this.websiteUrl,
+      linkedinUrl: linkedinUrl ?? this.linkedinUrl,
+      githubUrl: githubUrl ?? this.githubUrl,
+      resumeUrl: resumeUrl ?? this.resumeUrl,
     );
   }
 
@@ -145,6 +173,12 @@ class UserProfile {
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
+      headline: json['headline'] as String?,
+      location: json['location'] as String?,
+      websiteUrl: json['website_url'] as String?,
+      linkedinUrl: json['linkedin_url'] as String?,
+      githubUrl: json['github_url'] as String?,
+      resumeUrl: json['resume_url'] as String?,
     );
   }
 
@@ -160,6 +194,12 @@ class UserProfile {
       'hourly_rate': hourlyRate,
       'skills': skills,
       'availability_status': availabilityStatus,
+      'headline': headline,
+      'location': location,
+      'website_url': websiteUrl,
+      'linkedin_url': linkedinUrl,
+      'github_url': githubUrl,
+      'resume_url': resumeUrl,
     };
   }
 }

@@ -108,7 +108,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao iniciar chat: $e'),
+            content: Text('Erro ao iniciar chat: ${friendlyError(e)}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -171,7 +171,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao recusar proposta: $e'),
+            content: Text('Erro ao recusar proposta: ${friendlyError(e)}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -263,7 +263,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  err.toString(),
+                  friendlyError(err),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 13,

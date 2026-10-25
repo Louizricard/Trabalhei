@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/legal.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/back_or_exit_button.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
+import '../../../auth/presentation/providers/auth_state_provider.dart';
 
 /// Rascunho revisado; ainda precisa de revisão jurídica antes de publicar.
 const _sections = <(String, String)>[
   (
     '1. Quem somos',
-    'O Trabalhei é operado por ${LegalInfo.controllerName} '
-        '(${LegalInfo.controllerDocument}). Contato para suporte e para '
+    'O Trabalhei é operado por ${LegalInfo.controllerName}. Contato para '
+        'suporte e para '
         'assuntos de dados pessoais: ${LegalInfo.contactEmail}.\n\n'
         'Ao criar uma conta, você declara ter 18 anos ou mais e aceita estes '
         'Termos de Uso e a Política de Privacidade abaixo.',
@@ -137,13 +140,20 @@ const _sections = <(String, String)>[
   ),
 ];
 
-class TermsAndPrivacyScreen extends StatelessWidget {
+class TermsAndPrivacyScreen extends ConsumerWidget {
   const TermsAndPrivacyScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loggedIn = ref.watch(authProvider).valueOrNull != null;
     return Scaffold(
-      appBar: AppBar(title: const Text('Termos e Privacidade')),
+      appBar: AppBar(
+        // Aberta direto pela homepage não há tela anterior no app.
+        leading: BackOrExitButton(
+          fallbackRoute: loggedIn ? '/profile' : '/login',
+        ),
+        title: const Text('Termos e Privacidade'),
+      ),
       body: ResponsiveLayout(
         maxWidth: 800,
         child: SingleChildScrollView(

@@ -4,7 +4,7 @@ import '../../domain/entities/conversation.dart';
 
 import 'package:trabalhei/core/utils/currency_formatter.dart';
 import 'request_revision_modal.dart';
-import 'review_contract_modal.dart';
+import 'review_contract_button.dart';
 import 'contract_milestone_sheet.dart';
 import 'submit_deliverable_modal.dart';
 
@@ -19,7 +19,7 @@ class ChatDeliveryActionBanner extends StatelessWidget {
   });
 
   @override
-Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     final isClient = currentUser?.id == conversation.clientId;
 
     final milestones = List<ContractMilestone>.from(conversation.milestones);
@@ -85,31 +85,12 @@ Widget build(BuildContext context) {
               ),
             ),
             if (conversation.isContractCompleted == true) ...[
-            const SizedBox(width: 8),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.success,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                textStyle: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
+              const SizedBox(width: 8),
+              ReviewContractButton(
+                conversation: conversation,
+                label: 'Avaliar',
+                compact: true,
               ),
-              icon: const Icon(Icons.star_rate_rounded, size: 16),
-              label: const Text('Avaliar'),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  backgroundColor: AppColors.transparent,
-                  isScrollControlled: true,
-                  builder: (_) =>
-                      ReviewContractModal(conversation: conversation),
-                );
-              },
-            ),
             ],
           ],
         ),

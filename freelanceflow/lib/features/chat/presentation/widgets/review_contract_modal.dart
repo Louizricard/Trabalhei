@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/config/supabase_client.dart';
 import '../../../../core/errors/backend_errors.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -10,6 +11,8 @@ import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../domain/entities/conversation.dart';
 import '../providers/chat_provider.dart';
+import '../providers/review_provider.dart';
+import 'review_summary_view.dart';
 
 class ReviewContractModal extends ConsumerStatefulWidget {
   final Conversation conversation;
@@ -61,6 +64,7 @@ class _ReviewContractModalState extends ConsumerState<ReviewContractModal> {
         'comment': comment.isEmpty ? null : comment,
       });
 
+      ref.invalidate(myContractReviewProvider(contractId));
       ref.invalidate(userReviewsProvider);
       ref.invalidate(publicReviewsProvider(targetId));
       ref.invalidate(conversationDetailProvider(widget.conversation.id));
@@ -84,8 +88,7 @@ class _ReviewContractModalState extends ConsumerState<ReviewContractModal> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              e.toString().contains('23505') ||
-                      e.toString().contains('duplicate key')
+              e is PostgrestException && e.code == '23505'
                   ? 'Você já avaliou este contrato.'
                   : 'Erro ao enviar avaliação: ${friendlyError(e)}',
             ),
@@ -100,6 +103,10 @@ class _ReviewContractModalState extends ConsumerState<ReviewContractModal> {
   Widget build(BuildContext context) {
     final currentUser = ref.watch(authProvider).value;
     final isClient = currentUser?.id == widget.conversation.clientId;
+    final contractId = widget.conversation.contractId;
+    final existing = contractId == null
+        ? null
+        : ref.watch(myContractReviewProvider(contractId)).valueOrNull;
 
     return Container(
       padding: EdgeInsets.only(
@@ -113,87 +120,97 @@ class _ReviewContractModalState extends ConsumerState<ReviewContractModal> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  isClient ? 'Avaliar Profissional' : 'Avaliar Contratante',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimaryDark,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close_rounded),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              isClient
-                  ? 'Como foi a entrega do projeto "${widget.conversation.jobTitle}"?'
-                  : 'Como foi a parceria e comunicação com o contratante no projeto "${widget.conversation.jobTitle}"?',
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppColors.textSecondaryDark,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: Row(
+        child: existing != null
+            ? ReviewSummaryView(
+                review: existing,
+                targetLabel: isClient
+                    ? 'este profissional'
+                    : 'este contratante',
+              )
+            : Column(
                 mainAxisSize: MainAxisSize.min,
-                children: List.generate(5, (index) {
-                  final starIndex = index + 1;
-                  return IconButton(
-                    iconSize: 36,
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    icon: Icon(
-                      starIndex <= _rating
-                          ? Icons.star_rounded
-                          : Icons.star_outline_rounded,
-                      color: AppColors.warning,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        isClient
+                            ? 'Avaliar Profissional'
+                            : 'Avaliar Contratante',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimaryDark,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isClient
+                        ? 'Como foi a entrega do projeto "${widget.conversation.jobTitle}"?'
+                        : 'Como foi a parceria e comunicação com o contratante no projeto "${widget.conversation.jobTitle}"?',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondaryDark,
                     ),
-                    onPressed: () =>
-                        setState(() => _rating = starIndex.toDouble()),
-                  );
-                }),
+                  ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(5, (index) {
+                        final starIndex = index + 1;
+                        return IconButton(
+                          iconSize: 36,
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          icon: Icon(
+                            starIndex <= _rating
+                                ? Icons.star_rounded
+                                : Icons.star_outline_rounded,
+                            color: AppColors.warning,
+                          ),
+                          onPressed: () =>
+                              setState(() => _rating = starIndex.toDouble()),
+                        );
+                      }),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      '$_rating de 5.0 estrelas',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: AppColors.warning,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: _commentController,
+                    label: 'Seu Comentário ou Elogio',
+                    hint: isClient
+                        ? 'Conte como foi trabalhar com este profissional...'
+                        : 'Conte como foi a experiência com este contratante...',
+                    prefixIcon: Icons.rate_review_outlined,
+                    maxLines: 3,
+                    maxLength: 2000,
+                  ),
+                  const SizedBox(height: 24),
+                  CustomButton(
+                    text: 'Enviar Avaliação',
+                    icon: Icons.send_rounded,
+                    isLoading: _isLoading,
+                    onPressed: _handleSubmitReview,
+                  ),
+                ],
               ),
-            ),
-            Center(
-              child: Text(
-                '$_rating de 5.0 estrelas',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: AppColors.warning,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            CustomTextField(
-              controller: _commentController,
-              label: 'Seu Comentário ou Elogio',
-              hint: isClient
-                  ? 'Conte como foi trabalhar com este profissional...'
-                  : 'Conte como foi a experiência com este contratante...',
-              prefixIcon: Icons.rate_review_outlined,
-              maxLines: 3,
-            ),
-            const SizedBox(height: 24),
-            CustomButton(
-              text: 'Enviar Avaliação',
-              icon: Icons.send_rounded,
-              isLoading: _isLoading,
-              onPressed: _handleSubmitReview,
-            ),
-          ],
-        ),
       ),
     );
   }

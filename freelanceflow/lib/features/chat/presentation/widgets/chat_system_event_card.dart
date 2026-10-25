@@ -5,7 +5,7 @@ import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/system_event.dart';
 import 'request_revision_modal.dart';
-import 'review_contract_modal.dart';
+import 'review_contract_button.dart';
 import 'submit_deliverable_modal.dart';
 
 class ChatSystemEventCard extends StatelessWidget {
@@ -422,34 +422,9 @@ class ChatSystemEventCard extends StatelessWidget {
               ),
               if (isClient && conv.isContractCompleted) ...[
                 const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.success,
-                      foregroundColor: AppColors.pureWhite,
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    icon: const Icon(Icons.star_rate_rounded, size: 18),
-                    label: const Text(
-                      'Avaliar Freelancer',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: AppColors.transparent,
-                        isScrollControlled: true,
-                        builder: (_) => ReviewContractModal(conversation: conv),
-                      );
-                    },
-                  ),
+                ReviewContractButton(
+                  conversation: conv,
+                  label: 'Avaliar Freelancer',
                 ),
               ],
             ],

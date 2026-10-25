@@ -58,6 +58,17 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> verifyEmailLink({
+    required String tokenHash,
+    required bool recovery,
+  }) {
+    return _remoteDataSource.verifyEmailLink(
+      tokenHash: tokenHash,
+      recovery: recovery,
+    );
+  }
+
+  @override
   Future<void> signOut() {
     return _remoteDataSource.signOut();
   }
