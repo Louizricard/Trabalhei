@@ -24,6 +24,10 @@ O app não envia `emailRedirectTo`, então os links de confirmação e de redefi
 
 Pendente: depende de registrar um domínio próprio.
 
+Enquanto isso, **Confirm email está desligado** (Authentication › Sign In / Providers › User Signups,
+desde 25/10/2026): o cadastro já entra logado, sem verificar o e-mail. Depois de configurar o SMTP,
+**religue** essa opção.
+
 O remetente padrão do Supabase só envia para membros da organização: para qualquer outro endereço o
 cadastro falha com *Email address not authorized*. Ele também tem um limite baixo de envios por hora.
 Para cadastros reais é preciso um SMTP próprio, em Authentication › Emails › SMTP Settings.
