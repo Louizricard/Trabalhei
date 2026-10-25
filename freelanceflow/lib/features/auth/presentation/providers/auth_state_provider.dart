@@ -50,8 +50,9 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
         password: password,
       );
       state = AsyncValue.data(user);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+    } catch (_) {
+      // Login falho: segue deslogado; o erro é mostrado pela tela.
+      state = const AsyncValue.data(null);
       rethrow;
     }
   }
@@ -75,8 +76,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
       // Cadastro feito, porém sem sessão: segue deslogado.
       state = const AsyncValue.data(null);
       rethrow;
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+    } catch (_) {
+      state = const AsyncValue.data(null);
       rethrow;
     }
   }
@@ -95,20 +96,17 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
     try {
       final updated = await _repository.switchRole(newRole);
       state = AsyncValue.data(updated);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+    } catch (_) {
+      // Mantém o usuário logado com o perfil anterior; a tela mostra o erro.
+      state = AsyncValue.data(current);
       rethrow;
     }
   }
 
+  /// Em caso de erro o estado não muda (o usuário segue logado) e a tela trata.
   Future<void> updateProfile(UserProfile profile) async {
-    try {
-      final updated = await _repository.updateProfile(profile);
-      state = AsyncValue.data(updated);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-      rethrow;
-    }
+    final updated = await _repository.updateProfile(profile);
+    state = AsyncValue.data(updated);
   }
 
   Future<void> refreshProfile() async {

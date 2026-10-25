@@ -51,12 +51,17 @@ class CustomButton extends StatelessWidget {
                 Icon(icon, size: 19),
                 const SizedBox(width: 8),
               ],
-              Text(
-                text,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
-                  letterSpacing: -0.1,
+              // Em botões estreitos o rótulo encurta em vez de transbordar.
+              Flexible(
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    letterSpacing: -0.1,
+                  ),
                 ),
               ),
             ],

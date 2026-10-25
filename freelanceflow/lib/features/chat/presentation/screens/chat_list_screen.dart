@@ -7,6 +7,7 @@ import 'package:trabalhei/core/widgets/empty_state.dart';
 import 'package:trabalhei/core/widgets/glass_card.dart';
 import 'package:trabalhei/core/widgets/responsive_layout.dart';
 import 'package:trabalhei/features/chat/presentation/providers/chat_provider.dart';
+import '../../domain/entities/system_event.dart';
 import 'package:go_router/go_router.dart';
 
 class ChatListScreen extends ConsumerWidget {
@@ -105,8 +106,8 @@ class ChatListScreen extends ConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 4),
-                            if (conv.lastMessage.contains('Entrega') ||
-                                conv.lastMessage.contains('📦')) ...[
+                            if (systemEventKindOf(conv.lastMessage) ==
+                                SystemEventKind.delivery) ...[
                               Container(
                                 margin: const EdgeInsets.only(bottom: 2),
                                 padding: const EdgeInsets.symmetric(

@@ -381,6 +381,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   icon: Icons.error_outline_rounded,
                   title: 'Erro ao carregar mensagens',
                   description: friendlyError(err),
+                  actionText: 'Tentar novamente',
+                  onAction: () => ref.invalidate(
+                    chatMessagesStreamProvider(widget.conversationId),
+                  ),
                 ),
                 data: (messages) {
                   return ListView.separated(

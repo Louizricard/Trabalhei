@@ -55,7 +55,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: notifier,
     redirect: (context, state) {
       final authState = ref.read(authProvider);
-      final isLoggedIn = authState.value != null;
+      // valueOrNull: em estado de erro, `.value` lança e trava toda a navegação.
+      final isLoggedIn = authState.valueOrNull != null;
       final loc = state.matchedLocation;
 
       // Links de e-mail do Supabase (confirmação/recuperação) chegam como

@@ -72,5 +72,15 @@ class EmailConfirmationPendingException implements Exception {
 
   @override
   String toString() =>
-      'Enviamos um link de confirmação para $email. Confirme o e-mail e depois entre.';
+      'Conta criada! Enviamos um link de confirmação para $email. '
+      'Abra o e-mail, confirme e depois entre aqui.';
+}
+
+/// Cadastro com um e-mail que já tem conta.
+class EmailAlreadyRegisteredException implements Exception {
+  const EmailAlreadyRegisteredException();
+
+  @override
+  String toString() =>
+      'Este e-mail já tem uma conta. Entre com sua senha ou use "Esqueci minha senha".';
 }
