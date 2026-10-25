@@ -6,6 +6,7 @@ import 'package:trabalhei/core/widgets/empty_state.dart';
 import 'package:trabalhei/core/widgets/notification_bell_button.dart';
 import 'package:trabalhei/core/widgets/responsive_layout.dart';
 import 'package:trabalhei/features/auth/domain/entities/user_profile.dart';
+import 'package:trabalhei/features/jobs/domain/entities/job.dart';
 import 'package:trabalhei/features/auth/presentation/providers/auth_state_provider.dart';
 import 'package:trabalhei/features/jobs/presentation/providers/jobs_provider.dart';
 import 'package:trabalhei/features/jobs/presentation/widgets/job_card.dart';
@@ -208,6 +209,43 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                     },
                     child: LayoutBuilder(
                       builder: (context, constraints) {
+                        Widget cardFor(Job job, {bool fillHeight = false}) {
+                          return JobCard(
+                            fillHeight: fillHeight,
+                            job: job,
+                            userHasApplied: appliedJobIds.contains(job.id),
+                            isOwner: user?.id == job.clientId,
+                            onTap: () => context.push('/jobs/${job.id}'),
+                            onApply: () =>
+                                context.push('/jobs/${job.id}/apply'),
+                            onMessage: () async {
+                              if (user == null) return;
+                              try {
+                                final conv = await ref
+                                    .read(chatRepositoryProvider)
+                                    .getOrCreateConversation(
+                                      jobId: job.id,
+                                      freelancerId: user.id,
+                                      clientId: job.clientId,
+                                    );
+                                if (context.mounted) {
+                                  context.push('/chat/${conv.id}');
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Erro ao abrir chat: ${friendlyError(e)}',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                          );
+                        }
+
                         if (constraints.maxWidth > 650) {
                           return GridView.builder(
                             padding: const EdgeInsets.symmetric(
@@ -223,52 +261,12 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                                   mainAxisSpacing: 16,
                                 ),
                             itemCount: filtered.length,
-                            itemBuilder: (context, index) {
-                              final job = filtered[index];
-                              final hasApplied = appliedJobIds.contains(job.id);
-                              final isOwner = user?.id == job.clientId;
-
-                              return JobCard(
-                                job: job,
-                                userHasApplied: hasApplied,
-                                isOwner: isOwner,
-                                onTap: () => context.push('/jobs/${job.id}'),
-                                onApply: () =>
-                                    context.push('/jobs/${job.id}/apply'),
-                                onMessage: () async {
-                                  if (user == null) return;
-                                  try {
-                                    final repo = ref.read(
-                                      chatRepositoryProvider,
-                                    );
-                                    final conv = await repo
-                                        .getOrCreateConversation(
-                                          jobId: job.id,
-                                          freelancerId: user.id,
-                                          clientId: job.clientId,
-                                        );
-                                    if (context.mounted) {
-                                      context.push('/chat/${conv.id}');
-                                    }
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Erro ao abrir chat: ${friendlyError(e)}',
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
-                              );
-                            },
+                            itemBuilder: (context, index) =>
+                                cardFor(filtered[index], fillHeight: true),
                           );
                         }
 
+                        // Celular: cada card tem a altura do próprio conteúdo.
                         return ListView.separated(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -277,53 +275,8 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                           itemCount: filtered.length,
                           separatorBuilder: (_, _) =>
                               const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final job = filtered[index];
-                            final hasApplied = appliedJobIds.contains(job.id);
-                            final isOwner = user?.id == job.clientId;
-
-                            return SizedBox(
-                              height:
-                                  560, // JobCard usa Expanded: precisa de altura limitada
-                              child: JobCard(
-                                job: job,
-                                userHasApplied: hasApplied,
-                                isOwner: isOwner,
-                                onTap: () => context.push('/jobs/${job.id}'),
-                                onApply: () =>
-                                    context.push('/jobs/${job.id}/apply'),
-                                onMessage: () async {
-                                  if (user == null) return;
-                                  try {
-                                    final repo = ref.read(
-                                      chatRepositoryProvider,
-                                    );
-                                    final conv = await repo
-                                        .getOrCreateConversation(
-                                          jobId: job.id,
-                                          freelancerId: user.id,
-                                          clientId: job.clientId,
-                                        );
-                                    if (context.mounted) {
-                                      context.push('/chat/${conv.id}');
-                                    }
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Erro ao abrir chat: ${friendlyError(e)}',
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
-                              ),
-                            );
-                          },
+                          itemBuilder: (context, index) =>
+                              cardFor(filtered[index]),
                         );
                       },
                     ),
