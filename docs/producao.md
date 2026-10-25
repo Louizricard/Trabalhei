@@ -8,8 +8,7 @@ Feito: URL Configuration e *Minimum password length* = 8 conferidos no painel.
 
 **URL Configuration** (Authentication › URL Configuration)
 
-- Site URL: `https://trabalhei.vercel.app` (passa a ser `https://trabalhei.site` quando o domínio
-  estiver no ar)
+- Site URL: `https://trabalhei.site`
 - Redirect URLs: `https://trabalhei.site/**`, `https://trabalhei.vercel.app/**` e, para
   desenvolvimento, `http://localhost:*/**`
 
@@ -24,29 +23,19 @@ O app não envia `emailRedirectTo`, então os links de confirmação e de redefi
 
 ## 2. E-mail (SMTP próprio)
 
-Em andamento com o domínio `trabalhei.site` (registrado na Hostinger) e o **Resend**:
+Feito em 25/10/2026 com o domínio `trabalhei.site` (registrado na Hostinger, DNS no Vercel) e o **Resend**:
 
-- [x] Domínio adicionado no Resend, região São Paulo (`sa-east-1`), sem rastreamento de abertura/clique.
-- [x] Nameservers da Hostinger trocados para `ns1.vercel-dns.com` e `ns2.vercel-dns.com`.
-- [ ] Registros de DNS do Resend criados no Vercel (assim que os nameservers propagarem):
-  `TXT resend._domainkey` (DKIM), `MX send` → `feedback-smtp.sa-east-1.amazonses.com` (prioridade 10),
-  `TXT send` → `v=spf1 include:amazonses.com ~all`, `CNAME rsend` → `send.forge.rmta.net` e
-  `TXT _dmarc` → `v=DMARC1; p=none;`.
-- [ ] Domínio verificado no Resend.
-- [ ] Resend conectado ao Supabase (Resend › Integrations › Supabase), remetente
+- Domínio verificado no Resend (região São Paulo, `sa-east-1`, sem rastreamento de abertura/clique).
+  Registros no DNS do Vercel: `TXT resend._domainkey` (DKIM), `MX send` →
+  `feedback-smtp.sa-east-1.amazonses.com` (prioridade 10), `TXT send` → `v=spf1 include:amazonses.com ~all`,
+  `CNAME rsend` → `send.forge.rmta.net` e `TXT _dmarc` → `v=DMARC1; p=none;`.
+- SMTP do Supabase configurado pela integração do Resend: `smtp.resend.com:465`, remetente
   `Trabalhei <no-reply@trabalhei.site>`.
-- [ ] Modelos em português de `supabase/templates/` colados em Authentication › Emails › Templates
-  (o painel só libera a edição depois do SMTP próprio). Assuntos em `supabase/config.toml`.
-- [ ] Rate limit de e-mails ajustado (o padrão com SMTP próprio é 30 por hora).
-- [ ] Site URL trocada para `https://trabalhei.site`.
-- [ ] **Confirm email religado** e cadastro testado com um e-mail de fora da organização.
-
-Enquanto isso, **Confirm email está desligado** (Authentication › Sign In / Providers › User Signups,
-desde 25/10/2026): o cadastro já entra logado, sem verificar o e-mail.
-
-Por que é necessário: o remetente padrão do Supabase só envia para membros da organização (para
-qualquer outro endereço o cadastro falha com *Email address not authorized*) e tem limite baixo de
-envios por hora.
+- Modelos em português de `supabase/templates/` aplicados em Authentication › Emails › Templates
+  (assuntos em `supabase/config.toml`).
+- **Confirm email ligado** de novo. Site URL: `https://trabalhei.site`.
+- Limite: 25 e-mails por hora no Supabase (Rate Limits); o plano gratuito do Resend permite 100 por
+  dia e 3.000 por mês. Se o volume crescer, suba os dois juntos.
 
 ## 3. Vercel
 
