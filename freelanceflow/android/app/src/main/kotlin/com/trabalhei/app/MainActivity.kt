@@ -1,4 +1,4 @@
-package com.freelanceflow.app
+package com.trabalhei.app
 
 import io.flutter.embedding.android.FlutterActivity
 

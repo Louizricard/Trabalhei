@@ -1,4 +1,4 @@
--- Rollback do schema inicial do FreelanceFlow (destrutivo: apaga todos os dados).
+-- Rollback do schema inicial do Trabalhei (destrutivo: apaga todos os dados).
 drop trigger if exists on_auth_user_created on auth.users;
 
 drop table if exists public.billing_events cascade;

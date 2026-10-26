@@ -1,5 +1,5 @@
 -- ============================================================================
--- FreelanceFlow — schema inicial
+-- Trabalhei — schema inicial
 --
 -- Modelo de negócio: marketplace SEM custódia de pagamentos. O pagamento do
 -- projeto é combinado entre as partes; a plataforma monetiza com assinatura
