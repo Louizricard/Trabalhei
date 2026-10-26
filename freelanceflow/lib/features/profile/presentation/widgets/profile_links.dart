@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/domain/entities/user_profile.dart';
+import '../../../auth/presentation/guest_access.dart';
 
 /// Cidade, links e currículo do perfil, em chips. Não aparece se vazio.
 class ProfileLinks extends ConsumerWidget {
@@ -32,9 +33,20 @@ class ProfileLinks extends ConsumerWidget {
       return _Chip(
         icon: icon,
         label: label,
-        onTap: () => private
-            ? ref.read(storageServiceProvider).launchAttachment(url)
-            : launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+        onTap: () async {
+          if (!private) {
+            await launchUrl(
+              Uri.parse(url),
+              mode: LaunchMode.externalApplication,
+            );
+          } else if (await requireAccount(
+            context,
+            ref,
+            action: 'ver o currículo',
+          )) {
+            await ref.read(storageServiceProvider).launchAttachment(url);
+          }
+        },
       );
     }
 

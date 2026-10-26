@@ -7,7 +7,10 @@ import 'package:trabalhei/core/widgets/notification_bell_button.dart';
 import 'package:trabalhei/core/widgets/responsive_layout.dart';
 import 'package:trabalhei/features/auth/domain/entities/user_profile.dart';
 import 'package:trabalhei/features/jobs/domain/entities/job.dart';
+import 'package:trabalhei/features/auth/presentation/guest_access.dart';
 import 'package:trabalhei/features/auth/presentation/providers/auth_state_provider.dart';
+import 'package:trabalhei/features/auth/presentation/providers/pending_confirmation_provider.dart';
+import 'package:trabalhei/features/auth/presentation/widgets/pending_confirmation_banner.dart';
 import 'package:trabalhei/features/jobs/presentation/providers/jobs_provider.dart';
 import 'package:trabalhei/features/jobs/presentation/widgets/job_card.dart';
 import 'package:trabalhei/features/proposals/domain/entities/proposal.dart';
@@ -42,8 +45,11 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
   @override
   Widget build(BuildContext context) {
     final jobsAsync = ref.watch(jobsListProvider);
-    final user = ref.watch(authProvider).value;
+    final auth = ref.watch(authProvider);
+    final user = auth.valueOrNull;
     final isClient = user?.role == UserRole.client;
+    final isGuest = !auth.isLoading && user == null;
+    final pendingEmail = ref.watch(pendingConfirmationProvider);
 
     final proposalsAsync = user != null
         ? ref.watch(freelancerProposalsProvider(user.id))
@@ -64,8 +70,9 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
       appBar: AppBar(
         title: const Text('Mural de Vagas'),
         actions: [
-          const NotificationBellButton(),
-          if (isClient)
+          // Visitante: Entrar e Criar conta ficam no aviso abaixo.
+          if (!isGuest) const NotificationBellButton(),
+          if (isClient || isGuest)
             Padding(
               padding: const EdgeInsets.only(right: 8, left: 4),
               child: FilledButton.icon(
@@ -74,7 +81,17 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                 ),
                 icon: const Icon(Icons.add_rounded, size: 18),
                 label: const Text('Publicar Vaga'),
-                onPressed: () => context.push('/jobs/create'),
+                onPressed: () async {
+                  if (await requireAccount(
+                        context,
+                        ref,
+                        action: 'publicar uma vaga',
+                        returnTo: '/jobs/create',
+                      ) &&
+                      context.mounted) {
+                    context.push('/jobs/create');
+                  }
+                },
               ),
             ),
         ],
@@ -82,6 +99,15 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
       body: ResponsiveLayout(
         child: Column(
           children: [
+            // Visitante: cadastro aguardando confirmação mantém o aviso;
+            // os demais veem o convite para criar a conta.
+            if (isGuest)
+              pendingEmail != null && pendingEmail.isNotEmpty
+                  ? const Padding(
+                      padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      child: PendingConfirmationBanner(),
+                    )
+                  : const GuestWelcomeBanner(),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: TextField(
@@ -216,8 +242,17 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                             userHasApplied: appliedJobIds.contains(job.id),
                             isOwner: user?.id == job.clientId,
                             onTap: () => context.push('/jobs/${job.id}'),
-                            onApply: () =>
-                                context.push('/jobs/${job.id}/apply'),
+                            onApply: () async {
+                              if (await requireAccount(
+                                    context,
+                                    ref,
+                                    action: 'enviar uma proposta',
+                                    returnTo: '/jobs/${job.id}/apply',
+                                  ) &&
+                                  context.mounted) {
+                                context.push('/jobs/${job.id}/apply');
+                              }
+                            },
                             onMessage: () async {
                               if (user == null) return;
                               try {

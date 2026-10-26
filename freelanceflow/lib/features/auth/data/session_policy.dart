@@ -17,6 +17,16 @@ class SessionPolicy {
     }
   }
 
+  /// Já entrou alguma vez neste aparelho ou navegador. Quem nunca entrou
+  /// abre o app no mural, como visitante; quem já entrou, no login.
+  static Future<bool> hasSignedInBefore() async {
+    try {
+      return (await SharedPreferences.getInstance()).containsKey(_key);
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Chamado após um login bem-sucedido.
   static Future<void> remember({required bool keepSignedIn}) async {
     markBrowserSession();

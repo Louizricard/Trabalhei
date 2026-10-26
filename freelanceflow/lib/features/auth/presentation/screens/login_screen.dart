@@ -9,6 +9,7 @@ import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
+import '../guest_access.dart';
 import '../providers/auth_state_provider.dart';
 import '../../data/session_policy.dart';
 import '../providers/pending_confirmation_provider.dart';
@@ -20,7 +21,10 @@ class LoginScreen extends ConsumerStatefulWidget {
   /// Mensagem opcional exibida ao abrir a tela (ex.: confirmar e-mail).
   final String? notice;
 
-  const LoginScreen({super.key, this.notice});
+  /// Tela de onde o visitante veio; o login volta para ela.
+  final String? from;
+
+  const LoginScreen({super.key, this.notice, this.from});
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -89,7 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       // Oferece salvar e-mail e senha no gerenciador de senhas do navegador.
       TextInput.finishAutofillContext();
       if (mounted) {
-        context.go('/jobs');
+        context.go(safeReturnPath(widget.from));
       }
     } on EmailNotConfirmedException catch (e) {
       ref.read(pendingConfirmationProvider.notifier).set(e.email);
@@ -190,7 +194,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => context.push('/register'),
+                            onTap: () => context.push(
+                              widget.from == null
+                                  ? '/register'
+                                  : authRouteReturningTo(
+                                      '/register',
+                                      widget.from!,
+                                    ),
+                            ),
                             child: const Text(
                               'Cadastre-se',
                               style: TextStyle(
@@ -201,6 +212,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () => context.go('/jobs'),
+                          icon: const Icon(
+                            Icons.travel_explore_rounded,
+                            size: 18,
+                          ),
+                          label: const Text('Explorar vagas sem conta'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.textSecondaryDark,
+                          ),
+                        ),
                       ),
                     ],
                   ),

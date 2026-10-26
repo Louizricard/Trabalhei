@@ -16,6 +16,7 @@ import '../providers/profile_provider.dart';
 import '../widgets/profile_links.dart';
 import '../widgets/add_portfolio_modal.dart';
 import '../widgets/invite_to_job_modal.dart';
+import '../../../auth/presentation/guest_access.dart';
 
 class PublicProfileScreen extends ConsumerStatefulWidget {
   final String userId;
@@ -120,7 +121,8 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
             title: 'Perfil não encontrado',
             description: 'O perfil solicitado não existe ou está indisponível.',
             actionText: 'Voltar',
-            onAction: () => context.pop(),
+            onAction: () =>
+                context.canPop() ? context.pop() : context.go('/jobs'),
           ),
         ),
         data: (profile) {
@@ -131,7 +133,8 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                 title: 'Perfil não encontrado',
                 description: 'Não encontramos o usuário especificado.',
                 actionText: 'Voltar',
-                onAction: () => context.pop(),
+                onAction: () =>
+                    context.canPop() ? context.pop() : context.go('/jobs'),
               ),
             );
           }
@@ -314,7 +317,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                                       child: _buildMetricCard(
                                         icon: Icons.star_rounded,
                                         iconColor: AppColors.warning,
-                                        value: RatingFormatter.format(profile.rating),
+                                        value: RatingFormatter.format(
+                                          profile.rating,
+                                        ),
                                         label: 'Avaliação',
                                       ),
                                     ),
@@ -381,8 +386,8 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                   ),
                 ),
 
-                // Barra Inferior de Ação (Apenas para outros usuários logados)
-                if (!isOwner && currentUser != null)
+                // Barra inferior de ação (outros usuários e visitantes)
+                if (!isOwner)
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: const BoxDecoration(
@@ -399,8 +404,20 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                             variant: ButtonVariant.secondary,
                             icon: Icons.chat_bubble_outline_rounded,
                             isLoading: _isStartingChat,
-                            onPressed: () =>
-                                _handleStartDirectChat(profile, currentUser),
+                            onPressed: () async {
+                              if (currentUser != null) {
+                                return _handleStartDirectChat(
+                                  profile,
+                                  currentUser,
+                                );
+                              }
+                              await requireAccount(
+                                context,
+                                ref,
+                                action:
+                                    'conversar com ${profile.fullName.split(' ').first}',
+                              );
+                            },
                           ),
                         ),
                         if (isClient) ...[
@@ -610,8 +627,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
       loading: () => const Center(
         child: CircularProgressIndicator(color: AppColors.primary),
       ),
-      error: (err, _) =>
-          Center(child: Text('Erro ao carregar portfólio: ${friendlyError(err)}')),
+      error: (err, _) => Center(
+        child: Text('Erro ao carregar portfólio: ${friendlyError(err)}'),
+      ),
       data: (items) {
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -761,8 +779,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
       loading: () => const Center(
         child: CircularProgressIndicator(color: AppColors.primary),
       ),
-      error: (err, _) =>
-          Center(child: Text('Erro ao carregar avaliações: ${friendlyError(err)}')),
+      error: (err, _) => Center(
+        child: Text('Erro ao carregar avaliações: ${friendlyError(err)}'),
+      ),
       data: (reviews) {
         if (reviews.isEmpty) {
           return const Center(
