@@ -37,6 +37,32 @@ Feito em 25/10/2026 com o domínio `trabalhei.site` (registrado na Hostinger, DN
 - Limite: 25 e-mails por hora no Supabase (Rate Limits); o plano gratuito do Resend permite 100 por
   dia e 3.000 por mês. Se o volume crescer, suba os dois juntos.
 
+## 2.1 Notificações por e-mail e push
+
+Toda notificação criada no banco chama a Edge Function `dispatch-notification`
+(trigger `notifications_dispatch`, via `pg_net`). Ela envia o e-mail pelo Resend
+e o Web Push para os navegadores inscritos, conforme `notification_settings`.
+As chaves ficam no **Vault** do Supabase (Project Settings › Vault), não no código:
+
+| Segredo | Conteúdo |
+|---|---|
+| `notification_dispatch_url` | URL da função `dispatch-notification`. Sem ele, nada é enviado. |
+| `resend_api_key` | Chave do Resend só de envio, restrita ao domínio trabalhei.site. |
+| `vapid_public_key` / `vapid_private_key` | Par VAPID do Web Push (base64url). Trocar o par invalida as inscrições. |
+| `app_url` | Endereço do app usado nos links (`https://trabalhei.site/app`). |
+
+- Para conferir um envio: `select status_code, content from net._http_response order by created desc limit 5;`
+  (`email_skipped` explica quando o e-mail não sai).
+- Push no Android e no Windows instalados ainda não existe: precisa de um projeto
+  no Firebase (FCM). Hoje esses apps mostram os avisos no sino e o e-mail cobre o resto.
+
+## 2.2 Moderação
+
+Administradores ficam na tabela `public.admins` (só o banco altera):
+`insert into public.admins (user_id) values ('<id do usuário>');`
+O painel fica em Perfil › Moderação. Suspender bloqueia o login (`banned_until`),
+encerra as sessões, encerra as vagas abertas e registra em `moderation_actions`.
+
 ## 3. Vercel
 
 - O build do app web já está configurado (`vercel.json`), com `SUPABASE_URL` e `SUPABASE_ANON_KEY`

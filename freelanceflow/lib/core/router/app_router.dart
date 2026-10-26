@@ -25,7 +25,10 @@ import '../../features/jobs/domain/entities/job.dart';
 import '../../features/jobs/presentation/providers/jobs_provider.dart';
 import '../../features/jobs/presentation/screens/jobs_list_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
+import '../../features/admin/presentation/screens/admin_screen.dart';
 import '../../features/billing/presentation/screens/plans_screen.dart';
+import '../../features/jobs/presentation/screens/job_alerts_screen.dart';
+import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
 import '../../features/profile/presentation/screens/freelancers_search_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/public_profile_screen.dart';
@@ -171,6 +174,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/notifications',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: '/settings/notifications',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const NotificationSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/alerts',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const JobAlertsScreen(),
+      ),
+      GoRoute(
+        path: '/admin',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AdminScreen(),
       ),
       GoRoute(
         path: '/plans',
