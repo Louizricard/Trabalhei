@@ -167,6 +167,72 @@ export async function cancelOpenSubscription(admin: SupabaseClient, userId: stri
   return true;
 }
 
+// ---------------------------------------------------------------- Preços e cupons
+// Preços ficam em public.billing_products e cupons em public.coupons (ver
+// docs/monetizacao.md). Nada de preço fixo no código.
+
+const COUPON_ERRORS: Record<string, string> = {
+  COUPON_INVALID: "Cupom inválido.",
+  COUPON_NOT_FOR_PRODUCT: "Este cupom não vale para este produto.",
+  COUPON_EXPIRED: "Este cupom expirou ou ainda não começou a valer.",
+  COUPON_EXHAUSTED: "Este cupom já atingiu o limite de usos.",
+  COUPON_ALREADY_USED: "Você já usou este cupom.",
+  PRODUCT_UNAVAILABLE: "Este produto não está disponível no momento.",
+};
+
+export interface Quote {
+  price: number;
+  final_price: number;
+  discount: number;
+  code?: string;
+}
+
+/**
+ * Preço final do produto para o usuário. Com cupom, registra o uso de forma
+ * atômica (o limite do cupom não estoura com compras simultâneas).
+ */
+export async function redeemPrice(
+  admin: SupabaseClient,
+  userId: string,
+  product: "pro_monthly" | "job_feature",
+  couponCode: unknown,
+  reference: string,
+): Promise<Quote> {
+  const code = typeof couponCode === "string" ? couponCode.trim() : "";
+  const { data, error } = await admin.rpc("redeem_coupon", {
+    p_user: userId,
+    p_product: product,
+    p_code: code || null,
+    p_reference: reference,
+  });
+  if (error) {
+    const known = Object.keys(COUPON_ERRORS).find((k) => error.message?.includes(k));
+    if (known) throw new HttpError(400, COUPON_ERRORS[known]);
+    throw new HttpError(500, "Falha ao calcular o preço.", { cause: error });
+  }
+  const q = data as Record<string, unknown>;
+  return {
+    price: Number(q.price),
+    final_price: Number(q.final_price),
+    discount: Number(q.discount ?? 0),
+    code: (q.code as string | undefined) ?? undefined,
+  };
+}
+
+/** Prazo (dias) do produto em billing_products. */
+export async function productDays(admin: SupabaseClient, product: string): Promise<number> {
+  const { data } = await admin.from("billing_products").select("period_days").eq("code", product).maybeSingle();
+  return Number(data?.period_days ?? (product === "job_feature" ? 7 : 30));
+}
+
+/** QR Code Pix de uma cobrança, para pagar sem sair do app. */
+export async function pixQrCode(paymentId: string) {
+  const qr = await asaas<{ encodedImage: string; payload: string; expirationDate?: string }>(
+    `/payments/${paymentId}/pixQrCode`,
+  );
+  return { image_base64: qr.encodedImage, payload: qr.payload, expires_at: qr.expirationDate ?? null };
+}
+
 /** Trata OPTIONS e erros. Falhas 5xx (do servidor ou do Asaas) vão para reportError. */
 export function handle(fn: (req: Request) => Promise<Response>) {
   return async (req: Request): Promise<Response> => {
