@@ -1,11 +1,18 @@
 import '../entities/job.dart';
 
+/// Filtros do mural. Campos nulos não filtram.
 class JobFilter {
   final String? searchQuery;
   final String? category;
   final double? minBudget;
   final double? maxBudget;
   final ExperienceLevel? experienceLevel;
+  final ContractType? contractType;
+  final int? maxDeadlineDays;
+
+  /// Nota mínima do cliente (0 a 5).
+  final double? minClientRating;
+  final bool urgentOnly;
   final String sortBy; // 'recent', 'budget_desc', 'proposals_asc'
 
   const JobFilter({
@@ -14,8 +21,24 @@ class JobFilter {
     this.minBudget,
     this.maxBudget,
     this.experienceLevel,
+    this.contractType,
+    this.maxDeadlineDays,
+    this.minClientRating,
+    this.urgentOnly = false,
     this.sortBy = 'recent',
   });
+
+  /// Quantos filtros avançados estão ligados (para o selo no botão).
+  int get activeCount => [
+    experienceLevel != null && experienceLevel != ExperienceLevel.all,
+    contractType != null,
+    minBudget != null,
+    maxBudget != null,
+    maxDeadlineDays != null,
+    minClientRating != null,
+    urgentOnly,
+    sortBy != 'recent',
+  ].where((on) => on).length;
 
   JobFilter copyWith({
     String? searchQuery,
@@ -31,6 +54,10 @@ class JobFilter {
       minBudget: minBudget ?? this.minBudget,
       maxBudget: maxBudget ?? this.maxBudget,
       experienceLevel: experienceLevel ?? this.experienceLevel,
+      contractType: contractType,
+      maxDeadlineDays: maxDeadlineDays,
+      minClientRating: minClientRating,
+      urgentOnly: urgentOnly,
       sortBy: sortBy ?? this.sortBy,
     );
   }
