@@ -259,16 +259,23 @@
       </div>
     </section>
 
-    <!-- Demonstração: as etapas avançam sozinhas enquanto a seção está na tela;
-         o recorte ampliado mostra em tamanho legível a parte destacada do print. -->
+    <!-- Demonstração guiada pela rolagem: cada trecho rolado avança um detalhe
+         da etapa; o recorte ampliado mostra em tamanho legível a parte do print
+         que o anel destaca no celular. -->
     <section class="demo" id="como-funciona" aria-labelledby="demo-title" data-demo>
-      <div class="container">
+      <div class="container demo-head">
         <header class="section-head reveal">
           <h2 id="demo-title">Como funciona uma contratação</h2>
-          <p class="section-sub">Quatro etapas, do anúncio à entrega. Escolha uma para ver a tela do app em detalhe.</p>
+          <p class="section-sub">Quatro etapas, do anúncio à entrega. Role para ver cada uma na tela do app, em detalhe.</p>
         </header>
-        <div class="demo-grid">
+      </div>
+      <div class="scene-track" data-track>
+      <div class="scene-sticky">
+        <div class="container demo-grid">
           <div class="demo-copy">
+            <div class="demo-segments" aria-hidden="true">
+              <span><i data-segment></i></span><span><i data-segment></i></span><span><i data-segment></i></span><span><i data-segment></i></span>
+            </div>
             <ol class="demo-steps">
               <li class="demo-step is-active">
                 <button type="button" class="step-button" data-step-button="0" aria-current="step">
@@ -307,10 +314,8 @@
                 </button>
               </li>
             </ol>
-            <div class="demo-controls">
-              <div class="scene-progress" aria-hidden="true"><span data-demo-progress></span></div>
-              <button type="button" class="demo-toggle" data-demo-toggle>Pausar</button>
-            </div>
+            <div class="scene-progress" aria-hidden="true"><span data-demo-progress></span></div>
+            <p class="scene-hint" data-scene-hint aria-hidden="true">Continue rolando</p>
           </div>
 
           <div class="demo-stage">
@@ -323,7 +328,11 @@
                 <span class="focus-ring" data-ring></span>
               </div>
             </div>
-            <figure class="zoom-card">
+            <figure class="zoom-card" data-zoom-card>
+              <span class="zoom-tag" aria-hidden="true">
+                <svg width="13" height="13" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>
+                Em detalhe
+              </span>
               <div class="zoom-view" data-zoom role="img" aria-label="">
                 <span class="zoom-layer is-active"></span>
                 <span class="zoom-layer"></span>
@@ -332,6 +341,7 @@
             </figure>
           </div>
         </div>
+      </div>
       </div>
     </section>
 
