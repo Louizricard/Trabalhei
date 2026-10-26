@@ -260,8 +260,8 @@
     </section>
 
     <!-- Demonstração guiada pela rolagem: cada trecho rolado avança um detalhe
-         da etapa; o recorte ampliado mostra em tamanho legível a parte do print
-         que o anel destaca no celular. -->
+         da etapa; o recorte ampliado mostra em tamanho legível a parte que o anel
+         destaca. Tela larga e deitada mostra o notebook; as demais, o celular. -->
     <section class="demo" id="como-funciona" aria-labelledby="demo-title" data-demo>
       <div class="container demo-head">
         <header class="section-head reveal">
@@ -319,6 +319,18 @@
           </div>
 
           <div class="demo-stage">
+            <div class="laptop demo-laptop" aria-hidden="true">
+              <div class="laptop-lid">
+                <div class="laptop-screen">
+                  <img class="demo-screen is-active" src="/assets/screens/desktop-create-job-sm.webp" alt="" width="1280" height="800" loading="lazy" decoding="async">
+                  <img class="demo-screen" src="/assets/screens/desktop-apply-sm.webp" alt="" width="1280" height="800" loading="lazy" decoding="async">
+                  <img class="demo-screen" src="/assets/screens/desktop-proposals-sm.webp" alt="" width="1280" height="800" loading="lazy" decoding="async">
+                  <img class="demo-screen" src="/assets/screens/desktop-chat-sm.webp" alt="" width="1280" height="800" loading="lazy" decoding="async">
+                  <span class="focus-ring" data-ring></span>
+                </div>
+              </div>
+              <div class="laptop-base"></div>
+            </div>
             <div class="phone demo-phone" aria-hidden="true">
               <div class="phone-screen">
                 <img class="demo-screen is-active" src="/assets/screens/phone-create-job-sm.webp" alt="" width="585" height="1266" loading="lazy" decoding="async">
