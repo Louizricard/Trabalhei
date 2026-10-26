@@ -1,6 +1,13 @@
 # Trabalhei
 
-> Plataforma brasileira que conecta clientes a freelancers. Quem contrata publica vagas e recebe propostas; quem trabalha encontra projetos, envia propostas e entrega pelo chat, com marcos de entrega e avaliações. Disponível no Android, no Windows e no navegador (https://trabalhei.site/app/).
+> Plataforma brasileira que conecta clientes a freelancers, sem comissão sobre o projeto. Quem contrata publica vagas e recebe propostas; quem trabalha encontra projetos, envia propostas e entrega pelo chat, com marcos de entrega e avaliações. Disponível no Android, no Windows e no navegador (https://trabalhei.site/app/).
+
+## Diferenciais
+
+- Sem comissão: o valor combinado vai inteiro para o freelancer. A plataforma se mantém com o plano Pro e o destaque de vagas, ambos opcionais.
+- Entregas por marcos, com aprovação ou pedido de revisão registrados no chat do contrato.
+- Avaliações só de quem concluiu um contrato.
+- Mural de vagas, detalhes das vagas e perfis públicos abertos sem cadastro em https://trabalhei.site/app/#/jobs; a conta é pedida para enviar propostas, publicar vagas e conversar.
 
 ## O que dá para fazer
 
