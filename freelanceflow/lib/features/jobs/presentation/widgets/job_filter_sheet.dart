@@ -277,12 +277,13 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
               _section('Ordenar por'),
               _chips<String>(
                 {
+                  'relevance': 'Mais relevantes',
                   'recent': 'Mais recentes',
                   'budget_desc': 'Maior orçamento',
                   'proposals_asc': 'Menos propostas',
                 },
                 _sort,
-                (v) => setState(() => _sort = v ?? 'recent'),
+                (v) => setState(() => _sort = v ?? 'relevance'),
               ),
               const SizedBox(height: 24),
               CustomButton(

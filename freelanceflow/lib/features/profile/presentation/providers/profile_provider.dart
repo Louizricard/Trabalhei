@@ -70,7 +70,7 @@ class FreelancerSearchFilter {
     this.minHourlyRate,
     this.maxHourlyRate,
     this.availabilityStatus,
-    this.orderBy = 'rating_desc',
+    this.orderBy = 'relevance',
   });
 
   FreelancerSearchFilter copyWith({
@@ -101,7 +101,7 @@ class FreelancerSearchFilter {
       (availabilityStatus != null &&
           availabilityStatus!.isNotEmpty &&
           availabilityStatus != 'all') ||
-      orderBy != 'rating_desc';
+      orderBy != 'relevance';
 }
 
 class FreelancerSearchFilterNotifier

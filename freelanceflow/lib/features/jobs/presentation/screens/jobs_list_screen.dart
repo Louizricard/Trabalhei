@@ -14,6 +14,9 @@ import 'package:trabalhei/features/auth/presentation/widgets/pending_confirmatio
 import 'package:trabalhei/features/jobs/presentation/providers/jobs_provider.dart';
 import 'package:trabalhei/features/jobs/presentation/widgets/job_card.dart';
 import 'package:trabalhei/features/jobs/presentation/widgets/job_filter_sheet.dart';
+import 'package:trabalhei/features/jobs/domain/job_ranking.dart';
+import 'package:trabalhei/features/billing/domain/entities/pricing.dart';
+import 'package:trabalhei/features/billing/presentation/providers/pricing_provider.dart';
 import 'package:trabalhei/features/proposals/domain/entities/proposal.dart';
 import 'package:trabalhei/features/proposals/presentation/providers/proposals_provider.dart';
 import 'package:trabalhei/features/chat/presentation/providers/chat_provider.dart';
@@ -307,37 +310,80 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                           );
                         }
 
-                        if (constraints.maxWidth > 650) {
-                          return GridView.builder(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
+                        // Vagas patrocinadas: espaço próprio no topo, em
+                        // rodízio, sempre identificadas (job_ranking.dart).
+                        final settings =
+                            (ref.watch(pricingProvider).valueOrNull ??
+                                    Pricing.fallback)
+                                .settings;
+                        final split = splitSponsored(
+                          filtered,
+                          slots: settings.sponsoredSlots,
+                          rotationMinutes: settings.sponsoredRotationMinutes,
+                        );
+                        final wide = constraints.maxWidth > 650;
+                        const pad = EdgeInsets.symmetric(horizontal: 16);
+
+                        Widget section(List<Job> jobs) {
+                          if (wide) {
+                            return SliverPadding(
+                              padding: pad,
+                              sliver: SliverGrid.builder(
+                                gridDelegate:
+                                    const SliverGridDelegateWithMaxCrossAxisExtent(
+                                      maxCrossAxisExtent: 400,
+                                      // Altura fixa: cabe título e descrição
+                                      // longos + 2 botões.
+                                      mainAxisExtent: 540,
+                                      crossAxisSpacing: 16,
+                                      mainAxisSpacing: 16,
+                                    ),
+                                itemCount: jobs.length,
+                                itemBuilder: (context, index) =>
+                                    cardFor(jobs[index], fillHeight: true),
+                              ),
+                            );
+                          }
+                          // Celular: cada card tem a altura do próprio conteúdo.
+                          return SliverPadding(
+                            padding: pad,
+                            sliver: SliverList.separated(
+                              itemCount: jobs.length,
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: 12),
+                              itemBuilder: (context, index) =>
+                                  cardFor(jobs[index]),
                             ),
-                            gridDelegate:
-                                const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  maxCrossAxisExtent: 400,
-                                  mainAxisExtent:
-                                      540, // altura fixa (cabe título e descrição longos + 2 botões)
-                                  crossAxisSpacing: 16,
-                                  mainAxisSpacing: 16,
-                                ),
-                            itemCount: filtered.length,
-                            itemBuilder: (context, index) =>
-                                cardFor(filtered[index], fillHeight: true),
                           );
                         }
 
-                        // Celular: cada card tem a altura do próprio conteúdo.
-                        return ListView.separated(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          itemCount: filtered.length,
-                          separatorBuilder: (_, _) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, index) =>
-                              cardFor(filtered[index]),
+                        return CustomScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          slivers: [
+                            if (split.sponsored.isNotEmpty) ...[
+                              SliverToBoxAdapter(
+                                child: _SectionHeader(
+                                  title: 'Patrocinadas',
+                                  onInfo: () => _explainSponsored(
+                                    context,
+                                    settings.sponsoredSlots,
+                                    settings.sponsoredRotationMinutes,
+                                  ),
+                                ),
+                              ),
+                              section(split.sponsored),
+                              const SliverToBoxAdapter(
+                                child: _SectionHeader(title: 'Todas as vagas'),
+                              ),
+                            ] else
+                              const SliverToBoxAdapter(
+                                child: SizedBox(height: 8),
+                              ),
+                            section(split.rest),
+                            const SliverToBoxAdapter(
+                              child: SizedBox(height: 24),
+                            ),
+                          ],
                         );
                       },
                     ),
@@ -350,4 +396,72 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
       ),
     );
   }
+}
+
+/// Título de seção do mural, com explicação opcional.
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final VoidCallback? onInfo;
+
+  const _SectionHeader({required this.title, this.onInfo});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
+      child: Row(
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
+              color: AppColors.textMutedDark,
+            ),
+          ),
+          if (onInfo != null)
+            IconButton(
+              tooltip: 'Como funcionam as vagas patrocinadas',
+              iconSize: 18,
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(
+                Icons.info_outline_rounded,
+                color: AppColors.textMutedDark,
+              ),
+              onPressed: onInfo,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+void _explainSponsored(BuildContext context, int slots, int rotationMinutes) {
+  final every = rotationMinutes % 60 == 0
+      ? (rotationMinutes == 60
+            ? 'a cada hora'
+            : 'a cada ${rotationMinutes ~/ 60} horas')
+      : 'a cada $rotationMinutes minutos';
+  showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Vagas patrocinadas'),
+      content: Text(
+        'Clientes podem patrocinar uma vaga por 7 dias. Ela aparece neste '
+        'espaço, sempre com a etiqueta "Patrocinado".\n\n'
+        'O espaço tem $slots lugar${slots == 1 ? '' : 'es'}. Quando há mais '
+        'vagas patrocinadas, elas se revezam $every, e todas ficam o mesmo '
+        'tempo no topo.\n\n'
+        'Fora deste espaço, a ordem do mural não muda com pagamento: vale a '
+        'compatibilidade com o seu perfil, a qualidade da vaga e a data.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: const Text('Entendi'),
+        ),
+      ],
+    ),
+  );
 }

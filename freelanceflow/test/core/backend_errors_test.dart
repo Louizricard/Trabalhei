@@ -7,7 +7,7 @@ void main() {
   group('friendlyError', () {
     test('traduz códigos levantados pelo banco', () {
       final err = const PostgrestException(message: 'PROPOSAL_QUOTA_EXCEEDED');
-      expect(friendlyError(err), contains('limite de propostas gratuitas'));
+      expect(friendlyError(err), contains('Você usou todas as propostas deste mês'));
     });
 
     test('traduz violação de RLS', () {

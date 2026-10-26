@@ -1,12 +1,3 @@
-/// Preços exibidos no app. Devem espelhar os secrets `PRO_PRICE` e
-/// `FEATURE_PRICE` das Edge Functions (a cobrança real é sempre feita pelo servidor).
-class BillingConfig {
-  static const double proMonthlyPrice = 29.90;
-  static const double featureJobPrice = 19.90;
-  static const int featureJobDays = 7;
-  static const int freeMonthlyProposals = 5;
-}
-
 enum BillingMethod {
   pix('PIX', 'Pix'),
   creditCard('CREDIT_CARD', 'Cartão de crédito');

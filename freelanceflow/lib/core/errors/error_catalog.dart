@@ -7,7 +7,20 @@ const Map<String, String> databaseCodes = {
   'NOT_AUTHENTICATED': 'Faça login para continuar.',
   'FORBIDDEN': 'Você não tem permissão para esta ação.',
   'PROPOSAL_QUOTA_EXCEEDED':
-      'Você atingiu o limite de propostas gratuitas deste mês. Assine o Pro para enviar propostas ilimitadas.',
+      'Você usou todas as propostas deste mês. O saldo renova no dia 1º; no Pro são mais propostas por mês.',
+  'DAILY_PROPOSAL_LIMIT':
+      'Você atingiu o limite de propostas das últimas 24 horas. Aguarde um pouco para enviar mais.',
+  'COVER_LETTER_TOO_SHORT':
+      'Sua carta de apresentação está curta. Conte por que você é a pessoa certa para esta vaga.',
+  'TEMPLATE_LIMIT_REACHED':
+      'Você chegou ao limite de modelos. Apague um para criar outro.',
+  'PRO_REQUIRED': 'Este recurso é do plano Pro.',
+  'COUPON_INVALID': 'Cupom inválido. Confira o código.',
+  'COUPON_NOT_FOR_PRODUCT': 'Este cupom não vale para este produto.',
+  'COUPON_EXPIRED': 'Este cupom expirou ou ainda não começou a valer.',
+  'COUPON_EXHAUSTED': 'Este cupom já atingiu o limite de usos.',
+  'COUPON_ALREADY_USED': 'Você já usou este cupom.',
+  'PRODUCT_UNAVAILABLE': 'Este produto não está disponível no momento.',
   'ONLY_FREELANCERS_CAN_APPLY':
       'Apenas contas de freelancer podem enviar propostas.',
   'ONLY_CLIENTS_CAN_POST_JOBS':
@@ -39,6 +52,7 @@ const Map<String, String> databaseCodes = {
 const Map<String, String> uniqueConstraints = {
   'reports_one_open_per_target':
       'Você já denunciou isto. A moderação vai analisar em breve.',
+  'coupons_pkey': 'Já existe um cupom com esse código.',
   'push_subscriptions_endpoint_key':
       'As notificações já estão ativas neste navegador.',
 };

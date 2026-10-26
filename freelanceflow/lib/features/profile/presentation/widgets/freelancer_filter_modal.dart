@@ -134,6 +134,12 @@ class _FreelancerFilterModalState extends ConsumerState<FreelancerFilterModal> {
             runSpacing: 8,
             children: [
               _buildChoiceChip(
+                'Mais relevantes',
+                'relevance',
+                _orderBy,
+                (v) => setState(() => _orderBy = v),
+              ),
+              _buildChoiceChip(
                 'Melhor Avaliados',
                 'rating_desc',
                 _orderBy,

@@ -43,8 +43,9 @@ class StatusBadge extends StatelessWidget {
     icon: Icons.local_fire_department_rounded,
   );
 
+  /// Vaga com destaque pago: sempre identificada como patrocinada.
   factory StatusBadge.featured() => const StatusBadge(
-    label: 'Destaque',
+    label: 'Patrocinado',
     backgroundColor: AppColors.warningBg,
     textColor: AppColors.warning,
     icon: Icons.star_rounded,

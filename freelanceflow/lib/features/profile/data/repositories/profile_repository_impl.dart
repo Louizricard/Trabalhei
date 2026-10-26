@@ -57,7 +57,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     double? minHourlyRate,
     double? maxHourlyRate,
     String? availabilityStatus,
-    String orderBy = 'rating_desc',
+    String orderBy = 'relevance',
   }) {
     return _remoteDataSource.searchFreelancers(
       query: query,

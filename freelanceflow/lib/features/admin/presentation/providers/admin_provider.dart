@@ -37,3 +37,7 @@ final adminJobsProvider = FutureProvider.autoDispose
     .family<List<AdminJob>, String>(
       (ref, query) => ref.watch(adminRepositoryProvider).jobs(query),
     );
+
+final adminCouponsProvider = FutureProvider.autoDispose<List<AdminCoupon>>(
+  (ref) => ref.watch(adminRepositoryProvider).coupons(),
+);

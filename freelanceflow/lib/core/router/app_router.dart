@@ -27,6 +27,8 @@ import '../../features/jobs/presentation/screens/jobs_list_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/admin/presentation/screens/admin_screen.dart';
 import '../../features/billing/presentation/screens/plans_screen.dart';
+import '../../features/dashboard/presentation/screens/pro_tools_screens.dart';
+import '../../features/proposals/presentation/screens/proposal_templates_screen.dart';
 import '../../features/jobs/presentation/screens/job_alerts_screen.dart';
 import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
 import '../../features/profile/presentation/screens/freelancers_search_screen.dart';
@@ -189,6 +191,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/admin',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const AdminScreen(),
+      ),
+      // Ferramentas do plano Pro (as telas mostram o convite para quem é grátis).
+      GoRoute(
+        path: '/pro/stats',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ProposalStatsScreen(),
+      ),
+      GoRoute(
+        path: '/pro/clients',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ClientsScreen(),
+      ),
+      GoRoute(
+        path: '/pro/templates',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ProposalTemplatesScreen(),
       ),
       GoRoute(
         path: '/plans',

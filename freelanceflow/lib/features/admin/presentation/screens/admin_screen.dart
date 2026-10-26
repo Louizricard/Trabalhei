@@ -9,6 +9,7 @@ import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../domain/admin_models.dart';
 import '../providers/admin_provider.dart';
+import '../widgets/coupons_tab.dart';
 
 /// Painel de moderação: denúncias, usuários (suspender/reativar) e vagas
 /// (remover do mural). Só abre para administradores.
@@ -48,7 +49,7 @@ class _AdminTabs extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final overview = ref.watch(adminOverviewProvider).valueOrNull;
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Moderação'),
@@ -70,6 +71,7 @@ class _AdminTabs extends ConsumerWidget {
               ),
               const Tab(text: 'Usuários'),
               const Tab(text: 'Vagas'),
+              const Tab(text: 'Cupons'),
             ],
           ),
         ),
@@ -78,7 +80,12 @@ class _AdminTabs extends ConsumerWidget {
             if (overview != null) _OverviewRow(overview: overview),
             const Expanded(
               child: TabBarView(
-                children: [_ReportsTab(), _UsersTab(), _JobsTab()],
+                children: [
+                  _ReportsTab(),
+                  _UsersTab(),
+                  _JobsTab(),
+                  CouponsTab(),
+                ],
               ),
             ),
           ],

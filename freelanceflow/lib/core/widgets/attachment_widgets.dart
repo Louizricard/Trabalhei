@@ -1,3 +1,6 @@
+import 'package:go_router/go_router.dart';
+import '../../features/auth/presentation/providers/auth_state_provider.dart';
+import '../../features/billing/presentation/providers/pricing_provider.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -413,7 +416,7 @@ class AttachmentPickerSection extends ConsumerStatefulWidget {
     required this.selectedFiles,
     required this.onChanged,
     this.title = 'Anexos do Projeto (Opcional)',
-    this.hintText = 'Adicionar Imagens, PDFs ou Documentos (máx. 15MB cada)',
+    this.hintText = 'Adicione imagens, PDFs ou documentos.',
     this.maxFiles = 5,
   });
 
@@ -493,18 +496,44 @@ class _AttachmentPickerSectionState
       );
 
       if (picked.isNotEmpty) {
+        // Limite por arquivo depende do plano (grátis x Pro).
+        final limit = ref.read(uploadLimitBytesProvider);
+        final tooBig = picked.where((f) => f.size > limit).toList();
         final current = List<PickedFileData>.from(widget.selectedFiles);
         for (final f in picked) {
-          if (!current.any((c) => c.name == f.name) &&
+          if (f.size <= limit &&
+              !current.any((c) => c.name == f.name) &&
               current.length < widget.maxFiles) {
             current.add(f);
           }
         }
         widget.onChanged(current);
+        if (tooBig.isNotEmpty && mounted) {
+          _warnTooBig(tooBig.map((f) => f.name).join(', '), limit);
+        }
       }
     } finally {
       if (mounted) setState(() => _isPicking = false);
     }
+  }
+
+  void _warnTooBig(String names, int limit) {
+    final isPro = ref.read(authProvider).valueOrNull?.isPro ?? false;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '$names passa${names.contains(',') ? 'm' : ''} de ${limit ~/ (1024 * 1024)} MB por arquivo'
+          '${isPro ? '.' : '. No Pro, o limite é maior.'}',
+        ),
+        backgroundColor: AppColors.warning,
+        action: isPro
+            ? null
+            : SnackBarAction(
+                label: 'Ver o Pro',
+                onPressed: () => context.push('/plans'),
+              ),
+      ),
+    );
   }
 
   void _removeFile(int index) {
@@ -540,7 +569,7 @@ class _AttachmentPickerSectionState
         ),
         const SizedBox(height: 6),
         Text(
-          widget.hintText,
+          '${widget.hintText} Até ${ref.watch(uploadLimitBytesProvider) ~/ (1024 * 1024)} MB por arquivo.',
           style: const TextStyle(
             fontSize: 12,
             color: AppColors.textSecondaryDark,

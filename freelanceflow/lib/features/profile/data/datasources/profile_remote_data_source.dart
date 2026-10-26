@@ -4,6 +4,7 @@ import '../../../../core/services/storage_service.dart';
 import '../../../auth/domain/entities/user_profile.dart';
 import '../../domain/entities/portfolio_item.dart';
 import '../../domain/entities/profile_update.dart';
+import '../../domain/freelancer_ranking.dart';
 
 class ProfileRemoteDataSource {
   final SupabaseClient _supabase;
@@ -103,7 +104,7 @@ class ProfileRemoteDataSource {
     double? minHourlyRate,
     double? maxHourlyRate,
     String? availabilityStatus,
-    String orderBy = 'rating_desc',
+    String orderBy = 'relevance',
   }) async {
     try {
       var q = _supabase
@@ -151,6 +152,7 @@ class ProfileRemoteDataSource {
         case 'rate_desc':
           transform = q.order('hourly_rate', ascending: false);
           break;
+        case 'relevance':
         case 'rating_desc':
         default:
           transform = q.order('rating', ascending: false);
@@ -161,11 +163,10 @@ class ProfileRemoteDataSource {
       final profiles = (response as List<dynamic>)
           .map((json) => UserProfile.fromJson(json as Map<String, dynamic>))
           .toList();
-      // Plano Pro tem prioridade na busca (mantém a ordenação escolhida dentro de cada grupo).
-      return [
-        ...profiles.where((p) => p.isPro),
-        ...profiles.where((p) => !p.isPro),
-      ];
+      // O plano Pro não dá prioridade na busca (o selo indica só a assinatura).
+      return orderBy == 'relevance'
+          ? rankFreelancers(profiles, query: query, skill: skill)
+          : profiles;
     } catch (_) {
       return [];
     }

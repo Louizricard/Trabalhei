@@ -68,7 +68,7 @@ class FakeProposalRepository implements ProposalRepository {
   @override
   Future<ProposalQuota> getQuota() async => const ProposalQuota(
     isPro: false,
-    monthlyLimit: BillingConfig.freeMonthlyProposals,
+    monthlyLimit: 10,
     used: 3,
   );
 
