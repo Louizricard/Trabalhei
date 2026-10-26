@@ -25,14 +25,32 @@ const Map<String, String> databaseCodes = {
   'MILESTONE_NOT_SUBMITTED': 'Este marco não possui entrega para analisar.',
   'CONTRACT_NOT_ACTIVE': 'Este contrato não está ativo.',
   'COMMENT_REQUIRED': 'Descreva o que precisa ser ajustado.',
+  'CANNOT_MODERATE_SELF': 'Você não pode moderar a própria conta.',
+  'CANNOT_MODERATE_ADMIN': 'Não é possível suspender outro administrador.',
+  'REASON_REQUIRED': 'Informe o motivo.',
+  'USER_NOT_FOUND_OR_SUSPENDED': 'Esta conta já está suspensa ou não existe.',
+  'USER_NOT_SUSPENDED': 'Esta conta não está suspensa.',
+  'REPORT_NOT_FOUND': 'Esta denúncia já foi analisada.',
+  'ALERT_LIMIT_REACHED':
+      'Você pode ter até 10 alertas. Apague um para criar outro.',
+};
+
+/// Registros únicos (nome do índice no banco).
+const Map<String, String> uniqueConstraints = {
+  'reports_one_open_per_target':
+      'Você já denunciou isto. A moderação vai analisar em breve.',
+  'push_subscriptions_endpoint_key':
+      'As notificações já estão ativas neste navegador.',
 };
 
 /// Restrições de tamanho e valor das tabelas (nome da constraint no banco).
 const Map<String, String> checkConstraints = {
   'profiles_bio_check': 'A bio pode ter até 2.000 caracteres.',
   'profiles_full_name_check': 'O nome deve ter entre 1 e 120 caracteres.',
-  'profiles_company_name_check': 'O nome da empresa pode ter até 120 caracteres.',
-  'profiles_headline_check': 'O título profissional pode ter até 80 caracteres.',
+  'profiles_company_name_check':
+      'O nome da empresa pode ter até 120 caracteres.',
+  'profiles_headline_check':
+      'O título profissional pode ter até 80 caracteres.',
   'profiles_location_check': 'A cidade pode ter até 80 caracteres.',
   'profiles_links_check': 'Use links completos, começando com https://.',
   'profiles_hourly_rate_check': 'O valor por hora não pode ser negativo.',
@@ -52,7 +70,8 @@ const Map<String, String> checkConstraints = {
 const Map<String, String> authErrors = {
   'invalid_credentials': 'E-mail ou senha incorretos.',
   'invalid login credentials': 'E-mail ou senha incorretos.',
-  'email_address_invalid': 'Este e-mail não é válido. Confira se digitou certo.',
+  'email_address_invalid':
+      'Este e-mail não é válido. Confira se digitou certo.',
   'error sending confirmation email':
       'Não conseguimos enviar o e-mail de confirmação. Confira se o endereço está correto e tente de novo.',
   'error sending recovery email':
@@ -64,13 +83,16 @@ const Map<String, String> authErrors = {
   'same_password': 'A nova senha precisa ser diferente da atual.',
   'over_email_send_rate_limit':
       'Muitos e-mails enviados em pouco tempo. Aguarde alguns minutos e tente de novo.',
-  'over_request_rate_limit': 'Muitas tentativas. Aguarde alguns instantes e tente de novo.',
+  'over_request_rate_limit':
+      'Muitas tentativas. Aguarde alguns instantes e tente de novo.',
   'rate limit': 'Muitas tentativas. Aguarde alguns instantes e tente de novo.',
   'for security purposes': 'Aguarde alguns segundos antes de tentar de novo.',
   'otp_expired': 'O link expirou ou já foi usado. Peça um novo.',
   'session_not_found': 'Sua sessão expirou. Entre de novo.',
   'refresh_token_not_found': 'Sua sessão expirou. Entre de novo.',
   'signup_disabled': 'Novos cadastros estão temporariamente desativados.',
+  'user_banned':
+      'Esta conta está suspensa. Se acha que foi um engano, fale com o suporte.',
 };
 
 /// Erros de upload no Storage.

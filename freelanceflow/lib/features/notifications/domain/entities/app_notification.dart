@@ -9,6 +9,7 @@ enum NotificationType {
   milestoneSubmitted,
   milestoneInRevision,
   milestoneApproved,
+  jobAlert,
   system;
 
   static NotificationType fromString(String? value) {
@@ -27,6 +28,8 @@ enum NotificationType {
         return NotificationType.milestoneInRevision;
       case 'milestone_approved':
         return NotificationType.milestoneApproved;
+      case 'job_alert':
+        return NotificationType.jobAlert;
       default:
         return NotificationType.system;
     }
@@ -48,6 +51,8 @@ enum NotificationType {
         return 'milestone_in_revision';
       case NotificationType.milestoneApproved:
         return 'milestone_approved';
+      case NotificationType.jobAlert:
+        return 'job_alert';
       case NotificationType.system:
         return 'system';
     }

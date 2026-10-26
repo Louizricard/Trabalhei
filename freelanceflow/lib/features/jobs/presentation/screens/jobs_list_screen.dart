@@ -13,6 +13,7 @@ import 'package:trabalhei/features/auth/presentation/providers/pending_confirmat
 import 'package:trabalhei/features/auth/presentation/widgets/pending_confirmation_banner.dart';
 import 'package:trabalhei/features/jobs/presentation/providers/jobs_provider.dart';
 import 'package:trabalhei/features/jobs/presentation/widgets/job_card.dart';
+import 'package:trabalhei/features/jobs/presentation/widgets/job_filter_sheet.dart';
 import 'package:trabalhei/features/proposals/domain/entities/proposal.dart';
 import 'package:trabalhei/features/proposals/presentation/providers/proposals_provider.dart';
 import 'package:trabalhei/features/chat/presentation/providers/chat_provider.dart';
@@ -50,6 +51,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
     final isClient = user?.role == UserRole.client;
     final isGuest = !auth.isLoading && user == null;
     final pendingEmail = ref.watch(pendingConfirmationProvider);
+    final activeFilters = ref.watch(jobFilterProvider).activeCount;
 
     final proposalsAsync = user != null
         ? ref.watch(freelancerProposalsProvider(user.id))
@@ -110,26 +112,50 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                   : const GuestWelcomeBanner(),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: TextField(
-                controller: _searchController,
-                style: const TextStyle(color: AppColors.textPrimaryDark),
-                decoration: InputDecoration(
-                  hintText: 'Buscar vagas por título, tecnologia ou cliente...',
-                  prefixIcon: const Icon(
-                    Icons.search_rounded,
-                    color: AppColors.textSecondaryDark,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      style: const TextStyle(color: AppColors.textPrimaryDark),
+                      decoration: InputDecoration(
+                        hintText:
+                            'Buscar vagas por título, tecnologia ou cliente...',
+                        prefixIcon: const Icon(
+                          Icons.search_rounded,
+                          color: AppColors.textSecondaryDark,
+                        ),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear_rounded),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {});
+                                },
+                              )
+                            : null,
+                      ),
+                      onChanged: (_) => setState(() {}),
+                    ),
                   ),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear_rounded),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {});
-                          },
-                        )
-                      : null,
-                ),
-                onChanged: (_) => setState(() {}),
+                  const SizedBox(width: 8),
+                  // Filtros avançados e alertas salvos.
+                  Badge(
+                    isLabelVisible: activeFilters > 0,
+                    label: Text('$activeFilters'),
+                    child: IconButton.filledTonal(
+                      tooltip: 'Filtros e alertas',
+                      icon: const Icon(Icons.tune_rounded),
+                      onPressed: () => JobFilterSheet.show(
+                        context,
+                        query: _searchController.text,
+                        category: _selectedCategory == 'Minhas Vagas'
+                            ? null
+                            : _selectedCategory,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(

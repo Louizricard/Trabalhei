@@ -19,13 +19,26 @@ class JobRemoteDataSource {
       }
       if (filter.experienceLevel != null &&
           filter.experienceLevel != ExperienceLevel.all) {
-        query = query.eq('experience_level', filter.experienceLevel!.name);
+        // Vagas abertas a todos os níveis também servem.
+        query = query.inFilter('experience_level', [
+          filter.experienceLevel!.name,
+          ExperienceLevel.all.name,
+        ]);
       }
       if (filter.minBudget != null) {
         query = query.gte('budget_max', filter.minBudget!);
       }
       if (filter.maxBudget != null) {
         query = query.lte('budget_min', filter.maxBudget!);
+      }
+      if (filter.contractType != null) {
+        query = query.eq('contract_type', filter.contractType!.name);
+      }
+      if (filter.maxDeadlineDays != null) {
+        query = query.lte('deadline_days', filter.maxDeadlineDays!);
+      }
+      if (filter.urgentOnly) {
+        query = query.eq('is_urgent', true);
       }
       if (filter.searchQuery != null && filter.searchQuery!.trim().isNotEmpty) {
         final term = '%${filter.searchQuery!.trim()}%';
@@ -36,8 +49,11 @@ class JobRemoteDataSource {
     final response = await query.order('created_at', ascending: false);
     final List<dynamic> data = response as List<dynamic>;
 
+    final minRating = filter?.minClientRating;
     final list = data
         .map((json) => Job.fromJson(json as Map<String, dynamic>))
+        // A nota vem do perfil do cliente (embed), filtrada aqui.
+        .where((j) => minRating == null || j.clientRating >= minRating)
         .toList();
 
     if (filter?.sortBy == 'budget_desc') {

@@ -17,6 +17,9 @@ import '../widgets/profile_links.dart';
 import '../widgets/add_portfolio_modal.dart';
 import '../widgets/invite_to_job_modal.dart';
 import '../../../auth/presentation/guest_access.dart';
+import '../../../admin/domain/admin_models.dart';
+import '../../../admin/presentation/providers/admin_provider.dart';
+import '../../../admin/presentation/widgets/report_dialog.dart';
 
 class PublicProfileScreen extends ConsumerStatefulWidget {
   final String userId;
@@ -95,6 +98,17 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
       appBar: AppBar(
         title: const Text('Perfil Profissional'),
         actions: [
+          if (currentUser?.id != widget.userId)
+            IconButton(
+              tooltip: 'Denunciar perfil',
+              icon: const Icon(Icons.flag_outlined),
+              onPressed: () => showReportDialog(
+                context,
+                ref,
+                target: ReportTarget.profile,
+                targetId: widget.userId,
+              ),
+            ),
           IconButton(
             icon: const Icon(Icons.share_outlined),
             tooltip: 'Compartilhar Perfil',
@@ -141,6 +155,21 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
 
           final isOwner = currentUser?.id == profile.id;
           final isClient = currentUser?.role == UserRole.client;
+          // Conta suspensa: só a moderação ainda vê o perfil.
+          if (profile.suspendedAt != null &&
+              !isOwner &&
+              ref.watch(isAdminProvider).valueOrNull != true) {
+            return Center(
+              child: EmptyStateWidget(
+                icon: Icons.person_off_outlined,
+                title: 'Perfil indisponível',
+                description: 'Este perfil não está disponível no momento.',
+                actionText: 'Voltar',
+                onAction: () =>
+                    context.canPop() ? context.pop() : context.go('/jobs'),
+              ),
+            );
+          }
           final isAvailable = profile.availabilityStatus == 'available';
 
           return ResponsiveLayout(

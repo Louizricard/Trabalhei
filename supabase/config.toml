@@ -22,6 +22,11 @@ enable_confirmations = false
 [functions.asaas-webhook]
 verify_jwt = false
 
+# Chamada pelo próprio banco (pg_net) sem JWT. Só entrega notificações recentes
+# e ainda não entregues, então uma chamada repetida não envia nada de novo.
+[functions.dispatch-notification]
+verify_jwt = false
+
 # Modelos de e-mail em português (os mesmos textos estão no painel do projeto).
 [auth.email.template.confirmation]
 subject = "Confirme seu cadastro no Trabalhei"

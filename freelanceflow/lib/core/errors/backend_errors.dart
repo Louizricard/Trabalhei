@@ -57,7 +57,8 @@ String? _postgrest(PostgrestException e, String lower) {
       return _match(e.message, checkConstraints) ??
           'Algum campo passou do tamanho permitido. Revise e tente de novo.';
     case '23505':
-      return 'Este registro já existe.';
+      return _match('${e.message} ${e.details ?? ''}', uniqueConstraints) ??
+          'Este registro já existe.';
     case '42501':
       return 'Você não tem permissão para esta ação.';
     case '22001':

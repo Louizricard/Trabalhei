@@ -66,6 +66,9 @@ class UserProfile {
   /// Currículo em PDF (bucket privado `resumes`, visível a usuários logados).
   final String? resumeUrl;
 
+  /// Conta suspensa pela moderação (some das buscas e não entra no app).
+  final DateTime? suspendedAt;
+
   const UserProfile({
     required this.id,
     required this.email,
@@ -90,6 +93,7 @@ class UserProfile {
     this.linkedinUrl,
     this.githubUrl,
     this.resumeUrl,
+    this.suspendedAt,
   });
 
   /// Plano Pro ativo (a assinatura é gerenciada exclusivamente pelo servidor).
@@ -179,6 +183,7 @@ class UserProfile {
       linkedinUrl: json['linkedin_url'] as String?,
       githubUrl: json['github_url'] as String?,
       resumeUrl: json['resume_url'] as String?,
+      suspendedAt: DateTime.tryParse(json['suspended_at']?.toString() ?? ''),
     );
   }
 

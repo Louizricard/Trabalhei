@@ -389,6 +389,8 @@ class _NotificationTile extends StatelessWidget {
           Icons.check_circle_rounded,
           Colors.greenAccent,
         );
+      case NotificationType.jobAlert:
+        return const _TypeConfig(Icons.travel_explore_rounded, AppColors.info);
       case NotificationType.system:
         return const _TypeConfig(
           Icons.notifications_active_rounded,

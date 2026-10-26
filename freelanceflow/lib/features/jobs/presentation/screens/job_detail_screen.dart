@@ -11,6 +11,8 @@ import 'package:trabalhei/core/widgets/glass_card.dart';
 import 'package:trabalhei/core/widgets/responsive_layout.dart';
 import 'package:trabalhei/core/widgets/status_badge.dart';
 import 'package:trabalhei/features/auth/domain/entities/user_profile.dart';
+import 'package:trabalhei/features/admin/domain/admin_models.dart';
+import 'package:trabalhei/features/admin/presentation/widgets/report_dialog.dart';
 import 'package:trabalhei/features/auth/presentation/guest_access.dart';
 import 'package:trabalhei/features/auth/presentation/providers/auth_state_provider.dart';
 import 'package:trabalhei/features/billing/presentation/widgets/feature_job_action.dart';
@@ -47,6 +49,20 @@ class JobDetailScreen extends ConsumerWidget {
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/jobs'),
         ),
+        actions: [
+          if (jobAsync.valueOrNull?.clientId != currentUser?.id ||
+              currentUser == null)
+            IconButton(
+              tooltip: 'Denunciar vaga',
+              icon: const Icon(Icons.flag_outlined),
+              onPressed: () => showReportDialog(
+                context,
+                ref,
+                target: ReportTarget.job,
+                targetId: jobId,
+              ),
+            ),
+        ],
       ),
       body: jobAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
