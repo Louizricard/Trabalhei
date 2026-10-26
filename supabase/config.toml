@@ -1,6 +1,6 @@
 # Configuração mínima do Supabase CLI para desenvolvimento local.
 # Gere o restante com `supabase init` se precisar customizar portas/auth.
-project_id = "freelanceflow"
+project_id = "trabalhei"
 
 [api]
 enabled = true

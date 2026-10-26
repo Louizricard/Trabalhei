@@ -16,7 +16,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.freelanceflow.app"
+    namespace = "com.trabalhei.app"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
@@ -27,7 +27,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.freelanceflow.app"
+        applicationId = "com.trabalhei.app"
         // sentry_flutter exige Android 8.0 (API 26) ou mais novo.
         minSdk = 26
         targetSdk = flutter.targetSdkVersion
