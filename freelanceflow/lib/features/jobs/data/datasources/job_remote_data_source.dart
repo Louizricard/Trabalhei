@@ -56,16 +56,14 @@ class JobRemoteDataSource {
         .where((j) => minRating == null || j.clientRating >= minRating)
         .toList();
 
+    // "Mais relevantes" depende das habilidades de quem procura e é aplicada
+    // no provider; vagas patrocinadas não sobem aqui (ver job_ranking.dart).
     if (filter?.sortBy == 'budget_desc') {
       list.sort((a, b) => b.budgetMax.compareTo(a.budgetMax));
     } else if (filter?.sortBy == 'proposals_asc') {
       list.sort((a, b) => a.proposalsCount.compareTo(b.proposalsCount));
     }
-
-    // Vagas em destaque (pagas) primeiro; a ordenação anterior é preservada (sort estável).
-    final featured = list.where((j) => j.isFeatured).toList();
-    final regular = list.where((j) => !j.isFeatured).toList();
-    return [...featured, ...regular];
+    return list;
   }
 
   Future<Job?> getJobById(String id) async {

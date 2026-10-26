@@ -13,7 +13,9 @@ class JobFilter {
   /// Nota mínima do cliente (0 a 5).
   final double? minClientRating;
   final bool urgentOnly;
-  final String sortBy; // 'recent', 'budget_desc', 'proposals_asc'
+  /// 'relevance' (compatibilidade e qualidade), 'recent', 'budget_desc' ou
+  /// 'proposals_asc'.
+  final String sortBy;
 
   const JobFilter({
     this.searchQuery,
@@ -25,7 +27,7 @@ class JobFilter {
     this.maxDeadlineDays,
     this.minClientRating,
     this.urgentOnly = false,
-    this.sortBy = 'recent',
+    this.sortBy = 'relevance',
   });
 
   /// Quantos filtros avançados estão ligados (para o selo no botão).
@@ -37,7 +39,7 @@ class JobFilter {
     maxDeadlineDays != null,
     minClientRating != null,
     urgentOnly,
-    sortBy != 'recent',
+    sortBy != 'relevance',
   ].where((on) => on).length;
 
   JobFilter copyWith({

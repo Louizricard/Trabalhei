@@ -11,12 +11,15 @@ entre cliente e freelancer. A plataforma monetiza com:
 
 | Produto | Quem paga | Como funciona |
 |---|---|---|
-| **Plano Pro** (assinatura mensal) | Freelancer | Propostas ilimitadas, selo PRO e prioridade na busca. No plano grátis são 5 propostas por mês |
-| **Destaque de vaga** (avulso, 7 dias) | Cliente | A vaga aparece no topo do mural |
+| **Cliente** | Grátis | Publicar projetos, receber propostas, conversar e acompanhar entregas |
+| **Freelancer grátis** | Grátis | Perfil, portfólio, 10 propostas por mês, chat e entregas |
+| **Freelancer Pro** (mensal) | Freelancer | 50 propostas, modelos de proposta, clientes e projetos, estatísticas e arquivos maiores |
+| **Destaque de projeto** (7 dias) | Cliente | Espaço identificado como patrocinado no topo do mural, em rodízio |
 
-A cobrança é feita pelo **Asaas** (Pix e cartão) por meio de faturas hospedadas: o app e o banco
-nunca tocam em dados de cartão. O plano/destaque só é aplicado quando o webhook do Asaas confirma
-o pagamento.
+Preços e limites ficam no banco (`billing_products` e `platform_settings`), e cupons em
+`coupons`: veja [docs/monetizacao.md](docs/monetizacao.md). A cobrança é feita pelo **Asaas**:
+Pix pago dentro do app (QR Code) e cartão na página segura do Asaas, sem que o app ou o banco
+toquem em dados de cartão. O plano/destaque só é aplicado quando o webhook confirma o pagamento.
 
 ## Estrutura
 
@@ -117,7 +120,7 @@ versão do GitHub Releases: o `.apk` vira o botão do Android, `*-windows-*-setu
 Windows e `*-windows-*.zip` o ZIP portátil. Se a consulta falhar, os botões levam à página de versões.
 O aparelho em destaque muda com a tela (`html[data-mode]`, definido no `<head>`): notebook em telas
 largas e deitadas, celular nas demais.
-Preços citados no texto (Pro e destaque) devem acompanhar o `BillingConfig`.
+Preços citados no texto (Pro e destaque) devem acompanhar `billing_products` (ver `docs/monetizacao.md`).
 
 SEO: `robots.txt`, `sitemap.xml` (atualize o `lastmod` ao mudar a página), `llms.txt` para buscadores de
 IA e JSON-LD (organização, app e perguntas frequentes). O JSON-LD das perguntas é gerado no build por

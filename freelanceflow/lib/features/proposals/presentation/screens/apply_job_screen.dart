@@ -13,6 +13,7 @@ import '../../../chat/presentation/providers/chat_provider.dart';
 import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../../domain/entities/proposal.dart';
 import '../providers/proposals_provider.dart';
+import 'proposal_templates_screen.dart';
 
 class ApplyJobScreen extends ConsumerStatefulWidget {
   final String jobId;
@@ -117,12 +118,30 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao aceitar contraproposta: ${friendlyError(e)}'),
+            content: Text(
+              'Erro ao aceitar contraproposta: ${friendlyError(e)}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
       }
     }
+  }
+
+  Future<void> _applyTemplate() async {
+    final template = await pickProposalTemplate(
+      context,
+      ref,
+      currentText: _coverLetterController.text,
+      currentDays: int.tryParse(_daysController.text),
+    );
+    if (template == null || !mounted) return;
+    setState(() {
+      _coverLetterController.text = template.coverLetter;
+      if (template.estimatedDays != null) {
+        _daysController.text = '${template.estimatedDays}';
+      }
+    });
   }
 
   Future<void> _submitProposal() async {
@@ -182,7 +201,9 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
           SnackBar(
             content: Text(errText),
             backgroundColor: AppColors.error,
-            action: e.toString().contains('PROPOSAL_QUOTA_EXCEEDED')
+            action:
+                e.toString().contains('PROPOSAL_QUOTA_EXCEEDED') &&
+                    !(ref.read(authProvider).valueOrNull?.isPro ?? false)
                 ? SnackBarAction(
                     label: 'Ver planos',
                     textColor: AppColors.pureWhite,
@@ -198,6 +219,9 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
   @override
   Widget build(BuildContext context) {
     final job = ref.watch(jobDetailProvider(widget.jobId)).value;
+    // Mínimo definido no servidor (platform_settings), para evitar envio em massa.
+    final minCoverLetter =
+        ref.watch(proposalQuotaProvider).valueOrNull?.minCoverLetterChars ?? 50;
 
     return Scaffold(
       appBar: AppBar(
@@ -402,12 +426,27 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Carta de Apresentação',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
+                      Row(
+                        children: [
+                          const Expanded(
+                            child: Text(
+                              'Carta de Apresentação',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                          // Modelos reutilizáveis (Pro).
+                          TextButton.icon(
+                            icon: const Icon(
+                              Icons.content_paste_rounded,
+                              size: 18,
+                            ),
+                            label: const Text('Modelos'),
+                            onPressed: _applyTemplate,
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       CustomTextField(
@@ -418,9 +457,10 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                             'Apresente suas experiências relevantes, abordagem técnica e links para projetos similares...',
                         maxLines: 6,
                         maxLength: 3000,
-                        validator: (v) => v != null && v.trim().length >= 30
+                        validator: (v) =>
+                            v != null && v.trim().length >= minCoverLetter
                             ? null
-                            : 'Mínimo de 30 caracteres para uma proposta competitiva',
+                            : 'Escreva pelo menos $minCoverLetter caracteres: conte por que você é a pessoa certa para esta vaga.',
                       ),
                     ],
                   ),
@@ -445,7 +485,7 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
   }
 }
 
-/// Mostra quantas propostas gratuitas restam no mês (somente para novos envios).
+/// Saldo de propostas do mês e teto diário (somente para novos envios).
 class _QuotaBanner extends ConsumerWidget {
   final bool isEditing;
 
@@ -455,10 +495,24 @@ class _QuotaBanner extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (isEditing) return const SizedBox.shrink();
     final quota = ref.watch(proposalQuotaProvider).value;
-    if (quota == null || quota.isUnlimited) return const SizedBox.shrink();
+    if (quota == null) return const SizedBox.shrink();
 
-    final exhausted = quota.isExhausted;
-    final color = exhausted ? AppColors.error : AppColors.primaryLight;
+    final blocked = quota.isExhausted || quota.isDailyLimitReached;
+    final color = blocked ? AppColors.error : AppColors.primaryLight;
+    final String text;
+    if (quota.isExhausted) {
+      text = quota.isPro
+          ? 'Você usou as ${quota.monthlyLimit} propostas do Pro neste mês. O saldo renova no dia 1º.'
+          : 'Você usou as ${quota.monthlyLimit} propostas gratuitas deste mês.';
+    } else if (quota.isDailyLimitReached) {
+      text =
+          'Você enviou ${quota.dailyLimit} propostas nas últimas 24 horas. '
+          'Para manter a qualidade do mural, aguarde um pouco para enviar mais.';
+    } else {
+      text =
+          'Propostas restantes este mês: ${quota.remaining} de ${quota.monthlyLimit}'
+          '${quota.refunded > 0 ? ' (${quota.refunded} devolvida${quota.refunded > 1 ? 's' : ''})' : ''}.';
+    }
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(14),
@@ -470,27 +524,39 @@ class _QuotaBanner extends ConsumerWidget {
       child: Row(
         children: [
           Icon(
-            exhausted
+            blocked
                 ? Icons.lock_outline_rounded
                 : Icons.local_activity_outlined,
             color: color,
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              exhausted
-                  ? 'Você usou as ${quota.monthlyLimit} propostas gratuitas deste mês.'
-                  : 'Propostas gratuitas restantes este mês: ${quota.remaining} de ${quota.monthlyLimit}.',
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textPrimaryDark,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textPrimaryDark,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                const Text(
+                  'Propostas para vagas canceladas, removidas pela moderação ou sem resposta do cliente voltam ao saldo.',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textMutedDark,
+                  ),
+                ),
+              ],
             ),
           ),
-          TextButton(
-            onPressed: () => context.push('/plans'),
-            child: const Text('Assinar Pro'),
-          ),
+          if (!quota.isPro)
+            TextButton(
+              onPressed: () => context.push('/plans'),
+              child: const Text('Conhecer o Pro'),
+            ),
         ],
       ),
     );

@@ -4,6 +4,7 @@ import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../data/datasources/job_remote_data_source.dart';
 import '../../data/repositories/job_repository_impl.dart';
 import '../../domain/entities/job.dart';
+import '../../domain/job_ranking.dart';
 import '../../domain/repositories/job_repository.dart';
 
 final jobDataSourceProvider = Provider<JobRemoteDataSource>((ref) {
@@ -21,7 +22,12 @@ final jobFilterProvider = StateProvider<JobFilter>((ref) => const JobFilter());
 final jobsListProvider = FutureProvider.autoDispose<List<Job>>((ref) async {
   final repository = ref.watch(jobRepositoryProvider);
   final filter = ref.watch(jobFilterProvider);
-  return repository.getJobs(filter: filter);
+  final jobs = await repository.getJobs(filter: filter);
+  if (filter.sortBy != 'relevance') return jobs;
+  // Compatibilidade com as habilidades de quem está logado (visitante: só
+  // qualidade e data).
+  final skills = ref.watch(authProvider).valueOrNull?.skills ?? const [];
+  return rankByRelevance(jobs, skills: skills);
 });
 
 /// Single job provider by ID

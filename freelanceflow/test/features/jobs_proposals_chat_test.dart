@@ -100,22 +100,28 @@ void main() {
     test('plano grátis calcula o restante e esgota no limite', () {
       final q = ProposalQuota.fromJson({
         'is_pro': false,
-        'monthly_limit': 5,
-        'used': 5,
+        'monthly_limit': 10,
+        'used': 10,
+        'refunded': 2,
       });
       expect(q.remaining, 0);
       expect(q.isExhausted, isTrue);
-      expect(q.isUnlimited, isFalse);
+      expect(q.refunded, 2);
     });
 
-    test('plano Pro é ilimitado e nunca esgota', () {
+    test('Pro tem mais propostas e o teto diário vale para todos', () {
       final q = ProposalQuota.fromJson({
         'is_pro': true,
-        'monthly_limit': null,
-        'used': 99,
+        'monthly_limit': 50,
+        'used': 12,
+        'daily_limit': 15,
+        'used_today': 15,
+        'min_cover_letter_chars': 50,
       });
-      expect(q.isUnlimited, isTrue);
+      expect(q.remaining, 38);
       expect(q.isExhausted, isFalse);
+      expect(q.isDailyLimitReached, isTrue);
+      expect(q.minCoverLetterChars, 50);
     });
   });
 

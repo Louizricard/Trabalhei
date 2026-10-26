@@ -162,3 +162,45 @@ class AdminJob {
     openReports: _int(json['open_reports']),
   );
 }
+
+/// Cupom de desconto (tabela coupons, lida pelo painel de admin).
+class AdminCoupon {
+  final String code;
+  final String? description;
+  final String product;
+  final int? percentOff;
+  final double? amountOff;
+  final int? maxRedemptions;
+  final int redemptions;
+  final DateTime? validUntil;
+  final bool active;
+
+  const AdminCoupon({
+    required this.code,
+    this.description,
+    required this.product,
+    this.percentOff,
+    this.amountOff,
+    this.maxRedemptions,
+    this.redemptions = 0,
+    this.validUntil,
+    this.active = true,
+  });
+
+  bool get isExpired =>
+      validUntil != null && validUntil!.isBefore(DateTime.now());
+  bool get isExhausted =>
+      maxRedemptions != null && redemptions >= maxRedemptions!;
+
+  factory AdminCoupon.fromJson(Map<String, dynamic> json) => AdminCoupon(
+    code: json['code'] as String,
+    description: json['description'] as String?,
+    product: json['product'] as String? ?? 'any',
+    percentOff: (json['percent_off'] as num?)?.toInt(),
+    amountOff: (json['amount_off'] as num?)?.toDouble(),
+    maxRedemptions: (json['max_redemptions'] as num?)?.toInt(),
+    redemptions: _int(json['redemptions_count']),
+    validUntil: _date(json['valid_until']),
+    active: json['active'] as bool? ?? true,
+  );
+}

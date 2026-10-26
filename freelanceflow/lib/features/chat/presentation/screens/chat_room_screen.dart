@@ -2,6 +2,7 @@ import 'package:trabalhei/core/errors/backend_errors.dart';
 import '../widgets/chat_system_event_card.dart';
 import '../widgets/chat_delivery_action_banner.dart';
 import 'package:flutter/material.dart';
+import '../../../billing/presentation/providers/pricing_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -100,7 +101,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
     final PickedFileData? picked;
     try {
-      picked = await storage.pickImage(source: source, maxBytes: 50 * 1024 * 1024);
+      picked = await storage.pickImage(
+        source: source,
+        maxBytes: ref.read(uploadLimitBytesProvider),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -132,6 +136,22 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
       ],
     );
     if (picked == null) return;
+    // Limite por arquivo depende do plano (grátis x Pro).
+    final limit = ref.read(uploadLimitBytesProvider);
+    if (picked.size > limit) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'O arquivo passa de ${limit ~/ (1024 * 1024)} MB.'
+              '${user.isPro ? '' : ' No Pro, o limite é maior.'}',
+            ),
+            backgroundColor: AppColors.warning,
+          ),
+        );
+      }
+      return;
+    }
 
     await _uploadAndSendFile(picked, user.id);
   }
@@ -284,8 +304,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  subtitle: const Text(
-                    'PDF, DOC, DOCX, ZIP até 20MB',
+                  subtitle: Text(
+                    'PDF, DOC, DOCX, ZIP até ${ref.watch(uploadLimitBytesProvider) ~/ (1024 * 1024)} MB',
                     style: TextStyle(
                       color: AppColors.textMutedDark,
                       fontSize: 12,

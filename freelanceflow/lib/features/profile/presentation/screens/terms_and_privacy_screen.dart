@@ -55,15 +55,29 @@ const _sections = <(String, String)>[
         'são definidos entre cliente e freelancer.',
   ),
   (
-    '7. Plano Pro e destaque de vagas',
-    'O Trabalhei é mantido pelo Plano Pro (assinatura mensal opcional para '
-        'freelancers) e pelo destaque pago de vagas (7 dias, para clientes). '
-        'Os preços aparecem no app antes da contratação. A cobrança é feita '
-        'pelo Asaas, por Pix, cartão ou boleto; não armazenamos dados de cartão.\n\n'
-        'O Plano Pro renova automaticamente a cada mês e pode ser cancelado a '
-        'qualquer momento no app; os benefícios seguem até o fim do período '
-        'já pago. O destaque vale por 7 dias a partir da confirmação do '
-        'pagamento.\n\n'
+    '7. Planos, destaque de projeto e cupons',
+    'Clientes usam o Trabalhei de graça para publicar projetos, receber '
+        'propostas, conversar e acompanhar entregas. Freelancers têm um plano '
+        'grátis, com um número de propostas por mês, e o Plano Pro, assinatura '
+        'mensal opcional com mais propostas e ferramentas de organização. '
+        'Clientes podem contratar o destaque de projeto por 7 dias. Os preços e '
+        'limites atuais aparecem na tela Planos antes de qualquer cobrança.\n\n'
+        'O pagamento é feito pelo Asaas, por Pix (dentro do app) ou cartão (na '
+        'página segura do Asaas). Não vemos nem armazenamos dados de cartão. '
+        'O Plano Pro renova a cada mês e pode ser cancelado a qualquer momento '
+        'no app; os benefícios seguem até o fim do período já pago.\n\n'
+        'Projetos destacados aparecem em um espaço identificado como '
+        'patrocinado. Quando há mais projetos destacados que espaços, eles se '
+        'revezam, e todos recebem o mesmo tempo. A ordem normal do mural e da '
+        'busca não depende de pagamento, e o selo PRO indica apenas a '
+        'assinatura, não avaliação ou experiência.\n\n'
+        'Para manter a qualidade, há um limite de propostas a cada 24 horas em '
+        'todos os planos. Propostas para vagas canceladas, removidas pela '
+        'moderação ou sem resposta do cliente no prazo informado em Planos '
+        'voltam ao saldo do mês.\n\n'
+        'Cupons de desconto valem para a primeira cobrança (o primeiro mês do '
+        'Pro ou o destaque), uma vez por pessoa, dentro da validade e do limite '
+        'de usos de cada promoção, e não podem ser trocados por dinheiro.\n\n'
         'Você pode desistir da contratação em até 7 dias (direito de '
         'arrependimento, art. 49 do Código de Defesa do Consumidor) e receber '
         'o valor pago de volta, pedindo pelo e-mail ${LegalInfo.contactEmail}.',
@@ -91,8 +105,10 @@ const _sections = <(String, String)>[
   ),
   (
     '10. Quem vê seus dados',
-    'Seu perfil, suas avaliações e suas vagas ficam visíveis a outros '
-        'usuários logados. Mensagens e arquivos do chat, entregas e pedidos de '
+    'Seu perfil público, suas avaliações e suas vagas abertas ficam visíveis '
+        'para outros usuários e para visitantes do site, mesmo sem conta. O '
+        'currículo em PDF só abre para usuários logados. Mensagens e arquivos '
+        'do chat, entregas e pedidos de '
         'revisão só são acessíveis às partes da conversa ou do contrato.\n\n'
         'Usamos fornecedores que tratam dados em nosso nome: Supabase (banco '
         'de dados, arquivos e login; servidores em São Paulo), Vercel '

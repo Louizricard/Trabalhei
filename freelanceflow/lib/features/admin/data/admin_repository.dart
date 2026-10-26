@@ -81,4 +81,37 @@ class AdminRepository {
         'details': details.trim(),
     });
   }
+
+  Future<List<AdminCoupon>> coupons() async {
+    final rows = await _supabase.rpc('admin_list_coupons') as List;
+    return rows
+        .map((r) => AdminCoupon.fromJson(Map<String, dynamic>.from(r as Map)))
+        .toList();
+  }
+
+  Future<void> createCoupon({
+    required String code,
+    required String product,
+    int? percentOff,
+    double? amountOff,
+    int? maxRedemptions,
+    DateTime? validUntil,
+    String? description,
+  }) => _supabase.rpc(
+    'admin_create_coupon',
+    params: {
+      'p_code': code,
+      'p_product': product,
+      'p_percent_off': percentOff,
+      'p_amount_off': amountOff,
+      'p_max_redemptions': maxRedemptions,
+      'p_valid_until': validUntil?.toUtc().toIso8601String(),
+      'p_description': description,
+    },
+  );
+
+  Future<void> setCouponActive(String code, bool active) => _supabase.rpc(
+    'admin_set_coupon_active',
+    params: {'p_code': code, 'p_active': active},
+  );
 }

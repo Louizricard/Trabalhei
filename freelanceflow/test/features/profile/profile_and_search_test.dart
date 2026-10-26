@@ -60,7 +60,7 @@ void main() {
     test('Initial filter should have no active filters', () {
       const filter = FreelancerSearchFilter();
       expect(filter.hasActiveFilters, isFalse);
-      expect(filter.orderBy, equals('rating_desc'));
+      expect(filter.orderBy, equals('relevance'));
     });
 
     test('Notifier should update filters and track active state', () {

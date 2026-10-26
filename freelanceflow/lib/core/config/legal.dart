@@ -9,7 +9,7 @@ class LegalInfo {
 
   /// Versão dos termos. Mude ao publicar alterações relevantes: a versão aceita
   /// fica registrada no cadastro do usuário.
-  static const String termsVersion = '2026-10';
+  static const String termsVersion = '2026-10-27';
 
   /// Data exibida no topo dos termos.
   static const String termsUpdatedAt = 'Outubro de 2026';

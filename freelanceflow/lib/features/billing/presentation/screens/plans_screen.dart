@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/errors/backend_errors.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -9,9 +8,13 @@ import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
+import '../../../auth/domain/entities/user_profile.dart';
 import '../../domain/entities/billing.dart';
+import '../../domain/entities/pricing.dart';
+import '../providers/pricing_provider.dart';
 import '../providers/billing_provider.dart';
 import '../widgets/checkout_sheet.dart';
+import '../widgets/pix_payment_sheet.dart';
 
 class PlansScreen extends ConsumerStatefulWidget {
   const PlansScreen({super.key});
@@ -56,24 +59,44 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
   }
 
   Future<void> _subscribe() async {
+    final price = _pricing.pro.price;
     final data = await CheckoutSheet.show(
       context,
       title: 'Assinar Trabalhei Pro',
       summary:
-          '${CurrencyFormatter.format(BillingConfig.proMonthlyPrice)} por mês. '
-          'Cancele quando quiser.',
+          '${CurrencyFormatter.format(price)} por mês. Cancele quando quiser. '
+          'Com cupom, o desconto vale para o primeiro mês.',
+      product: 'pro_monthly',
+      price: price,
+      priceSuffix: 'por mês',
     );
     if (data == null || !mounted) return;
 
     setState(() => _busy = true);
     try {
-      final url = await ref
+      final result = await ref
           .read(billingRepositoryProvider)
-          .startProCheckout(method: data.method, cpfCnpj: data.cpfCnpj);
-      final opened = await launchUrl(url, mode: LaunchMode.externalApplication);
-      if (!opened) throw Exception('Não foi possível abrir a página de pagamento.');
-      setState(() => _awaitingPayment = true);
-      _snack('Conclua o pagamento na página aberta e volte ao app.');
+          .startProCheckout(
+            method: data.method,
+            cpfCnpj: data.cpfCnpj,
+            couponCode: data.couponCode,
+          );
+      if (!mounted) return;
+      if (result.pix == null && !result.granted) {
+        // Cartão: ao voltar da página do Asaas, o plano é recarregado.
+        setState(() => _awaitingPayment = true);
+      }
+      await completeCheckout(
+        context,
+        result,
+        successMessage:
+            'Seu Pro está ativo. Aproveite as ferramentas no Painel.',
+        isPaid: () async {
+          await ref.read(authProvider.notifier).refreshProfile();
+          return ref.read(authProvider).valueOrNull?.isPro ?? false;
+        },
+        onPaid: () => refreshBillingState(ref),
+      );
     } catch (e) {
       _snack(friendlyError(e), error: true);
     } finally {
@@ -115,81 +138,128 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
     }
   }
 
+  Pricing get _pricing =>
+      ref.read(pricingProvider).valueOrNull ?? Pricing.fallback;
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).value;
     final subAsync = ref.watch(subscriptionProvider);
+    final pricing = ref.watch(pricingProvider).valueOrNull ?? Pricing.fallback;
+    final s = pricing.settings;
     final isPro = user?.isPro ?? false;
+    final isClient = user?.role == UserRole.client;
+
+    final freelancerPlans = [
+      _PlanCard(
+        title: 'Freelancer grátis',
+        price: 'R\$ 0',
+        highlighted: !isClient && !isPro,
+        badge: !isClient && !isPro ? 'Seu plano' : null,
+        features: [
+          'Perfil e portfólio públicos',
+          '${s.freeMonthlyProposals} propostas por mês',
+          'Chat, contratos e entregas',
+          'Arquivos de até ${s.freeFileMb} MB',
+        ],
+      ),
+      const SizedBox(height: 16),
+      _PlanCard(
+        title: 'Freelancer Pro',
+        price: '${CurrencyFormatter.format(pricing.pro.price)}/mês',
+        highlighted: isPro,
+        badge: isPro ? 'Seu plano' : null,
+        features: [
+          '${s.proMonthlyProposals} propostas por mês',
+          'Modelos de proposta reutilizáveis',
+          'Organização de clientes e projetos',
+          'Estatísticas das suas propostas',
+          'Arquivos de até ${s.proFileMb} MB',
+          'Selo PRO, que indica a assinatura (não substitui avaliações)',
+        ],
+        footer: subAsync.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.only(top: 12),
+            child: LinearProgressIndicator(),
+          ),
+          error: (e, _) => Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Text(
+              friendlyError(e),
+              style: const TextStyle(color: AppColors.error),
+            ),
+          ),
+          data: (sub) => isClient
+              ? const SizedBox.shrink()
+              : _proFooter(user?.planExpiresAt, isPro, sub),
+        ),
+      ),
+    ];
+
+    final clientPlans = [
+      _PlanCard(
+        title: 'Cliente',
+        price: 'Grátis',
+        highlighted: isClient,
+        badge: isClient ? 'Seu plano' : null,
+        features: const [
+          'Publicar projetos e receber propostas',
+          'Conversar e negociar no chat',
+          'Acompanhar entregas e aprovar marcos',
+          'Avaliar o freelancer ao concluir',
+        ],
+      ),
+      const SizedBox(height: 16),
+      _PlanCard(
+        title: 'Destaque de projeto',
+        price:
+            '${CurrencyFormatter.format(pricing.feature.price)} por ${pricing.feature.periodDays} dias',
+        highlighted: false,
+        features: [
+          'Espaço no topo do mural, identificado como patrocinado',
+          'Rodízio justo: até ${s.sponsoredSlots} vagas por vez; com mais, elas se revezam a cada ${_rotationText(s.sponsoredRotationMinutes)}',
+          'Contratado na página da vaga, quando quiser',
+        ],
+      ),
+    ];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Planos')),
       body: ResponsiveLayout(
         maxWidth: 700,
         child: RefreshIndicator(
-          onRefresh: () => refreshBillingState(ref),
+          onRefresh: () async {
+            ref.invalidate(pricingProvider);
+            await refreshBillingState(ref);
+          },
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              _PlanCard(
-                title: 'Grátis',
-                price: 'R\$ 0',
-                highlighted: !isPro,
-                badge: !isPro ? 'Plano atual' : null,
-                features: const [
-                  '${BillingConfig.freeMonthlyProposals} propostas por mês',
-                  'Chat, contratos e avaliações',
-                  'Perfil e portfólio públicos',
-                ],
-              ),
-              const SizedBox(height: 16),
-              _PlanCard(
-                title: 'Pro',
-                price:
-                    '${CurrencyFormatter.format(BillingConfig.proMonthlyPrice)}/mês',
-                highlighted: isPro,
-                badge: isPro ? 'Plano atual' : 'Recomendado',
-                features: const [
-                  'Propostas ilimitadas',
-                  'Selo Pro no perfil e nas propostas',
-                  'Mais visibilidade perante os clientes',
-                ],
-                footer: subAsync.when(
-                  loading: () => const Padding(
-                    padding: EdgeInsets.only(top: 12),
-                    child: LinearProgressIndicator(),
-                  ),
-                  error: (e, _) => Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Text(
-                      friendlyError(e),
-                      style: const TextStyle(color: AppColors.error),
-                    ),
-                  ),
-                  data: (sub) => _proFooter(user?.planExpiresAt, isPro, sub),
+              const Text(
+                'Encontre profissionais e conduza o trabalho em um só lugar. '
+                'O pagamento do projeto é direto entre as partes, sem comissão.',
+                style: TextStyle(
+                  color: AppColors.textSecondaryDark,
+                  height: 1.5,
                 ),
               ),
-              const SizedBox(height: 16),
-              GlassCard(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.star_rounded, color: AppColors.warning),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Cliente? Destaque suas vagas por '
-                        '${BillingConfig.featureJobDays} dias direto na página '
-                        'da vaga (${CurrencyFormatter.format(BillingConfig.featureJobPrice)}).',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondaryDark,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 20),
+              // Quem contrata vê primeiro as opções de cliente.
+              if (isClient) ...[
+                const _SectionTitle('Para quem contrata'),
+                ...clientPlans,
+                const SizedBox(height: 28),
+                const _SectionTitle('Para freelancers'),
+                ...freelancerPlans,
+              ] else ...[
+                const _SectionTitle('Para freelancers'),
+                ...freelancerPlans,
+                const SizedBox(height: 28),
+                const _SectionTitle('Para quem contrata'),
+                ...clientPlans,
+              ],
+              const SizedBox(height: 24),
+              _RulesCard(settings: s),
             ],
           ),
         ),
@@ -254,7 +324,10 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       );
     }
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: children);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
+    );
   }
 }
 
@@ -359,6 +432,86 @@ class _PlanCard extends StatelessWidget {
             ?footer,
           ],
         ),
+      ),
+    );
+  }
+}
+
+String _rotationText(int minutes) => minutes % 60 == 0
+    ? (minutes == 60 ? 'hora' : '${minutes ~/ 60} horas')
+    : '$minutes minutos';
+
+class _SectionTitle extends StatelessWidget {
+  final String text;
+  const _SectionTitle(this.text);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(left: 4, bottom: 10),
+    child: Text(
+      text.toUpperCase(),
+      style: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.8,
+        color: AppColors.textMutedDark,
+      ),
+    ),
+  );
+}
+
+/// Regras que valem para todos os planos, explicadas em linguagem simples.
+class _RulesCard extends StatelessWidget {
+  final PlatformSettings settings;
+  const _RulesCard({required this.settings});
+
+  @override
+  Widget build(BuildContext context) {
+    final rules = [
+      'Propostas para vagas canceladas, removidas pela moderação ou sem resposta do cliente em ${settings.unansweredRefundDays} dias voltam ao seu saldo.',
+      'Para evitar envio em massa, cada conta envia até ${settings.dailyProposals} propostas a cada 24 horas, em qualquer plano.',
+      'A busca não favorece quem paga: a ordem considera compatibilidade, avaliações e trabalhos concluídos.',
+      'O selo PRO mostra que a pessoa assina o plano. Confiança vem das avaliações e dos trabalhos concluídos.',
+    ];
+    return GlassCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Regras para todos',
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+          ),
+          const SizedBox(height: 10),
+          for (final r in rules)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2),
+                    child: Icon(
+                      Icons.info_outline_rounded,
+                      size: 16,
+                      color: AppColors.textMutedDark,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      r,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        height: 1.45,
+                        color: AppColors.textSecondaryDark,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }

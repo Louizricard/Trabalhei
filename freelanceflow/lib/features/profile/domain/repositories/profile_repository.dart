@@ -28,7 +28,7 @@ abstract class ProfileRepository {
     double? minHourlyRate,
     double? maxHourlyRate,
     String? availabilityStatus,
-    String orderBy = 'rating_desc',
+    String orderBy = 'relevance',
   });
 
   Future<void> updateProfile({

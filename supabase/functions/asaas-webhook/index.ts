@@ -112,7 +112,7 @@ async function handleSubscriptionPaid(admin: any, asaasSubscriptionId: string) {
   if (pErr) throw pErr;
   await admin.rpc("notify", {
     p_user: sub.user_id, p_type: "system", p_title: "Plano Pro ativo 🎉",
-    p_body: "Propostas ilimitadas liberadas. Obrigado por apoiar o Trabalhei!",
+    p_body: "Mais propostas, modelos, organização de clientes e estatísticas liberados. Obrigado por apoiar o Trabalhei!",
     p_data: { route: "/plans" },
   });
 }
@@ -143,8 +143,8 @@ async function handleFeaturePaid(admin: any, asaasPaymentId: string) {
   await admin.from("job_featurings")
     .update({ status: "paid", paid_at: new Date().toISOString() }).eq("id", f.id);
   await admin.rpc("notify", {
-    p_user: f.user_id, p_type: "system", p_title: "Vaga em destaque ⭐",
-    p_body: "Pagamento confirmado. Sua vaga já aparece em destaque no mural.",
+    p_user: f.user_id, p_type: "system", p_title: "Vaga patrocinada ativa",
+    p_body: "Pagamento confirmado. Sua vaga já está no espaço de vagas patrocinadas do mural.",
     p_data: { job_id: f.job_id, route: `/jobs/${f.job_id}` },
   });
 }

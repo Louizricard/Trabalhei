@@ -1,5 +1,6 @@
 import 'package:trabalhei/core/utils/rating_formatter.dart';
 import 'package:flutter/material.dart';
+import '../../../billing/presentation/widgets/pro_upsell.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -100,24 +101,7 @@ class FreelancerCard extends StatelessWidget {
                         ),
                         if (freelancer.isPro) ...[
                           const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 1,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryContainer,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Text(
-                              'PRO',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
+                          const ProBadge(),
                         ],
                         if (freelancer.isVerified) ...[
                           const SizedBox(width: 4),
