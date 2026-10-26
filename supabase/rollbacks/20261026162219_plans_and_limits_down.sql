@@ -1,4 +1,4 @@
--- Desfaz 20261027120000_plans_and_limits. Antes, volte o app para a versão
+-- Desfaz 20261026162219_plans_and_limits. Antes, volte o app para a versão
 -- anterior (ele lê billing_products e platform_settings). As funções
 -- proposal_quota, submit_proposal, admin_remove_job e admin_suspend_user
 -- voltam às definições das migrações 20261015211818 e 20261026110842

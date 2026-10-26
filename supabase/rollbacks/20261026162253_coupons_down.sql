@@ -1,4 +1,4 @@
--- Desfaz 20261027120100_coupons. As Edge Functions de cobrança chamam
+-- Desfaz 20261026162253_coupons. As Edge Functions de cobrança chamam
 -- redeem_coupon: volte-as antes para a versão sem cupons.
 drop function if exists public.grant_pro(uuid, integer, text);
 drop function if exists public.admin_set_coupon_active(text, boolean);

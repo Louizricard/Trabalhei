@@ -32,17 +32,29 @@ Deno.serve(handle(async (req) => {
   }
 
   let subscriptionId = current?.asaas_subscription_id as string | undefined;
-  // Pendente com outra forma de pagamento ou com cupom novo: recomeça.
-  const hasCoupon = typeof body.coupon_code === "string" && body.coupon_code.trim() !== "";
-  if (subscriptionId && current?.status === "pending" && (current.billing_type !== billingType || hasCoupon)) {
-    await asaas(`/subscriptions/${subscriptionId}`, { method: "DELETE" });
-    await admin.from("subscriptions").update({ status: "cancelled" }).eq("id", current!.id);
-    subscriptionId = undefined;
+  const couponCode = typeof body.coupon_code === "string" ? body.coupon_code.trim().toUpperCase() : "";
+
+  if (subscriptionId && current?.status === "pending") {
+    // Cupom já aplicado a esta assinatura pendente: segue com ela.
+    const { data: used } = couponCode
+      ? await admin.from("coupon_redemptions").select("final_price")
+        .eq("user_id", user.id).eq("code", couponCode)
+        .like("reference", `sub:${current.id}%`).maybeSingle()
+      : { data: null };
+    // Outra forma de pagamento ou cupom novo: recomeça a assinatura.
+    if (current.billing_type !== billingType || (couponCode && !used)) {
+      await asaas(`/subscriptions/${subscriptionId}`, { method: "DELETE" });
+      await admin.from("subscriptions").update({ status: "cancelled" }).eq("id", current.id);
+      subscriptionId = undefined;
+    }
   }
 
   let amount: number | undefined;
   if (!subscriptionId) {
-    const quote = await redeemPrice(admin, user.id, "pro_monthly", body.coupon_code, `sub:${user.id}`);
+    // Referência única por tentativa (o uso do cupom é desfeito por ela).
+    const subscriptionRowId = crypto.randomUUID();
+    const reference = `sub:${subscriptionRowId}`;
+    const quote = await redeemPrice(admin, user.id, "pro_monthly", couponCode, reference);
     if (quote.final_price === 0) {
       const days = await productDays(admin, "pro_monthly");
       const { data: until, error } = await admin.rpc("grant_pro", {
@@ -54,30 +66,30 @@ Deno.serve(handle(async (req) => {
       return json({ granted: true, until });
     }
 
-    // Se a cobrança não for criada, o cupom volta a valer.
-    const release = () => admin.rpc("release_coupon", { p_reference: `sub:${user.id}` });
     let sub: { id: string };
     try {
       const cpfCnpj = validateCpfCnpj(body.cpf_cnpj);
       const customerId = await getOrCreateCustomer(admin, user, cpfCnpj);
       sub = await asaas<{ id: string }>("/subscriptions", {
-      method: "POST",
-      body: {
-        customer: customerId,
-        billingType,
-        value: quote.price,
-        nextDueDate: isoDate(new Date()),
-        cycle: "MONTHLY",
-        description: "Trabalhei Pro",
-        externalReference: `sub:${user.id}`,
-      },
-    });
+        method: "POST",
+        body: {
+          customer: customerId,
+          billingType,
+          value: quote.price,
+          nextDueDate: isoDate(new Date()),
+          cycle: "MONTHLY",
+          description: "Trabalhei Pro",
+          externalReference: `sub:${user.id}`,
+        },
+      });
     } catch (e) {
-      await release();
+      // Sem assinatura criada, o cupom volta a valer.
+      await admin.rpc("release_coupon", { p_reference: reference });
       throw e;
     }
     subscriptionId = sub.id;
     const { error } = await admin.from("subscriptions").insert({
+      id: subscriptionRowId,
       user_id: user.id,
       asaas_subscription_id: sub.id,
       billing_type: billingType,
