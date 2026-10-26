@@ -10,7 +10,7 @@ class JobRemoteDataSource {
   Future<List<Job>> getJobs({JobFilter? filter}) async {
     var query = _supabase
         .from('jobs')
-        .select('*, profiles!client_id(full_name, rating), proposals(count)')
+        .select('*, proposals_count, profiles!client_id(full_name, rating)')
         .eq('status', 'open');
 
     if (filter != null) {
@@ -55,7 +55,7 @@ class JobRemoteDataSource {
   Future<Job?> getJobById(String id) async {
     final response = await _supabase
         .from('jobs')
-        .select('*, profiles!client_id(full_name, rating), proposals(count)')
+        .select('*, proposals_count, profiles!client_id(full_name, rating)')
         .eq('id', id)
         .maybeSingle();
 
@@ -91,7 +91,7 @@ class JobRemoteDataSource {
   Future<List<Job>> getClientJobs(String clientId) async {
     final response = await _supabase
         .from('jobs')
-        .select('*, profiles!client_id(full_name, rating), proposals(count)')
+        .select('*, proposals_count, profiles!client_id(full_name, rating)')
         .eq('client_id', clientId)
         .order('created_at', ascending: false);
 

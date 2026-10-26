@@ -11,6 +11,7 @@ import 'package:trabalhei/core/widgets/glass_card.dart';
 import 'package:trabalhei/core/widgets/responsive_layout.dart';
 import 'package:trabalhei/core/widgets/status_badge.dart';
 import 'package:trabalhei/features/auth/domain/entities/user_profile.dart';
+import 'package:trabalhei/features/auth/presentation/guest_access.dart';
 import 'package:trabalhei/features/auth/presentation/providers/auth_state_provider.dart';
 import 'package:trabalhei/features/billing/presentation/widgets/feature_job_action.dart';
 import 'package:trabalhei/features/jobs/domain/entities/job.dart';
@@ -41,7 +42,10 @@ class JobDetailScreen extends ConsumerWidget {
         title: const Text('Detalhes da Vaga'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
+          tooltip: 'Voltar',
+          // Aberta direto por um link, volta para o mural.
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/jobs'),
         ),
       ),
       body: jobAsync.when(
@@ -334,8 +338,29 @@ class JobDetailScreen extends ConsumerWidget {
                           ? Icons.edit_note_rounded
                           : Icons.send_rounded,
                       width: double.infinity,
-                      onPressed: () => context.push('/jobs/${job.id}/apply'),
+                      onPressed: () async {
+                        if (await requireAccount(
+                              context,
+                              ref,
+                              action: 'enviar uma proposta',
+                              returnTo: '/jobs/${job.id}/apply',
+                            ) &&
+                            context.mounted) {
+                          context.push('/jobs/${job.id}/apply');
+                        }
+                      },
                     ),
+                    if (currentUser == null) ...[
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Crie sua conta grátis para enviar propostas: são 5 por mês no plano grátis.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textMutedDark,
+                        ),
+                      ),
+                    ],
                   ],
                 ],
               ),

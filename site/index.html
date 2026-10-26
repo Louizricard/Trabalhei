@@ -25,7 +25,7 @@
     })(location, document.documentElement);
   </script>
   <title>Trabalhei — freelancers e projetos, do anúncio à entrega</title>
-  <meta name="description" content="Publique vagas, receba propostas, converse em tempo real e acompanhe a entrega até a aprovação. Trabalhei para Android, Windows e navegador.">
+  <meta name="description" content="Publique vagas, receba propostas e acompanhe a entrega por marcos, sem comissão sobre o projeto. Trabalhei para Android, Windows e navegador.">
   <meta name="theme-color" content="#081A2F">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="canonical" href="https://trabalhei.site/">
@@ -67,7 +67,7 @@
         "@type": "SoftwareApplication",
         "name": "Trabalhei",
         "url": "https://trabalhei.site/",
-        "description": "Plataforma que conecta clientes a freelancers: publicação de vagas, propostas com valor e prazo, chat em tempo real, entregas por marcos e avaliações.",
+        "description": "Plataforma que conecta clientes a freelancers, sem comissão sobre o projeto: publicação de vagas, propostas com valor e prazo, chat em tempo real, entregas por marcos e avaliações.",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Android 8.0+, Windows 10, Windows 11, Web",
         "inLanguage": "pt-BR",
@@ -100,9 +100,9 @@
         <span>Trabalhei</span>
       </a>
       <nav class="main-nav" id="menu" aria-label="Seções da página" data-menu>
+        <a href="#vantagens">Vantagens</a>
         <a href="#para-quem">Para quem</a>
         <a href="#como-funciona">Como funciona</a>
-        <a href="#plataformas">Plataformas</a>
         <a href="#downloads">Downloads</a>
         <a href="#duvidas">Dúvidas</a>
       </nav>
@@ -122,10 +122,10 @@
       <div class="container hero-grid">
         <div class="hero-copy">
           <h1 id="hero-title">Contrate freelancers ou encontre projetos, do anúncio à entrega.</h1>
-          <p class="lead">O Trabalhei conecta clientes e freelancers: publique vagas, receba e compare propostas, converse em tempo real e acompanhe a entrega até a aprovação.</p>
+          <p class="lead">Publique vagas, compare propostas e acompanhe a entrega por marcos. <strong>Sem comissão:</strong> o valor combinado vai inteiro para quem trabalha.</p>
           <div class="hero-actions">
             <a class="btn btn-primary btn-lg" href="/app/#/register">Criar conta grátis</a>
-            <a class="btn btn-quiet btn-lg" href="/app/#/login">Já tenho conta</a>
+            <a class="btn btn-quiet btn-lg" href="/app/#/jobs">Ver vagas sem cadastro</a>
           </div>
           <div class="store-row">
             <span class="store-label">Baixe o app</span>
@@ -171,11 +171,50 @@
         </div>
       </div>
       <div class="container hero-foot">
-        <a class="scroll-hint" href="#para-quem" data-scroll-hint>
+        <a class="scroll-hint" href="#vantagens" data-scroll-hint>
           <span>Role para conhecer</span>
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
         <p class="demo-disclaimer">Telas reais do app, com dados fictícios de demonstração.</p>
+      </div>
+    </section>
+
+    <!-- Diferencial -->
+    <section class="section why" id="vantagens" aria-labelledby="why-title">
+      <div class="container">
+        <header class="section-head reveal">
+          <h2 id="why-title">Por que escolher o Trabalhei</h2>
+          <p class="section-sub">Em muitas plataformas de freelance, uma parte de cada projeto fica com o site. Aqui, não.</p>
+        </header>
+        <div class="why-grid">
+          <article class="why-card why-main reveal">
+            <p class="why-stat" aria-hidden="true">0%</p>
+            <h3>de comissão sobre o projeto</h3>
+            <p>O valor combinado vai inteiro para o freelancer, e o cliente paga só o que foi acertado na proposta. A plataforma se mantém com o plano Pro e o destaque de vagas, que são opcionais.</p>
+          </article>
+          <article class="why-card reveal">
+            <div class="audience-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
+            </div>
+            <h3>Entrega com marcos e aprovação</h3>
+            <p>Proposta, contrato, entregas e pedidos de revisão ficam registrados no chat do contrato. O cliente aprova cada marco antes de concluir.</p>
+          </article>
+          <article class="why-card reveal">
+            <div class="audience-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="m12 17.3 6.2 3.7-1.6-7 5.4-4.7-7.2-.6L12 2 9.2 8.7 2 9.3l5.4 4.7-1.6 7z"/></svg>
+            </div>
+            <h3>Avaliações de quem trabalhou junto</h3>
+            <p>Só quem concluiu um contrato pode avaliar. A nota no perfil vem de projetos reais, não de comentários soltos.</p>
+          </article>
+          <article class="why-card reveal">
+            <div class="audience-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>
+            </div>
+            <h3>Explore antes de criar conta</h3>
+            <p>Veja as vagas abertas e os perfis no navegador, sem cadastro. A conta só é pedida na hora de enviar uma proposta ou publicar.</p>
+            <a class="why-link" href="/app/#/jobs">Ver vagas abertas →</a>
+          </article>
+        </div>
       </div>
     </section>
 
@@ -220,45 +259,19 @@
       </div>
     </section>
 
-    <!-- Demonstração guiada pela rolagem -->
+    <!-- Demonstração: as etapas avançam sozinhas enquanto a seção está na tela;
+         o recorte ampliado mostra em tamanho legível a parte destacada do print. -->
     <section class="demo" id="como-funciona" aria-labelledby="demo-title" data-demo>
-      <div class="container demo-head">
+      <div class="container">
         <header class="section-head reveal">
           <h2 id="demo-title">Como funciona uma contratação</h2>
-          <p class="section-sub">Cada etapa mostra a tela do app em que ela acontece.</p>
+          <p class="section-sub">Quatro etapas, do anúncio à entrega. Escolha uma para ver a tela do app em detalhe.</p>
         </header>
-      </div>
-      <div class="scene-track" data-track>
-      <div class="scene-sticky">
-        <div class="container demo-grid">
-          <div class="demo-device">
-            <div class="laptop demo-laptop">
-              <div class="laptop-lid">
-                <div class="laptop-screen">
-                  <img class="demo-screen is-active" src="/assets/screens/desktop-create-job-sm.webp" alt="Tela Publicar Nova Vaga com título, categoria e descrição preenchidos" width="1280" height="800" loading="lazy" decoding="async">
-                  <img class="demo-screen" src="/assets/screens/desktop-apply-sm.webp" alt="Tela Enviar Proposta com valor, prazo e carta de apresentação" width="1280" height="800" loading="lazy" decoding="async">
-                  <img class="demo-screen" src="/assets/screens/desktop-proposals-sm.webp" alt="Tela Propostas Recebidas com resumo de valores e botões Aceitar, Negociar e Chat" width="1280" height="800" loading="lazy" decoding="async">
-                  <img class="demo-screen" src="/assets/screens/desktop-chat-sm.webp" alt="Chat do contrato com a entrega recebida e o botão Revisar e Aprovar" width="1280" height="800" loading="lazy" decoding="async">
-                  <span class="focus-ring" data-ring aria-hidden="true"></span>
-                </div>
-              </div>
-              <div class="laptop-base"></div>
-            </div>
-            <div class="phone demo-phone">
-              <div class="phone-screen">
-                <img class="demo-screen is-active" src="/assets/screens/phone-create-job-sm.webp" alt="Tela Publicar Nova Vaga com título, categoria e descrição preenchidos" width="585" height="1266" loading="lazy" decoding="async">
-                <img class="demo-screen" src="/assets/screens/phone-apply-sm.webp" alt="Tela Enviar Proposta com valor, prazo e carta de apresentação" width="585" height="1266" loading="lazy" decoding="async">
-                <img class="demo-screen" src="/assets/screens/phone-proposals-sm.webp" alt="Tela Propostas Recebidas com resumo de valores e botões Aceitar, Negociar e Chat" width="585" height="1266" loading="lazy" decoding="async">
-                <img class="demo-screen" src="/assets/screens/phone-chat-sm.webp" alt="Chat do contrato com a entrega recebida e o botão Revisar e Aprovar" width="585" height="1266" loading="lazy" decoding="async">
-                <span class="focus-ring" data-ring aria-hidden="true"></span>
-              </div>
-            </div>
-            <p class="focus-note" data-note aria-live="polite"></p>
-          </div>
+        <div class="demo-grid">
           <div class="demo-copy">
             <ol class="demo-steps">
               <li class="demo-step is-active">
-                <button type="button" class="step-button" data-step-button="0">
+                <button type="button" class="step-button" data-step-button="0" aria-current="step">
                   <span class="step-num">1</span>
                   <span class="step-text">
                     <strong>Publique a vaga</strong>
@@ -280,7 +293,7 @@
                   <span class="step-num">3</span>
                   <span class="step-text">
                     <strong>Compare e contrate</strong>
-                    <span>Veja o total de propostas, o menor e o maior valor e o prazo médio. Aceite, faça uma contraproposta ou chame no chat.</span>
+                    <span>Veja o menor e o maior valor e o prazo médio. Aceite, faça uma contraproposta ou chame no chat.</span>
                   </span>
                 </button>
               </li>
@@ -289,16 +302,36 @@
                   <span class="step-num">4</span>
                   <span class="step-text">
                     <strong>Acompanhe a entrega</strong>
-                    <span>Com o contrato fechado, as entregas chegam pelo chat. Revise os arquivos e aprove ou peça revisão; no fim, as duas partes se avaliam.</span>
+                    <span>As entregas chegam pelo chat do contrato. Revise os arquivos e aprove ou peça revisão; no fim, as duas partes se avaliam.</span>
                   </span>
                 </button>
               </li>
             </ol>
-            <div class="scene-progress" aria-hidden="true"><span data-demo-progress></span></div>
-            <p class="scene-hint" data-scene-hint aria-hidden="true">Continue rolando</p>
+            <div class="demo-controls">
+              <div class="scene-progress" aria-hidden="true"><span data-demo-progress></span></div>
+              <button type="button" class="demo-toggle" data-demo-toggle>Pausar</button>
+            </div>
+          </div>
+
+          <div class="demo-stage">
+            <div class="phone demo-phone" aria-hidden="true">
+              <div class="phone-screen">
+                <img class="demo-screen is-active" src="/assets/screens/phone-create-job-sm.webp" alt="" width="585" height="1266" loading="lazy" decoding="async">
+                <img class="demo-screen" src="/assets/screens/phone-apply-sm.webp" alt="" width="585" height="1266" loading="lazy" decoding="async">
+                <img class="demo-screen" src="/assets/screens/phone-proposals-sm.webp" alt="" width="585" height="1266" loading="lazy" decoding="async">
+                <img class="demo-screen" src="/assets/screens/phone-chat-sm.webp" alt="" width="585" height="1266" loading="lazy" decoding="async">
+                <span class="focus-ring" data-ring></span>
+              </div>
+            </div>
+            <figure class="zoom-card">
+              <div class="zoom-view" data-zoom role="img" aria-label="">
+                <span class="zoom-layer is-active"></span>
+                <span class="zoom-layer"></span>
+              </div>
+              <figcaption class="focus-note" data-note></figcaption>
+            </figure>
           </div>
         </div>
-      </div>
       </div>
     </section>
 
@@ -443,6 +476,14 @@
             <p>Uma plataforma que conecta clientes a freelancers. Quem contrata publica a vaga e recebe propostas; quem trabalha encontra projetos, envia propostas e entrega pelo chat do contrato, com marcos de entrega e avaliação das duas partes no final. Funciona no Android, no Windows e no navegador.</p>
           </details>
           <details>
+            <summary>O Trabalhei cobra comissão sobre o projeto?</summary>
+            <p>Não. O valor combinado entre cliente e freelancer é pago diretamente entre os dois, sem desconto de porcentagem pela plataforma. O Trabalhei se mantém com o plano Pro para freelancers e com o destaque de vagas, ambos opcionais.</p>
+          </details>
+          <details>
+            <summary>Preciso criar conta para ver as vagas?</summary>
+            <p>Não. Em trabalhei.site/app você vê o mural de vagas abertas, os detalhes de cada vaga e os perfis públicos sem cadastro. A conta é pedida só para enviar propostas, publicar vagas, conversar ou acompanhar contratos.</p>
+          </details>
+          <details>
             <summary>O Trabalhei é gratuito?</summary>
             <p>O cadastro e o uso são gratuitos. Freelancers enviam até 5 propostas por mês no plano grátis; o Pro custa R$ 29,90 por mês e libera propostas ilimitadas, selo PRO e prioridade na busca. Clientes podem destacar uma vaga por 7 dias por R$ 19,90. Pro e destaque são pagos por Pix ou cartão.</p>
           </details>
@@ -481,10 +522,10 @@
     <section class="final-cta" aria-labelledby="final-title">
       <div class="container final-inner reveal">
         <h2 id="final-title">Publique sua primeira vaga ou proposta</h2>
-        <p>Crie a conta pelo navegador e instale o app quando quiser.</p>
+        <p>Explore as vagas sem cadastro, crie a conta pelo navegador e instale o app quando quiser.</p>
         <div class="cta-row">
           <a class="btn btn-primary btn-lg" href="/app/#/register">Criar conta grátis</a>
-          <a class="btn btn-quiet btn-lg" href="#downloads">Ver downloads</a>
+          <a class="btn btn-quiet btn-lg" href="/app/#/jobs">Ver vagas abertas</a>
         </div>
       </div>
     </section>

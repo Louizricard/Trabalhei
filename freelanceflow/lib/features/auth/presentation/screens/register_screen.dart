@@ -10,12 +10,16 @@ import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/password_policy.dart';
+import '../guest_access.dart';
 import '../providers/auth_state_provider.dart';
 import '../providers/pending_confirmation_provider.dart';
 import '../widgets/pending_confirmation_banner.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
-  const RegisterScreen({super.key});
+  /// Tela de onde o visitante veio; o cadastro volta para ela.
+  final String? from;
+
+  const RegisterScreen({super.key, this.from});
 
   @override
   ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
@@ -51,7 +55,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             role: _selectedRole,
           );
       if (mounted) {
-        context.go('/jobs');
+        context.go(safeReturnPath(widget.from));
       }
     } on EmailConfirmationPendingException catch (e) {
       ref.read(pendingConfirmationProvider.notifier).set(e.email);
@@ -79,7 +83,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
+          tooltip: 'Voltar',
+          // Aberto direto por um link (ex.: homepage), volta para o mural.
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/jobs'),
         ),
       ),
       body: SafeArea(

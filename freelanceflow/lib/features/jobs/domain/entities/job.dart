@@ -64,7 +64,11 @@ class Job {
       clientRating = (p['rating'] as num?)?.toDouble() ?? 0.0;
     }
 
-    if (json['proposals'] != null &&
+    // Campo calculado no banco (conta todas as propostas, não só as visíveis
+    // pela RLS); o embed `proposals(count)` fica como alternativa.
+    if (json['proposals_count'] is num) {
+      proposalsCount = (json['proposals_count'] as num).toInt();
+    } else if (json['proposals'] != null &&
         json['proposals'] is List &&
         (json['proposals'] as List).isNotEmpty) {
       final first = (json['proposals'] as List).first;

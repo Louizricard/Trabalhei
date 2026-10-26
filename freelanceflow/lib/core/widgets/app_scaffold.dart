@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/domain/entities/user_profile.dart';
+import '../../features/auth/presentation/guest_access.dart';
 import '../../features/auth/presentation/providers/auth_state_provider.dart';
 import '../theme/app_colors.dart';
 
@@ -10,10 +11,31 @@ class AppScaffold extends ConsumerWidget {
 
   const AppScaffold({super.key, required this.navigationShell});
 
+  /// O que cada aba faz, para o aviso a visitantes (a aba de vagas é livre).
+  static const _guestActions = [
+    '',
+    'ver suas mensagens',
+    'acompanhar seus projetos no painel',
+    'montar seu perfil',
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authProvider).value;
+    final auth = ref.watch(authProvider);
+    final user = auth.valueOrNull;
     final isClient = user?.role == UserRole.client;
+    final isGuest = !auth.isLoading && user == null;
+
+    void selectTab(int index) {
+      if (isGuest && index != 0) {
+        requireAccount(context, ref, action: _guestActions[index]);
+        return;
+      }
+      navigationShell.goBranch(
+        index,
+        initialLocation: index == navigationShell.currentIndex,
+      );
+    }
 
     final navItems = [
       const NavigationDestination(
@@ -47,10 +69,7 @@ class AppScaffold extends ConsumerWidget {
               children: [
                 NavigationRail(
                   selectedIndex: navigationShell.currentIndex,
-                  onDestinationSelected: (index) => navigationShell.goBranch(
-                    index,
-                    initialLocation: index == navigationShell.currentIndex,
-                  ),
+                  onDestinationSelected: selectTab,
                   backgroundColor: AppColors.surfaceDark,
                   selectedIconTheme: const IconThemeData(
                     color: AppColors.primary,
@@ -93,6 +112,7 @@ class AppScaffold extends ConsumerWidget {
                       ],
                     ),
                   ),
+                  trailing: isGuest ? const _GuestRailActions() : null,
                   labelType: NavigationRailLabelType.all,
                   destinations: navItems
                       .map(
@@ -120,16 +140,40 @@ class AppScaffold extends ConsumerWidget {
           body: navigationShell,
           bottomNavigationBar: NavigationBar(
             selectedIndex: navigationShell.currentIndex,
-            onDestinationSelected: (index) => navigationShell.goBranch(
-              index,
-              initialLocation: index == navigationShell.currentIndex,
-            ),
+            onDestinationSelected: selectTab,
             backgroundColor: AppColors.surfaceDark,
             indicatorColor: AppColors.primaryContainer,
             destinations: navItems,
           ),
         );
       },
+    );
+  }
+}
+
+/// Entrar e criar conta no menu lateral, para visitantes.
+class _GuestRailActions extends StatelessWidget {
+  const _GuestRailActions();
+
+  @override
+  Widget build(BuildContext context) {
+    final from = GoRouter.of(context).state.uri.toString();
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: Column(
+        children: [
+          FilledButton(
+            onPressed: () =>
+                context.go(authRouteReturningTo('/register', from)),
+            child: const Text('Criar conta'),
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: () => context.go(authRouteReturningTo('/login', from)),
+            child: const Text('Entrar'),
+          ),
+        ],
+      ),
     );
   }
 }

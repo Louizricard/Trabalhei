@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../data/session_policy.dart';
 import '../email_link.dart';
 import '../providers/auth_state_provider.dart';
 import '../providers/pending_confirmation_provider.dart';
@@ -47,7 +48,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       return;
     }
     // Garantir exibição da splash por pelo menos 1.8 segundos para visualização da marca
-    _timer = Timer(const Duration(milliseconds: 1800), () {
+    final returning = SessionPolicy.hasSignedInBefore();
+    _timer = Timer(const Duration(milliseconds: 1800), () async {
       if (!mounted) return;
       // valueOrNull: em estado de erro, `.value` lançava e a splash travava.
       if (ref.read(authProvider).valueOrNull != null) {
@@ -58,7 +60,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           '/login?notice=${Uri.encodeComponent('E-mail confirmado! Agora é só entrar com seu e-mail e senha.')}',
         );
       } else {
-        context.go('/login');
+        // Primeira visita: explora o mural sem conta; quem já entrou, faz login.
+        final hasSignedIn = await returning;
+        if (mounted) context.go(hasSignedIn ? '/login' : '/jobs');
       }
     });
   }

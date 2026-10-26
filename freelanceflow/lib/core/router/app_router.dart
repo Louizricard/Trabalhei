@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_client.dart';
 import '../../features/auth/domain/entities/user_profile.dart';
+import '../../features/auth/presentation/guest_access.dart';
 import '../../features/auth/presentation/providers/auth_state_provider.dart';
 import '../../features/auth/presentation/providers/password_recovery_provider.dart';
 import '../../features/auth/presentation/providers/pending_confirmation_provider.dart';
@@ -118,12 +119,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return '/reset-password';
       }
 
-      if (!isLoggedIn && !isAuthRoute) {
-        return '/login';
+      // Visitantes exploram o mural, as vagas e os perfis; as demais telas
+      // pedem login e voltam para o mesmo lugar depois.
+      if (!isLoggedIn && !isAuthRoute && !isPublicRoute(loc)) {
+        return authRouteReturningTo('/login', state.uri.toString());
       }
 
       if (isLoggedIn && (loc == '/login' || loc == '/register')) {
-        return '/jobs';
+        return safeReturnPath(state.uri.queryParameters['from']);
       }
 
       return null;
@@ -135,12 +138,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/login',
-        builder: (context, state) =>
-            LoginScreen(notice: state.uri.queryParameters['notice']),
+        builder: (context, state) => LoginScreen(
+          notice: state.uri.queryParameters['notice'],
+          from: state.uri.queryParameters['from'],
+        ),
       ),
       GoRoute(
         path: '/register',
-        builder: (context, state) => const RegisterScreen(),
+        builder: (context, state) =>
+            RegisterScreen(from: state.uri.queryParameters['from']),
       ),
       GoRoute(
         path: '/confirm-email',

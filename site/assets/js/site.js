@@ -1,7 +1,7 @@
-// Homepage do Trabalhei: abertura, profundidade no cursor, demonstração guiada
-// pela rolagem, transformação entre plataformas, entrada das seções e links de
-// download. Sem dependências. Com "reduzir movimento", nada é animado nem
-// fixado e as etapas passam a ser escolhidas por botões.
+// Homepage do Trabalhei: abertura, profundidade no cursor, demonstração com
+// recortes ampliados, transformação entre plataformas, entrada das seções e
+// links de download. Sem dependências. Com "reduzir movimento", nada é animado
+// nem fixado e as etapas passam a ser escolhidas por botões.
 
 const REPO = 'Louizricard/Trabalhei';
 const root = document.documentElement;
@@ -136,100 +136,161 @@ function scrollToProgress(track, p) {
   scrollTo({ top: top + total * p, behavior: reduced ? 'auto' : 'smooth' });
 }
 
-// Áreas de cada print (em %) que o anel destaca, na ordem de cada etapa.
-// Medidas sobre os prints em site/assets/screens; ao trocar um print, confira.
-const DEMO_STEPS = {
-  phone: [
-    [{ x: 9.5, y: 36.5, w: 81, h: 41, note: 'Título, categoria e descrição do projeto' }],
-    [
-      { x: 4.6, y: 8.6, w: 90.8, h: 8.4, note: 'Propostas grátis restantes no mês' },
-      { x: 4.6, y: 37.6, w: 90.8, h: 52.6, note: 'Valor, prazo e carta de apresentação' },
+/* ---------- Demonstração: etapas que avançam sozinhas ---------- */
+// Áreas de cada print do celular (em %) mostradas no recorte ampliado e
+// destacadas pelo anel, na ordem de cada etapa. Medidas sobre os prints em
+// site/assets/screens (585 × 1266); ao trocar um print, confira.
+const SHOT = { w: 585, h: 1266 };
+const DEMO_STEPS = [
+  {
+    img: '/assets/screens/phone-create-job-sm.webp',
+    targets: [
+      { x: 5.1, y: 30.2, w: 89.8, h: 26.7, note: 'Título e categoria do projeto' },
+      { x: 5.1, y: 58.1, w: 89.8, h: 20.9, note: 'Descrição do que precisa ser feito' },
     ],
-    [
-      { x: 3.8, y: 8.2, w: 92.4, h: 11.8, note: 'Total, menor e maior proposta e prazo médio' },
-      { x: 7.6, y: 52.9, w: 85.2, h: 5.6, note: 'Aceitar, negociar ou conversar no chat' },
+  },
+  {
+    img: '/assets/screens/phone-apply-sm.webp',
+    targets: [
+      { x: 5.1, y: 8.9, w: 89.8, h: 26.8, note: 'Propostas grátis restantes no mês e a vaga escolhida' },
+      { x: 5.1, y: 38.1, w: 89.8, h: 20.2, note: 'Valor total e prazo da proposta' },
+      { x: 5.1, y: 60.7, w: 89.8, h: 29.1, note: 'Carta de apresentação para o cliente' },
     ],
-    [
-      { x: 3.6, y: 7.6, w: 92.8, h: 10.1, note: 'Aviso de entrega recebida no topo do chat' },
-      { x: 5.6, y: 61.1, w: 88.8, h: 29.7, note: 'A entrega, com o botão para revisar os arquivos e aprovar' },
+  },
+  {
+    img: '/assets/screens/phone-proposals-sm.webp',
+    targets: [
+      { x: 4.1, y: 8.5, w: 91.8, h: 11.1, note: 'Total, menor e maior proposta e prazo médio' },
+      { x: 4.1, y: 21.6, w: 91.8, h: 38.5, note: 'Cada proposta, com Aceitar, Negociar e Chat' },
     ],
-  ],
-  desk: [
-    [{ x: 24.4, y: 38.6, w: 51.2, h: 43, note: 'Título, categoria e descrição do projeto' }],
-    [
-      { x: 23.8, y: 9.1, w: 52.4, h: 8.6, note: 'Propostas grátis restantes no mês' },
-      { x: 23.8, y: 34.2, w: 52.4, h: 53, note: 'Valor, prazo e carta de apresentação' },
+  },
+  {
+    img: '/assets/screens/phone-chat-sm.webp',
+    targets: [
+      { x: 4.1, y: 8.1, w: 91.8, h: 9.2, note: 'Aviso de entrega recebida no topo do chat' },
+      { x: 4.1, y: 31.4, w: 91.8, h: 27.8, note: 'Prazos e pagamento combinados na conversa' },
+      { x: 6.2, y: 61.5, w: 87.7, h: 28.9, note: 'A entrega, com o botão para revisar os arquivos e aprovar' },
     ],
-    [
-      { x: 0.8, y: 8.6, w: 98.4, h: 12.6, note: 'Total, menor e maior proposta e prazo médio' },
-      { x: 2.2, y: 51.2, w: 95.6, h: 5.2, note: 'Aceitar, negociar ou conversar no chat' },
-    ],
-    [
-      { x: 19.6, y: 8.1, w: 60.8, h: 8.5, note: 'Aviso de entrega recebida no topo do chat' },
-      { x: 31.6, y: 60.5, w: 36.7, h: 24.5, note: 'A entrega, com o botão para revisar os arquivos e aprovar' },
-    ],
-  ],
-};
-const STEP_COUNT = DEMO_STEPS.phone.length;
+  },
+];
+const HOLD_MS = 3800;
 
 function setupDemo() {
   const section = document.querySelector('[data-demo]');
-  const track = section.querySelector('[data-track]');
-  const devices = [...section.querySelectorAll('.laptop-screen, .phone-screen')].map((el) => ({
-    screens: [...el.querySelectorAll('.demo-screen')],
-    ring: el.querySelector('[data-ring]'),
-  }));
+  const screens = [...section.querySelectorAll('.demo-screen')];
+  const ring = section.querySelector('[data-ring]');
+  const view = section.querySelector('[data-zoom]');
+  const layers = [...view.querySelectorAll('.zoom-layer')];
   const steps = [...section.querySelectorAll('.demo-step')];
+  const buttons = [...section.querySelectorAll('[data-step-button]')];
   const note = section.querySelector('[data-note]');
   const bar = section.querySelector('[data-demo-progress]');
-  const hint = section.querySelector('[data-scene-hint]');
-  let shown = { step: -1, target: -1, mode: '' };
+  const toggle = section.querySelector('[data-demo-toggle]');
+  let cur = { step: -1, target: -1 };
+  let front = 0;
+  let timer = 0;
+  let playing = !reduced;
+  let visible = false;
+  let hovering = false;
+
+  // Posiciona o print na camada para mostrar só a área `t`, sem ampliar além
+  // do tamanho original. Retorna a altura que o recorte ocupa.
+  const paint = (layer, img, t) => {
+    const width = view.clientWidth;
+    const bgW = (width * 100) / t.w;
+    const bgH = (bgW * SHOT.h) / SHOT.w;
+    layer.style.backgroundImage = `url('${img}')`;
+    layer.style.backgroundSize = `${bgW.toFixed(1)}px auto`;
+    layer.style.backgroundPosition = `${(-t.x / 100 * bgW).toFixed(1)}px ${(-t.y / 100 * bgH).toFixed(1)}px`;
+    return (bgH * t.h) / 100;
+  };
+
+  const fraction = (step, target, done) =>
+    (step + (target + (done ? 1 : 0)) / DEMO_STEPS[step].targets.length) / DEMO_STEPS.length;
+
+  const running = () => playing && visible && !hovering && !document.hidden;
+
+  // A barra enche durante a etapa atual; pausada, volta ao início dela.
+  const schedule = () => {
+    clearTimeout(timer);
+    const { step, target } = cur;
+    bar.style.transition = 'none';
+    bar.style.setProperty('--p', fraction(step, target, false).toFixed(4));
+    if (!running()) return;
+    bar.getBoundingClientRect();
+    bar.style.transition = `transform ${HOLD_MS}ms linear`;
+    bar.style.setProperty('--p', fraction(step, target, true).toFixed(4));
+    timer = setTimeout(next, HOLD_MS);
+  };
 
   const show = (step, target) => {
-    const m = mode();
-    if (step === shown.step && target === shown.target && m === shown.mode) return;
-    if (step !== shown.step) {
-      for (const { screens } of devices) {
-        screens.forEach((img, i) => {
-          img.classList.toggle('is-leaving', i === shown.step);
-          img.classList.toggle('is-active', i === step);
-        });
-      }
+    const t = DEMO_STEPS[step].targets[target];
+    if (step !== cur.step) {
+      screens.forEach((img, i) => {
+        img.classList.toggle('is-leaving', i === cur.step);
+        img.classList.toggle('is-active', i === step);
+      });
       steps.forEach((li, i) => li.classList.toggle('is-active', i === step));
+      buttons.forEach((b, i) => (i === step ? b.setAttribute('aria-current', 'step') : b.removeAttribute('aria-current')));
+      // Já carrega o print da próxima etapa.
+      new Image().src = DEMO_STEPS[(step + 1) % DEMO_STEPS.length].img;
     }
-    const t = DEMO_STEPS[m][step][target];
-    for (const { ring } of devices) {
-      for (const k of ['x', 'y', 'w', 'h']) ring.style.setProperty(`--${k}`, t[k]);
-    }
+    for (const k of ['x', 'y', 'w', 'h']) ring.style.setProperty(`--${k}`, t[k]);
+    front = 1 - front;
+    const height = paint(layers[front], DEMO_STEPS[step].img, t);
+    layers.forEach((l, i) => l.classList.toggle('is-active', i === front));
+    view.style.height = `${Math.round(height + 4)}px`;
+    view.setAttribute('aria-label', `Detalhe da tela: ${t.note}`);
     note.textContent = t.note;
-    shown = { step, target, mode: m };
+    cur = { step, target };
+    schedule();
   };
 
-  const update = (p) => {
-    const f = Math.min(p * STEP_COUNT, STEP_COUNT - 0.001);
-    const step = Math.floor(f);
-    const count = DEMO_STEPS.phone[step].length;
-    show(step, Math.min(count - 1, Math.floor((f - step) * count)));
-    bar.style.setProperty('--p', p.toFixed(4));
-    hint.classList.toggle('is-hidden', p > 0.9);
+  const next = () => {
+    const { step, target } = cur;
+    if (target + 1 < DEMO_STEPS[step].targets.length) show(step, target + 1);
+    else show((step + 1) % DEMO_STEPS.length, 0);
   };
 
-  section.querySelectorAll('[data-step-button]').forEach((btn) => {
+  buttons.forEach((btn) => {
     btn.addEventListener('click', () => {
       const i = Number(btn.dataset.stepButton);
-      if (reduced) {
-        const count = DEMO_STEPS.phone[i].length;
-        show(i, shown.step === i ? (shown.target + 1) % count : 0);
-        bar.style.setProperty('--p', ((i + 1) / STEP_COUNT).toFixed(3));
+      // Sem animação, tocar de novo na mesma etapa mostra o próximo detalhe.
+      if (i === cur.step && !playing) {
+        show(i, (cur.target + 1) % DEMO_STEPS[i].targets.length);
       } else {
-        scrollToProgress(track, (i + 0.3) / STEP_COUNT);
+        show(i, 0);
       }
     });
   });
-  addEventListener('trabalhei:mode', () => show(Math.max(shown.step, 0), Math.max(shown.target, 0)));
+
+  toggle.addEventListener('click', () => {
+    playing = !playing;
+    toggle.textContent = playing ? 'Pausar' : 'Continuar';
+    schedule();
+  });
+
+  const grid = section.querySelector('.demo-grid');
+  if (finePointer) {
+    grid.addEventListener('pointerenter', () => { hovering = true; schedule(); });
+    grid.addEventListener('pointerleave', () => { hovering = false; schedule(); });
+  }
+  grid.addEventListener('focusin', () => { hovering = true; schedule(); });
+  grid.addEventListener('focusout', () => { hovering = false; schedule(); });
+  document.addEventListener('visibilitychange', schedule);
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => {
+      visible = entries.some((e) => e.isIntersecting);
+      schedule();
+    }, { threshold: 0.35 }).observe(grid);
+  }
+  addEventListener('resize', () => {
+    const { step, target } = cur;
+    const height = paint(layers[front], DEMO_STEPS[step].img, DEMO_STEPS[step].targets[target]);
+    view.style.height = `${Math.round(height + 4)}px`;
+  });
 
   show(0, 0);
-  return reduced ? null : { track, update };
 }
 
 function setupMorph() {
@@ -320,7 +381,7 @@ function setupMorph() {
 
 /** Atualiza as cenas com a rolagem suavizada, para não andar aos saltos. */
 function setupScenes() {
-  const scenes = [setupDemo(), setupMorph()].filter(Boolean).map((s) => ({ ...s, value: 0, target: 0 }));
+  const scenes = [setupMorph()].filter(Boolean).map((s) => ({ ...s, value: 0, target: 0 }));
   if (!scenes.length) return;
   let raf = 0;
   let lastTime = 0;
@@ -402,6 +463,7 @@ setupHeader();
 setupIntro();
 setupTilt();
 setupReveal();
+setupDemo();
 setupScenes();
 setupDownloads();
 // O <head> troca o modo quando a tela muda de proporção.
