@@ -137,39 +137,40 @@ function scrollToProgress(track, p) {
 }
 
 /* ---------- Demonstração guiada pela rolagem ---------- */
-// Áreas de cada print do celular (em %) mostradas no recorte ampliado e
-// destacadas pelo anel, na ordem de cada etapa. Medidas sobre os prints em
-// site/assets/screens (585 × 1266); ao trocar um print, confira.
+// Áreas de cada print (em %), na ordem de cada etapa. O recorte ampliado usa
+// sempre o print do celular (585 × 1266), cujo texto é grande o bastante para
+// ler; `desk` é a mesma área no print de computador (1280 × 800), destacada
+// pelo anel do notebook. Ao trocar um print em site/assets/screens, confira.
 const SHOT = { w: 585, h: 1266 };
 const DEMO_STEPS = [
   {
     img: '/assets/screens/phone-create-job-sm.webp',
     targets: [
-      { x: 5.1, y: 30.2, w: 89.8, h: 26.7, note: 'Título e categoria do projeto' },
-      { x: 5.1, y: 58.1, w: 89.8, h: 20.9, note: 'Descrição do que precisa ser feito' },
+      { x: 5.1, y: 30.2, w: 89.8, h: 26.7, note: 'Título e categoria do projeto', desk: { x: 24.4, y: 33.8, w: 51.2, h: 26.5 } },
+      { x: 5.1, y: 58.1, w: 89.8, h: 20.9, note: 'Descrição do que precisa ser feito', desk: { x: 24.4, y: 61.3, w: 51.2, h: 20 } },
     ],
   },
   {
     img: '/assets/screens/phone-apply-sm.webp',
     targets: [
-      { x: 5.1, y: 8.9, w: 89.8, h: 26.8, note: 'Propostas grátis restantes no mês e a vaga escolhida' },
-      { x: 5.1, y: 38.1, w: 89.8, h: 20.2, note: 'Valor total e prazo da proposta' },
-      { x: 5.1, y: 60.7, w: 89.8, h: 29.1, note: 'Carta de apresentação para o cliente' },
+      { x: 5.1, y: 8.9, w: 89.8, h: 26.8, note: 'Propostas grátis restantes no mês e a vaga escolhida', desk: { x: 23.8, y: 9, w: 52.4, h: 23.8 } },
+      { x: 5.1, y: 38.1, w: 89.8, h: 20.2, note: 'Valor total e prazo da proposta', desk: { x: 23.8, y: 34.3, w: 52.4, h: 19.7 } },
+      { x: 5.1, y: 60.7, w: 89.8, h: 29.1, note: 'Carta de apresentação para o cliente', desk: { x: 23.8, y: 55.8, w: 52.4, h: 31.5 } },
     ],
   },
   {
     img: '/assets/screens/phone-proposals-sm.webp',
     targets: [
-      { x: 4.1, y: 8.5, w: 91.8, h: 11.1, note: 'Total, menor e maior proposta e prazo médio' },
-      { x: 4.1, y: 21.6, w: 91.8, h: 38.5, note: 'Cada proposta, com Aceitar, Negociar e Chat' },
+      { x: 4.1, y: 8.5, w: 91.8, h: 11.1, note: 'Total, menor e maior proposta e prazo médio', desk: { x: 0.8, y: 8.6, w: 98.4, h: 12.6 } },
+      { x: 4.1, y: 21.6, w: 91.8, h: 38.5, note: 'Cada proposta, com Aceitar, Negociar e Chat', desk: { x: 1.1, y: 22.5, w: 97.8, h: 36 } },
     ],
   },
   {
     img: '/assets/screens/phone-chat-sm.webp',
     targets: [
-      { x: 4.1, y: 8.1, w: 91.8, h: 9.2, note: 'Aviso de entrega recebida no topo do chat' },
-      { x: 4.1, y: 31.4, w: 91.8, h: 27.8, note: 'Prazos e pagamento combinados na conversa' },
-      { x: 6.2, y: 61.5, w: 87.7, h: 28.9, note: 'A entrega, com o botão para revisar os arquivos e aprovar' },
+      { x: 4.1, y: 8.1, w: 91.8, h: 9.2, note: 'Aviso de entrega recebida no topo do chat', desk: { x: 19.7, y: 8, w: 60.6, h: 8.8 } },
+      { x: 4.1, y: 31.4, w: 91.8, h: 27.8, note: 'Prazos e pagamento combinados na conversa', desk: { x: 19.7, y: 28.5, w: 60.6, h: 30.5 } },
+      { x: 6.2, y: 61.5, w: 87.7, h: 28.9, note: 'A entrega, com o botão para revisar os arquivos e aprovar', desk: { x: 31.7, y: 60.5, w: 36.6, h: 24.5 } },
     ],
   },
 ];
@@ -180,12 +181,17 @@ const firstFrame = (step) => DEMO_FRAMES.findIndex((f) => f.step === step);
 function setupDemo() {
   const section = document.querySelector('[data-demo]');
   const track = section.querySelector('[data-track]');
-  const screens = [...section.querySelectorAll('.demo-screen')];
-  const ring = section.querySelector('[data-ring]');
+  // Notebook e celular: cada um com os próprios prints e anel.
+  const devices = [...section.querySelectorAll('.laptop-screen, .phone-screen')].map((el) => ({
+    screens: [...el.querySelectorAll('.demo-screen')],
+    ring: el.querySelector('[data-ring]'),
+    desk: el.classList.contains('laptop-screen'),
+  }));
   const card = section.querySelector('[data-zoom-card]');
   const view = section.querySelector('[data-zoom]');
   const layers = [...view.querySelectorAll('.zoom-layer')];
   const phone = section.querySelector('.demo-phone');
+  const laptop = section.querySelector('.demo-laptop');
   const stage = section.querySelector('.demo-stage');
   const steps = [...section.querySelectorAll('.demo-step')];
   const buttons = [...section.querySelectorAll('[data-step-button]')];
@@ -196,15 +202,19 @@ function setupDemo() {
   let cur = { step: -1, target: -1 };
   let front = 0;
 
-  // Tamanho do recorte: o maior que cabe ao lado do celular (ou na largura,
+  // Tamanho do recorte: o maior que cabe ao lado do aparelho (ou na largura,
   // no celular) sem passar da altura reservada, nunca além do print original.
+  // Ao lado do notebook, fica entre 300 e 400 px e o notebook usa o resto.
   const fit = (t) => {
+    const desk = mode() === 'desk' && laptop.offsetParent;
     const phoneSpace = phone.offsetParent ? phone.offsetWidth + 28 : 0;
-    const narrow = !phoneSpace;
-    const maxW = Math.min(stage.clientWidth - phoneSpace, narrow ? 560 : 460, (SHOT.w * t.w) / 100);
+    const narrow = !desk && !phoneSpace;
+    const maxW = desk
+      ? clamp(stage.clientWidth * 0.42, 300, 400)
+      : Math.min(stage.clientWidth - phoneSpace, narrow ? 560 : 460);
     const maxH = innerHeight * (narrow ? 0.4 : 0.6);
     const ratio = (SHOT.w * t.w) / (SHOT.h * t.h);
-    const width = Math.min(maxW, maxH * ratio);
+    const width = Math.min(maxW, (SHOT.w * t.w) / 100, maxH * ratio);
     return { width, height: width / ratio };
   };
 
@@ -228,16 +238,21 @@ function setupDemo() {
     if (step === cur.step && target === cur.target) return;
     const t = DEMO_STEPS[step].targets[target];
     if (step !== cur.step) {
-      screens.forEach((img, i) => {
-        img.classList.toggle('is-leaving', i === cur.step);
-        img.classList.toggle('is-active', i === step);
-      });
+      for (const { screens } of devices) {
+        screens.forEach((img, i) => {
+          img.classList.toggle('is-leaving', i === cur.step);
+          img.classList.toggle('is-active', i === step);
+        });
+      }
       steps.forEach((li, i) => li.classList.toggle('is-active', i === step));
       buttons.forEach((b, i) => (i === step ? b.setAttribute('aria-current', 'step') : b.removeAttribute('aria-current')));
       // Já carrega o print da próxima etapa.
       new Image().src = DEMO_STEPS[(step + 1) % DEMO_STEPS.length].img;
     }
-    for (const k of ['x', 'y', 'w', 'h']) ring.style.setProperty(`--${k}`, t[k]);
+    for (const { ring, desk } of devices) {
+      const area = desk ? t.desk : t;
+      for (const k of ['x', 'y', 'w', 'h']) ring.style.setProperty(`--${k}`, area[k]);
+    }
     front = 1 - front;
     paint(layers[front], DEMO_STEPS[step].img, t, layout(t));
     layers.forEach((l, i) => l.classList.toggle('is-active', i === front));
@@ -274,11 +289,14 @@ function setupDemo() {
     });
   });
 
-  addEventListener('resize', () => {
+  const relayout = () => {
     const { step, target } = cur;
     const t = DEMO_STEPS[step].targets[target];
     paint(layers[front], DEMO_STEPS[step].img, t, layout(t));
-  });
+  };
+  addEventListener('resize', relayout);
+  // O <head> troca entre notebook e celular quando a tela muda de proporção.
+  addEventListener('trabalhei:mode', relayout);
 
   show(0, 0);
   return reduced ? null : { track, update };

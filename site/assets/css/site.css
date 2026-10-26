@@ -303,6 +303,15 @@ p { margin: 0; }
 .demo-segments { display: none; }
 .demo-stage { display: flex; align-items: center; justify-content: center; gap: 28px; }
 .demo-phone { width: clamp(190px, 17vw, 236px); flex: none; }
+:root[data-mode='desk'] .demo-phone,
+:root[data-mode='phone'] .demo-laptop { display: none; }
+/* Notebook: ocupa o espaço que sobra; o recorte encosta na borda direita da
+   tela dele, um pouco por cima, como uma lupa puxada para fora. */
+:root[data-mode='desk'] .demo-grid { grid-template-columns: minmax(290px, 0.72fr) minmax(0, 1.6fr); gap: 40px; }
+:root[data-mode='desk'] .demo-stage { gap: 0; }
+.demo-laptop { flex: 1 1 auto; min-width: 0; }
+.demo-laptop .focus-ring { border-radius: 6px; }
+:root[data-mode='desk'] .zoom-card { z-index: 3; margin-left: clamp(-90px, -6vw, -40px); }
 .demo-screen { opacity: 0; transform: translateY(3%) scale(0.99); transition: opacity 0.55s ease, transform 0.75s var(--ease-out); }
 .demo-screen.is-active { opacity: 1; transform: none; }
 .demo-screen.is-leaving { opacity: 0; transform: translateY(-3%) scale(0.99); }
@@ -470,7 +479,6 @@ p { margin: 0; }
   .main-nav a { padding: 8px 9px; font-size: 0.88rem; }
   .download-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .download-grid .download-card:last-child { grid-column: 1 / -1; }
-  .demo-phone { display: none; }
 }
 
 @media (max-width: 920px) {
@@ -527,6 +535,13 @@ p { margin: 0; }
 
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .footer-brand { grid-column: 1 / -1; }
+}
+
+/* Telas largas e baixas (ex.: notebook 1366 × 768): só a etapa atual mostra a
+   descrição, para a lista inteira caber na cena presa. */
+@media (min-width: 921px) and (max-height: 820px) {
+  .demo-step:not(.is-active) .step-text > span { display: none; }
+  .step-button { padding: 12px 16px; }
 }
 
 /* Tablet em pé: o celular volta ao lado do recorte. */
