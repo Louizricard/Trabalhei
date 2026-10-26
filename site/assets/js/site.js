@@ -1,6 +1,6 @@
-// Homepage do Trabalhei: abertura, profundidade no cursor, demonstração com
-// recortes ampliados, transformação entre plataformas, entrada das seções e
-// links de download. Sem dependências. Com "reduzir movimento", nada é animado
+// Homepage do Trabalhei: abertura, profundidade no cursor, demonstração guiada
+// pela rolagem com recortes ampliados, transformação entre plataformas, entrada
+// das seções e links de download. Sem dependências. Com "reduzir movimento", nada é animado
 // nem fixado e as etapas passam a ser escolhidas por botões.
 
 const REPO = 'Louizricard/Trabalhei';
@@ -136,7 +136,7 @@ function scrollToProgress(track, p) {
   scrollTo({ top: top + total * p, behavior: reduced ? 'auto' : 'smooth' });
 }
 
-/* ---------- Demonstração: etapas que avançam sozinhas ---------- */
+/* ---------- Demonstração guiada pela rolagem ---------- */
 // Áreas de cada print do celular (em %) mostradas no recorte ampliado e
 // destacadas pelo anel, na ordem de cada etapa. Medidas sobre os prints em
 // site/assets/screens (585 × 1266); ao trocar um print, confira.
@@ -173,57 +173,59 @@ const DEMO_STEPS = [
     ],
   },
 ];
-const HOLD_MS = 3800;
+// Cada detalhe ocupa um trecho igual da rolagem, na ordem das etapas.
+const DEMO_FRAMES = DEMO_STEPS.flatMap((s, step) => s.targets.map((_, target) => ({ step, target })));
+const firstFrame = (step) => DEMO_FRAMES.findIndex((f) => f.step === step);
 
 function setupDemo() {
   const section = document.querySelector('[data-demo]');
+  const track = section.querySelector('[data-track]');
   const screens = [...section.querySelectorAll('.demo-screen')];
   const ring = section.querySelector('[data-ring]');
+  const card = section.querySelector('[data-zoom-card]');
   const view = section.querySelector('[data-zoom]');
   const layers = [...view.querySelectorAll('.zoom-layer')];
+  const phone = section.querySelector('.demo-phone');
+  const stage = section.querySelector('.demo-stage');
   const steps = [...section.querySelectorAll('.demo-step')];
   const buttons = [...section.querySelectorAll('[data-step-button]')];
+  const segments = [...section.querySelectorAll('[data-segment]')];
   const note = section.querySelector('[data-note]');
   const bar = section.querySelector('[data-demo-progress]');
-  const toggle = section.querySelector('[data-demo-toggle]');
+  const hint = section.querySelector('[data-scene-hint]');
   let cur = { step: -1, target: -1 };
   let front = 0;
-  let timer = 0;
-  let playing = !reduced;
-  let visible = false;
-  let hovering = false;
 
-  // Posiciona o print na camada para mostrar só a área `t`, sem ampliar além
-  // do tamanho original. Retorna a altura que o recorte ocupa.
-  const paint = (layer, img, t) => {
-    const width = view.clientWidth;
+  // Tamanho do recorte: o maior que cabe ao lado do celular (ou na largura,
+  // no celular) sem passar da altura reservada, nunca além do print original.
+  const fit = (t) => {
+    const phoneSpace = phone.offsetParent ? phone.offsetWidth + 28 : 0;
+    const narrow = !phoneSpace;
+    const maxW = Math.min(stage.clientWidth - phoneSpace, narrow ? 560 : 460, (SHOT.w * t.w) / 100);
+    const maxH = innerHeight * (narrow ? 0.4 : 0.6);
+    const ratio = (SHOT.w * t.w) / (SHOT.h * t.h);
+    const width = Math.min(maxW, maxH * ratio);
+    return { width, height: width / ratio };
+  };
+
+  // Posiciona o print na camada para mostrar só a área `t`.
+  const paint = (layer, img, t, width) => {
     const bgW = (width * 100) / t.w;
     const bgH = (bgW * SHOT.h) / SHOT.w;
     layer.style.backgroundImage = `url('${img}')`;
     layer.style.backgroundSize = `${bgW.toFixed(1)}px auto`;
     layer.style.backgroundPosition = `${(-t.x / 100 * bgW).toFixed(1)}px ${(-t.y / 100 * bgH).toFixed(1)}px`;
-    return (bgH * t.h) / 100;
   };
 
-  const fraction = (step, target, done) =>
-    (step + (target + (done ? 1 : 0)) / DEMO_STEPS[step].targets.length) / DEMO_STEPS.length;
-
-  const running = () => playing && visible && !hovering && !document.hidden;
-
-  // A barra enche durante a etapa atual; pausada, volta ao início dela.
-  const schedule = () => {
-    clearTimeout(timer);
-    const { step, target } = cur;
-    bar.style.transition = 'none';
-    bar.style.setProperty('--p', fraction(step, target, false).toFixed(4));
-    if (!running()) return;
-    bar.getBoundingClientRect();
-    bar.style.transition = `transform ${HOLD_MS}ms linear`;
-    bar.style.setProperty('--p', fraction(step, target, true).toFixed(4));
-    timer = setTimeout(next, HOLD_MS);
+  const layout = (t) => {
+    const { width, height } = fit(t);
+    card.style.width = `${Math.round(width + 4)}px`;
+    view.style.height = `${Math.round(height + 4)}px`;
+    return width;
   };
 
   const show = (step, target) => {
+    if (step === cur.step && target === cur.target) return;
     const t = DEMO_STEPS[step].targets[target];
     if (step !== cur.step) {
       screens.forEach((img, i) => {
@@ -237,60 +239,49 @@ function setupDemo() {
     }
     for (const k of ['x', 'y', 'w', 'h']) ring.style.setProperty(`--${k}`, t[k]);
     front = 1 - front;
-    const height = paint(layers[front], DEMO_STEPS[step].img, t);
+    paint(layers[front], DEMO_STEPS[step].img, t, layout(t));
     layers.forEach((l, i) => l.classList.toggle('is-active', i === front));
-    view.style.height = `${Math.round(height + 4)}px`;
     view.setAttribute('aria-label', `Detalhe da tela: ${t.note}`);
     note.textContent = t.note;
     cur = { step, target };
-    schedule();
   };
 
-  const next = () => {
-    const { step, target } = cur;
-    if (target + 1 < DEMO_STEPS[step].targets.length) show(step, target + 1);
-    else show((step + 1) % DEMO_STEPS.length, 0);
+  const update = (p) => {
+    const n = DEMO_FRAMES.length;
+    const { step, target } = DEMO_FRAMES[Math.min(n - 1, Math.floor(p * n))];
+    show(step, target);
+    bar.style.setProperty('--p', p.toFixed(4));
+    segments.forEach((seg, i) => {
+      const start = firstFrame(i);
+      const count = DEMO_STEPS[i].targets.length;
+      seg.style.setProperty('--p', clamp((p * n - start) / count).toFixed(4));
+    });
+    hint.classList.toggle('is-hidden', p > 0.9);
   };
 
   buttons.forEach((btn) => {
     btn.addEventListener('click', () => {
       const i = Number(btn.dataset.stepButton);
-      // Sem animação, tocar de novo na mesma etapa mostra o próximo detalhe.
-      if (i === cur.step && !playing) {
-        show(i, (cur.target + 1) % DEMO_STEPS[i].targets.length);
+      if (reduced) {
+        // Sem rolagem guiada: tocar de novo na etapa mostra o próximo detalhe.
+        const next = i === cur.step ? (cur.target + 1) % DEMO_STEPS[i].targets.length : 0;
+        show(i, next);
+        const done = (firstFrame(i) + next + 1) / DEMO_FRAMES.length;
+        bar.style.setProperty('--p', done.toFixed(3));
       } else {
-        show(i, 0);
+        scrollToProgress(track, (firstFrame(i) + 0.5) / DEMO_FRAMES.length);
       }
     });
   });
 
-  toggle.addEventListener('click', () => {
-    playing = !playing;
-    toggle.textContent = playing ? 'Pausar' : 'Continuar';
-    schedule();
-  });
-
-  const grid = section.querySelector('.demo-grid');
-  if (finePointer) {
-    grid.addEventListener('pointerenter', () => { hovering = true; schedule(); });
-    grid.addEventListener('pointerleave', () => { hovering = false; schedule(); });
-  }
-  grid.addEventListener('focusin', () => { hovering = true; schedule(); });
-  grid.addEventListener('focusout', () => { hovering = false; schedule(); });
-  document.addEventListener('visibilitychange', schedule);
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver((entries) => {
-      visible = entries.some((e) => e.isIntersecting);
-      schedule();
-    }, { threshold: 0.35 }).observe(grid);
-  }
   addEventListener('resize', () => {
     const { step, target } = cur;
-    const height = paint(layers[front], DEMO_STEPS[step].img, DEMO_STEPS[step].targets[target]);
-    view.style.height = `${Math.round(height + 4)}px`;
+    const t = DEMO_STEPS[step].targets[target];
+    paint(layers[front], DEMO_STEPS[step].img, t, layout(t));
   });
 
   show(0, 0);
+  return reduced ? null : { track, update };
 }
 
 function setupMorph() {
@@ -381,7 +372,7 @@ function setupMorph() {
 
 /** Atualiza as cenas com a rolagem suavizada, para não andar aos saltos. */
 function setupScenes() {
-  const scenes = [setupMorph()].filter(Boolean).map((s) => ({ ...s, value: 0, target: 0 }));
+  const scenes = [setupDemo(), setupMorph()].filter(Boolean).map((s) => ({ ...s, value: 0, target: 0 }));
   if (!scenes.length) return;
   let raf = 0;
   let lastTime = 0;
@@ -463,7 +454,6 @@ setupHeader();
 setupIntro();
 setupTilt();
 setupReveal();
-setupDemo();
 setupScenes();
 setupDownloads();
 // O <head> troca o modo quando a tela muda de proporção.
