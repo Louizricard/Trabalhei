@@ -82,11 +82,38 @@ próxima execução).
 
 ## 5. Asaas
 
-Pendente.
+**Situação:** ainda no **sandbox** (as faturas registradas apontam para `sandbox.asaas.com`).
+Preços, cupons e o Pix dentro do app estão prontos; ver [monetizacao.md](monetizacao.md).
 
-- No cadastro do webhook, preencha o e-mail de notificação. O Asaas avisa quando a fila de webhooks
-  é interrompida depois de falhas seguidas.
-- Antes de produção, troque `ASAAS_BASE_URL` e `ASAAS_API_KEY` para os valores de produção.
+### 5.1 Testar no sandbox antes de trocar
+
+1. No app (web ou Android), assine o Pro com Pix. O QR Code aparece dentro do app.
+2. No painel do sandbox do Asaas, abra a cobrança e use **Confirmar pagamento** (simulação).
+3. Em poucos segundos o app mostra "Pagamento confirmado" e o Pro fica ativo. Repita com o destaque
+   de projeto e com um cupom (Perfil › Moderação › Cupons).
+
+### 5.2 Trocar para produção (só você consegue: exige as suas contas)
+
+1. **Conta Asaas de produção** aprovada (documentos enviados) e com uma **chave Pix cadastrada**.
+   Sem chave Pix, o Asaas não gera o QR Code.
+2. Asaas (produção) › Integrações › **Chave de API**: gere a chave.
+3. Supabase › Edge Functions › **Secrets**:
+   - `ASAAS_API_KEY` = chave de produção;
+   - `ASAAS_BASE_URL` = `https://api.asaas.com/v3`;
+   - `ASAAS_WEBHOOK_TOKEN` = um token novo e forte (ex.: 40 caracteres aleatórios).
+4. Asaas (produção) › Integrações › **Webhooks**, novo webhook:
+   - URL: `https://wmfsjitjqltzbbgynwfb.supabase.co/functions/v1/asaas-webhook`
+   - Token de autenticação: o mesmo `ASAAS_WEBHOOK_TOKEN`
+   - **E-mail de notificação**: o seu (avisa se a fila parar depois de falhas seguidas)
+   - Fila de sincronização ativa, API v3
+   - Eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE`, `PAYMENT_REFUNDED`,
+     `PAYMENT_CHARGEBACK_REQUESTED`, `SUBSCRIPTION_INACTIVATED`, `SUBSCRIPTION_DELETED`
+5. Rode `supabase/scripts/asaas_trocar_para_producao.sql` (limpa os clientes e as assinaturas do
+   sandbox, que não existem na conta de produção).
+6. Faça uma compra real pequena, por exemplo o destaque com um cupom de 50% (R$ 5,00), e confira:
+   - o pagamento confirmado no app;
+   - a vaga no espaço patrocinado;
+   - o evento registrado em `billing_events`.
 
 ## 6. Termos de uso
 

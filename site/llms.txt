@@ -21,9 +21,13 @@
 
 ## Preços
 
-- Cadastro e uso gratuitos.
-- Freelancers: 5 propostas grátis por mês; Plano Pro por R$ 29,90/mês com propostas ilimitadas, selo PRO e prioridade na busca.
-- Clientes: destaque de vaga no topo do mural por 7 dias, R$ 19,90.
+- Cliente grátis: publicar projetos, receber propostas, conversar e acompanhar entregas.
+- Freelancer grátis: perfil, portfólio, 10 propostas por mês, chat e entregas.
+- Freelancer Pro (R$ 14,90/mês): 50 propostas por mês, modelos de proposta reutilizáveis, organização de clientes e projetos, estatísticas das propostas e arquivos de até 50 MB.
+- Destaque de projeto (R$ 9,90 por 7 dias): espaço identificado como patrocinado no topo do mural, com rodízio entre os destaques.
+- Pagar não dá prioridade na busca: a ordem considera compatibilidade, avaliações e trabalhos concluídos. O selo PRO indica só a assinatura.
+- Propostas para vagas canceladas, removidas ou sem resposta em 14 dias voltam ao saldo; limite de 15 propostas por 24 horas em todos os planos.
+- Pagamento por Pix dentro do app ou cartão; cupons de desconto valem para a primeira cobrança.
 - O Trabalhei não intermedia nem retém o pagamento dos projetos: o valor é combinado e pago diretamente entre cliente e freelancer.
 
 ## Plataformas
