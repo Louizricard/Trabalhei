@@ -110,7 +110,8 @@ class ProfileRemoteDataSource {
           .from('profiles')
           .select()
           .eq('role', 'freelancer')
-          .isFilter('deleted_at', null);
+          .isFilter('deleted_at', null)
+          .isFilter('suspended_at', null);
 
       if (query != null && query.trim().isNotEmpty) {
         final term = query.trim();

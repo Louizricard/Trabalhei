@@ -7,7 +7,9 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../../auth/domain/entities/user_profile.dart';
+import '../../../admin/presentation/providers/admin_provider.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
+import '../../../notifications/presentation/screens/notification_settings_screen.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../providers/profile_provider.dart';
@@ -318,6 +320,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     onTap: () => context.push('/plans'),
                   ),
                   ProfileSettingsTile(
+                    icon: Icons.notifications_outlined,
+                    title: 'Notificações',
+                    subtitle: 'E-mail e push neste navegador',
+                    onTap: () => context.push('/settings/notifications'),
+                  ),
+                  ProfileSettingsTile(
+                    icon: Icons.travel_explore_rounded,
+                    title: 'Alertas de vagas',
+                    subtitle: 'Avisos quando sair uma vaga do seu jeito',
+                    onTap: () => context.push('/alerts'),
+                  ),
+                  if (ref.watch(isAdminProvider).valueOrNull == true)
+                    ProfileSettingsTile(
+                      icon: Icons.admin_panel_settings_outlined,
+                      title: 'Moderação',
+                      subtitle: 'Denúncias, usuários e vagas',
+                      onTap: () => context.push('/admin'),
+                    ),
+                  ProfileSettingsTile(
                     icon: Icons.policy_outlined,
                     title: 'Termos de Uso e Privacidade',
                     onTap: () => context.push('/terms'),
@@ -326,9 +347,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     icon: Icons.logout_rounded,
                     title: 'Sair da conta',
                     trailing: const SizedBox.shrink(),
-                    onTap: () {
-                      ref.read(authProvider.notifier).signOut();
-                      context.go('/login');
+                    onTap: () async {
+                      // Este navegador para de receber os pushes desta conta.
+                      try {
+                        await ref
+                            .read(notificationPreferencesRepositoryProvider)
+                            .disablePushHere();
+                      } catch (_) {}
+                      await ref.read(authProvider.notifier).signOut();
+                      if (context.mounted) context.go('/login');
                     },
                   ),
                 ],
