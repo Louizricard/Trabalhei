@@ -82,20 +82,34 @@ próxima execução).
 
 ## 5. Asaas
 
-**Situação:** ainda no **sandbox** (as faturas registradas apontam para `sandbox.asaas.com`).
+**Situação:** em **produção** desde 27/10/2026 (`ASAAS_BASE_URL=https://api.asaas.com/v3`).
 Preços, cupons e o Pix dentro do app estão prontos; ver [monetizacao.md](monetizacao.md).
 
-### 5.1 Testar no sandbox antes de trocar
+Conferido em produção:
+- destaque de vaga pago por Pix com cupom (R$ 5,00, o piso do Asaas): pagamento `PAYMENT_RECEIVED`
+  registrado em `billing_events`, webhook respondendo 200, destaque `paid` e vaga no espaço
+  Patrocinada;
+- webhook sem o token responde 401.
+
+Ainda não conferido em produção: Pro mensal (assinatura recorrente), pagamento com cartão e estorno
+(`PAYMENT_REFUNDED`). Teste cada um uma vez antes de divulgar.
+
+### 5.1 Testar no sandbox (antes de qualquer mudança nas cobranças)
+
+Use o sandbox para validar mudanças nas funções sem cobrar de verdade: crie uma conta sandbox no
+Asaas, aponte `ASAAS_BASE_URL` para `https://api-sandbox.asaas.com/v3` num projeto de teste e rode:
 
 1. No app (web ou Android), assine o Pro com Pix. O QR Code aparece dentro do app.
 2. No painel do sandbox do Asaas, abra a cobrança e use **Confirmar pagamento** (simulação).
 3. Em poucos segundos o app mostra "Pagamento confirmado" e o Pro fica ativo. Repita com o destaque
    de projeto e com um cupom (Perfil › Moderação › Cupons).
 
-### 5.2 Trocar para produção (só você consegue: exige as suas contas)
+### 5.2 Trocar para produção (feito em 27/10/2026; registro do que foi preciso)
 
 1. **Conta Asaas de produção** aprovada (documentos enviados) e com uma **chave Pix cadastrada**.
-   Sem chave Pix, o Asaas não gera o QR Code.
+   Sem chave Pix, o Asaas não gera o QR Code. Para cadastrar a chave, primeiro registre o
+   navegador como **dispositivo confiável** (Pix › Minhas chaves › "cadastre este dispositivo"); sem
+   isso o botão "Cadastrar chave" fica desativado.
 2. Asaas (produção) › Integrações › **Chave de API**: gere a chave.
 3. Supabase › Edge Functions › **Secrets**:
    - `ASAAS_API_KEY` = chave de produção;
@@ -105,11 +119,16 @@ Preços, cupons e o Pix dentro do app estão prontos; ver [monetizacao.md](monet
    - URL: `https://wmfsjitjqltzbbgynwfb.supabase.co/functions/v1/asaas-webhook`
    - Token de autenticação: o mesmo `ASAAS_WEBHOOK_TOKEN`
    - **E-mail de notificação**: o seu (avisa se a fila parar depois de falhas seguidas)
-   - Fila de sincronização ativa, API v3
+   - Tipo de envio **Sequencial**, API v3
+   - **Fila de sincronização ativada**: o webhook apareceu como "Interrompido" logo depois de criado.
+     Edite o webhook, ligue "Fila de sincronização ativada" e salve. Com a fila parada nada é enviado,
+     e os eventos acumulados saem em sequência ao reativar. Se o token não bater com o
+     `ASAAS_WEBHOOK_TOKEN`, o endpoint responde 401 e o Asaas volta a pausar a fila.
    - Eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE`, `PAYMENT_REFUNDED`,
      `PAYMENT_CHARGEBACK_REQUESTED`, `SUBSCRIPTION_INACTIVATED`, `SUBSCRIPTION_DELETED`
 5. Rode `supabase/scripts/asaas_trocar_para_producao.sql` (limpa os clientes e as assinaturas do
-   sandbox, que não existem na conta de produção).
+   sandbox, que não existem na conta de produção). Rodado em 27/10/2026: removeu 3 clientes e
+   cancelou 3 assinaturas do sandbox.
 6. Faça uma compra real pequena, por exemplo o destaque com um cupom de 50% (R$ 5,00), e confira:
    - o pagamento confirmado no app;
    - a vaga no espaço patrocinado;
