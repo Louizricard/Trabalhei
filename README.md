@@ -75,10 +75,11 @@ As funções importam o código comum de `../_shared/common.ts`; o CLI empacota 
 por outro meio (painel, MCP), envie os arquivos com o mesmo layout (`<função>/index.ts` e
 `_shared/common.ts`, entrypoint `<função>/index.ts`) para o código publicado ser idêntico ao do repositório.
 
-No painel do Asaas, cadastre o webhook em `https://<ref>.functions.supabase.co/asaas-webhook`
-com o mesmo token de `ASAAS_WEBHOOK_TOKEN` e os eventos `PAYMENT_*` e `SUBSCRIPTION_*`.
-Os preços exibidos no app (`BillingConfig`) devem espelhar `PRO_PRICE` e `FEATURE_PRICE`.
-Comece pelo sandbox (`ASAAS_BASE_URL` padrão) e só troque para produção depois de testar o ciclo completo.
+No painel do Asaas, cadastre o webhook em `https://<ref>.supabase.co/functions/v1/asaas-webhook`
+com o mesmo token de `ASAAS_WEBHOOK_TOKEN`, envio sequencial e os eventos listados em `docs/producao.md` (item 5).
+Preços e limites ficam no banco (`billing_products` e `platform_settings`), ver `docs/monetizacao.md`.
+A produção usa `ASAAS_BASE_URL=https://api.asaas.com/v3`. Sem essa variável as funções usam o sandbox,
+útil para testes locais (o passo a passo da troca está em `docs/producao.md`).
 
 ## App web no Vercel
 
