@@ -81,6 +81,9 @@ Preços e limites ficam no banco (`billing_products` e `platform_settings`), ver
 A produção usa `ASAAS_BASE_URL=https://api.asaas.com/v3`. Sem essa variável as funções usam o sandbox,
 útil para testes locais (o passo a passo da troca está em `docs/producao.md`).
 
+O processamento transacional e a recuperação do webhook estão documentados em
+[docs/webhook-asaas.md](docs/webhook-asaas.md), incluindo publicação, rollback e testes.
+
 ## App web no Vercel
 
 O `vercel.json` chama `scripts/vercel-build.sh`, que baixa a versão fixada do Flutter e roda
