@@ -6,6 +6,10 @@ ao Asaas dentro dessa transação; as notificações usam o mecanismo já existe
 
 ## Garantias
 
+O estorno total de destaque avulso também é transacional e retira somente o
+período não consumido daquela compra, preservando outros pagamentos e cupons.
+Veja [estornos-destaque.md](estornos-destaque.md) para prazos, legado e rollback.
+
 - A PK de `billing_events` impede processar o mesmo evento duas vezes.
 - `billing_payment_receipts.payment_id` impede que CONFIRMED e RECEIVED do mesmo
   pagamento renovem/notifiquem a assinatura duas vezes.
