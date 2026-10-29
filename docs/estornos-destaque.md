@@ -1,5 +1,20 @@
 # Estorno total de destaque
 
+## Publicado em 29/10/2026
+
+- [PR #23](https://github.com/Louizricard/Trabalhei/pull/23) integrada após CI aprovado
+  (64 cenários financeiros, análise/testes Flutter, build Android e preview Web).
+- Migrations `20261029180258_feature_refund_receipts`,
+  `20261029180302_feature_refund_processing` e `20261029180307_feature_refund_routing`
+  aplicadas nesta ordem. Webhook v12 ACTIVE; endpoints de criação reabertos em v14
+  com o mesmo código protegido de checkout que já estava em produção.
+- Manutenção: 14:59–15:03, America/Sao_Paulo. Nenhuma configuração do Asaas alterada.
+- Fontes do webhook e cinco corpos de funções SQL conferidos contra o código validado.
+  Permissões, RLS e índice de revogação verificados; nenhum evento pending/failed.
+- Dois recibos de destaque existentes receberam metadados de período; os prazos
+  originais e os hashes de planos, vagas, compras, assinaturas e cupons ficaram iguais.
+  Não havia estornos antigos a reparar. Nenhuma cobrança ou estorno real foi emitido.
+
 O webhook correlaciona `PAYMENT_REFUNDED` ao `payment.id` de `job_featurings`,
 mesmo sem `payment.subscription` ou `externalReference`. O efeito é transacional
 com o recibo, o status da compra e a notificação; qualquer falha preserva a inbox
