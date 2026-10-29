@@ -71,6 +71,12 @@ só são executáveis pelo `service_role`. Os auxiliares ficam no schema não ex
 `billing_private`, sem acesso para `anon`/`authenticated`. Ver [webhook-asaas.md](webhook-asaas.md)
 para transações, deduplicação e recuperação de eventos pendentes.
 
+Os campos de intervalo e revogação do destaque continuam privados em
+`billing_payment_receipts`. `billing_private.apply_feature_refund` e
+`billing_private.remove_feature_period` também negam execução direta a
+`service_role`; são acionados apenas dentro da RPC do webhook (`SECURITY DEFINER`).
+Ver [estornos-destaque.md](estornos-destaque.md).
+
 Com `supabase start`, use o SQL Editor/`psql` simulando usuários:
 
 ```sql

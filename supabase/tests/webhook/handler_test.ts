@@ -38,10 +38,17 @@ Deno.test("webhook: recusa token inválido antes de acessar o banco", async () =
 Deno.test("webhook: rejeita corpo inválido e pagamento sem id", async () => {
   const f = fixture(() => Promise.resolve({ status: "processed" }));
   for (
-    const body of [null, [], { id: 1, event: "x" }, {
-      id: "e",
-      event: "PAYMENT_RECEIVED",
-    }]
+    const body of [
+      null,
+      [],
+      { id: 1, event: "x" },
+      {
+        id: "e",
+        event: "PAYMENT_RECEIVED",
+      },
+      { id: "r", event: "PAYMENT_REFUNDED" },
+      { id: "r", event: "PAYMENT_REFUNDED", payment: { id: "" } },
+    ]
   ) {
     assert.equal((await f.request(body)).status, 400);
   }

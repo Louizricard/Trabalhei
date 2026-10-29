@@ -31,7 +31,11 @@ function validEvent(body: unknown): body is Record<string, unknown> {
     typeof event.event !== "string" || !event.event.trim() ||
     event.event.length > 100
   ) return false;
-  if (["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"].includes(event.event)) {
+  if (
+    ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED", "PAYMENT_REFUNDED"].includes(
+      event.event,
+    )
+  ) {
     const payment = event.payment as Record<string, unknown> | undefined;
     return !!payment && typeof payment.id === "string" && !!payment.id.trim();
   }
