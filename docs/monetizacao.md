@@ -96,8 +96,9 @@ edita.
   tratar dados de cartão e conformidade PCI.
 - Edge Functions:
   - `asaas-create-subscription`: Pro;
-  - `asaas-feature-job`: destaque. Uma cobrança pendente da mesma vaga (24 h, mesma forma de
-    pagamento) é reaproveitada, sem cobrar duas vezes;
+  - `asaas-feature-job`: destaque. A cobrança pendente da mesma vaga é reaproveitada;
+    trocar Pix/cartão atualiza a mesma cobrança. Reservas no banco e referências estáveis
+    permitem recuperar falhas sem repetir a criação. Ver [checkout-asaas.md](checkout-asaas.md);
   - `asaas-webhook`: confirmações.
 
 ## Cupons

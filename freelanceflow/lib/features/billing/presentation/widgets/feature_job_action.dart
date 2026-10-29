@@ -46,7 +46,7 @@ Future<void> startFeatureJobFlow(
       context,
       result,
       successMessage: 'Sua vaga já está no espaço de vagas patrocinadas.',
-      isPaid: () => repo.isFeaturePaid(job.id),
+      isPaid: () => repo.isFeaturePaid(job.id, result.paymentId),
       onPaid: () async {
         ref.invalidate(jobDetailProvider(job.id));
         ref.invalidate(jobsListProvider);
