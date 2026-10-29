@@ -1,5 +1,28 @@
 # Checkout Asaas: concorrência e recuperação
 
+## Publicado em 29/10/2026
+
+A correção da [PR #22](https://github.com/Louizricard/Trabalhei/pull/22) está ativa:
+
+- Migrations `20261029173108_billing_checkout_reservations` e
+  `20261029173121_billing_checkout_effects`, aplicadas nesta ordem.
+- `asaas-create-subscription` e `asaas-feature-job`: versão **12**, ACTIVE,
+  `verify_jwt=true`, com fontes conferidas contra o código validado.
+- Janela de manutenção desta publicação: 14:27–14:31, America/Sao_Paulo.
+  O webhook v10 continuou ativo.
+- Índices únicos válidos; quatro tabelas com RLS e oito RPCs exclusivas de `service_role`.
+- Smoke test de reserva, preço, diário e finalização executado como `service_role`
+  dentro de transação revertida, sem deixar registros nem chamar o Asaas.
+- Endpoints: GET 405, POST sem usuário 401 e OPTIONS 200. RPC pública negada
+  com SQLSTATE 42501. Hashes de planos, vagas, assinaturas, destaques e cupons iguais.
+- Nenhuma cobrança real criada na verificação. Os avisos de segurança anteriores
+  permanecem; os quatro novos avisos INFO de RLS sem política são intencionais
+  para tabelas exclusivas do servidor.
+
+A primeira tentativa foi interrompida por erro `Invalid or expired requestState`
+do conector e o checkout anterior foi restaurado. Após reconexão confirmada pelo
+responsável, as migrations e os endpoints novos foram publicados com sucesso.
+
 ## Garantias e limites
 
 `asaas-create-subscription` e `asaas-feature-job` usam os módulos

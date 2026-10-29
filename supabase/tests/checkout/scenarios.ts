@@ -15,8 +15,8 @@ import {
 import { adapter } from "./adapter.ts";
 import { Provider } from "./provider.ts";
 
-export const reservations = "20261029162532_billing_checkout_reservations";
-export const effects = "20261029162534_billing_checkout_effects";
+export const reservations = "20261029173108_billing_checkout_reservations";
+export const effects = "20261029173121_billing_checkout_effects";
 const body = { billing_type: "PIX", cpf_cnpj: "00000000000" };
 
 export async function checkoutTests(t: Deno.TestContext, db: Database) {
