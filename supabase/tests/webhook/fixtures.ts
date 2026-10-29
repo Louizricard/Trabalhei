@@ -1,8 +1,8 @@
 import postgres from "postgres";
 import assert from "node:assert/strict";
 
-export const receiptsMigration = "20261029150428_asaas_webhook_receipts";
-export const processingMigration = "20261029150430_asaas_webhook_processing";
+export const receiptsMigration = "20261029154221_asaas_webhook_receipts";
+export const processingMigration = "20261029154230_asaas_webhook_processing";
 
 export function testDatabase() {
   const url = Deno.env.get("TEST_DATABASE_URL");

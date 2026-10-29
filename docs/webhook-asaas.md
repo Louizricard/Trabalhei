@@ -69,6 +69,27 @@ registrado e pode ser tentado outra vez. Não editar status/recibos à mão.
 4. Reativar a fila; conferir eventos/recibos e que reenvio de um pagamento
    confirmado não muda o benefício nem gera outra notificação.
 
+Alternativa quando o painel Asaas não estiver disponível: publicar temporariamente
+um handler que só responde HTTP 503 com `Retry-After`, sem ler/processar o payload,
+e confirmar a resposta antes de alterar o banco. Aguardar o limite de duração das
+instâncias antigas do plano vigente (150 s no Free) e conferir ausência de queries
+do webhook; então aplicar as migrations e publicar o handler definitivo. O Asaas
+mantém as entregas sujeitas a reenvio. Essa janela deve ser curta; não confundir
+manutenção do endpoint com desativação ou reativação da fila no painel.
+
+### Publicação de 29/10/2026
+
+- Migrations registradas em produção: `20261029154221_asaas_webhook_receipts` e
+  `20261029154230_asaas_webhook_processing`.
+- `asaas-webhook` v10 ativo, com código conferido contra esta versão do repositório.
+- A janela usou handler temporário 503 (v9), encerrado às 12:42 no horário de São
+  Paulo. O painel Asaas não foi alterado.
+- Verificados: GET 405, POST sem token 401, OPTIONS 200; replay de evento legado
+  retornando `duplicate=true`, sem reaplicar benefício.
+- Os 14 eventos antigos foram preservados e 3 recibos históricos preenchidos;
+  nenhum evento pending/failed na conferência. Planos, assinaturas e destaques
+  mantiveram os mesmos hashes antes/depois. Nenhuma cobrança real foi criada.
+
 Os dois rollbacks foram preparados para teste em banco descartável. Antes de
 tráfego novo, ambos podem desfazer o schema na ordem inversa. Depois de receber
 eventos novos, o rollback de schema **recusa apagar** inbox/recibos: usar apenas

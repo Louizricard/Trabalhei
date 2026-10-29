@@ -91,6 +91,10 @@ Conferido em produção:
   Patrocinada;
 - webhook sem o token responde 401.
 
+Em 29/10/2026, o webhook foi atualizado para a versão transacional (v10), com
+inbox durável e deduplicação por pagamento. Migrations, publicação e verificações
+estão registradas em [webhook-asaas.md](webhook-asaas.md#publicação-de-29102026).
+
 Ainda não conferido em produção: Pro mensal (assinatura recorrente), pagamento com cartão e estorno
 (`PAYMENT_REFUNDED`). Teste cada um uma vez antes de divulgar.
 
