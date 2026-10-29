@@ -3,6 +3,6 @@
     "postgres": "npm:postgres@3.4.7"
   },
   "tasks": {
-    "test:webhook": "deno test --frozen --allow-env --allow-read --allow-net tests/webhook/"
+    "test:webhook": "deno test --frozen --allow-env --allow-read --allow-net tests/webhook/ tests/deletion/handler_test.ts tests/deletion/dependencies_test.ts"
   }
 }
