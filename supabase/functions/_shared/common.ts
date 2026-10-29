@@ -63,7 +63,7 @@ export function adminClient(): SupabaseClient {
 }
 
 /** Resolve o usuário autenticado a partir do JWT da requisição. */
-export async function requireUser(req: Request) {
+export async function requireUser(req: Request, allowDeleting = false) {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) throw new HttpError(401, "Não autenticado.");
   const userClient = createClient(env("SUPABASE_URL"), env("SUPABASE_ANON_KEY"), {
@@ -72,7 +72,16 @@ export async function requireUser(req: Request) {
   });
   const { data, error } = await userClient.auth.getUser();
   if (error || !data.user) throw new HttpError(401, "Sessão inválida.");
+  const profile = await userClient.from('profiles').select('deleted_at').eq('id',data.user.id).maybeSingle();
+  if (profile.error) throw new HttpError(503,'Não foi possível validar a conta.');
+  if (!profile.data || (!allowDeleting && profile.data.deleted_at)) throw new HttpError(401,'Conta indisponível.');
   return data.user;
+}
+
+export class AsaasError extends HttpError {
+  constructor(public providerStatus: number) {
+    super(502,'Falha no provedor de pagamento. Tente novamente.',{cause:new Error(`Asaas HTTP ${providerStatus}`)});
+  }
 }
 
 /** Chamada à API do Asaas (sandbox por padrão; defina ASAAS_BASE_URL em produção). */
@@ -82,6 +91,7 @@ export async function asaas<T = Record<string, unknown>>(
 ): Promise<T> {
   const base = Deno.env.get("ASAAS_BASE_URL") ?? "https://api-sandbox.asaas.com/v3";
   const res = await fetch(`${base}${path}`, {
+    signal: AbortSignal.timeout(20_000),
     method: init.method ?? "GET",
     headers: {
       "Content-Type": "application/json",
@@ -91,14 +101,11 @@ export async function asaas<T = Record<string, unknown>>(
     body: init.body ? JSON.stringify(init.body) : undefined,
   });
   const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
   if (!res.ok) {
-    const detail = data?.errors?.[0]?.description ?? `HTTP ${res.status}`;
-    console.error("[asaas]", path, res.status, text);
-    throw new HttpError(502, `Falha no provedor de pagamento: ${detail}`, {
-      cause: new Error(`Asaas ${init.method ?? "GET"} ${path}: HTTP ${res.status} - ${detail}`),
-    });
+    console.error('[asaas]',res.status);
+    throw new AsaasError(res.status);
   }
+  const data = text ? JSON.parse(text) : {};
   return data as T;
 }
 

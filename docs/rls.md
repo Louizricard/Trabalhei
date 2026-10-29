@@ -77,6 +77,17 @@ Os campos de intervalo e revogação do destaque continuam privados em
 `service_role`; são acionados apenas dentro da RPC do webhook (`SECURITY DEFINER`).
 Ver [estornos-destaque.md](estornos-destaque.md).
 
+`account_deletion_requests` só admite acesso de `service_role`; as RPCs de
+início, manifesto, preparação, falha e conclusão também são exclusivas do servidor.
+`account_private.active_actor()` apenas responde se o usuário da sessão está ativo;
+os demais auxiliares privados negam execução direta até para `service_role`.
+Uma policy restritiva nas tabelas públicas existentes com RLS (exceto o próprio
+perfil e a fila privada) e em Storage impede acesso de contas em exclusão.
+Triggers bloqueiam mutações com JWT antigo, inclusive via SECURITY DEFINER.
+O perfil anonimizado só é visível ao próprio usuário e à contraparte contratual;
+currículos de contas fechadas não são legíveis. Novas tabelas precisam incluir
+essas proteções. Ver [exclusao-conta.md](exclusao-conta.md).
+
 Com `supabase start`, use o SQL Editor/`psql` simulando usuários:
 
 ```sql
