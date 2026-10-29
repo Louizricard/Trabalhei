@@ -57,6 +57,12 @@ uma URL assinada válida por 1 hora (`StorageService.resolveUrl` e o widget `Sto
 
 ## Testando as políticas
 
+`billing_payment_receipts` e a inbox `billing_events` são exclusivas do servidor.
+As RPCs `receive_asaas_billing_event(jsonb)` e `process_asaas_billing_event(text)`
+só são executáveis pelo `service_role`. Os auxiliares ficam no schema não exposto
+`billing_private`, sem acesso para `anon`/`authenticated`. Ver [webhook-asaas.md](webhook-asaas.md)
+para transações, deduplicação e recuperação de eventos pendentes.
+
 Com `supabase start`, use o SQL Editor/`psql` simulando usuários:
 
 ```sql

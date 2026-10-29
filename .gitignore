@@ -138,3 +138,6 @@ supabase/.env
 
 # Pacotes gerados por scripts/windows-installer/build.ps1
 /release/
+
+# Cache local do Supabase CLI
+/supabase/.temp/
