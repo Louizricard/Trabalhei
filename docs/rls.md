@@ -57,6 +57,14 @@ uma URL assinada válida por 1 hora (`StorageService.resolveUrl` e o widget `Sto
 
 ## Testando as políticas
 
+`billing_checkout_locks`, `billing_checkouts`, `billing_checkout_steps` e
+`billing_checkout_requests` têm RLS habilitada, sem políticas públicas e com privilégios
+apenas para `service_role`. Todas as RPCs de reserva, preço, vínculo e finalização do
+checkout são `SECURITY INVOKER`, com execução revogada de `PUBLIC`, `anon` e
+`authenticated`. `billing_private.lock_checkout` só é acessível ao servidor.
+O endpoint autentica o usuário e a reserva valida a propriedade da vaga.
+Ver [checkout-asaas.md](checkout-asaas.md) para concorrência e conciliação.
+
 `billing_payment_receipts` e a inbox `billing_events` são exclusivas do servidor.
 As RPCs `receive_asaas_billing_event(jsonb)` e `process_asaas_billing_event(text)`
 só são executáveis pelo `service_role`. Os auxiliares ficam no schema não exposto

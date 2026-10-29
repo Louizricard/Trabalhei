@@ -15,6 +15,7 @@ import {
 } from "./fixtures.ts";
 import { paymentTests } from "./payments.ts";
 import { recoveryTests } from "./recovery.ts";
+import { checkoutTests } from "../checkout/scenarios.ts";
 
 Deno.test("webhook: transações, recuperação, concorrência e permissões em PostgreSQL", async (t) => {
   const db = testDatabase();
@@ -115,6 +116,7 @@ Deno.test("webhook: transações, recuperação, concorrência e permissões em 
         await sqlFile(db, `migrations/${processingMigration}.sql`);
       },
     );
+    await checkoutTests(t, db);
   } finally {
     await db.end();
   }

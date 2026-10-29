@@ -27,6 +27,7 @@ class CheckoutResult {
   /// Cupom de 100%: o produto foi liberado sem cobrança.
   final bool granted;
   final double? amount;
+  final String? paymentId;
   final PixCharge? pix;
 
   /// Página segura do Asaas (cartão) ou fatura completa.
@@ -35,13 +36,33 @@ class CheckoutResult {
   const CheckoutResult({
     this.granted = false,
     this.amount,
+    this.paymentId,
     this.pix,
     this.invoiceUrl,
   });
 
+  factory CheckoutResult.fromPaymentResponse(
+    Map<String, dynamic> data, {
+    required bool requiresPix,
+  }) {
+    final result = CheckoutResult.fromJson(data);
+    if (!result.granted &&
+        requiresPix &&
+        (result.pix == null || result.pix!.payload.isEmpty)) {
+      throw Exception(
+        'Pix ainda indisponível. Retome esta cobrança em instantes.',
+      );
+    }
+    if (!result.granted && result.pix == null && result.invoiceUrl == null) {
+      throw Exception('Pagamento indisponível. Tente novamente.');
+    }
+    return result;
+  }
+
   factory CheckoutResult.fromJson(Map<String, dynamic> json) => CheckoutResult(
     granted: json['granted'] == true,
     amount: (json['amount'] as num?)?.toDouble(),
+    paymentId: json['payment_id'] as String?,
     pix: json['pix'] is Map
         ? PixCharge.fromJson(Map<String, dynamic>.from(json['pix'] as Map))
         : null,

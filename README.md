@@ -160,6 +160,8 @@ flutter test
 ```
 
 O CI (`.github/workflows/ci.yml`) roda os dois comandos a cada push e pull request.
+Também executa as suítes de [webhook](docs/webhook-asaas.md) e
+[checkout Asaas](docs/checkout-asaas.md) com PostgreSQL descartável.
 
 ## Convenções
 

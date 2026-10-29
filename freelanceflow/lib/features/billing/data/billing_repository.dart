@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 import '../domain/entities/billing.dart';
 import '../domain/entities/checkout.dart';
 
@@ -7,6 +8,7 @@ import '../domain/entities/checkout.dart';
 /// Asaas para cartão, e nunca toca em dados de cartão.
 class BillingRepository {
   final SupabaseClient _supabase;
+  final Map<String, String> _requestIds = {};
 
   BillingRepository(this._supabase);
 
@@ -59,41 +61,49 @@ class BillingRepository {
   }
 
   /// Destaque já confirmado para a vaga (webhook do Asaas)?
-  Future<bool> isFeaturePaid(String jobId) async {
+  Future<bool> isFeaturePaid(String jobId, String? paymentId) async {
+    if (paymentId == null) return false;
     final row = await _supabase
         .from('job_featurings')
         .select('id')
         .eq('job_id', jobId)
+        .eq('asaas_payment_id', paymentId)
         .eq('status', 'paid')
-        .gt(
-          'paid_at',
-          DateTime.now()
-              .subtract(const Duration(hours: 2))
-              .toUtc()
-              .toIso8601String(),
-        )
         .limit(1)
         .maybeSingle();
+    if (row != null) {
+      _requestIds.removeWhere((key, _) => key.contains(':$jobId:'));
+    }
     return row != null;
   }
 
   Future<void> cancelSubscription() async {
     await _supabase.functions.invoke('asaas-cancel-subscription');
+    _requestIds.removeWhere(
+      (key, _) => key.startsWith('asaas-create-subscription:'),
+    );
   }
 
   Future<CheckoutResult> _invoke(
     String function,
     Map<String, dynamic> body,
   ) async {
+    final scope =
+        '$function:${body['job_id'] ?? ''}:${body['billing_type']}:${body['coupon_code'] ?? ''}';
+    body['request_id'] = _requestIds.putIfAbsent(
+      scope,
+      () => const Uuid().v4(),
+    );
     final response = await _supabase.functions.invoke(function, body: body);
     final data = response.data;
     if (data is! Map) {
       throw Exception('Pagamento indisponível. Tente novamente.');
     }
-    final result = CheckoutResult.fromJson(Map<String, dynamic>.from(data));
-    if (!result.granted && result.pix == null && result.invoiceUrl == null) {
-      throw Exception('Pagamento indisponível. Tente novamente.');
-    }
+    final result = CheckoutResult.fromPaymentResponse(
+      Map<String, dynamic>.from(data),
+      requiresPix: body['billing_type'] == 'PIX',
+    );
+    if (result.granted) _requestIds.remove(scope);
     return result;
   }
 }
