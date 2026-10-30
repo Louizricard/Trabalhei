@@ -90,3 +90,35 @@ conta real em produção como teste.
 Referências: [Auth e dados do usuário](https://supabase.com/docs/guides/auth/managing-user-data),
 [Admin deleteUser](https://supabase.com/docs/reference/javascript/auth-admin-deleteuser),
 [implementação da exclusão e repetição no Auth](https://github.com/supabase/auth/blob/master/internal/api/admin.go).
+
+## Publicação verificada em 29/10/2026 (BRT)
+
+[PR #24](https://github.com/Louizricard/Trabalhei/pull/24) mergeada após CI de
+banco, análise estática, testes Flutter, APK debug e preview Web aprovados.
+Versões registradas no projeto `wmfsjitjqltzbbgynwfb`:
+
+| Migration | Versão UTC |
+| --- | --- |
+| account_deletion_state | 20261029213257 |
+| account_deletion_cleanup | 20261030020108 |
+| account_deletion_access | 20261030020119 |
+| account_deletion_storage | 20261030020131 |
+
+Funções ACTIVE e com `verify_jwt=true`: `delete-account` v10,
+`asaas-create-subscription` v18, `asaas-feature-job` v18 e
+`asaas-cancel-subscription` v11. Os arquivos publicados e os corpos das 12
+funções SQL coincidem com os fontes testados.
+
+A publicação foi retomada após falha de autenticação da integração: a primeira
+migration já estava aplicada; as funções anteriores foram restauradas antes da
+reconexão. Depois, houve nova manutenção, drenagem e aplicação das três restantes.
+Nenhum endpoint ficou em manutenção ao final.
+
+Verificados em produção: HTTP 401 sem sessão, OPTIONS 200, métodos bloqueados,
+permissões privadas, 33 triggers de conta ativa, 32 policies restritivas e dois
+guards de ciclo de vida. Uma sessão simulada por SQL manteve leitura do próprio
+perfil ativo e continuou sem acesso às RPCs de exclusão. Os hashes de perfis e
+estado financeiro ficaram inalterados durante a publicação. Não havia perfis
+excluídos, pedidos de exclusão nem currículos a sanear; nenhuma conta real foi
+apagada para testar. A suíte local foi repetida com os nomes remotos das migrations:
+80 cenários SQL e 13 testes HTTP/adapter aprovados.

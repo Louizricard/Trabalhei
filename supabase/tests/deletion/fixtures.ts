@@ -6,10 +6,10 @@ import {
 } from "../../functions/delete-account/workflow.ts";
 
 export const deletionMigrations = [
-  "20261029182207_account_deletion_state",
-  "20261029182209_account_deletion_cleanup",
-  "20261029182211_account_deletion_access",
-  "20261029182213_account_deletion_storage",
+  "20261029213257_account_deletion_state",
+  "20261030020108_account_deletion_cleanup",
+  "20261030020119_account_deletion_access",
+  "20261030020131_account_deletion_storage",
 ];
 const base = new URL("../../", import.meta.url);
 
