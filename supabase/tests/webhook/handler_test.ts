@@ -48,6 +48,12 @@ Deno.test("webhook: rejeita corpo inválido e pagamento sem id", async () => {
       },
       { id: "r", event: "PAYMENT_REFUNDED" },
       { id: "r", event: "PAYMENT_REFUNDED", payment: { id: "" } },
+      ...[
+        "PAYMENT_CHARGEBACK_REQUESTED",
+        "PAYMENT_CHARGEBACK_DISPUTE",
+        "PAYMENT_AWAITING_CHARGEBACK_REVERSAL",
+        "PAYMENT_UPDATED",
+      ].map((event) => ({ id: "r", event })),
     ]
   ) {
     assert.equal((await f.request(body)).status, 400);

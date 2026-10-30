@@ -32,7 +32,15 @@ function validEvent(body: unknown): body is Record<string, unknown> {
     event.event.length > 100
   ) return false;
   if (
-    ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED", "PAYMENT_REFUNDED"].includes(
+    [
+      "PAYMENT_CONFIRMED",
+      "PAYMENT_RECEIVED",
+      "PAYMENT_REFUNDED",
+      "PAYMENT_CHARGEBACK_REQUESTED",
+      "PAYMENT_CHARGEBACK_DISPUTE",
+      "PAYMENT_AWAITING_CHARGEBACK_REVERSAL",
+      "PAYMENT_UPDATED",
+    ].includes(
       event.event,
     )
   ) {

@@ -88,6 +88,12 @@ O perfil anonimizado só é visível ao próprio usuário e à contraparte contr
 currículos de contas fechadas não são legíveis. Novas tabelas precisam incluir
 essas proteções. Ver [exclusao-conta.md](exclusao-conta.md).
 
+`billing_pro_grants` e os vínculos/estados adicionais de `billing_payment_receipts`
+também são exclusivos do servidor. Não há policy nem privilégio para leitura ou
+escrita por clientes. O usuário consulta seu plano através do perfil, sem acesso
+ao ledger. Os auxiliares de reversão são privados e não executáveis diretamente.
+Ver [reversoes-cobranca.md](reversoes-cobranca.md).
+
 Com `supabase start`, use o SQL Editor/`psql` simulando usuários:
 
 ```sql
