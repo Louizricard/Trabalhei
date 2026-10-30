@@ -120,6 +120,7 @@ mesmo pagamento, chamadas concorrentes, compras da mesma vaga, vínculo tardio,
 falha em cada escrita crítica, interrupção da transação, histórico legado,
 permissões e aplicação/rollback das migrations.
 
-Esta correção trata consistência e recuperação do webhook. Não corrige a criação
-concorrente de checkouts nem muda a regra de estorno de destaque/períodos antigos,
-que continuam como itens separados da auditoria.
+As correções posteriores de checkout estão em [checkout-asaas.md](checkout-asaas.md).
+Estorno total de destaque: [estornos-destaque.md](estornos-destaque.md).
+Chargebacks, recuperação de disputa e estornos de períodos da assinatura:
+[reversoes-cobranca.md](reversoes-cobranca.md).
