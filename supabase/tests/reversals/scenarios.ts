@@ -8,11 +8,12 @@ import {
   sqlFile,
   subscription,
 } from "../webhook/fixtures.ts";
-import { migrations } from "./fixtures.ts";
+import { event, migrations, paidPro } from "./fixtures.ts";
 import { subscriptionTests } from "./subscriptions.ts";
 import { chargebackTests } from "./chargebacks.ts";
 import { edgeTests } from "./edges.ts";
 import { failureTests } from "./failures.ts";
+import { replayTests } from "./replay.ts";
 export async function reversalTests(t: Deno.TestContext, db: Database) {
   await reset(db);
   await t.step(
@@ -41,9 +42,12 @@ export async function reversalTests(t: Deno.TestContext, db: Database) {
   await chargebackTests(t, db);
   await edgeTests(t, db);
   await failureTests(t, db);
+  await replayTests(t, db);
   await t.step(
     "reversões: dados financeiros novos bloqueiam rollback destrutivo",
     async () => {
+      const a = await paidPro(db);
+      await receive(db, event(a.payment, a.sub, "PAYMENT_REFUNDED"));
       for (const m of [...migrations].reverse()) {
         await assert.rejects(
           () => sqlFile(db, `rollbacks/${m}_down.sql`),
