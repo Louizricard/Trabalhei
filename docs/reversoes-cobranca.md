@@ -94,3 +94,39 @@ Referências: [eventos e fluxo de chargeback](https://docs.asaas.com/docs/webhoo
 [estados da disputa](https://docs.asaas.com/docs/chargeback-en),
 [estornos concluídos e parciais](https://docs.asaas.com/docs/estornos),
 [atualização do webhook](https://docs.asaas.com/reference/atualizar-webhook-existente).
+
+## Publicação verificada
+
+[PR #25](https://github.com/Louizricard/Trabalhei/pull/25) e
+[PR #26](https://github.com/Louizricard/Trabalhei/pull/26) mergeadas após CI completo:
+banco, análise estática, testes Flutter, APK debug e preview Web. A segunda
+acrescentou a proteção de atomicidade da confirmação durante replay de estorno.
+
+| Migration | Versão UTC no Supabase |
+| --- | --- |
+| billing_reversal_ledger | 20261030032044 |
+| billing_subscription_credits | 20261030032054 |
+| billing_feature_reversals | 20261030032109 |
+| billing_reversal_state | 20261030032122 |
+| billing_reversal_routing | 20261030032133 |
+
+Webhook v17 ACTIVE, autenticado pelo token Asaas existente (`verify_jwt=false`).
+Endpoints reabertos com JWT obrigatório: assinatura/destaque v22, cancelamento v15
+e exclusão v14. Seus códigos foram preservados; a nova regra financeira está no SQL.
+
+O webhook Asaas tinha sete eventos. Foram adicionados ao mesmo cadastro
+`PAYMENT_CHARGEBACK_DISPUTE`, `PAYMENT_AWAITING_CHARGEBACK_REVERSAL` e
+`PAYMENT_UPDATED`, preservando URL, token e eventos existentes. A configuração
+final foi conferida com dez eventos, `enabled=true`, `interrupted=false` e
+`sendType=SEQUENTIALLY`. A operação temporária de configuração foi retirada;
+o código final confere exatamente com os fontes revisados.
+
+Treze funções SQL conferidas com as migrations; permissões privadas confirmadas.
+Um recibo Pro foi vinculado e uma concessão legada foi preservada. Os hashes
+dos dados financeiros e dos campos antigos dos recibos ficaram inalterados.
+Nenhum evento pending/failed nem estorno/chargeback antigo a reparar. Os advisors
+não apontaram novos WARNs; o [INFO de RLS sem policy](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy) em `billing_pro_grants`
+é intencional, pois clientes não têm acesso à tabela.
+
+HTTP, autenticação, retorno da manutenção e 124 cenários SQL + 13 testes
+HTTP/adapter verificados. Não houve cobrança, estorno ou disputa real para testar.
