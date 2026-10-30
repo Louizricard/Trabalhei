@@ -38,7 +38,10 @@ begin
         and payload#>>'{payment,id}'=e.payload#>>'{payment,id}' and processing_status in('pending','failed')
         and event in('PAYMENT_REFUNDED','PAYMENT_CHARGEBACK_REQUESTED','PAYMENT_CHARGEBACK_DISPUTE','PAYMENT_AWAITING_CHARGEBACK_REVERSAL')
         order by received_at,id
-      loop perform public.process_asaas_billing_event(pending.id); end loop;
+      loop
+        if public.process_asaas_billing_event(pending.id)->>'status' not in('processed','ignored','legacy')
+          then raise exception 'REVERSAL_REPLAY_PENDING'; end if;
+      end loop;
     end if;
     update public.billing_events set processing_status=v_status,
       processed_at=case when v_status in('processed','ignored') then now() end,

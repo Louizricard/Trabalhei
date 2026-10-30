@@ -59,11 +59,13 @@ Pro novamente por um webhook atrasado.
 ## Testes e operação
 
 `deno task test:webhook` usa PostgreSQL 17 local descartável, sem Asaas,
-pg_net, e-mail ou push. Cobre 122 cenários SQL e 13 testes HTTP/adapter,
+pg_net, e-mail ou push. Cobre 124 cenários SQL e 13 testes HTTP/adapter,
 incluindo os fluxos anteriores. Há falhas injetadas em recibos, planos,
 assinaturas, vagas, compras e notificações, tanto ao suspender quanto ao restaurar.
 Também cobre concorrência, eventos fora de ordem, vínculo tardio, legado,
-permissões e rollback. Nenhum pagamento real é criado para testar.
+permissões e rollback. Uma falha ao retomar estorno pendente também desfaz a
+confirmação que criou o vínculo, sem conceder benefício intermediário.
+Nenhum pagamento real é criado para testar.
 
 Antes de publicar: salvar as funções e o estado financeiro, conferir os advisors
 e os vínculos legados; passar pelo CI; colocar webhook, checkout, cancelamento e
