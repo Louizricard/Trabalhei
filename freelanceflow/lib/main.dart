@@ -9,10 +9,12 @@ import 'core/config/supabase_client.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
+import 'core/utils/date_formatter.dart';
 import 'features/auth/data/session_policy.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DateFormatter.initialize();
 
   // Captura global de erros de renderização do Flutter
   FlutterError.onError = (FlutterErrorDetails details) {

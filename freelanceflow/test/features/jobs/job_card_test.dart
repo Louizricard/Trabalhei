@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/date_symbol_data_local.dart';
+import 'package:trabalhei/core/utils/date_formatter.dart';
 import 'package:trabalhei/features/jobs/domain/entities/job.dart';
 import 'package:trabalhei/features/jobs/presentation/widgets/job_card.dart';
 
 void main() {
-  setUpAll(() => initializeDateFormatting('pt_BR'));
+  setUpAll(DateFormatter.initialize);
 
   testWidgets('no celular o card tem a altura do conteúdo, sem espaço vazio', (
     tester,

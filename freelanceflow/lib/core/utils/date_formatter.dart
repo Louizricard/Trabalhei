@@ -1,6 +1,9 @@
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class DateFormatter {
+  static Future<void> initialize() => initializeDateFormatting('pt_BR');
+
   static String relativeTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
