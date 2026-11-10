@@ -4,7 +4,8 @@ import 'package:trabalhei/features/jobs/domain/entities/job.dart';
 import 'package:trabalhei/features/jobs/domain/job_ranking.dart';
 import 'package:trabalhei/features/profile/domain/freelancer_ranking.dart';
 
-final _now = DateTime(2026, 10, 27, 12);
+// Relativo a agora: `Job.isFeatured` compara com o relógio real.
+final _now = DateTime.now();
 
 Job _job(
   String id, {
