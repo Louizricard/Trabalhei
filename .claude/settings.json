@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter pub get:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter test:*)",
+      "Bash(flutter build web:*)",
+      "Bash(flutter build apk --debug:*)",
+      "Bash(*/flutter/bin/flutter pub get:*)",
+      "Bash(*/flutter/bin/flutter analyze:*)",
+      "Bash(*/flutter/bin/flutter test:*)",
+      "Bash(*/flutter/bin/flutter build web:*)",
+      "Bash(*/flutter/bin/flutter build apk --debug:*)",
+      "Bash(dart analyze:*)",
+      "Bash(dart format:*)",
+      "Bash(dart run build_runner build:*)",
+      "Bash(deno task test:*)",
+      "Bash(deno check:*)",
+      "Bash(deno lint:*)",
+      "Bash(deno fmt --check:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(supabase db push:*)",
+      "Bash(supabase functions deploy:*)",
+      "Bash(supabase db reset:*)",
+      "Bash(supabase migration up:*)"
+    ],
+    "deny": [
+      "Read(./android-release-key/**)",
+      "Read(**/*-production-backup.json)",
+      "Read(**/dart_defines.json)"
+    ]
+  }
+}
