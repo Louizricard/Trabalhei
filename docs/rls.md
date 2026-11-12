@@ -15,7 +15,7 @@ Princípios:
 | `portfolio_items` | Autenticados | `INSERT`/`DELETE` dos próprios itens | — |
 | `jobs` | Autenticados | `INSERT` (somente clientes) e `UPDATE` de campos de conteúdo em vagas **abertas** próprias | Status via `cancel_job`/contratos; `featured_until` via webhook |
 | `proposals` | Freelancer autor e cliente dono da vaga | Nenhuma | `submit_proposal` (cota do plano), `accept_proposal`, `reject_proposal`, `make_counter_offer`, `accept_counter_offer`, `reject_counter_offer` |
-| `contracts`, `milestones`, `milestone_revisions` | Apenas as partes do contrato | Nenhuma | `accept_*` cria o contrato; `submit_deliverable`, `request_revision`, `approve_milestone` |
+| `contracts`, `milestones`, `milestone_revisions` | Apenas as partes do contrato | Nenhuma | `accept_*` cria o contrato; `submit_deliverable`, `request_revision`, `approve_milestone`; `cancel_contract` encerra (ver `docs/contratacao.md`) |
 | `conversations` | Apenas os dois participantes | Nenhuma | `get_or_create_conversation` |
 | `messages` | Apenas os participantes da conversa | `INSERT` como remetente próprio e tipos não-sistema | Mensagens de sistema geradas pelas RPCs; `mark_conversation_read` |
 | `notifications` | Somente o dono | `UPDATE is_read` e `DELETE` do dono | Criadas por `notify()` (triggers/RPCs) |
@@ -25,7 +25,8 @@ Princípios:
 
 ## Exclusão de conta (LGPD)
 
-A Edge Function `delete-account` (autenticada) recusa a exclusão se houver contrato `active`, cancela a
+A Edge Function `delete-account` (autenticada) recusa a exclusão se houver contrato `active` (o titular
+pode encerrá-lo antes com `cancel_contract`), cancela a
 assinatura no Asaas e chama `delete_account_data(user)`, executável **só pelo `service_role`**:
 
 - **Sem histórico de contratos:** o `auth.users` é apagado e o `ON DELETE CASCADE` remove todo o resto.
