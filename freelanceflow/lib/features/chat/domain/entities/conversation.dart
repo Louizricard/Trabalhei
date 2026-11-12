@@ -156,4 +156,11 @@ class Conversation {
   /// Avaliações só são liberadas depois que o contrato é concluído.
   bool get isContractCompleted =>
       contractId != null && contractStatus == 'completed';
+
+  /// Contrato em andamento: entregas, revisões e encerramento são possíveis.
+  bool get isContractActive => contractId != null && contractStatus == 'active';
+
+  /// Contrato concluído ou encerrado: não aceita mais ações nos marcos.
+  bool get isContractClosed =>
+      contractStatus == 'completed' || contractStatus == 'cancelled';
 }

@@ -10,6 +10,7 @@ import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../../domain/entities/conversation.dart';
 import '../providers/chat_provider.dart';
 
@@ -82,6 +83,10 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
       ref.invalidate(conversationsListProvider);
       ref.invalidate(clientStatsProvider);
       ref.invalidate(freelancerStatsProvider);
+      // O último marco conclui contrato e vaga: listas e detalhes mudam.
+      ref.invalidate(jobDetailProvider);
+      ref.invalidate(clientJobsProvider);
+      ref.invalidate(jobsListProvider);
 
       if (mounted) {
         Navigator.of(context).pop();
@@ -318,7 +323,9 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                 ),
               ),
               const SizedBox(height: 12),
-            ] else if (isClient) ...[
+            ] else if (isClient &&
+                widget.milestone.status == MilestoneStatus.submitted &&
+                !widget.conversation.isContractClosed) ...[
               if (!_showRevisionForm) ...[
                 CustomButton(
                   text: 'Aprovar Entrega',

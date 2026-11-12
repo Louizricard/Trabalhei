@@ -9,6 +9,7 @@ import 'package:trabalhei/features/auth/presentation/providers/auth_state_provid
 import 'package:trabalhei/features/chat/domain/entities/conversation.dart';
 import 'package:trabalhei/features/chat/presentation/providers/chat_provider.dart';
 
+import 'cancel_contract_dialog.dart';
 import 'request_revision_modal.dart';
 import 'review_contract_button.dart';
 import 'submit_deliverable_modal.dart';
@@ -159,7 +160,9 @@ class ContractMilestoneSheet extends ConsumerWidget {
                         children: [
                           _buildMilestoneBadge(m.status),
                           const Spacer(),
-                          if ((m.status == MilestoneStatus.pending ||
+                          if (liveConv.isContractClosed)
+                            const SizedBox.shrink()
+                          else if ((m.status == MilestoneStatus.pending ||
                                   m.status == MilestoneStatus.inRevision) &&
                               !isClient) ...[
                             CustomButton(
@@ -180,8 +183,7 @@ class ContractMilestoneSheet extends ConsumerWidget {
                                 );
                               },
                             ),
-                          ] else if ((m.status == MilestoneStatus.submitted ||
-                                  m.status == MilestoneStatus.inRevision) &&
+                          ] else if (m.status == MilestoneStatus.submitted &&
                               isClient) ...[
                             CustomButton(
                               text: 'Revisar Entrega',
@@ -274,6 +276,29 @@ class ContractMilestoneSheet extends ConsumerWidget {
               );
             }),
             const SizedBox(height: 12),
+            if (liveConv.contractStatus == 'cancelled')
+              const Padding(
+                padding: EdgeInsets.only(bottom: 10),
+                child: Text(
+                  'Este contrato foi encerrado. Os marcos não aceitam mais entregas.',
+                  style: TextStyle(color: AppColors.textSecondaryDark),
+                ),
+              ),
+            if (liveConv.isContractActive)
+              TextButton.icon(
+                key: const Key('open-cancel-contract'),
+                style: TextButton.styleFrom(foregroundColor: AppColors.error),
+                icon: const Icon(Icons.cancel_outlined, size: 18),
+                label: const Text('Encerrar contrato'),
+                onPressed: () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  if (await CancelContractDialog.show(context, liveConv)) {
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('Contrato encerrado.')),
+                    );
+                  }
+                },
+              ),
             if (liveConv.isContractCompleted) ...[
               ReviewContractButton(
                 conversation: liveConv,
