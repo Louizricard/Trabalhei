@@ -119,3 +119,16 @@ export async function assertFeature(
   assert.equal(counts.receipts, payments);
   assert.equal(counts.notifications, payments);
 }
+
+// Executa a consulta como usuário autenticado, como faz o PostgREST.
+export async function asUser<T>(
+  db: Database,
+  user: string,
+  query: (tx: Database) => Promise<T>,
+) {
+  return await db.begin(async (tx) => {
+    await tx`set local role authenticated`;
+    await tx`select set_config('request.jwt.claim.sub',${user},true)`;
+    return await query(tx as unknown as Database);
+  });
+}
