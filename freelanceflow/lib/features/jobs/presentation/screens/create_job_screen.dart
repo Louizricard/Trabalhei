@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/attachment_widgets.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
@@ -12,6 +13,7 @@ import '../../../../core/widgets/responsive_layout.dart';
 import '../../../../core/widgets/skills_input_widget.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../domain/entities/job.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../providers/jobs_provider.dart';
 
 class CreateJobScreen extends ConsumerStatefulWidget {
@@ -55,8 +57,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       final job = widget.jobToEdit!;
       _titleController.text = job.title;
       _descController.text = job.description;
-      _budgetMinController.text = job.budgetMin.toStringAsFixed(0);
-      _budgetMaxController.text = job.budgetMax.toStringAsFixed(0);
+      _budgetMinController.text = CurrencyFormatter.toInput(job.budgetMin);
+      _budgetMaxController.text = CurrencyFormatter.toInput(job.budgetMax);
       _skills = List.from(job.skillsRequired);
       _daysController.text = job.deadlineDays.toString();
       _category = job.category;
@@ -68,9 +70,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   static const double _maxBudget = 10000000;
 
   String? _validateBudget(String? v) {
-    final value = double.tryParse((v ?? '').trim().replaceAll(',', '.'));
-    if (value == null) return 'Informe um valor válido';
-    if (value < 0) return 'Não pode ser negativo';
+    final value = CurrencyFormatter.parse(v);
+    if (value == null) return 'Informe um valor válido, ex.: 1.500,00';
     if (value > _maxBudget) return 'Máximo de R\$ 10.000.000';
     return null;
   }
@@ -140,12 +141,15 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         title: _titleController.text.trim(),
         category: _category,
         description: _descController.text.trim(),
-        budgetMin: double.tryParse(_budgetMinController.text) ?? 1000,
-        budgetMax: double.tryParse(_budgetMaxController.text) ?? 5000,
-        deadlineDays: int.tryParse(_daysController.text) ?? 15,
+        budgetMin: CurrencyFormatter.parse(_budgetMinController.text)!,
+        budgetMax: CurrencyFormatter.parse(_budgetMaxController.text)!,
+        deadlineDays: int.parse(_daysController.text.trim()),
         skillsRequired: skills,
         isUrgent: _isUrgent,
-        attachments: isEditing ? widget.jobToEdit!.attachments : uploadedAttachments, // Simplified attachment handling for edit
+        attachments: [
+          if (isEditing) ...widget.jobToEdit!.attachments,
+          ...uploadedAttachments,
+        ],
         imageUrl: coverImageUrl,
         createdAt: isEditing ? widget.jobToEdit!.createdAt : DateTime.now(),
         status: isEditing ? widget.jobToEdit!.status : JobStatus.open,
@@ -158,6 +162,9 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       }
       
       ref.invalidate(jobsListProvider);
+      ref.invalidate(myOpenJobsProvider);
+      ref.invalidate(clientStatsProvider);
+      if (isEditing) ref.invalidate(jobDetailProvider(job.id));
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -360,7 +367,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                             child: CustomTextField(
                               controller: _budgetMinController,
                               label: 'Orçamento Mínimo (R\$)',
-                              keyboardType: TextInputType.number,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               validator: _validateBudget,
                             ),
                           ),
@@ -369,12 +376,12 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                             child: CustomTextField(
                               controller: _budgetMaxController,
                               label: 'Orçamento Máximo (R\$)',
-                              keyboardType: TextInputType.number,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               validator: (v) {
                                 final invalid = _validateBudget(v);
                                 if (invalid != null) return invalid;
-                                final min = double.tryParse(_budgetMinController.text) ?? 0;
-                                final max = double.tryParse(v!) ?? 0;
+                                final min = CurrencyFormatter.parse(_budgetMinController.text) ?? 0;
+                                final max = CurrencyFormatter.parse(v)!;
                                 if (max < min) return 'Não pode ser menor que o mín.';
                                 return null;
                               },

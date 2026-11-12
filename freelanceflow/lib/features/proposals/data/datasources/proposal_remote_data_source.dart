@@ -55,10 +55,18 @@ class ProposalRemoteDataSource {
   }
 
   /// Cliente aceita a proposta; o servidor cria contrato, marcos e conversa.
-  Future<Map<String, dynamic>> acceptProposal(String proposalId) async {
+  /// [expectedAmount] é o valor que o cliente viu: se o freelancer o alterou
+  /// nesse meio-tempo, o servidor recusa com PROPOSAL_CHANGED.
+  Future<Map<String, dynamic>> acceptProposal(
+    String proposalId, {
+    required double expectedAmount,
+  }) async {
     final response = await _supabase.rpc(
       'accept_proposal',
-      params: {'p_proposal_id': proposalId},
+      params: {
+        'p_proposal_id': proposalId,
+        'p_expected_amount': expectedAmount,
+      },
     );
     return Map<String, dynamic>.from(response as Map);
   }

@@ -27,37 +27,63 @@ class JobProposalsScreen extends ConsumerStatefulWidget {
 class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
   bool _isProcessing = false;
 
-  Future<void> _handleAcceptProposal(
-    Proposal proposal,
-    String? clientId,
-  ) async {
+  Future<bool> _confirmHire(Proposal proposal) async {
+    final discardsCounter = proposal.status == ProposalStatus.counterOffered;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceDark,
+        title: const Text(
+          'Contratar freelancer',
+          style: TextStyle(color: AppColors.textPrimaryDark),
+        ),
+        content: Text(
+          'Contratar ${proposal.freelancerName} por '
+          '${CurrencyFormatter.format(proposal.bidAmount)} em '
+          '${proposal.estimatedDays} dias? As outras propostas desta vaga '
+          'serão recusadas.'
+          '${discardsCounter ? '\n\nSua contraproposta será descartada e vale o valor original da proposta.' : ''}',
+          style: const TextStyle(color: AppColors.textSecondaryDark),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: AppColors.textSecondaryDark),
+            ),
+          ),
+          ElevatedButton(
+            key: const Key('confirm-hire'),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Contratar'),
+          ),
+        ],
+      ),
+    );
+    return confirmed ?? false;
+  }
+
+  void _invalidateAfterHire() {
+    ref.invalidate(jobProposalsProvider(widget.jobId));
+    ref.invalidate(jobDetailProvider(widget.jobId));
+    ref.invalidate(jobsListProvider);
+    ref.invalidate(clientJobsProvider);
+    ref.invalidate(conversationsListProvider);
+    ref.invalidate(clientStatsProvider);
+    ref.invalidate(freelancerStatsProvider);
+  }
+
+  Future<void> _handleAcceptProposal(Proposal proposal) async {
+    if (!await _confirmHire(proposal) || !mounted) return;
     setState(() => _isProcessing = true);
     try {
-      final repository = ref.read(proposalRepositoryProvider);
       // Cria o contrato de forma atômica no servidor (sem custódia de valores).
-      final contractResult = await repository.acceptProposal(proposal.id);
-      final contractId = contractResult['contract_id'] as String?;
-
-      final cId = clientId ?? ref.read(authProvider).value?.id;
-      if (cId == null) throw Exception('Faça login para continuar.');
-
-      final conv = await ref
-          .read(chatRepositoryProvider)
-          .getOrCreateConversation(
-            jobId: widget.jobId,
-            freelancerId: proposal.freelancerId,
-            clientId: cId,
-            contractId: contractId,
-          );
-
-      ref.invalidate(jobProposalsProvider(widget.jobId));
-      ref.invalidate(jobDetailProvider(widget.jobId));
-      ref.invalidate(jobsListProvider);
-      ref.invalidate(conversationsListProvider);
-      ref.invalidate(conversationDetailProvider(conv.id));
-      ref.invalidate(clientStatsProvider);
-      ref.invalidate(freelancerStatsProvider);
-
+      // O valor exibido vai junto: se o freelancer alterou, o servidor recusa.
+      final result = await ref
+          .read(proposalRepositoryProvider)
+          .acceptProposal(proposal.id, expectedAmount: proposal.bidAmount);
+      _invalidateAfterHire();
       if (!mounted) return;
       setState(() => _isProcessing = false);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -66,13 +92,16 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
           backgroundColor: AppColors.success,
         ),
       );
-      context.push('/chat/${conv.id}');
+      final conversationId = result['conversation_id'] as String?;
+      if (conversationId != null) context.push('/chat/$conversationId');
     } catch (e) {
+      // A lista pode estar desatualizada (proposta editada ou já decidida).
+      ref.invalidate(jobProposalsProvider(widget.jobId));
       if (mounted) {
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao aceitar proposta: ${friendlyError(e)}'),
+            content: Text('Não foi possível contratar: ${friendlyError(e)}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -765,7 +794,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                         fontSize: 13,
                       ),
                     ),
-                    onPressed: () => _handleAcceptProposal(proposal, clientId),
+                    onPressed: () => _handleAcceptProposal(proposal),
                   ),
                 ),
                 const SizedBox(width: 8),

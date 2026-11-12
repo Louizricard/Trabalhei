@@ -82,6 +82,7 @@ class Proposal {
     String? counterByUserId,
     DateTime? counterCreatedAt,
     DateTime? createdAt,
+    bool clearCounterOffer = false,
   }) {
     return Proposal(
       id: id ?? this.id,
@@ -94,11 +95,16 @@ class Proposal {
       coverLetter: coverLetter ?? this.coverLetter,
       proposedMilestones: proposedMilestones ?? this.proposedMilestones,
       status: status ?? this.status,
-      counterPrice: counterPrice ?? this.counterPrice,
-      counterEstimatedDays: counterEstimatedDays ?? this.counterEstimatedDays,
-      counterMessage: counterMessage ?? this.counterMessage,
-      counterByUserId: counterByUserId ?? this.counterByUserId,
-      counterCreatedAt: counterCreatedAt ?? this.counterCreatedAt,
+      counterPrice: clearCounterOffer ? null : counterPrice ?? this.counterPrice,
+      counterEstimatedDays: clearCounterOffer
+          ? null
+          : counterEstimatedDays ?? this.counterEstimatedDays,
+      counterMessage:
+          clearCounterOffer ? null : counterMessage ?? this.counterMessage,
+      counterByUserId:
+          clearCounterOffer ? null : counterByUserId ?? this.counterByUserId,
+      counterCreatedAt:
+          clearCounterOffer ? null : counterCreatedAt ?? this.counterCreatedAt,
       createdAt: createdAt ?? this.createdAt,
     );
   }

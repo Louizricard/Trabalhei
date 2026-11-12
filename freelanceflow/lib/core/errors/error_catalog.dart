@@ -31,6 +31,15 @@ const Map<String, String> databaseCodes = {
   'PROPOSAL_ALREADY_DECIDED': 'Esta proposta já foi decidida.',
   'PROPOSAL_NOT_FOUND': 'Proposta não encontrada.',
   'PROPOSAL_NOT_PENDING': 'Esta proposta não está mais pendente.',
+  'PROPOSAL_CHANGED':
+      'O freelancer alterou esta proposta. Confira o novo valor antes de contratar.',
+  'COUNTER_OFFER_PENDING':
+      'Há uma contraproposta do cliente aguardando sua resposta. Aceite ou recuse antes de alterar a proposta.',
+  'INVALID_MILESTONES':
+      'Os marcos precisam ter título, valor e prazo válidos e somar o valor total da proposta.',
+  'CONTRACT_NOT_FOUND': 'Contrato não encontrado.',
+  'CANCEL_REASON_REQUIRED':
+      'Explique o motivo do encerramento (de 10 a 500 caracteres).',
   'NO_ACTIVE_COUNTER_OFFER': 'Não há contraproposta ativa nesta proposta.',
   'INVALID_COUNTER_OFFER': 'Valor ou prazo da contraproposta inválido.',
   'MILESTONE_NOT_FOUND': 'Marco não encontrado.',

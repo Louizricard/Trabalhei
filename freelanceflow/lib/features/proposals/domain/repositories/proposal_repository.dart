@@ -6,7 +6,10 @@ abstract class ProposalRepository {
   Future<List<Proposal>> getFreelancerProposals(String freelancerId);
   Future<ProposalQuota> getQuota();
   Future<Proposal> submitProposal(Proposal proposal);
-  Future<Map<String, dynamic>> acceptProposal(String proposalId);
+  Future<Map<String, dynamic>> acceptProposal(
+    String proposalId, {
+    required double expectedAmount,
+  });
   Future<void> rejectProposal(String proposalId);
   Future<void> makeCounterOffer({
     required String proposalId,

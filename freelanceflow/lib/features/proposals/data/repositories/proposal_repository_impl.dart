@@ -27,8 +27,14 @@ class ProposalRepositoryImpl implements ProposalRepository {
   }
 
   @override
-  Future<Map<String, dynamic>> acceptProposal(String proposalId) {
-    return _remoteDataSource.acceptProposal(proposalId);
+  Future<Map<String, dynamic>> acceptProposal(
+    String proposalId, {
+    required double expectedAmount,
+  }) {
+    return _remoteDataSource.acceptProposal(
+      proposalId,
+      expectedAmount: expectedAmount,
+    );
   }
 
   @override
