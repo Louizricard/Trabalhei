@@ -36,6 +36,13 @@ final jobDetailProvider = FutureProvider.family.autoDispose<Job?, String>((ref, 
   return repository.getJobById(id);
 });
 
+/// Todas as vagas do cliente logado, em qualquer status ("Minhas Vagas").
+final clientJobsProvider = FutureProvider.autoDispose<List<Job>>((ref) async {
+  final user = ref.watch(authProvider).value;
+  if (user == null) return [];
+  return ref.watch(jobRepositoryProvider).getClientJobs(user.id);
+});
+
 /// Vagas abertas do cliente logado (independe dos filtros do mural).
 final myOpenJobsProvider = FutureProvider.autoDispose<List<Job>>((ref) async {
   final user = ref.watch(authProvider).value;

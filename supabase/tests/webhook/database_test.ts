@@ -19,6 +19,7 @@ import { checkoutTests } from "../checkout/scenarios.ts";
 import { refundTests } from "../refunds/scenarios.ts";
 import { deletionTests } from '../deletion/scenarios.ts';
 import { reversalTests } from '../reversals/scenarios.ts';
+import { hiringTests } from '../hiring/scenarios.ts';
 
 Deno.test("webhook: transações, recuperação, concorrência e permissões em PostgreSQL", async (t) => {
   const db = testDatabase();
@@ -123,6 +124,7 @@ Deno.test("webhook: transações, recuperação, concorrência e permissões em 
     await refundTests(t, db);
     await deletionTests(t, db);
     await reversalTests(t, db);
+    await hiringTests(t, db);
   } finally {
     await db.end();
   }

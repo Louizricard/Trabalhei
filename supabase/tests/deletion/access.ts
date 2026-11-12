@@ -1,18 +1,7 @@
 import assert from "node:assert/strict";
-import { customer, type Database, reset } from "../webhook/fixtures.ts";
+import { asUser, customer, type Database, reset } from "../webhook/fixtures.ts";
 import { begin, contract, object, personalProfile } from "./fixtures.ts";
 
-async function asUser<T>(
-  db: Database,
-  user: string,
-  query: (tx: Database) => Promise<T>,
-) {
-  return await db.begin(async (tx) => {
-    await tx`set local role authenticated`;
-    await tx`select set_config('request.jwt.claim.sub',${user},true)`;
-    return await query(tx as unknown as Database);
-  });
-}
 export async function accessTests(t: Deno.TestContext, db: Database) {
   await t.step(
     "exclusão: tombstone visível só ao próprio e à contraparte",

@@ -10,8 +10,10 @@ import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../../chat/presentation/providers/chat_provider.dart';
+import '../../../jobs/domain/entities/job.dart';
 import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../../domain/entities/proposal.dart';
+import '../../domain/entities/proposal_action.dart';
 import '../providers/proposals_provider.dart';
 import 'proposal_templates_screen.dart';
 
@@ -59,7 +61,7 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
           _isEditing = true;
           _existingProposal = prop;
           _existingProposalId = prop.id;
-          _bidController.text = prop.bidAmount.toStringAsFixed(2);
+          _bidController.text = CurrencyFormatter.toInput(prop.bidAmount);
           _daysController.text = prop.estimatedDays.toString();
           _coverLetterController.text = prop.coverLetter;
           if (prop.proposedMilestones.isNotEmpty) {
@@ -81,7 +83,46 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
     super.dispose();
   }
 
-  double get _bidAmount => double.tryParse(_bidController.text) ?? 0.0;
+  double get _bidAmount => CurrencyFormatter.parse(_bidController.text) ?? 0.0;
+
+  /// Motivo para não oferecer envio/edição, espelhando as regras do servidor.
+  String? _blockedReason(Job? job) =>
+      ProposalAction.of(job?.status ?? JobStatus.open, _existingProposal)
+          .blockedReason;
+
+  Future<void> _handleRejectCounterOffer() async {
+    final proposal = _existingProposal;
+    if (proposal == null) return;
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(proposalRepositoryProvider).rejectCounterOffer(proposal.id);
+      ref.invalidate(jobProposalsProvider(widget.jobId));
+      final user = ref.read(authProvider).value;
+      if (user != null) ref.invalidate(freelancerProposalsProvider(user.id));
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _existingProposal = proposal.copyWith(
+          status: ProposalStatus.pending,
+          clearCounterOffer: true,
+        );
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Contraproposta recusada. Sua proposta segue em análise.'),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao recusar contraproposta: ${friendlyError(e)}'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
 
   Future<void> _handleAcceptCounterOffer() async {
     if (_existingProposalId == null) return;
@@ -300,11 +341,20 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                           width: double.infinity,
                           onPressed: _handleAcceptCounterOffer,
                         ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed:
+                                _isLoading ? null : _handleRejectCounterOffer,
+                            child: const Text('Recusar contraproposta'),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
-                ] else if (_isEditing) ...[
+                ] else if (_isEditing && _blockedReason(job) == null) ...[
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -395,12 +445,15 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                             child: CustomTextField(
                               controller: _bidController,
                               label: 'Valor Total da Proposta (R\$)',
-                              keyboardType: TextInputType.number,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
                               onChanged: (_) => setState(() {}),
                               validator: (v) =>
-                                  v != null && (double.tryParse(v) ?? 0) > 0
+                                  (CurrencyFormatter.parse(v) ?? 0) > 0
                                   ? null
-                                  : 'Valor inválido',
+                                  : 'Valor inválido, ex.: 1.500,00',
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -466,15 +519,26 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                CustomButton(
-                  text: _isEditing
-                      ? 'Atualizar Minha Proposta'
-                      : 'Confirmar e Enviar Proposta',
-                  icon: _isEditing ? Icons.save_rounded : Icons.send_rounded,
-                  isLoading: _isLoading,
-                  width: double.infinity,
-                  onPressed: _submitProposal,
-                ),
+                if (_blockedReason(job) case final reason?)
+                  Text(
+                    reason,
+                    key: const Key('proposal-blocked-reason'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondaryDark,
+                    ),
+                  )
+                else
+                  CustomButton(
+                    text: _isEditing
+                        ? 'Atualizar Minha Proposta'
+                        : 'Confirmar e Enviar Proposta',
+                    icon: _isEditing ? Icons.save_rounded : Icons.send_rounded,
+                    isLoading: _isLoading,
+                    width: double.infinity,
+                    onPressed: _submitProposal,
+                  ),
                 const SizedBox(height: 20),
               ],
             ),

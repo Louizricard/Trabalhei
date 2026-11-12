@@ -25,6 +25,35 @@ class ChatDeliveryActionBanner extends StatelessWidget {
     final milestones = List<ContractMilestone>.from(conversation.milestones);
     if (milestones.isEmpty) return const SizedBox.shrink();
 
+    // Contrato encerrado: marcos não aceitam mais entregas nem revisões.
+    if (conversation.contractStatus == 'cancelled') {
+      return Container(
+        key: const Key('contract-cancelled-banner'),
+        margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.error.withAlpha(20),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.error.withAlpha(80)),
+        ),
+        child: const Row(
+          children: [
+            Icon(Icons.cancel_outlined, color: AppColors.error, size: 20),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Contrato encerrado. O motivo está registrado na conversa.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondaryDark,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     // Encontrar o marco em foco prioritário
     final activeMilestone = milestones.firstWhere(
       (m) =>

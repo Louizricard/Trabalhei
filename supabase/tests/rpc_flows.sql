@@ -1,3 +1,8 @@
+-- SUBSTITUÍDO (12/11/2026): a jornada de contratação é testada automaticamente em
+-- tests/hiring/ (roda no CI com `deno task test:webhook`). Este roteiro manual está
+-- desatualizado — usa cartas abaixo do mínimo atual de 50 caracteres e a cota antiga
+-- de 5 propostas/mês (hoje 10) — e fica apenas como referência histórica.
+--
 -- Testes das regras de negócio do banco (RLS + funções do servidor).
 --
 -- Como rodar: cole no SQL Editor do Supabase (ou `psql`) de um projeto de DESENVOLVIMENTO.

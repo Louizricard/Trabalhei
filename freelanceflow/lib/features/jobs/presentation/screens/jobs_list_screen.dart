@@ -48,7 +48,11 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final jobsAsync = ref.watch(jobsListProvider);
+    // "Minhas Vagas" inclui vagas em andamento, concluídas e canceladas; o
+    // mural só traz as abertas.
+    final jobsAsync = _selectedCategory == 'Minhas Vagas'
+        ? ref.watch(clientJobsProvider)
+        : ref.watch(jobsListProvider);
     final auth = ref.watch(authProvider);
     final user = auth.valueOrNull;
     final isClient = user?.role == UserRole.client;

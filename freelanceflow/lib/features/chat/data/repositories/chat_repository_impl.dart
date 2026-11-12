@@ -84,6 +84,17 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<void> cancelContract({
+    required String contractId,
+    required String reason,
+  }) {
+    return _remoteDataSource.cancelContract(
+      contractId: contractId,
+      reason: reason,
+    );
+  }
+
+  @override
   Future<void> submitMilestoneDeliverable({
     required String milestoneId,
     required String notes,

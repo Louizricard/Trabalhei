@@ -29,7 +29,7 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
   void initState() {
     super.initState();
     _priceController = TextEditingController(
-      text: widget.proposal.bidAmount.toStringAsFixed(0),
+      text: CurrencyFormatter.toInput(widget.proposal.bidAmount),
     );
     _daysController = TextEditingController(
       text: widget.proposal.estimatedDays.toString(),
@@ -47,7 +47,7 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
   Future<void> _submitCounterOffer() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    final price = double.tryParse(_priceController.text);
+    final price = CurrencyFormatter.parse(_priceController.text);
     final days = int.tryParse(_daysController.text);
 
     if (price == null || price <= 0 || days == null || days <= 0) {
@@ -213,9 +213,12 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
                     child: CustomTextField(
                       controller: _priceController,
                       label: 'Novo Valor Ofertado (R\$)',
-                      keyboardType: TextInputType.number,
-                      validator: (v) =>
-                          (v == null || v.isEmpty) ? 'Informe o valor' : null,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      validator: (v) => (CurrencyFormatter.parse(v) ?? 0) > 0
+                          ? null
+                          : 'Valor inválido, ex.: 1.500,00',
                     ),
                   ),
                   const SizedBox(width: 12),

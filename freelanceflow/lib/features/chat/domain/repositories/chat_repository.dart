@@ -28,6 +28,13 @@ abstract class ChatRepository {
   });
   Future<void> markConversationRead(String conversationId);
   Future<void> approveMilestone(String milestoneId);
+
+  /// Cliente ou freelancer encerra o contrato ativo; motivo de 10 a 500
+  /// caracteres, registrado no chat e notificado à outra parte.
+  Future<void> cancelContract({
+    required String contractId,
+    required String reason,
+  });
   Future<void> submitMilestoneDeliverable({
     required String milestoneId,
     required String notes,

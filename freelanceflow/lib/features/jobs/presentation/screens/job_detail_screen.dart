@@ -19,6 +19,7 @@ import 'package:trabalhei/features/billing/presentation/widgets/feature_job_acti
 import 'package:trabalhei/features/jobs/domain/entities/job.dart';
 import 'package:trabalhei/features/jobs/presentation/providers/jobs_provider.dart';
 import 'package:trabalhei/features/proposals/domain/entities/proposal.dart';
+import 'package:trabalhei/features/proposals/domain/entities/proposal_action.dart';
 import 'package:trabalhei/features/proposals/presentation/providers/proposals_provider.dart';
 import 'package:go_router/go_router.dart';
 
@@ -34,9 +35,9 @@ class JobDetailScreen extends ConsumerWidget {
     final proposalsAsync = currentUser != null
         ? ref.watch(freelancerProposalsProvider(currentUser.id))
         : const AsyncValue<List<Proposal>>.data([]);
-    final hasApplied = proposalsAsync.maybeWhen(
-      data: (list) => list.any((p) => p.jobId == jobId),
-      orElse: () => false,
+    final myProposal = proposalsAsync.maybeWhen(
+      data: (list) => list.where((p) => p.jobId == jobId).firstOrNull,
+      orElse: () => null,
     );
 
     return Scaffold(
@@ -345,12 +346,27 @@ class JobDetailScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
+                  ] else if (ProposalAction.of(job.status, myProposal)
+                      case final action when !action.canSubmit &&
+                          action != ProposalAction.respondCounterOffer) ...[
+                    Text(
+                      action.blockedReason!,
+                      key: const Key('job-proposal-blocked'),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondaryDark,
+                      ),
+                    ),
                   ] else ...[
                     CustomButton(
-                      text: hasApplied
-                          ? 'Editar Minha Proposta Enviada'
-                          : 'Enviar Proposta para esta Vaga',
-                      icon: hasApplied
+                      text: switch (myProposal?.status) {
+                        null => 'Enviar Proposta para esta Vaga',
+                        ProposalStatus.counterOffered =>
+                          'Responder Contraproposta',
+                        _ => 'Editar Minha Proposta Enviada',
+                      },
+                      icon: myProposal != null
                           ? Icons.edit_note_rounded
                           : Icons.send_rounded,
                       width: double.infinity,
@@ -369,7 +385,7 @@ class JobDetailScreen extends ConsumerWidget {
                     if (currentUser == null) ...[
                       const SizedBox(height: 10),
                       const Text(
-                        'Crie sua conta grátis para enviar propostas: são 5 por mês no plano grátis.',
+                        'Crie sua conta grátis para enviar propostas.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,

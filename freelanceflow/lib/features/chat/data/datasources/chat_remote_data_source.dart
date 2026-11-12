@@ -182,6 +182,16 @@ class ChatRemoteDataSource {
     );
   }
 
+  Future<void> cancelContract({
+    required String contractId,
+    required String reason,
+  }) async {
+    await _supabase.rpc(
+      'cancel_contract',
+      params: {'p_contract_id': contractId, 'p_reason': reason},
+    );
+  }
+
   Future<void> submitMilestoneDeliverable({
     required String milestoneId,
     required String notes,
