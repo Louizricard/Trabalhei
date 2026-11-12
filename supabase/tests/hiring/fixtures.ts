@@ -1,6 +1,6 @@
 import { asUser, customer, type Database } from "../webhook/fixtures.ts";
 
-export const hiringMigration = "20261112120000_hiring_journey_fixes";
+export const hiringMigration = "20261112213744_hiring_journey_fixes";
 export const coverLetter =
   "Carta de apresentação de teste com mais de cinquenta caracteres para a vaga.";
 

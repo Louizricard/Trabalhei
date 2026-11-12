@@ -1,6 +1,6 @@
 -- Jornada de contratação: travas de concorrência, validação de marcos, aceite
 -- com valor esperado, contratação após contraproposta e encerramento de contrato.
--- Detalhes e regras: docs/contratacao.md. Volta: rollbacks/20261112120000_hiring_journey_fixes_down.sql.
+-- Detalhes e regras: docs/contratacao.md. Volta: rollbacks/20261112213744_hiring_journey_fixes_down.sql.
 
 -- ---------------------------------------------------------------- Encerramento
 -- Quem encerrou, quando e por quê. Visível às duas partes pela policy

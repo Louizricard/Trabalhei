@@ -1,8 +1,8 @@
 # Revisão da jornada de contratação — 12/11/2026
 
 Escopo: publicar vaga → proposta → contraproposta → contratação → marcos → conclusão/avaliação,
-no app Flutter e no banco. Achados por leitura de código e confirmados com testes; nada foi
-publicado em produção. Regras resultantes: [`docs/contratacao.md`](contratacao.md).
+no app Flutter e no banco. Achados por leitura de código e confirmados com testes. A migration
+foi publicada em produção em 12/11/2026 (ver "Publicação"). Regras resultantes: [`docs/contratacao.md`](contratacao.md).
 
 **Método de prova:** cada defeito do banco tem um cenário em `supabase/tests/hiring/` escrito antes
 da correção e executado **sem** a migration (vermelho) e **com** ela (verde), contra PostgreSQL 17.
@@ -66,7 +66,20 @@ Defeitos do app têm testes unitários/de widget quando a lógica é isolável.
 Não verificado: fluxo manual ponta a ponta no app contra um Supabase local (o Supabase CLI não está
 instalado nesta máquina) e build Android local (coberto pelo CI com `flutter build apk --debug`).
 
-## Publicação pendente
+## Publicação
 
-A migration **não** foi aplicada em produção. Ordem: aplicar a migration, depois publicar o app.
-Ver "Publicação" em [`docs/contratacao.md`](contratacao.md).
+Migration aplicada em produção em 12/11/2026, depois do CI verde (run 43310755499, commit
+`c184f3b`: jobs `flutter` e `webhook` aprovados). Versão remota `20261112213744_hiring_journey_fixes`;
+os arquivos locais foram renomeados para a mesma versão.
+
+| Verificação em produção | Resultado |
+|---|---|
+| `list_migrations` | `20261112213744 hiring_journey_fixes` registrada |
+| Funções novas/alteradas | nenhuma executável por `anon`; `accept_proposal(uuid, numeric)`, `cancel_contract` e demais RPCs executáveis por `authenticated`; `_create_contract` e `_proposed_milestones_total` não |
+| Funções `security definer` em `public` | 34 executáveis por `authenticated`, 1 por `anon` (`proposals_count`) — igual à linha de base |
+| Colunas novas | `cancelled_at`, `cancelled_by`, `cancel_reason` presentes |
+| Validação de marcos | soma válida aceita; formatos malformados recusados |
+| Dados | inalterados: 1 contrato (0 ativos, 0 encerrados), 2 propostas abertas |
+| Advisor de desempenho | novo aviso INFO: FK `contracts_cancelled_by_fkey` sem índice (tabela pequena; somar ao item de índices de FK acima) |
+
+Falta: publicar o app novo (só depois da migration, o que já vale) e fazer merge da PR.

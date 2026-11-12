@@ -1,4 +1,4 @@
--- Volta de 20261112120000_hiring_journey_fixes. Recusa se já houver contrato
+-- Volta de 20261112213744_hiring_journey_fixes. Recusa se já houver contrato
 -- encerrado pela RPC nova: as colunas de motivo seriam apagadas.
 do $$ begin
   if exists (select 1 from public.contracts where cancelled_at is not null) then

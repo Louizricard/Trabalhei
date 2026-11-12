@@ -2,8 +2,8 @@
 
 Regras do servidor para proposta → contrato → marcos → conclusão ou encerramento. Todas as
 mudanças de estado passam por funções `security definer`; as tabelas não aceitam escrita direta
-(ver `docs/rls.md`). Migration: `supabase/migrations/20261112120000_hiring_journey_fixes.sql`;
-volta em `supabase/rollbacks/20261112120000_hiring_journey_fixes_down.sql`.
+(ver `docs/rls.md`). Migration: `supabase/migrations/20261112213744_hiring_journey_fixes.sql`;
+volta em `supabase/rollbacks/20261112213744_hiring_journey_fixes_down.sql`.
 
 ## Estados
 
@@ -61,7 +61,7 @@ bloqueio do rollback quando já há contratos encerrados.
 
 ## Publicação
 
-1. Aplicar a migration no Supabase **antes** de publicar o app novo: o app passa a enviar
+1. Aplicar a migration no Supabase **antes** (feito em 12/11/2026, versão `20261112213744`) de publicar o app novo: o app passa a enviar
    `p_expected_amount` e a chamar `cancel_contract`. Apps antigos continuam funcionando com a
    migration aplicada.
 2. Rollback só antes de existir contrato encerrado pela função nova; depois disso ele recusa com
