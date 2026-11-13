@@ -341,7 +341,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              conversation?.otherParticipantName ?? 'Chat do Projeto',
+              conversation?.otherParticipantName ?? 'Conversa',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             if (conversation != null)

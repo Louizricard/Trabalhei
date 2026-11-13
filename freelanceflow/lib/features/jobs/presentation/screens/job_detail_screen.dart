@@ -165,7 +165,7 @@ class JobDetailScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 24),
                   const Text(
-                    'Descrição do Projeto',
+                    'Descrição da vaga',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

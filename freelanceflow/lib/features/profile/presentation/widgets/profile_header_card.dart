@@ -116,7 +116,7 @@ class ProfileHeaderCard extends StatelessWidget {
                 const _StatDivider(),
                 _Stat(
                   value: '${user.completedJobsCount}',
-                  label: 'Projetos concluídos',
+                  label: 'Trabalhos concluídos',
                 ),
               ],
             ),

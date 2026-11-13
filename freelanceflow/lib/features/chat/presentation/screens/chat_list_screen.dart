@@ -18,7 +18,7 @@ class ChatListScreen extends ConsumerWidget {
     final convAsync = ref.watch(conversationsListProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Conversas & Projetos')),
+      appBar: AppBar(title: const Text('Mensagens')),
       body: ResponsiveLayout(
         child: convAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),

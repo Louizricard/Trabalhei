@@ -41,6 +41,17 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
     _selectedCategory = widget.initialCategory;
   }
 
+  /// A aba Vagas fica viva no shell; um `go('/jobs', extra: ...)` vindo do
+  /// painel ou dos planos chega aqui, e não no initState.
+  @override
+  void didUpdateWidget(covariant JobsListScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialCategory != oldWidget.initialCategory &&
+        widget.initialCategory != null) {
+      _selectedCategory = widget.initialCategory;
+    }
+  }
+
   @override
   void dispose() {
     _searchController.dispose();

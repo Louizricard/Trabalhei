@@ -96,7 +96,7 @@ class ChatDeliveryActionBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Projeto Concluído! 🎉',
+                    'Trabalho concluído! 🎉',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
