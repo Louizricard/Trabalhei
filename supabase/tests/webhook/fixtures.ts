@@ -52,7 +52,7 @@ export async function customer(db: Database) {
     values (${id}, ${`${id}@example.invalid`}, '{"full_name":"Teste Webhook","role":"client"}')`;
   const [job] = await db`insert into public.jobs
     (client_id,title,category,description,budget_min,budget_max)
-    values (${id},'Vaga de teste','Testes','Descrição para testar cobranças',10,20) returning id`;
+    values (${id},'Vaga de teste','Tecnologia','Descrição para testar cobranças',10,20) returning id`;
   return { userId: id, jobId: job.id as string };
 }
 
