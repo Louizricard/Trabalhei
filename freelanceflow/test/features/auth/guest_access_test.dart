@@ -21,6 +21,7 @@ void main() {
         '/jobs/abc/proposals',
         '/jobs/abc/edit',
         '/profile',
+        '/profile/edit',
         '/chat',
         '/chat/abc',
         '/dashboard',

@@ -13,7 +13,7 @@ bool isPublicRoute(String location) {
   return switch (segments.first) {
     'jobs' =>
       segments.length == 1 || (segments.length == 2 && segments[1] != 'create'),
-    'profile' => segments.length == 2,
+    'profile' => segments.length == 2 && segments[1] != 'edit',
     'freelancers' => segments.length == 1,
     _ => false,
   };

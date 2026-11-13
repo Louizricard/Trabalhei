@@ -33,6 +33,7 @@ import '../../features/jobs/presentation/screens/job_alerts_screen.dart';
 import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
 import '../../features/profile/presentation/screens/freelancers_search_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../../features/profile/presentation/screens/public_profile_screen.dart';
 import '../../features/profile/presentation/screens/terms_and_privacy_screen.dart';
 import '../../features/proposals/presentation/screens/apply_job_screen.dart';
@@ -248,6 +249,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) =>
             ApplyJobScreen(jobId: state.pathParameters['id']!),
+      ),
+      // Antes de '/profile/:id', que também casaria com "edit".
+      GoRoute(
+        path: '/profile/edit',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const EditProfileScreen(),
       ),
       GoRoute(
         path: '/profile/:id',

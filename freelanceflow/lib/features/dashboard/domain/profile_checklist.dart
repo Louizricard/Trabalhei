@@ -10,7 +10,7 @@ class ChecklistStep {
 }
 
 /// Rota da edição de perfil.
-const profileEditRoute = '/profile';
+const profileEditRoute = '/profile/edit';
 
 /// Passos do primeiro uso por papel, a partir de dados que o app já tem
 /// (sem tabela nova). [hasJobs]: o contratante já publicou alguma vaga.
