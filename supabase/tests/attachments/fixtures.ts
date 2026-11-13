@@ -15,8 +15,9 @@ export async function stored(
   owner: string,
   bucket: string,
   mb = 1,
+  folder = "teste",
 ) {
-  const name = `${owner}/teste/${crypto.randomUUID()}_arquivo.pdf`;
+  const name = `${owner}/${folder}/${crypto.randomUUID()}_arquivo.pdf`;
   await db`insert into storage.objects (id,bucket_id,name,owner,metadata)
     values (gen_random_uuid(),${bucket},${name},${owner},
       ${db.json({ size: Math.round(mb * MB), mimetype: "application/pdf" })})`;
