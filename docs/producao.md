@@ -155,6 +155,14 @@ Feita em 24/10/2026: as Edge Functions do modelo antigo (`create-payment-intent`
 `supabase_migrations.legacy_history_backup` foi apagada. O código delas segue no histórico do git
 (commit `56b46f9`).
 
+### 7.1 Arquivos órfãos (Storage)
+
+A Edge Function `storage-cleanup` apaga anexos removidos e uploads que nunca viraram registro (ver
+`docs/rls.md`, "Arquivos órfãos"). Depois do deploy, agende uma chamada diária em
+**Integrations › Cron** com `POST /functions/v1/storage-cleanup` e o cabeçalho
+`Authorization: Bearer <service_role>`. Cada chamada apaga até 100 arquivos e devolve
+`{ removed, failed }`; falhas ficam na fila com `attempts` e `last_error` (desistência após 5).
+
 ## 8. Android (APK)
 
 - O APK de release é assinado com a chave `trabalhei-release.jks`, guardada fora do repositório em

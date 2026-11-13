@@ -56,6 +56,22 @@ export function env(name: string): string {
 }
 
 /** Cliente com privilégios totais (service_role). Nunca expor ao app. */
+/** A requisição traz a chave service_role (comparação em tempo constante). */
+export async function isServiceRole(req: Request): Promise<boolean> {
+  const token = req.headers.get("authorization")?.replace(/^Bearer /i, "") ??
+    "";
+  const digest = (value: string) =>
+    crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  const [a, b] = await Promise.all([
+    digest(token),
+    digest(env("SUPABASE_SERVICE_ROLE_KEY")),
+  ]);
+  const left = new Uint8Array(a), right = new Uint8Array(b);
+  let diff = 0;
+  for (let i = 0; i < left.length; i++) diff |= left[i] ^ right[i];
+  return diff === 0;
+}
+
 export function adminClient(): SupabaseClient {
   return createClient(env("SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"), {
     auth: { persistSession: false },

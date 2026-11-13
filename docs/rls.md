@@ -56,6 +56,21 @@ Escrita/remoção apenas na pasta do próprio usuário: o primeiro segmento do c
 O app guarda a URL no formato público como identificador do arquivo e, ao exibir ou abrir, troca por
 uma URL assinada válida por 1 hora (`StorageService.resolveUrl` e o widget `StorageImage`).
 
+### Anexos gravados em registros
+
+Ao gravar um anexo em vaga, entrega, revisão ou mensagem, o banco confere (`assert_attachment_refs`)
+que o arquivo existe no Storage, está na pasta de quem anexa e respeita o limite de tamanho do plano
+dessa pessoa. Assim ninguém anexa arquivo de outra pessoa colando a URL, nem contorna o limite do
+plano enviando direto pela API.
+
+### Arquivos órfãos
+
+`storage_cleanup_queue` (sem acesso para `anon`/`authenticated`) recebe os anexos e capas removidos
+de vagas e os de vagas apagadas. `storage_cleanup_batch` junta a fila com arquivos sem referência há
+mais de um dia e nunca devolve um caminho que voltou a ser usado. A Edge Function `storage-cleanup`,
+chamada só com a chave `service_role`, apaga pela Storage API. Entregas e revisões não entram: são
+histórico do contrato.
+
 ## Testando as políticas
 
 `billing_checkout_locks`, `billing_checkouts`, `billing_checkout_steps` e

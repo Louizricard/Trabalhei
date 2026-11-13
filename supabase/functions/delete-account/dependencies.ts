@@ -4,6 +4,7 @@ import {
   AsaasError,
   env,
   HttpError,
+  isServiceRole,
   json,
   reportError,
   requireUser,
@@ -14,21 +15,6 @@ import {
   type DeletionRequest,
   type StoredObject,
 } from "./workflow.ts";
-
-async function isOperator(req: Request) {
-  const token = req.headers.get("authorization")?.replace(/^Bearer /i, "") ??
-    "";
-  const digest = (value: string) =>
-    crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-  const [a, b] = await Promise.all([
-    digest(token),
-    digest(env("SUPABASE_SERVICE_ROLE_KEY")),
-  ]);
-  const left = new Uint8Array(a), right = new Uint8Array(b);
-  let diff = 0;
-  for (let i = 0; i < left.length; i++) diff |= left[i] ^ right[i];
-  return diff === 0;
-}
 
 type Admin = ReturnType<typeof adminClient>;
 async function rpc<T>(
@@ -61,7 +47,7 @@ async function rpc<T>(
   return data as T;
 }
 async function authorize(req: Request) {
-  if (await isOperator(req)) {
+  if (await isServiceRole(req)) {
     const body = await req.json().catch(() => ({}));
     if (
       !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
