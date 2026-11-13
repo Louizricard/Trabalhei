@@ -12,6 +12,8 @@ Propostas, chat e entregas por marcos em um só lugar, no Android, no Windows e 
 [**Abrir a versão web**](https://trabalhei.site/app) ·
 [Site](https://trabalhei.site) ·
 [Baixar o app](https://github.com/Louizricard/Trabalhei/releases/latest) ·
+[YouTube](https://www.youtube.com/@Trabalheiapp) ·
+[Discord](https://discord.gg/ZcYQYVQYcM) ·
 [Documentação](docs/)
 
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)
