@@ -114,9 +114,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
           folder: user.id,
           file: file,
         );
-        if (result != null) {
-          uploadedAttachments.add(result.toJson());
-        }
+        uploadedAttachments.add(result.toJson());
       }
 
       final skills = _skills;
@@ -128,7 +126,7 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
           folder: user.id,
           file: _coverImage!,
         );
-        coverImageUrl = result?.url;
+        coverImageUrl = result.url;
       }
 
       final isEditing = widget.jobToEdit != null;

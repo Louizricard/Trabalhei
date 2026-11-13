@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/services/attachment_store.dart';
 import '../../../../core/widgets/attachment_widgets.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
@@ -124,27 +125,18 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
     setState(() => _isRequestingRevision = true);
 
     try {
-      final storage = ref.read(storageServiceProvider);
-      final uploadedAttachments = <Map<String, dynamic>>[];
-
-      for (final file in _selectedFiles) {
-        final result = await storage.uploadFile(
-          bucket: 'chat_attachments',
-          folder: 'revisions/${widget.milestone.id}',
-          file: file,
-        );
-        if (result != null) {
-          uploadedAttachments.add(result.toJson());
-        }
-      }
-
-      await ref
-          .read(chatRepositoryProvider)
-          .requestMilestoneRevision(
-            milestoneId: widget.milestone.id,
-            comment: text,
-            attachments: uploadedAttachments,
-          );
+      await AttachmentSaveFlow(ref.read(storageServiceProvider)).run(
+        bucket: 'chat_attachments',
+        folder: 'revisions/${widget.milestone.id}',
+        newFiles: _selectedFiles,
+        save: (uploaded) => ref
+            .read(chatRepositoryProvider)
+            .requestMilestoneRevision(
+              milestoneId: widget.milestone.id,
+              comment: text,
+              attachments: [for (final a in uploaded) a.toJson()],
+            ),
+      );
 
       ref.invalidate(conversationDetailProvider(widget.conversation.id));
       ref.invalidate(conversationsListProvider);
@@ -177,8 +169,7 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).value;
     final isClient = user?.id == widget.conversation.clientId;
-    final isApproved =
-        widget.milestone.status == MilestoneStatus.approved;
+    final isApproved = widget.milestone.status == MilestoneStatus.approved;
 
     return Container(
       padding: EdgeInsets.only(

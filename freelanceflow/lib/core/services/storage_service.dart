@@ -9,6 +9,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import '../config/supabase_client.dart';
 import '../errors/backend_errors.dart';
+import '../errors/error_reporter.dart';
+import 'attachment_store.dart';
 import 'file_validation.dart';
 
 /// Data structure representing a selected file prior to upload
@@ -96,15 +98,23 @@ final _storageObjectUrl = RegExp(
   r'/storage/v1/object/(?:public|sign)/([^/]+)/([^?]+)',
 );
 
-/// Bucket e caminho do arquivo quando a URL aponta para um bucket privado.
-({String bucket, String path})? privateStorageObject(String url) {
+/// Bucket e caminho de qualquer arquivo do Storage a partir da URL gravada.
+({String bucket, String path})? storageObject(String url) {
   final match = _storageObjectUrl.firstMatch(url);
-  if (match == null || !privateBuckets.contains(match.group(1))) return null;
+  if (match == null) return null;
   return (bucket: match.group(1)!, path: Uri.decodeComponent(match.group(2)!));
 }
 
+/// Bucket e caminho do arquivo quando a URL aponta para um bucket privado.
+({String bucket, String path})? privateStorageObject(String url) {
+  final object = storageObject(url);
+  return object != null && privateBuckets.contains(object.bucket)
+      ? object
+      : null;
+}
+
 /// Service providing unified, cross-platform file picking and Supabase Storage uploads
-class StorageService {
+class StorageService implements AttachmentStore {
   final SupabaseClient _supabase;
   final ImagePicker _imagePicker = ImagePicker();
 
@@ -117,7 +127,7 @@ class StorageService {
   }) async {
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: type,
+        type: allowedExtensions != null ? FileType.custom : type,
         allowedExtensions: allowedExtensions,
         withData: true,
       );
@@ -214,63 +224,65 @@ class StorageService {
     );
   }
 
-  /// Uploads a file to a specific Supabase storage bucket
-  Future<AppAttachment?> uploadFile({
+  /// Envia um arquivo para `<uid>/<folder>/` no [bucket]. Em caso de falha,
+  /// lança [AppMessageException] com o nome do arquivo, para a tela dizer qual
+  /// deles não subiu.
+  @override
+  Future<AppAttachment> uploadFile({
     required String bucket,
     required String folder,
     required PickedFileData file,
   }) async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) {
+      throw const AppMessageException('Faça login para enviar arquivos.');
+    }
+    final fileId = const Uuid().v4();
+    final cleanName = file.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+    // A policy de storage exige que a primeira pasta seja o id do dono.
+    final path = '$userId/$folder/${fileId}_$cleanName';
     try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) throw StateError('Usuário não autenticado.');
-      final fileId = const Uuid().v4();
-      final cleanName = file.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
-      // A policy de storage exige que a primeira pasta seja o id do dono.
-      final path = '$userId/$folder/${fileId}_$cleanName';
-
       await _supabase.storage
           .from(bucket)
           .uploadBinary(
             path,
             file.bytes,
-            fileOptions: FileOptions(contentType: file.mimeType, upsert: true),
+            fileOptions: FileOptions(contentType: file.mimeType),
           );
-
-      final publicUrl = _supabase.storage.from(bucket).getPublicUrl(path);
-
-      return AppAttachment(
-        id: fileId,
-        name: file.name,
-        url: publicUrl,
-        size: file.size,
-        mimeType: file.mimeType,
-      );
     } catch (e, st) {
-      debugPrint(
-        '🚨 [StorageService] Erro no upload para o bucket $bucket: $e\n$st',
+      reportError(e, st, 'upload para $bucket');
+      throw AppMessageException(
+        'Não foi possível enviar "${file.name}". Verifique a conexão e o '
+        'tamanho do arquivo e tente de novo.',
       );
-      return null;
     }
+    return AppAttachment(
+      id: fileId,
+      name: file.name,
+      url: _supabase.storage.from(bucket).getPublicUrl(path),
+      size: file.size,
+      mimeType: file.mimeType,
+    );
   }
 
-  /// Uploads a list of files to a specific Supabase storage bucket
-  Future<List<Map<String, dynamic>>> uploadMultipleFiles({
-    required String bucket,
-    required String folderPath,
-    required List<PickedFileData> files,
-  }) async {
-    final results = <Map<String, dynamic>>[];
-    for (final file in files) {
-      final res = await uploadFile(
-        bucket: bucket,
-        folder: folderPath,
-        file: file,
-      );
-      if (res != null) {
-        results.add(res.toJson());
+  /// Remove os arquivos indicados pelas URLs. Nunca lança: o que não puder
+  /// ser apagado agora fica para a limpeza do servidor (storage_cleanup_queue).
+  @override
+  Future<void> deleteFiles(Iterable<String> urls) async {
+    final byBucket = <String, List<String>>{};
+    for (final url in urls) {
+      final object = storageObject(url);
+      if (object != null) {
+        byBucket.putIfAbsent(object.bucket, () => []).add(object.path);
       }
     }
-    return results;
+    for (final entry in byBucket.entries) {
+      try {
+        await _supabase.storage.from(entry.key).remove(entry.value);
+      } catch (e, st) {
+        reportError(e, st, 'remoção em ${entry.key}');
+      }
+    }
   }
 
   /// URL utilizável do arquivo: assinada para buckets privados, a própria nos demais.

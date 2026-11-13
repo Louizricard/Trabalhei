@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/date_formatter.dart';
+import '../../../../core/services/attachment_store.dart';
 import '../../../../core/widgets/attachment_widgets.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/responsive_layout.dart';
@@ -108,7 +109,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(friendlyError(e)), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text(friendlyError(e)),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
       return;
@@ -163,34 +167,21 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     });
 
     try {
-      final storage = ref.read(storageServiceProvider);
-      final attachment = await storage.uploadFile(
+      final caption = _messageController.text.trim();
+      await AttachmentSaveFlow(ref.read(storageServiceProvider)).run(
         bucket: 'chat_attachments',
         folder: widget.conversationId,
-        file: file,
-      );
-
-      if (attachment != null) {
-        final caption = _messageController.text.trim();
-        await ref
+        newFiles: [file],
+        save: (uploaded) => ref
             .read(chatRepositoryProvider)
             .sendAttachmentMessage(
               conversationId: widget.conversationId,
-              attachment: attachment,
+              attachment: uploaded.single,
               caption: caption.isNotEmpty ? caption : null,
-            );
-        _messageController.clear();
-        _scrollToBottom();
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Erro ao fazer upload do anexo.'),
-              backgroundColor: AppColors.error,
             ),
-          );
-        }
-      }
+      );
+      _messageController.clear();
+      _scrollToBottom();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -491,7 +482,13 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                       controller: _messageController,
                       // Limite do banco; sem contador para não poluir o chat.
                       maxLength: 5000,
-                      buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
+                      buildCounter:
+                          (
+                            _, {
+                            required currentLength,
+                            required isFocused,
+                            maxLength,
+                          }) => null,
                       style: const TextStyle(
                         color: AppColors.textPrimaryDark,
                         fontSize: 14,
