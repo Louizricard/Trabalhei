@@ -1,6 +1,6 @@
 import { asUser, type Database } from "../webhook/fixtures.ts";
 
-export const uploadLimitsMigration = "20261113120000_plan_upload_limits";
+export const uploadLimitsMigration = "20261113185435_plan_upload_limits";
 
 const MB = 1024 * 1024;
 const base = "https://projeto.supabase.co/storage/v1/object/public";

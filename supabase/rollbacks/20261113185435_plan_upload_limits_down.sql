@@ -1,4 +1,4 @@
--- Desfaz 20261113120000_plan_upload_limits. Não apaga dados: só remove as
+-- Desfaz 20261113185435_plan_upload_limits. Não apaga dados: só remove as
 -- validações e devolve o teto anterior (20 MB) aos buckets.
 drop trigger if exists jobs_attachment_refs on public.jobs;
 drop trigger if exists milestones_attachment_refs on public.milestones;

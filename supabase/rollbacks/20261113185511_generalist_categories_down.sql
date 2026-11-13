@@ -1,4 +1,4 @@
--- Desfaz 20261113120100_generalist_categories.
+-- Desfaz 20261113185511_generalist_categories.
 -- Volta a categoria antiga (texto livre) a partir da subcategoria quando ela
 -- veio do remapeamento (Tecnologia + Mobile/Frontend/Backend/Fullstack/DevOps,
 -- ou Outros + valor antigo). Recusa rodar se houver dado que não cabe no

@@ -1,5 +1,5 @@
 -- Portfólio e amostras na proposta (links e anexos privados).
--- Rollback: supabase/rollbacks/20261113120300_proposal_portfolio_down.sql
+-- Rollback: supabase/rollbacks/20261113185622_proposal_portfolio_down.sql
 --
 -- O freelancer pode anexar até 10 links profissionais e 5 arquivos à
 -- proposta. Os arquivos ficam no bucket privado `proposal_attachments`, no

@@ -1,5 +1,5 @@
 -- Limpeza de arquivos órfãos no Storage.
--- Rollback: supabase/rollbacks/20261113120200_storage_cleanup_queue_down.sql
+-- Rollback: supabase/rollbacks/20261113185537_storage_cleanup_queue_down.sql
 --
 -- Um arquivo vira órfão quando a pessoa o remove de uma vaga/proposta, quando
 -- o registro é apagado ou quando o upload subiu mas o registro não chegou a

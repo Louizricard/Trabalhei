@@ -7,7 +7,7 @@ import {
   sqlFile,
 } from "../webhook/fixtures.ts";
 
-export const categoriesMigration = "20261113120100_generalist_categories";
+export const categoriesMigration = "20261113185511_generalist_categories";
 
 async function legacyJob(db: Database, category: string) {
   const { userId } = await customer(db);
