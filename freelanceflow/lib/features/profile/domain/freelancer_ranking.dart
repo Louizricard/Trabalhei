@@ -5,18 +5,12 @@ import '../../auth/domain/entities/user_profile.dart';
 /// comprovada (nota ponderada pelo número de avaliações e trabalhos
 /// concluídos) e compatibilidade com o que o cliente procura. O plano Pro não
 /// dá prioridade: o selo indica só a assinatura.
-List<UserProfile> rankFreelancers(
-  List<UserProfile> profiles, {
-  String? query,
-  String? skill,
-}) {
+List<UserProfile> rankFreelancers(List<UserProfile> profiles, {String? query}) {
   final terms = {
     ...?query
         ?.toLowerCase()
         .split(RegExp(r'[\s,]+'))
         .where((t) => t.length >= 2),
-    if (skill != null && skill.isNotEmpty && skill.toLowerCase() != 'todos')
-      skill.toLowerCase(),
   };
   final scored = [
     for (final p in profiles) (profile: p, score: freelancerScore(p, terms)),

@@ -160,9 +160,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               hint: '••••••••',
                               prefixIcon: Icons.lock_outline_rounded,
                               obscureText: true,
-                              validator: (v) => v != null && v.length >= 6
-                                  ? null
-                                  : 'Mínimo 6 caracteres',
+                              // Sem tamanho mínimo: contas antigas podem ter
+                              // senhas mais curtas (ver password_policy.dart).
+                              validator: (v) => (v ?? '').isEmpty
+                                  ? 'Informe sua senha.'
+                                  : null,
                               autofillHints: const [AutofillHints.password],
                               textInputAction: TextInputAction.done,
                               onFieldSubmitted: (_) => _handleLogin(),

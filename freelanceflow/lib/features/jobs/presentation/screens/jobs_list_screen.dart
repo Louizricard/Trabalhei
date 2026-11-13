@@ -1,6 +1,7 @@
 import 'package:trabalhei/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:trabalhei/core/config/work_categories.dart';
 import 'package:trabalhei/core/theme/app_colors.dart';
 import 'package:trabalhei/core/widgets/empty_state.dart';
 import 'package:trabalhei/core/widgets/notification_bell_button.dart';
@@ -40,6 +41,17 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
     _selectedCategory = widget.initialCategory;
   }
 
+  /// A aba Vagas fica viva no shell; um `go('/jobs', extra: ...)` vindo do
+  /// painel ou dos planos chega aqui, e não no initState.
+  @override
+  void didUpdateWidget(covariant JobsListScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialCategory != oldWidget.initialCategory &&
+        widget.initialCategory != null) {
+      _selectedCategory = widget.initialCategory;
+    }
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -67,12 +79,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
     final categories = [
       'Todos',
       if (isClient) 'Minhas Vagas',
-      'Mobile',
-      'Design',
-      'Fullstack',
-      'Frontend',
-      'Backend',
-      'DevOps',
+      ...WorkCategories.names,
     ];
 
     return Scaffold(
@@ -126,8 +133,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                       controller: _searchController,
                       style: const TextStyle(color: AppColors.textPrimaryDark),
                       decoration: InputDecoration(
-                        hintText:
-                            'Buscar vagas por título, tecnologia ou cliente...',
+                        hintText: 'Buscar por título, habilidade ou área...',
                         prefixIcon: const Icon(
                           Icons.search_rounded,
                           color: AppColors.textSecondaryDark,
@@ -238,6 +244,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                         .where(
                           (j) =>
                               j.title.toLowerCase().contains(query) ||
+                              j.categoryLabel.toLowerCase().contains(query) ||
                               j.skillsRequired.any(
                                 (s) => s.toLowerCase().contains(query),
                               ),
@@ -370,8 +377,8 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                                   title: 'Patrocinadas',
                                   onInfo: () => _explainSponsored(
                                     context,
-                                    settings.sponsoredSlots,
-                                    settings.sponsoredRotationMinutes,
+                                    ref.read(pricingProvider).valueOrNull ??
+                                        Pricing.fallback,
                                   ),
                                 ),
                               ),
@@ -441,7 +448,9 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-void _explainSponsored(BuildContext context, int slots, int rotationMinutes) {
+void _explainSponsored(BuildContext context, Pricing pricing) {
+  final slots = pricing.settings.sponsoredSlots;
+  final rotationMinutes = pricing.settings.sponsoredRotationMinutes;
   final every = rotationMinutes % 60 == 0
       ? (rotationMinutes == 60
             ? 'a cada hora'
@@ -452,7 +461,8 @@ void _explainSponsored(BuildContext context, int slots, int rotationMinutes) {
     builder: (ctx) => AlertDialog(
       title: const Text('Vagas patrocinadas'),
       content: Text(
-        'Clientes podem patrocinar uma vaga por 7 dias. Ela aparece neste '
+        'Clientes podem patrocinar uma vaga por '
+        '${pricing.feature.periodDays} dias. Ela aparece neste '
         'espaço, sempre com a etiqueta "Patrocinado".\n\n'
         'O espaço tem $slots lugar${slots == 1 ? '' : 'es'}. Quando há mais '
         'vagas patrocinadas, elas se revezam $every, e todas ficam o mesmo '

@@ -218,7 +218,7 @@ class _InviteToJobModalState extends ConsumerState<InviteToJobModal> {
                 ),
               ] else ...[
                 const Text(
-                  'Selecione o Projeto',
+                  'Selecione a vaga',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,

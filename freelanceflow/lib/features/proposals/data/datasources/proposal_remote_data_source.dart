@@ -5,7 +5,8 @@ import '../../domain/entities/proposal_quota.dart';
 /// Toda escrita em propostas passa por funções (RPC) do servidor, que aplicam
 /// a máquina de estados, a cota do plano e as notificações.
 class ProposalRemoteDataSource {
-  static const _select = '*, profiles!freelancer_id(full_name, rating)';
+  static const _select =
+      '*, profiles!freelancer_id(full_name, rating, plan, plan_expires_at)';
 
   final SupabaseClient _supabase;
 
@@ -49,6 +50,8 @@ class ProposalRemoteDataSource {
         'p_milestones': proposal.proposedMilestones
             .map((m) => m.toJson())
             .toList(),
+        'p_portfolio_links': proposal.portfolioLinks,
+        'p_attachments': proposal.attachments,
       },
     );
     return Proposal.fromJson(Map<String, dynamic>.from(response as Map));

@@ -69,8 +69,8 @@ void main() {
       notifier.setQuery('Flutter');
       expect(notifier.state.query, equals('Flutter'));
 
-      notifier.setSkill('React');
-      expect(notifier.state.skill, equals('React'));
+      notifier.setArea('Design');
+      expect(notifier.state.area, equals('Design'));
       expect(notifier.state.hasActiveFilters, isTrue);
 
       notifier.updateFilters(

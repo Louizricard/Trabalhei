@@ -81,7 +81,7 @@ falhar. Mantenha-os iguais aos da migração.
 | Modelos de proposta | Botão "Modelos" ao enviar proposta; Painel › Ferramentas Pro | `proposal_templates` (criar/editar exige Pro na RLS) |
 | Clientes e projetos | Painel › Ferramentas Pro | `freelancer_clients()` + `client_notes` (anotações privadas) |
 | Estatísticas das propostas | Painel › Ferramentas Pro | `proposal_stats(dias)` |
-| Arquivos maiores | Chat, entregas e anexos | `pro_file_mb` (limite verificado no app; o bucket aceita até o limite do Pro) |
+| Arquivos maiores | Chat, entregas, anexos de vaga e de proposta | `pro_file_mb`, conferido no servidor por `assert_attachment_refs` ao gravar o anexo |
 
 Quem deixa de ser Pro continua vendo e apagando os próprios modelos e anotações, mas não cria nem
 edita.
@@ -133,5 +133,36 @@ select public.admin_create_coupon('LANCAMENTO50', 'pro_monthly', 50, null, 200,
 - **10 propostas grátis por mês**: com poucas vagas, o limite quase não pesa. Com vagas fracas, a
   devolução do saldo (canceladas, removidas e sem resposta) reduz o desperdício. Acompanhe pelas
   estatísticas e ajuste `free_monthly_proposals` se necessário.
-- **Limite de arquivo do grátis**: verificado no app (o bucket aceita até 50 MB). Quem usar a API
-  diretamente consegue enviar até o limite do Pro. Exigir no servidor pede upload por Edge Function.
+- **Limite de arquivo por plano**: o Storage aceita até o teto do Pro (50 MB). Um arquivo maior que o
+  limite do plano pode até subir pela API, mas não é aceito como anexo de vaga, proposta, entrega,
+  revisão ou mensagem (`FILE_TOO_LARGE`). O upload solto, sem referência, vira órfão e é removido
+  pela limpeza de arquivos.
+
+## Conferência: o que é prometido × onde é aplicado
+
+Revisada em 13/11/2026. Antes de anunciar um benefício novo, inclua uma linha aqui. Se a coluna
+"Aplicado em" ficar vazia, o texto não entra no app nem no site.
+
+| Promessa (app, site, JSON-LD) | Aplicado em |
+|---|---|
+| Grátis: `free_monthly_proposals` propostas/mês | `submit_proposal` (`PROPOSAL_QUOTA_EXCEEDED`), `proposal_quota()` |
+| Pro: `pro_monthly_proposals` propostas/mês | Idem, com `is_pro()` (considera expiração) |
+| Até `daily_proposals` por 24 h em qualquer plano | `submit_proposal` (`DAILY_PROPOSAL_LIMIT`) |
+| Proposta sem resposta por `unanswered_refund_days` volta ao saldo | `counted_proposals()` |
+| Modelos de proposta (Pro), até `max_proposal_templates` | RLS de `proposal_templates` com `is_pro()` + gatilho `proposal_templates_limit` |
+| Organização de clientes (Pro) | `freelancer_clients()` (`PRO_REQUIRED`) e RLS de `client_notes` |
+| Estatísticas das propostas (Pro) | `proposal_stats()` (`PRO_REQUIRED`) |
+| Arquivos até `free_file_mb` / `pro_file_mb` | `assert_attachment_refs` (vaga, proposta, entrega, revisão, mensagem); teto do bucket = 50 MB |
+| Selo PRO indica só a assinatura | `ProBadge`; rankings (`job_ranking.dart`, `freelancer_ranking.dart`) não leem o plano |
+| Destaque: topo do mural por `job_feature.period_days` dias | `featured_until` gravado pelo webhook (`billing_checkout_effects`) |
+| Até `sponsored_slots` patrocinadas por vez, rodízio a cada `sponsored_rotation_minutes` | `splitSponsored` em `job_ranking.dart` (igual para todos) |
+| Busca e mural não favorecem quem paga | Rankings acima; patrocinadas sempre com a etiqueta |
+| Sem comissão; pagamento direto | Não há cobrança sobre contrato no banco nem nas Edge Functions |
+
+No app, todos os textos da página de planos (benefícios, tabela comparativa, regras e FAQ) ficam em
+`freelanceflow/lib/features/billing/domain/plan_benefits.dart` e são montados com o `Pricing` lido do
+servidor; `test/features/billing/plans_screen_test.dart` injeta números diferentes dos padrões e falha se
+algum valor estiver fixo no texto. O selo PRO aparece no perfil público e na lista de propostas recebidas.
+
+Os valores do app (`Pricing.fallback`) e os números fixos de `site/index.html` são comparados com os
+padrões das migrations em `freelanceflow/test/features/billing/pricing_consistency_test.dart`.

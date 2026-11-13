@@ -1,3 +1,4 @@
+import '../../../../core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/errors/backend_errors.dart';
@@ -61,12 +62,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgDark,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
-        ),
-      ),
+      appBar: AppBar(leading: const AppBackButton(fallbackRoute: '/login')),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(

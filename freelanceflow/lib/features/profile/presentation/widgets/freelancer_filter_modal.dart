@@ -146,7 +146,7 @@ class _FreelancerFilterModalState extends ConsumerState<FreelancerFilterModal> {
                 (v) => setState(() => _orderBy = v),
               ),
               _buildChoiceChip(
-                'Mais Projetos',
+                'Mais trabalhos',
                 'jobs_desc',
                 _orderBy,
                 (v) => setState(() => _orderBy = v),

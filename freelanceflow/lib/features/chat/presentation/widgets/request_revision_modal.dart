@@ -4,8 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/services/attachment_store.dart';
 import '../../../../core/widgets/attachment_widgets.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/field_label.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
@@ -30,6 +33,7 @@ class RequestRevisionModal extends ConsumerStatefulWidget {
 }
 
 class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
+  final _revisionFormKey = GlobalKey<FormState>();
   final _commentController = TextEditingController();
   List<PickedFileData> _selectedFiles = [];
   bool _isRequestingRevision = false;
@@ -111,40 +115,24 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
   }
 
   Future<void> _submitRevision() async {
+    if (!(_revisionFormKey.currentState?.validate() ?? false)) return;
     final text = _commentController.text.trim();
-    if (text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Informe as observações e alterações solicitadas.'),
-        ),
-      );
-      return;
-    }
 
     setState(() => _isRequestingRevision = true);
 
     try {
-      final storage = ref.read(storageServiceProvider);
-      final uploadedAttachments = <Map<String, dynamic>>[];
-
-      for (final file in _selectedFiles) {
-        final result = await storage.uploadFile(
-          bucket: 'chat_attachments',
-          folder: 'revisions/${widget.milestone.id}',
-          file: file,
-        );
-        if (result != null) {
-          uploadedAttachments.add(result.toJson());
-        }
-      }
-
-      await ref
-          .read(chatRepositoryProvider)
-          .requestMilestoneRevision(
-            milestoneId: widget.milestone.id,
-            comment: text,
-            attachments: uploadedAttachments,
-          );
+      await AttachmentSaveFlow(ref.read(storageServiceProvider)).run(
+        bucket: 'chat_attachments',
+        folder: 'revisions/${widget.milestone.id}',
+        newFiles: _selectedFiles,
+        save: (uploaded) => ref
+            .read(chatRepositoryProvider)
+            .requestMilestoneRevision(
+              milestoneId: widget.milestone.id,
+              comment: text,
+              attachments: [for (final a in uploaded) a.toJson()],
+            ),
+      );
 
       ref.invalidate(conversationDetailProvider(widget.conversation.id));
       ref.invalidate(conversationsListProvider);
@@ -177,8 +165,7 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).value;
     final isClient = user?.id == widget.conversation.clientId;
-    final isApproved =
-        widget.milestone.status == MilestoneStatus.approved;
+    final isApproved = widget.milestone.status == MilestoneStatus.approved;
 
     return Container(
       padding: EdgeInsets.only(
@@ -359,11 +346,26 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                CustomTextField(
-                  controller: _commentController,
-                  label: 'Instruções de Ajuste',
-                  hint: 'Descreva detalhadamente o que deve ser revisado...',
-                  maxLines: 4,
+                Form(
+                  key: _revisionFormKey,
+                  child: CustomTextField(
+                    controller: _commentController,
+                    label: 'O que ajustar',
+                    requirement: FieldRequirement.required,
+                    hint:
+                        'Ex.: Trocar a cor do botão para o verde da marca '
+                        'e corrigir o texto do rodapé.',
+                    helperText:
+                        'Seja específico: o freelancer usa isto para '
+                        'refazer a entrega.',
+                    maxLines: 4,
+                    maxLength: 2000,
+                    textCapitalization: TextCapitalization.sentences,
+                    validator: Validators.minLength(
+                      'o que precisa ser ajustado',
+                      10,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 AttachmentPickerSection(

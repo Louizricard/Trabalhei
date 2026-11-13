@@ -1,6 +1,7 @@
 import 'package:trabalhei/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/config/work_categories.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/responsive_layout.dart';
@@ -23,20 +24,7 @@ class _FreelancersSearchScreenState
     extends ConsumerState<FreelancersSearchScreen> {
   final _searchController = TextEditingController();
 
-  final _skillsList = [
-    'Todos',
-    'Flutter',
-    'React',
-    'UI/UX',
-    'Node.js',
-    'Python',
-    'Mobile',
-    'Fullstack',
-    'Frontend',
-    'Backend',
-    'DevOps',
-    'Figma',
-  ];
+  static final _areas = ['Todas', ...WorkCategories.names];
 
   @override
   void initState() {
@@ -101,7 +89,7 @@ class _FreelancersSearchScreenState
                 controller: _searchController,
                 style: const TextStyle(color: AppColors.textPrimaryDark),
                 decoration: InputDecoration(
-                  hintText: 'Buscar por nome, cargo ou habilidades...',
+                  hintText: 'Buscar por nome, título ou habilidade...',
                   prefixIcon: const Icon(
                     Icons.search_rounded,
                     color: AppColors.textMutedDark,
@@ -120,7 +108,7 @@ class _FreelancersSearchScreenState
               ),
             ),
 
-            // Chips Horizontais de Habilidades
+            // Áreas do catálogo
             SizedBox(
               height: 46,
               child: ListView.separated(
@@ -129,23 +117,18 @@ class _FreelancersSearchScreenState
                   horizontal: 16,
                   vertical: 4,
                 ),
-                itemCount: _skillsList.length,
+                itemCount: _areas.length,
                 separatorBuilder: (context, index) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
-                  final skill = _skillsList[index];
-                  final isSelected =
-                      (filter.skill == skill) ||
-                      (filter.skill == null && skill == 'Todos') ||
-                      (filter.skill == '' && skill == 'Todos');
+                  final area = index == 0 ? null : _areas[index];
+                  final isSelected = filter.area == area;
 
                   return ChoiceChip(
-                    label: Text(skill),
+                    label: Text(_areas[index]),
                     selected: isSelected,
-                    onSelected: (_) {
-                      ref
-                          .read(freelancerSearchFilterProvider.notifier)
-                          .setSkill(skill == 'Todos' ? null : skill);
-                    },
+                    onSelected: (_) => ref
+                        .read(freelancerSearchFilterProvider.notifier)
+                        .setArea(area),
                     selectedColor: AppColors.primaryContainer,
                     backgroundColor: AppColors.surfaceElevatedDark,
                     labelStyle: TextStyle(

@@ -1,13 +1,13 @@
-import 'package:go_router/go_router.dart';
-import '../../features/auth/presentation/providers/auth_state_provider.dart';
-import '../../features/billing/presentation/providers/pricing_provider.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/storage_service.dart';
 import '../theme/app_colors.dart';
 import 'glass_card.dart';
+import 'attachment_row.dart';
 import 'storage_image.dart';
+
+export 'attachment_picker_section.dart';
 
 /// Utilitários para detecção de tipo de anexo
 class AttachmentHelper {
@@ -65,8 +65,7 @@ class _ImageViewerDialog extends ConsumerStatefulWidget {
   const _ImageViewerDialog({required this.images, this.initialIndex = 0});
 
   @override
-  ConsumerState<_ImageViewerDialog> createState() =>
-      _ImageViewerDialogState();
+  ConsumerState<_ImageViewerDialog> createState() => _ImageViewerDialogState();
 }
 
 class _ImageViewerDialogState extends ConsumerState<_ImageViewerDialog> {
@@ -403,259 +402,6 @@ class _ImageViewerDialogState extends ConsumerState<_ImageViewerDialog> {
   }
 }
 
-/// Seletor de anexos para formulários
-class AttachmentPickerSection extends ConsumerStatefulWidget {
-  final List<PickedFileData> selectedFiles;
-  final ValueChanged<List<PickedFileData>> onChanged;
-  final String title;
-  final String hintText;
-  final int maxFiles;
-
-  const AttachmentPickerSection({
-    super.key,
-    required this.selectedFiles,
-    required this.onChanged,
-    this.title = 'Anexos do Projeto (Opcional)',
-    this.hintText = 'Adicione imagens, PDFs ou documentos.',
-    this.maxFiles = 5,
-  });
-
-  static Widget buildFileIcon(String name) {
-    final ext = name.split('.').last.toLowerCase();
-    if (ext == 'pdf') {
-      return const Icon(
-        Icons.picture_as_pdf_rounded,
-        size: 18,
-        color: AppColors.error,
-      );
-    }
-    if (['png', 'jpg', 'jpeg', 'webp', 'gif'].contains(ext)) {
-      return const Icon(
-        Icons.image_rounded,
-        size: 18,
-        color: AppColors.primaryLight,
-      );
-    }
-    if (['doc', 'docx'].contains(ext)) {
-      return const Icon(
-        Icons.description_rounded,
-        size: 18,
-        color: AppColors.info,
-      );
-    }
-    if (ext == 'zip') {
-      return const Icon(
-        Icons.folder_zip_rounded,
-        size: 18,
-        color: AppColors.warning,
-      );
-    }
-    return const Icon(
-      Icons.insert_drive_file_rounded,
-      size: 18,
-      color: AppColors.textSecondaryDark,
-    );
-  }
-
-  @override
-  ConsumerState<AttachmentPickerSection> createState() =>
-      _AttachmentPickerSectionState();
-}
-
-class _AttachmentPickerSectionState
-    extends ConsumerState<AttachmentPickerSection> {
-  bool _isPicking = false;
-
-  Future<void> _pickFiles() async {
-    if (widget.selectedFiles.length >= widget.maxFiles) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Limite de ${widget.maxFiles} anexos atingido.'),
-          backgroundColor: AppColors.warning,
-        ),
-      );
-      return;
-    }
-
-    setState(() => _isPicking = true);
-    final storage = ref.read(storageServiceProvider);
-
-    try {
-      final picked = await storage.pickMultipleFiles(
-        allowedExtensions: [
-          'pdf',
-          'doc',
-          'docx',
-          'png',
-          'jpg',
-          'jpeg',
-          'webp',
-          'zip',
-          'txt',
-        ],
-      );
-
-      if (picked.isNotEmpty) {
-        // Limite por arquivo depende do plano (grátis x Pro).
-        final limit = ref.read(uploadLimitBytesProvider);
-        final tooBig = picked.where((f) => f.size > limit).toList();
-        final current = List<PickedFileData>.from(widget.selectedFiles);
-        for (final f in picked) {
-          if (f.size <= limit &&
-              !current.any((c) => c.name == f.name) &&
-              current.length < widget.maxFiles) {
-            current.add(f);
-          }
-        }
-        widget.onChanged(current);
-        if (tooBig.isNotEmpty && mounted) {
-          _warnTooBig(tooBig.map((f) => f.name).join(', '), limit);
-        }
-      }
-    } finally {
-      if (mounted) setState(() => _isPicking = false);
-    }
-  }
-
-  void _warnTooBig(String names, int limit) {
-    final isPro = ref.read(authProvider).valueOrNull?.isPro ?? false;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '$names passa${names.contains(',') ? 'm' : ''} de ${limit ~/ (1024 * 1024)} MB por arquivo'
-          '${isPro ? '.' : '. No Pro, o limite é maior.'}',
-        ),
-        backgroundColor: AppColors.warning,
-        action: isPro
-            ? null
-            : SnackBarAction(
-                label: 'Ver o Pro',
-                onPressed: () => context.push('/plans'),
-              ),
-      ),
-    );
-  }
-
-  void _removeFile(int index) {
-    final current = List<PickedFileData>.from(widget.selectedFiles)
-      ..removeAt(index);
-    widget.onChanged(current);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              widget.title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: AppColors.textPrimaryDark,
-              ),
-            ),
-            Text(
-              '${widget.selectedFiles.length}/${widget.maxFiles}',
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textMutedDark,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Text(
-          '${widget.hintText} Até ${ref.watch(uploadLimitBytesProvider) ~/ (1024 * 1024)} MB por arquivo.',
-          style: const TextStyle(
-            fontSize: 12,
-            color: AppColors.textSecondaryDark,
-          ),
-        ),
-        const SizedBox(height: 10),
-        if (widget.selectedFiles.isNotEmpty) ...[
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: List.generate(widget.selectedFiles.length, (index) {
-              final file = widget.selectedFiles[index];
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceElevatedDark,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.borderDark),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AttachmentPickerSection.buildFileIcon(file.name),
-                    const SizedBox(width: 6),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 160),
-                      child: Text(
-                        file.name,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textPrimaryDark,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '(${file.formattedSize})',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: AppColors.textMutedDark,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    InkWell(
-                      onTap: () => _removeFile(index),
-                      child: const Icon(
-                        Icons.close_rounded,
-                        size: 16,
-                        color: AppColors.error,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ),
-          const SizedBox(height: 10),
-        ],
-        OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.primaryLight,
-            side: const BorderSide(color: AppColors.borderDark),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          ),
-          onPressed: _isPicking ? null : _pickFiles,
-          icon: _isPicking
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.attach_file_rounded, size: 18),
-          label: Text(_isPicking ? 'Selecionando...' : 'Selecionar Arquivos'),
-        ),
-      ],
-    );
-  }
-}
-
 /// Visualizador Premium de Anexos em Formato de Galeria e Lista de Documentos
 class AttachmentCardsList extends ConsumerWidget {
   final List<Map<String, dynamic>> attachments;
@@ -772,7 +518,7 @@ class AttachmentCardsList extends ConsumerWidget {
                     CircleAvatar(
                       radius: 18,
                       backgroundColor: AppColors.surfaceElevatedDark,
-                      child: AttachmentPickerSection.buildFileIcon(name),
+                      child: fileTypeIcon(name),
                     ),
                     const SizedBox(width: 12),
                     Expanded(

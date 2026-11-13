@@ -61,7 +61,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('4.8'), findsOneWidget);
-    expect(find.text('Projetos concluídos'), findsOneWidget);
+    expect(find.text('Trabalhos concluídos'), findsOneWidget);
     expect(find.text('Excluir minha conta'), findsOneWidget);
   });
 }

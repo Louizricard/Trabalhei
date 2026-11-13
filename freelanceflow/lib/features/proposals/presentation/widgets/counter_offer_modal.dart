@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../../core/utils/input_formatters.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/field_label.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../domain/entities/proposal.dart';
@@ -207,39 +210,42 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
                 ),
               ),
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      controller: _priceController,
-                      label: 'Novo Valor Ofertado (R\$)',
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      validator: (v) => (CurrencyFormatter.parse(v) ?? 0) > 0
-                          ? null
-                          : 'Valor inválido, ex.: 1.500,00',
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: CustomTextField(
-                      controller: _daysController,
-                      label: 'Novo Prazo (Dias)',
-                      keyboardType: TextInputType.number,
-                      validator: (v) =>
-                          (v == null || v.isEmpty) ? 'Informe os dias' : null,
-                    ),
-                  ),
-                ],
+              const RequiredFieldsNote(),
+              const SizedBox(height: 12),
+              CustomTextField(
+                controller: _priceController,
+                label: 'Novo valor',
+                prefixText: 'R\$ ',
+                helperText: 'O valor total que você aceita pagar.',
+                requirement: FieldRequirement.required,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: const [CurrencyInputFormatter()],
+                textInputAction: TextInputAction.next,
+                validator: Validators.money(),
+              ),
+              const SizedBox(height: 12),
+              CustomTextField(
+                controller: _daysController,
+                label: 'Novo prazo',
+                helperText: 'Em dias corridos. Ex.: 20 dias.',
+                requirement: FieldRequirement.required,
+                keyboardType: TextInputType.number,
+                inputFormatters: const [IntegerInputFormatter(maxDigits: 4)],
+                textInputAction: TextInputAction.next,
+                validator: Validators.intRange(1, 3650, unit: 'dias'),
               ),
               const SizedBox(height: 14),
               CustomTextField(
                 controller: _messageController,
-                label: 'Mensagem / Justificativa (Opcional)',
+                label: 'Mensagem ao freelancer',
+                requirement: FieldRequirement.optional,
                 hint:
-                    'Ex: Conseguimos fechar por este valor se entregarmos até o dia X...',
+                    'Ex.: Fechamos por este valor se a entrega for até o dia 20.',
+                helperText: 'Explique o motivo da contraproposta.',
                 maxLines: 3,
+                maxLength: 500,
               ),
               const SizedBox(height: 20),
               CustomButton(

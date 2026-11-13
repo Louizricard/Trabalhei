@@ -12,6 +12,8 @@ import '../../../chat/presentation/providers/chat_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../../domain/entities/proposal.dart';
+import '../../../billing/presentation/widgets/pro_upsell.dart';
+import '../widgets/proposal_portfolio_view.dart';
 import '../providers/proposals_provider.dart';
 import '../widgets/counter_offer_modal.dart';
 
@@ -226,7 +228,9 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
             Icons.arrow_back_rounded,
             color: AppColors.textPrimaryDark,
           ),
-          onPressed: () => context.pop(),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.go('/jobs/${widget.jobId}'),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -523,6 +527,10 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          if (proposal.freelancerIsPro) ...[
+                            const SizedBox(width: 6),
+                            const ProBadge(),
+                          ],
                           const SizedBox(width: 4),
                           const Icon(
                             Icons.open_in_new_rounded,
@@ -629,6 +637,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
               ),
             ),
           ),
+          ProposalPortfolioView(proposal: proposal),
 
           // Marcos Propostos (se houver)
           if (proposal.proposedMilestones.isNotEmpty) ...[

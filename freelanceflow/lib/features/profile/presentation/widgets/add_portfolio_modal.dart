@@ -4,6 +4,7 @@ import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../../core/widgets/field_label.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../providers/profile_provider.dart';
 
@@ -82,9 +83,7 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Erro ao salvar projeto: ${friendlyError(e)}',
-            ),
+            content: Text('Erro ao salvar projeto: ${friendlyError(e)}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -136,50 +135,54 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
 
               CustomTextField(
                 controller: _titleController,
-                label: 'Título do Projeto',
-                hint: 'Ex: App de delivery Mobile & Web',
+                label: 'Título do projeto',
+                hint: 'Ex.: Identidade visual de uma padaria',
+                requirement: FieldRequirement.required,
                 maxLength: 120,
-                validator: (v) => v == null || v.trim().isEmpty
-                    ? 'Informe o título do projeto'
-                    : null,
+                validator: Validators.required('o título do projeto'),
               ),
               const SizedBox(height: 14),
 
               CustomTextField(
                 controller: _descController,
                 label: 'Descrição',
-                hint:
-                    'Descreva os desafios, arquitetura e resultados alcançados...',
+                hint: 'O pedido do cliente, o que você fez e o resultado.',
+                requirement: FieldRequirement.required,
                 maxLines: 3,
                 maxLength: 1000,
-                validator: (v) => v == null || v.trim().isEmpty
-                    ? 'Informe uma descrição'
-                    : null,
+                validator: Validators.required('uma descrição'),
               ),
               const SizedBox(height: 14),
 
               CustomTextField(
                 controller: _imageUrlController,
-                label: 'URL da Imagem / Screenshot',
+                label: 'Link da imagem',
                 hint: 'https://exemplo.com/imagem.png',
+                helperText: 'Endereço de uma imagem ou captura do trabalho.',
+                requirement: FieldRequirement.required,
+                keyboardType: TextInputType.url,
                 validator: (v) => v == null || v.trim().isEmpty
-                    ? 'Informe a URL da imagem'
+                    ? 'Informe o link da imagem.'
                     : Validators.optionalUrl(v),
               ),
               const SizedBox(height: 14),
 
               CustomTextField(
                 controller: _projectUrlController,
-                label: 'Link do Projeto (Opcional)',
-                hint: 'https://github.com/... ou https://meuapp.com',
+                label: 'Link do projeto',
+                hint: 'https://behance.net/... ou o site publicado',
+                requirement: FieldRequirement.optional,
+                keyboardType: TextInputType.url,
                 validator: Validators.optionalUrl,
               ),
               const SizedBox(height: 14),
 
               CustomTextField(
                 controller: _tagsController,
-                label: 'Tecnologias / Tags (separadas por vírgula)',
-                hint: 'Flutter, Supabase, Riverpod, Clean Arch',
+                label: 'Tags',
+                hint: 'Ex.: Branding, Illustrator, Social media',
+                helperText: 'Separadas por vírgula.',
+                requirement: FieldRequirement.optional,
               ),
               const SizedBox(height: 24),
 

@@ -19,7 +19,6 @@ import '../widgets/delete_account_button.dart';
 import '../widgets/profile_links.dart';
 import '../widgets/profile_header_card.dart';
 import '../widgets/profile_settings.dart';
-import '../widgets/edit_profile_modal.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -124,12 +123,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   user: user,
                   isUploadingAvatar: _isUploadingAvatar,
                   onPickAvatar: _pickAndUploadAvatar,
-                  onEditProfile: () => showModalBottomSheet(
-                    context: context,
-                    backgroundColor: AppColors.transparent,
-                    isScrollControlled: true,
-                    builder: (_) => EditProfileModal(user: user),
-                  ),
+                  onEditProfile: () => context.push('/profile/edit'),
                   onViewPublicProfile: () =>
                       context.push('/profile/${user.id}'),
                 ),

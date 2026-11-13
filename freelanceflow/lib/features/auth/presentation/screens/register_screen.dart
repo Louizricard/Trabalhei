@@ -1,5 +1,6 @@
 import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/field_label.dart';
 import '../../../../core/utils/validators.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -164,12 +165,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         children: [
                           CustomTextField(
                             controller: _nameController,
-                            label: 'Nome Completo',
-                            hint: 'Ex: Carlos Oliveira',
+                            label: 'Nome completo',
+                            hint: 'Ex.: Carlos Oliveira',
+                            requirement: FieldRequirement.required,
                             prefixIcon: Icons.person_outline_rounded,
-                            validator: (v) => v != null && v.trim().length >= 3
-                                ? null
-                                : 'Insira seu nome completo',
+                            textCapitalization: TextCapitalization.words,
+                            textInputAction: TextInputAction.next,
+                            validator: Validators.minLength(
+                              'seu nome completo',
+                              3,
+                            ),
                             maxLength: 120,
                             autofillHints: const [AutofillHints.name],
                           ),
@@ -178,8 +183,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             controller: _emailController,
                             label: 'E-mail',
                             hint: 'seu@email.com',
+                            helperText: 'Enviaremos um link para confirmar.',
+                            requirement: FieldRequirement.required,
                             prefixIcon: Icons.mail_outline_rounded,
                             keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
                             validator: Validators.email,
                             autofillHints: const [AutofillHints.email],
                           ),
@@ -187,14 +195,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           CustomTextField(
                             controller: _passwordController,
                             label: 'Senha',
-                            hint: 'Mínimo $minPasswordLength caracteres',
+                            helperText: passwordHelp,
+                            requirement: FieldRequirement.required,
                             prefixIcon: Icons.lock_outline_rounded,
                             obscureText: true,
                             autofillHints: const [AutofillHints.newPassword],
-                            validator: (v) =>
-                                v != null && v.length >= minPasswordLength
-                                ? null
-                                : 'Mínimo $minPasswordLength caracteres',
+                            validator: validateNewPassword,
                           ),
                           const SizedBox(height: 16),
                           const _TermsAcceptanceField(),

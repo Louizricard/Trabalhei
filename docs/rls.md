@@ -53,8 +53,29 @@ Escrita/remoção apenas na pasta do próprio usuário: o primeiro segmento do c
 | `<dono>/deliverables/<milestone_id>/<arquivo>` | Dono e as partes do contrato do marco |
 | `<dono>/revisions/<milestone_id>/<arquivo>` | Dono e as partes do contrato do marco |
 
+`proposal_attachments` (amostras enviadas na proposta) também é **privado**. Caminho
+`<freelancer>/<job_id>/<arquivo>`; leem o freelancer autor e o dono da vaga enquanto a proposta atual
+referenciar o arquivo (`can_read_proposal_attachment`), em qualquer estado da vaga ou da proposta.
+Se a proposta for reenviada sem o arquivo, ou apagada junto com a vaga, o dono da vaga perde o acesso
+e o arquivo entra na fila de limpeza.
+
 O app guarda a URL no formato público como identificador do arquivo e, ao exibir ou abrir, troca por
 uma URL assinada válida por 1 hora (`StorageService.resolveUrl` e o widget `StorageImage`).
+
+### Anexos gravados em registros
+
+Ao gravar um anexo em vaga, proposta, entrega, revisão ou mensagem, o banco confere (`assert_attachment_refs`)
+que o arquivo existe no Storage, está na pasta de quem anexa e respeita o limite de tamanho do plano
+dessa pessoa. Assim ninguém anexa arquivo de outra pessoa colando a URL, nem contorna o limite do
+plano enviando direto pela API.
+
+### Arquivos órfãos
+
+`storage_cleanup_queue` (sem acesso para `anon`/`authenticated`) recebe os anexos e capas removidos
+de vagas e propostas e os de registros apagados. `storage_cleanup_batch` junta a fila com arquivos sem referência há
+mais de um dia e nunca devolve um caminho que voltou a ser usado. A Edge Function `storage-cleanup`,
+chamada só com a chave `service_role`, apaga pela Storage API. Entregas e revisões não entram: são
+histórico do contrato.
 
 ## Testando as políticas
 

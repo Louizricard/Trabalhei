@@ -1,4 +1,5 @@
 import 'package:trabalhei/core/errors/backend_errors.dart';
+import 'package:trabalhei/features/dashboard/presentation/widgets/profile_checklist_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +10,7 @@ import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../providers/dashboard_provider.dart';
+import '../widgets/dashboard_stat_card.dart';
 
 class ClientDashboardScreen extends ConsumerWidget {
   const ClientDashboardScreen({super.key});
@@ -19,27 +21,13 @@ class ClientDashboardScreen extends ConsumerWidget {
     final user = ref.watch(authProvider).value;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard do Contratante'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.people_outline_rounded),
-            tooltip: 'Buscar Freelancers',
-            onPressed: () => context.push('/freelancers'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded),
-            tooltip: 'Publicar Projeto',
-            onPressed: () => context.push('/jobs/create'),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Painel do contratante')),
       body: ResponsiveLayout(
         child: statsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, _) => EmptyStateWidget(
             icon: Icons.error_outline_rounded,
-            title: 'Erro ao carregar dashboard',
+            title: 'Erro ao carregar o painel',
             description: friendlyError(err),
           ),
           data: (stats) {
@@ -97,19 +85,32 @@ class ClientDashboardScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  if (user != null)
+                    ProfileChecklistCard(
+                      user: user,
+                      hasJobs:
+                          stats.activeJobsCount +
+                              stats.activeContractsCount +
+                              stats.completedContractsCount >
+                          0,
+                    ),
 
                   Row(
                     children: [
                       Expanded(
-                        child: _StatCard(
+                        child: DashboardStatCard(
+                          icon: Icons.mark_email_unread_outlined,
                           label: 'Propostas p/ analisar',
                           value: '${stats.unreviewedProposalsCount}',
                           color: AppColors.info,
+                          onTap: () =>
+                              context.go('/jobs', extra: 'Minhas Vagas'),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _StatCard(
+                        child: DashboardStatCard(
+                          icon: Icons.task_alt_rounded,
                           label: 'Contratos concluídos',
                           value: '${stats.completedContractsCount}',
                           color: AppColors.success,
@@ -119,7 +120,7 @@ class ClientDashboardScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Ações Rápidas: Publicar Vaga & Buscar Freelancers
+                  // Ações principais: buscar talentos e publicar vaga
                   Row(
                     children: [
                       Expanded(
@@ -150,7 +151,7 @@ class ClientDashboardScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Gestão de Talentos e Vagas',
+                          'Suas vagas e contratos',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -184,7 +185,8 @@ class ClientDashboardScreen extends ConsumerWidget {
                             Icons.chevron_right_rounded,
                             color: AppColors.textSecondaryDark,
                           ),
-                          onTap: () => context.push('/jobs', extra: 'Minhas Vagas'),
+                          onTap: () =>
+                              context.go('/jobs', extra: 'Minhas Vagas'),
                         ),
                         const Divider(),
                         ListTile(
@@ -214,37 +216,7 @@ class ClientDashboardScreen extends ConsumerWidget {
                             Icons.chevron_right_rounded,
                             color: AppColors.textSecondaryDark,
                           ),
-                          onTap: () => context.push('/chat'),
-                        ),
-                        const Divider(),
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const CircleAvatar(
-                            backgroundColor: AppColors.surfaceElevatedDark,
-                            child: Icon(
-                              Icons.search_rounded,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          title: const Text(
-                            'Explorar Profissionais Freelancer',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          subtitle: const Text(
-                            'Filtre por especialidade, nota e valor por hora',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textMutedDark,
-                            ),
-                          ),
-                          trailing: const Icon(
-                            Icons.chevron_right_rounded,
-                            color: AppColors.textSecondaryDark,
-                          ),
-                          onTap: () => context.push('/freelancers'),
+                          onTap: () => context.go('/chat'),
                         ),
                       ],
                     ),
@@ -254,46 +226,6 @@ class ClientDashboardScreen extends ConsumerWidget {
             );
           },
         ),
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GlassCard(
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondaryDark,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -79,7 +79,8 @@ final demoJobs = [
     clientName: 'Clínica Patas & Cia',
     clientRating: 4.9,
     title: 'App de agendamento para clínica veterinária',
-    category: 'Mobile',
+    category: 'Tecnologia',
+    subcategory: 'Mobile',
     description:
         'Precisamos de um app para os tutores marcarem consultas e banho e '
         'tosa, receberem lembretes e acompanharem o histórico de cada pet. '
@@ -117,7 +118,8 @@ final demoJobs = [
     clientName: 'Escola Online Saber+',
     clientRating: 4.6,
     title: 'Landing page para lançamento de curso',
-    category: 'Frontend',
+    category: 'Tecnologia',
+    subcategory: 'Frontend',
     description:
         'Página de vendas responsiva com seções de conteúdo, depoimentos dos '
         'alunos e integração com a plataforma de pagamento que já usamos.',
@@ -135,7 +137,8 @@ final demoJobs = [
     clientName: 'Loja Verde Vivo',
     clientRating: 4.7,
     title: 'API de pedidos com pagamento via Pix',
-    category: 'Backend',
+    category: 'Tecnologia',
+    subcategory: 'Backend',
     description:
         'Integração do nosso e-commerce com Pix, webhooks de confirmação e '
         'atualização automática do status dos pedidos.',

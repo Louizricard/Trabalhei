@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
-import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/config/work_categories.dart';
+import '../../../../core/errors/backend_errors.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../core/widgets/attachment_widgets.dart';
+import '../../../../core/widgets/app_back_button.dart';
+import '../../../../core/widgets/attachment_picker_section.dart';
+import '../../../../core/widgets/category_search_sheet.dart';
 import '../../../../core/widgets/custom_button.dart';
-import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
-import '../../../../core/widgets/skills_input_widget.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
-import '../../domain/entities/job.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../domain/entities/job.dart';
+import '../providers/job_submission.dart';
 import '../providers/jobs_provider.dart';
+import '../widgets/job_form/job_cover_picker.dart';
+import '../widgets/job_form/job_form_cards.dart';
 
+/// Publica uma vaga ou edita [jobToEdit], inclusive capa e anexos salvos.
 class CreateJobScreen extends ConsumerStatefulWidget {
   final Job? jobToEdit;
 
@@ -31,49 +36,37 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   final _descController = TextEditingController();
   final _budgetMinController = TextEditingController();
   final _budgetMaxController = TextEditingController();
-  List<String> _skills = [];
   final _daysController = TextEditingController();
-
-  String _category = 'Mobile';
+  CategoryChoice? _category;
+  List<String> _skills = [];
   bool _isUrgent = false;
   bool _isLoading = false;
-  List<PickedFileData> _selectedFiles = [];
-  PickedFileData? _coverImage;
-  String? _existingCoverImageUrl;
+  List<AppAttachment> _savedFiles = [], _keptFiles = [];
+  List<PickedFileData> _newFiles = [];
+  PickedFileData? _newCover;
+  String? _keptCoverUrl;
 
-  final _categories = [
-    'Mobile',
-    'Design',
-    'Fullstack',
-    'Frontend',
-    'Backend',
-    'DevOps',
-  ];
+  Job? get _editing => widget.jobToEdit;
 
   @override
   void initState() {
     super.initState();
-    if (widget.jobToEdit != null) {
-      final job = widget.jobToEdit!;
-      _titleController.text = job.title;
-      _descController.text = job.description;
-      _budgetMinController.text = CurrencyFormatter.toInput(job.budgetMin);
-      _budgetMaxController.text = CurrencyFormatter.toInput(job.budgetMax);
-      _skills = List.from(job.skillsRequired);
-      _daysController.text = job.deadlineDays.toString();
-      _category = job.category;
-      _isUrgent = job.isUrgent;
-      _existingCoverImageUrl = job.imageUrl;
-    }
-  }
-
-  static const double _maxBudget = 10000000;
-
-  String? _validateBudget(String? v) {
-    final value = CurrencyFormatter.parse(v);
-    if (value == null) return 'Informe um valor válido, ex.: 1.500,00';
-    if (value > _maxBudget) return 'Máximo de R\$ 10.000.000';
-    return null;
+    final job = _editing;
+    if (job == null) return;
+    _titleController.text = job.title;
+    _descController.text = job.description;
+    _budgetMinController.text = CurrencyFormatter.toInput(job.budgetMin);
+    _budgetMaxController.text = CurrencyFormatter.toInput(job.budgetMax);
+    _daysController.text = job.deadlineDays.toString();
+    // Vaga anterior ao catálogo: converte a categoria antiga.
+    _category = WorkCategories.area(job.category) == null
+        ? WorkCategories.fromLegacy(job.category)
+        : (area: job.category, subcategory: job.subcategory);
+    _skills = List.of(job.skillsRequired);
+    _isUrgent = job.isUrgent;
+    _savedFiles = job.attachments.map(AppAttachment.fromJson).toList();
+    _keptFiles = List.of(_savedFiles);
+    _keptCoverUrl = job.imageUrl;
   }
 
   @override
@@ -82,123 +75,102 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     _descController.dispose();
     _budgetMinController.dispose();
     _budgetMaxController.dispose();
-        _daysController.dispose();
+    _daysController.dispose();
     super.dispose();
   }
 
-  Future<void> _submitJob() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-    _formKey.currentState?.save();
+  void _showMessage(String text, {Color? color}) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(text), backgroundColor: color));
+  }
 
-    final user = ref.read(authProvider).value;
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Você precisa estar autenticado para publicar uma vaga.',
-          ),
-        ),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
+  Future<void> _pickCover() async {
     try {
-      final storage = ref.read(storageServiceProvider);
-      final uploadedAttachments = <Map<String, dynamic>>[];
+      final file = await ref.read(storageServiceProvider).pickImage();
+      if (file != null) setState(() => _newCover = file);
+    } catch (e) {
+      if (mounted) _showMessage(friendlyError(e), color: AppColors.error);
+    }
+  }
 
-      for (final file in _selectedFiles) {
-        final result = await storage.uploadFile(
-          bucket: 'job_attachments',
-          folder: user.id,
-          file: file,
-        );
-        if (result != null) {
-          uploadedAttachments.add(result.toJson());
-        }
-      }
+  Job _job(List<Map<String, dynamic>> attachments, String? imageUrl) {
+    final user = ref.read(authProvider).value!;
+    final base = _editing;
+    return Job(
+      id: base?.id ?? '',
+      clientId: base?.clientId ?? user.id,
+      clientName: base?.clientName ?? (user.companyName ?? user.fullName),
+      clientRating: base?.clientRating ?? user.rating,
+      title: _titleController.text.trim(),
+      category: _category!.area,
+      subcategory: _category!.subcategory,
+      description: _descController.text.trim(),
+      budgetMin: CurrencyFormatter.parse(_budgetMinController.text)!,
+      budgetMax: CurrencyFormatter.parse(_budgetMaxController.text)!,
+      deadlineDays: int.parse(_daysController.text.trim()),
+      skillsRequired: _skills,
+      isUrgent: _isUrgent,
+      attachments: attachments,
+      imageUrl: imageUrl,
+      createdAt: base?.createdAt ?? DateTime.now(),
+      status: base?.status ?? JobStatus.open,
+    );
+  }
 
-      final skills = _skills;
+  JobFiles get _files => JobFiles(
+    kept: _keptFiles,
+    removed: _savedFiles.where((f) => !_keptFiles.contains(f)).toList(),
+    added: _newFiles,
+    newCover: _newCover,
+    keptCoverUrl: _keptCoverUrl,
+    savedCoverUrl: _editing?.imageUrl,
+  );
 
-      String? coverImageUrl = _existingCoverImageUrl;
-      if (_coverImage != null) {
-        final result = await storage.uploadFile(
-          bucket: 'job_covers',
-          folder: user.id,
-          file: _coverImage!,
-        );
-        coverImageUrl = result?.url;
-      }
-
-      final isEditing = widget.jobToEdit != null;
-
-      final job = Job(
-        id: isEditing ? widget.jobToEdit!.id : '',
-        clientId: isEditing ? widget.jobToEdit!.clientId : user.id,
-        clientName: isEditing ? widget.jobToEdit!.clientName : (user.companyName ?? user.fullName),
-        clientRating: isEditing ? widget.jobToEdit!.clientRating : user.rating,
-        title: _titleController.text.trim(),
-        category: _category,
-        description: _descController.text.trim(),
-        budgetMin: CurrencyFormatter.parse(_budgetMinController.text)!,
-        budgetMax: CurrencyFormatter.parse(_budgetMaxController.text)!,
-        deadlineDays: int.parse(_daysController.text.trim()),
-        skillsRequired: skills,
-        isUrgent: _isUrgent,
-        attachments: [
-          if (isEditing) ...widget.jobToEdit!.attachments,
-          ...uploadedAttachments,
-        ],
-        imageUrl: coverImageUrl,
-        createdAt: isEditing ? widget.jobToEdit!.createdAt : DateTime.now(),
-        status: isEditing ? widget.jobToEdit!.status : JobStatus.open,
+  Future<void> _submit() async {
+    // Tira o foco antes de validar: o texto digitado em Habilidades entra.
+    FocusScope.of(context).unfocus();
+    await Future<void>.delayed(Duration.zero);
+    if (!mounted || !(_formKey.currentState?.validate() ?? false)) return;
+    if (ref.read(authProvider).value == null) {
+      return _showMessage('Entre na sua conta para publicar uma vaga.');
+    }
+    setState(() => _isLoading = true);
+    final repo = ref.read(jobRepositoryProvider);
+    try {
+      await saveJobWithFiles(
+        store: ref.read(storageServiceProvider),
+        files: _files,
+        save: (attachments, cover) {
+          final job = _job(attachments, cover);
+          return _editing == null ? repo.createJob(job) : repo.updateJob(job);
+        },
       );
-
-      if (isEditing) {
-        await ref.read(jobRepositoryProvider).updateJob(job);
-      } else {
-        await ref.read(jobRepositoryProvider).createJob(job);
-      }
-      
       ref.invalidate(jobsListProvider);
       ref.invalidate(myOpenJobsProvider);
       ref.invalidate(clientStatsProvider);
-      if (isEditing) ref.invalidate(jobDetailProvider(job.id));
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isEditing ? 'Vaga atualizada com sucesso!' : 'Vaga publicada com sucesso no Trabalhei!'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        context.pop();
-      }
+      if (_editing case final job?) ref.invalidate(jobDetailProvider(job.id));
+      if (!mounted) return;
+      _showMessage(
+        _editing == null ? 'Vaga publicada!' : 'Alterações salvas.',
+        color: AppColors.success,
+      );
+      context.canPop() ? context.pop() : context.go('/jobs');
     } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Falha ao publicar vaga: ${friendlyError(e)}',
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _showMessage(friendlyError(e), color: AppColors.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isEditing = widget.jobToEdit != null;
+    final isEditing = _editing != null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Editar Vaga' : 'Publicar Nova Vaga'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
+        title: Text(isEditing ? 'Editar vaga' : 'Publicar vaga'),
+        leading: AppBackButton(
+          fallbackRoute: isEditing ? '/jobs/${_editing!.id}' : '/jobs',
         ),
       ),
       body: SafeArea(
@@ -206,257 +178,73 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
           maxWidth: 720,
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GlassCard(
-                  padding: EdgeInsets.zero,
-                  child: InkWell(
-                    onTap: () async {
-                      final storage = ref.read(storageServiceProvider);
-                      try {
-                        final file = await storage.pickImage();
-                        if (file != null) setState(() => _coverImage = file);
-                      } catch (e) {
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(friendlyError(e)),
-                            backgroundColor: AppColors.error,
-                          ),
-                        );
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      height: 160,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: AppColors.primary.withAlpha(15),
-                        image: _coverImage != null
-                            ? DecorationImage(
-                                image: MemoryImage(_coverImage!.bytes),
-                                fit: BoxFit.cover,
-                              )
-                            : (_existingCoverImageUrl != null && _existingCoverImageUrl!.isNotEmpty)
-                                ? DecorationImage(
-                                    image: NetworkImage(_existingCoverImageUrl!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                      ),
-                      child: (_coverImage == null && (_existingCoverImageUrl == null || _existingCoverImageUrl!.isEmpty))
-                          ? Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.add_photo_alternate_outlined,
-                                  size: 48,
-                                  color: AppColors.primary.withAlpha(150),
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  'Adicionar Capa (Opcional)',
-                                  style: TextStyle(
-                                    color: AppColors.primaryLight,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Stack(
-                              children: [
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: IconButton(
-                                    style: IconButton.styleFrom(
-                                      backgroundColor: Colors.black54,
-                                    ),
-                                    icon: const Icon(Icons.close, color: Colors.white),
-                                    onPressed: () => setState(() {
-                                      _coverImage = null;
-                                      _existingCoverImageUrl = null;
-                                    }),
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                GlassCard(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Informações Básicas',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextField(
-                        controller: _titleController,
-                        label: 'Título do Projeto',
-                        hint:
-                            'Ex: Desenvolvimento de App em Flutter com Chat Realtime',
-                        validator: (v) => v != null && v.trim().length >= 10
-                            ? null
-                            : 'Mínimo de 10 caracteres',
-                        maxLength: 140,
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Categoria',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondaryDark,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      DropdownButtonFormField<String>(
-                        initialValue: _category,
-                        items: _categories
-                            .map(
-                              (c) => DropdownMenuItem(value: c, child: Text(c)),
-                            )
-                            .toList(),
-                        onChanged: (val) =>
-                            setState(() => _category = val ?? 'Mobile'),
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextField(
-                        controller: _descController,
-                        label: 'Descrição Detalhada dos Requisitos',
-                        hint:
-                            'Explique os objetivos, entregáveis esperados, integrações e escopo do projeto...',
-                        maxLines: 5,
-                        maxLength: 5000,
-                        validator: (v) => v != null && v.trim().length >= 30
-                            ? null
-                            : 'Mínimo de 30 caracteres',
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                GlassCard(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Orçamento e Prazos',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomTextField(
-                              controller: _budgetMinController,
-                              label: 'Orçamento Mínimo (R\$)',
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              validator: _validateBudget,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: CustomTextField(
-                              controller: _budgetMaxController,
-                              label: 'Orçamento Máximo (R\$)',
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              validator: (v) {
-                                final invalid = _validateBudget(v);
-                                if (invalid != null) return invalid;
-                                final min = CurrencyFormatter.parse(_budgetMinController.text) ?? 0;
-                                final max = CurrencyFormatter.parse(v)!;
-                                if (max < min) return 'Não pode ser menor que o mín.';
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextField(
-                        controller: _daysController,
-                        label: 'Prazo Previsto de Execução (Dias)',
-                        keyboardType: TextInputType.number,
-                        validator: (v) {
-                          final days = int.tryParse((v ?? '').trim());
-                          if (days == null) return 'Informe um número de dias';
-                          if (days < 1 || days > 3650) return 'Use entre 1 e 3650 dias';
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      SkillsInputWidget(
-                        initialValue: _skills,
-                        onSaved: (v) => _skills = v ?? [],
-                        validator: (v) => v == null || v.isEmpty ? 'Adicione pelo menos uma habilidade' : null,
-                      ),
-                      const SizedBox(height: 12),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text(
-                          'Destacar como Urgente 🔥',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                        subtitle: const Text(
-                          'Aparece em destaque no topo do mural para freelancers',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textMutedDark,
-                          ),
-                        ),
-                        value: _isUrgent,
-                        onChanged: (val) => setState(() => _isUrgent = val),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                GlassCard(
-                  padding: const EdgeInsets.all(20),
-                  child: AttachmentPickerSection(
-                    selectedFiles: _selectedFiles,
-                    onChanged: (files) =>
-                        setState(() => _selectedFiles = files),
-                    title: 'Anexos e Especificações da Vaga',
-                    hintText:
-                        'Adicione briefings, PDFs, protótipos em imagem ou documentos para orientar os freelancers.',
-                  ),
-                ),
-                const SizedBox(height: 24),
-                CustomButton(
-                  text: 'Confirmar e Publicar Projeto',
-                  icon: Icons.rocket_launch_rounded,
-                  isLoading: _isLoading,
-                  width: double.infinity,
-                  onPressed: _submitJob,
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
+            child: Form(key: _formKey, child: _form(isEditing)),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _form(bool isEditing) {
+    const gap = SizedBox(height: 16);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        JobCoverPicker(
+          newCover: _newCover,
+          savedUrl: _keptCoverUrl,
+          onPick: _pickCover,
+          onRemove: () => setState(() {
+            _newCover = null;
+            _keptCoverUrl = null;
+          }),
+        ),
+        gap,
+        JobBasicsCard(
+          titleController: _titleController,
+          descriptionController: _descController,
+          category: _category,
+          onCategoryChanged: (v) => setState(() => _category = v),
+        ),
+        gap,
+        JobBudgetCard(
+          minController: _budgetMinController,
+          maxController: _budgetMaxController,
+          daysController: _daysController,
+        ),
+        gap,
+        JobSkillsCard(
+          skills: _skills,
+          category: _category,
+          onSkillsChanged: (v) => _skills = v,
+          isUrgent: _isUrgent,
+          onUrgentChanged: (v) => setState(() => _isUrgent = v),
+        ),
+        gap,
+        GlassCard(
+          padding: const EdgeInsets.all(20),
+          child: AttachmentPickerSection(
+            title: 'Anexos (opcional)',
+            hintText:
+                'Briefing, referências, planilhas ou imagens. '
+                'Até 5 arquivos no total.',
+            existing: _keptFiles,
+            onExistingChanged: (v) => setState(() => _keptFiles = v),
+            selectedFiles: _newFiles,
+            onChanged: (v) => setState(() => _newFiles = v),
+          ),
+        ),
+        const SizedBox(height: 24),
+        CustomButton(
+          key: const Key('job-submit'),
+          text: isEditing ? 'Salvar Alterações' : 'Publicar vaga',
+          icon: isEditing ? Icons.save_rounded : Icons.rocket_launch_rounded,
+          isLoading: _isLoading,
+          width: double.infinity,
+          onPressed: _submit,
+        ),
+        const SizedBox(height: 20),
+      ],
     );
   }
 }

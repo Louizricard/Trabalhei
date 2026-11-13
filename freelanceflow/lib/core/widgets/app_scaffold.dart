@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/auth/domain/entities/user_profile.dart';
 import '../../features/auth/presentation/guest_access.dart';
 import '../../features/auth/presentation/providers/auth_state_provider.dart';
 import '../theme/app_colors.dart';
@@ -23,7 +22,6 @@ class AppScaffold extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authProvider);
     final user = auth.valueOrNull;
-    final isClient = user?.role == UserRole.client;
     final isGuest = !auth.isLoading && user == null;
 
     void selectTab(int index) {
@@ -51,7 +49,7 @@ class AppScaffold extends ConsumerWidget {
       NavigationDestination(
         icon: const Icon(Icons.dashboard_outlined),
         selectedIcon: const Icon(Icons.dashboard_rounded),
-        label: isClient ? 'Contratante' : 'Painel',
+        label: 'Painel',
       ),
       const NavigationDestination(
         icon: Icon(Icons.person_outline_rounded),

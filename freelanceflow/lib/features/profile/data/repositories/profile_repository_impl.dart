@@ -52,7 +52,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<List<UserProfile>> searchFreelancers({
     String? query,
-    String? skill,
+    String? area,
     double? minRating,
     double? minHourlyRate,
     double? maxHourlyRate,
@@ -61,7 +61,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }) {
     return _remoteDataSource.searchFreelancers(
       query: query,
-      skill: skill,
+      area: area,
       minRating: minRating,
       minHourlyRate: minHourlyRate,
       maxHourlyRate: maxHourlyRate,

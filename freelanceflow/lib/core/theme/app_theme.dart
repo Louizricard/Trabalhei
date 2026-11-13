@@ -108,6 +108,22 @@ class AppTheme {
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
+        helperStyle: const TextStyle(
+          color: AppColors.textMutedDark,
+          fontSize: 12,
+          height: 1.35,
+        ),
+        helperMaxLines: 3,
+        errorStyle: const TextStyle(
+          color: AppColors.error,
+          fontSize: 12,
+          height: 1.35,
+        ),
+        errorMaxLines: 3,
+        counterStyle: const TextStyle(
+          color: AppColors.textMutedDark,
+          fontSize: 11,
+        ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,
           vertical: 16,
@@ -131,6 +147,10 @@ class AppTheme {
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: AppColors.borderSubtleDark),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
