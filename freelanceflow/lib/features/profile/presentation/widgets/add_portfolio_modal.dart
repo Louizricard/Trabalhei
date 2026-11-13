@@ -137,7 +137,7 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
               CustomTextField(
                 controller: _titleController,
                 label: 'Título do Projeto',
-                hint: 'Ex: App de delivery Mobile & Web',
+                hint: 'Ex.: Identidade visual de uma padaria',
                 maxLength: 120,
                 validator: (v) => v == null || v.trim().isEmpty
                     ? 'Informe o título do projeto'
@@ -179,7 +179,7 @@ class _AddPortfolioModalState extends ConsumerState<AddPortfolioModal> {
               CustomTextField(
                 controller: _tagsController,
                 label: 'Tecnologias / Tags (separadas por vírgula)',
-                hint: 'Flutter, Supabase, Riverpod, Clean Arch',
+                hint: 'Ex.: Branding, Illustrator, Social media',
               ),
               const SizedBox(height: 24),
 

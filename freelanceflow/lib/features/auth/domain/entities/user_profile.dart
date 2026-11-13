@@ -63,6 +63,11 @@ class UserProfile {
   final String? linkedinUrl;
   final String? githubUrl;
 
+  /// Área de atuação do catálogo (`WorkCategories`) e especialidade, usadas
+  /// na busca de talentos. Opcionais.
+  final String? category;
+  final String? subcategory;
+
   /// Currículo em PDF (bucket privado `resumes`, visível a usuários logados).
   final String? resumeUrl;
 
@@ -92,6 +97,8 @@ class UserProfile {
     this.websiteUrl,
     this.linkedinUrl,
     this.githubUrl,
+    this.category,
+    this.subcategory,
     this.resumeUrl,
     this.suspendedAt,
   });
@@ -121,6 +128,8 @@ class UserProfile {
     String? websiteUrl,
     String? linkedinUrl,
     String? githubUrl,
+    String? category,
+    String? subcategory,
     String? resumeUrl,
   }) {
     return UserProfile(
@@ -146,6 +155,8 @@ class UserProfile {
       websiteUrl: websiteUrl ?? this.websiteUrl,
       linkedinUrl: linkedinUrl ?? this.linkedinUrl,
       githubUrl: githubUrl ?? this.githubUrl,
+      category: category ?? this.category,
+      subcategory: subcategory ?? this.subcategory,
       resumeUrl: resumeUrl ?? this.resumeUrl,
     );
   }
@@ -182,6 +193,8 @@ class UserProfile {
       websiteUrl: json['website_url'] as String?,
       linkedinUrl: json['linkedin_url'] as String?,
       githubUrl: json['github_url'] as String?,
+      category: json['category'] as String?,
+      subcategory: json['subcategory'] as String?,
       resumeUrl: json['resume_url'] as String?,
       suspendedAt: DateTime.tryParse(json['suspended_at']?.toString() ?? ''),
     );
@@ -204,6 +217,8 @@ class UserProfile {
       'website_url': websiteUrl,
       'linkedin_url': linkedinUrl,
       'github_url': githubUrl,
+      'category': category,
+      'subcategory': subcategory,
       'resume_url': resumeUrl,
     };
   }

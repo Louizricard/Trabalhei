@@ -14,12 +14,15 @@ Job _job(
   int ageDays = 1,
   DateTime? featuredUntil,
   String description = 'Projeto simples.',
+  String category = 'Tecnologia',
+  String? subcategory,
 }) => Job(
   id: id,
   clientId: 'c-$id',
   title: 'Vaga $id',
   description: description,
-  category: 'Mobile',
+  category: category,
+  subcategory: subcategory,
   clientName: 'Cliente',
   clientRating: rating,
   budgetMin: 100,
@@ -49,6 +52,20 @@ void main() {
         _job('boa', rating: 4.8, description: 'x' * 250),
       ], now: _now);
       expect(ranked.first.id, 'boa');
+    });
+
+    test('vaga da área e da especialidade do perfil sobe', () {
+      final ranked = rankByRelevance(
+        [
+          _job('outra', category: 'Marketing'),
+          _job('area', category: 'Design'),
+          _job('exata', category: 'Design', subcategory: 'UI/UX'),
+        ],
+        area: 'Design',
+        subcategory: 'UI/UX',
+        now: _now,
+      );
+      expect(ranked.map((j) => j.id), ['exata', 'area', 'outra']);
     });
 
     test('mais nova ganha no empate', () {

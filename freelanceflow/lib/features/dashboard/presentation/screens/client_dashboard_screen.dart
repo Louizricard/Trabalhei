@@ -1,4 +1,5 @@
 import 'package:trabalhei/core/errors/backend_errors.dart';
+import 'package:trabalhei/features/dashboard/presentation/widgets/profile_checklist_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -97,6 +98,15 @@ class ClientDashboardScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  if (user != null)
+                    ProfileChecklistCard(
+                      user: user,
+                      hasJobs:
+                          stats.activeJobsCount +
+                              stats.activeContractsCount +
+                              stats.completedContractsCount >
+                          0,
+                    ),
 
                   Row(
                     children: [
@@ -184,7 +194,8 @@ class ClientDashboardScreen extends ConsumerWidget {
                             Icons.chevron_right_rounded,
                             color: AppColors.textSecondaryDark,
                           ),
-                          onTap: () => context.push('/jobs', extra: 'Minhas Vagas'),
+                          onTap: () =>
+                              context.push('/jobs', extra: 'Minhas Vagas'),
                         ),
                         const Divider(),
                         ListTile(

@@ -1,4 +1,5 @@
 import 'package:trabalhei/core/errors/backend_errors.dart';
+import 'package:trabalhei/features/dashboard/presentation/widgets/profile_checklist_card.dart';
 import 'package:flutter/material.dart';
 import '../../../billing/presentation/widgets/pro_upsell.dart';
 import 'pro_tools_screens.dart';
@@ -92,6 +93,7 @@ class FreelancerDashboardScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  if (user != null) ProfileChecklistCard(user: user),
                   Row(
                     children: [
                       Expanded(

@@ -158,7 +158,7 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
           controller: controller,
           autofocus: true,
           maxLength: 60,
-          decoration: const InputDecoration(hintText: 'Ex.: Apps Flutter'),
+          decoration: const InputDecoration(hintText: 'Ex.: Logotipos'),
         ),
         actions: [
           TextButton(

@@ -119,7 +119,7 @@ class FakeProfileRepository implements ProfileRepository {
   @override
   Future<List<UserProfile>> searchFreelancers({
     String? query,
-    String? skill,
+    String? area,
     double? minRating,
     double? minHourlyRate,
     double? maxHourlyRate,

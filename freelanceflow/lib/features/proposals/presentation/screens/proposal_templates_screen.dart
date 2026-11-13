@@ -212,7 +212,7 @@ Future<void> editProposalTemplate(
                 maxLength: 60,
                 decoration: const InputDecoration(
                   labelText: 'Nome do modelo',
-                  hintText: 'Ex.: App Flutter completo',
+                  hintText: 'Ex.: Tradução de site',
                 ),
               ),
               TextField(

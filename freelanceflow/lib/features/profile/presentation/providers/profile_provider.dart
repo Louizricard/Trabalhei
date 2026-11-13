@@ -56,7 +56,9 @@ final userReviewsProvider = FutureProvider.autoDispose<List<UserReview>>((
 // Filtros para a busca de freelancers
 class FreelancerSearchFilter {
   final String query;
-  final String? skill;
+
+  /// Área do catálogo escolhida nos chips (null = todas).
+  final String? area;
   final double? minRating;
   final double? minHourlyRate;
   final double? maxHourlyRate;
@@ -65,7 +67,7 @@ class FreelancerSearchFilter {
 
   const FreelancerSearchFilter({
     this.query = '',
-    this.skill,
+    this.area,
     this.minRating,
     this.minHourlyRate,
     this.maxHourlyRate,
@@ -75,7 +77,7 @@ class FreelancerSearchFilter {
 
   FreelancerSearchFilter copyWith({
     String? query,
-    String? skill,
+    String? area,
     double? minRating,
     double? minHourlyRate,
     double? maxHourlyRate,
@@ -84,7 +86,7 @@ class FreelancerSearchFilter {
   }) {
     return FreelancerSearchFilter(
       query: query ?? this.query,
-      skill: skill ?? this.skill,
+      area: area ?? this.area,
       minRating: minRating ?? this.minRating,
       minHourlyRate: minHourlyRate ?? this.minHourlyRate,
       maxHourlyRate: maxHourlyRate ?? this.maxHourlyRate,
@@ -94,7 +96,7 @@ class FreelancerSearchFilter {
   }
 
   bool get hasActiveFilters =>
-      (skill != null && skill!.isNotEmpty && skill != 'Todos') ||
+      area != null ||
       (minRating != null && minRating! > 0) ||
       (minHourlyRate != null && minHourlyRate! > 0) ||
       (maxHourlyRate != null && maxHourlyRate! > 0) ||
@@ -112,8 +114,17 @@ class FreelancerSearchFilterNotifier
     state = state.copyWith(query: query);
   }
 
-  void setSkill(String? skill) {
-    state = state.copyWith(skill: skill);
+  /// Troca a área; null volta para todas (copyWith não limpa campos).
+  void setArea(String? area) {
+    state = FreelancerSearchFilter(
+      query: state.query,
+      area: area,
+      minRating: state.minRating,
+      minHourlyRate: state.minHourlyRate,
+      maxHourlyRate: state.maxHourlyRate,
+      availabilityStatus: state.availabilityStatus,
+      orderBy: state.orderBy,
+    );
   }
 
   void updateFilters({
@@ -154,7 +165,7 @@ final freelancersListProvider = FutureProvider.autoDispose<List<UserProfile>>((
 
   return repository.searchFreelancers(
     query: filter.query,
-    skill: filter.skill,
+    area: filter.area,
     minRating: filter.minRating,
     minHourlyRate: filter.minHourlyRate,
     maxHourlyRate: filter.maxHourlyRate,

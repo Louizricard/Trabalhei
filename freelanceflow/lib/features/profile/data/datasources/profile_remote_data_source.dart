@@ -5,6 +5,7 @@ import '../../../auth/domain/entities/user_profile.dart';
 import '../../domain/entities/portfolio_item.dart';
 import '../../domain/entities/profile_update.dart';
 import '../../domain/freelancer_ranking.dart';
+import 'freelancer_search_filters.dart';
 
 class ProfileRemoteDataSource {
   final SupabaseClient _supabase;
@@ -99,7 +100,7 @@ class ProfileRemoteDataSource {
 
   Future<List<UserProfile>> searchFreelancers({
     String? query,
-    String? skill,
+    String? area,
     double? minRating,
     double? minHourlyRate,
     double? maxHourlyRate,
@@ -114,14 +115,8 @@ class ProfileRemoteDataSource {
           .isFilter('deleted_at', null)
           .isFilter('suspended_at', null);
 
-      if (query != null && query.trim().isNotEmpty) {
-        final term = query.trim();
-        q = q.or('full_name.ilike.%$term%,bio.ilike.%$term%');
-      }
-
-      if (skill != null && skill.isNotEmpty && skill.toLowerCase() != 'todos') {
-        q = q.contains('skills', [skill]);
-      }
+      if (freelancerQueryFilter(query) case final text?) q = q.or(text);
+      if (freelancerAreaFilter(area) case final byArea?) q = q.or(byArea);
 
       if (minRating != null && minRating > 0) {
         q = q.gte('rating', minRating);
@@ -165,7 +160,7 @@ class ProfileRemoteDataSource {
           .toList();
       // O plano Pro não dá prioridade na busca (o selo indica só a assinatura).
       return orderBy == 'relevance'
-          ? rankFreelancers(profiles, query: query, skill: skill)
+          ? rankFreelancers(profiles, query: query)
           : profiles;
     } catch (_) {
       return [];

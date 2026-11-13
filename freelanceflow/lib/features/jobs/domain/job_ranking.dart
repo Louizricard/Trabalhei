@@ -2,13 +2,15 @@ import 'dart:math' as math;
 import 'entities/job.dart';
 
 /// Ordenação "Mais relevantes" do mural: favorece compatibilidade (habilidades
-/// em comum com quem procura) e qualidade da vaga (cliente bem avaliado,
+/// em comum e mesma área/especialidade de quem procura) e qualidade da vaga (cliente bem avaliado,
 /// descrição completa, orçamento informado), com um bônus para vagas novas.
 /// Pagamento não entra na conta: vagas patrocinadas aparecem identificadas em
 /// um espaço próprio (ver [splitSponsored]).
 List<Job> rankByRelevance(
   List<Job> jobs, {
   Iterable<String> skills = const [],
+  String? area,
+  String? subcategory,
   DateTime? now,
 }) {
   final mine = skills
@@ -17,7 +19,13 @@ List<Job> rankByRelevance(
       .toSet();
   final at = now ?? DateTime.now();
   final scored = [
-    for (final job in jobs) (job: job, score: relevanceScore(job, mine, at)),
+    for (final job in jobs)
+      (
+        job: job,
+        score:
+            relevanceScore(job, mine, at) +
+            areaScore(job, area: area, subcategory: subcategory),
+      ),
   ];
   scored.sort((a, b) {
     final byScore = b.score.compareTo(a.score);
@@ -48,6 +56,14 @@ double relevanceScore(Job job, Set<String> skills, DateTime now) {
   final freshness = math.max(0, 2 - ageDays / 7);
 
   return compatibility + quality + freshness;
+}
+
+/// Bônus por a vaga ser da área (+2) e da especialidade (+1) do perfil.
+double areaScore(Job job, {String? area, String? subcategory}) {
+  bool same(String? a, String? b) =>
+      a != null && b != null && a.toLowerCase() == b.toLowerCase();
+  if (!same(job.category, area)) return 0;
+  return same(job.subcategory, subcategory) ? 3 : 2;
 }
 
 /// Vagas patrocinadas do topo e o restante do mural.

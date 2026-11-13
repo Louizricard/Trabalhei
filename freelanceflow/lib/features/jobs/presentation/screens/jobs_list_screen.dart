@@ -1,6 +1,7 @@
 import 'package:trabalhei/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:trabalhei/core/config/work_categories.dart';
 import 'package:trabalhei/core/theme/app_colors.dart';
 import 'package:trabalhei/core/widgets/empty_state.dart';
 import 'package:trabalhei/core/widgets/notification_bell_button.dart';
@@ -67,12 +68,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
     final categories = [
       'Todos',
       if (isClient) 'Minhas Vagas',
-      'Mobile',
-      'Design',
-      'Fullstack',
-      'Frontend',
-      'Backend',
-      'DevOps',
+      ...WorkCategories.names,
     ];
 
     return Scaffold(
@@ -126,8 +122,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                       controller: _searchController,
                       style: const TextStyle(color: AppColors.textPrimaryDark),
                       decoration: InputDecoration(
-                        hintText:
-                            'Buscar vagas por título, tecnologia ou cliente...',
+                        hintText: 'Buscar por título, habilidade ou área...',
                         prefixIcon: const Icon(
                           Icons.search_rounded,
                           color: AppColors.textSecondaryDark,
@@ -238,6 +233,7 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                         .where(
                           (j) =>
                               j.title.toLowerCase().contains(query) ||
+                              j.categoryLabel.toLowerCase().contains(query) ||
                               j.skillsRequired.any(
                                 (s) => s.toLowerCase().contains(query),
                               ),

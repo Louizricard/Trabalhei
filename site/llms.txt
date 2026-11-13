@@ -9,14 +9,18 @@
 - Avaliações só de quem concluiu um contrato.
 - Mural de vagas, detalhes das vagas e perfis públicos abertos sem cadastro em https://trabalhei.site/app/#/jobs; a conta é pedida para enviar propostas, publicar vagas e conversar.
 
+## Áreas
+
+Tecnologia, Design, Marketing, Redação e Conteúdo, Tradução, Audiovisual e Foto, Administração e Assistência, Vendas e Comercial, Finanças e Jurídico, Educação, Engenharia e Arquitetura e Outros (com especialidade livre).
+
 ## O que dá para fazer
 
-- Publicar vagas com categoria, orçamento, prazo, habilidades, capa e anexos.
-- Enviar propostas com valor, prazo e carta de apresentação.
+- Publicar vagas com área, especialidade, orçamento, prazo, habilidades, capa e anexos.
+- Enviar propostas com valor, prazo, carta de apresentação, links de portfólio e arquivos de amostra (visíveis só para o cliente da vaga).
 - Comparar propostas (total, menor e maior valor, prazo médio), fazer contraproposta e contratar.
 - Conversar em tempo real no chat do contrato, enviar arquivos e entregas por marco.
 - Aprovar a entrega ou pedir revisão; no fim, cliente e freelancer se avaliam.
-- Buscar freelancers e ver perfis com título profissional, habilidades, portfólio, links, currículo e avaliações.
+- Buscar freelancers por área ou habilidade e ver perfis com título profissional, habilidades, portfólio, links, currículo e avaliações.
 - Painel com contratos ativos, propostas e projetos concluídos.
 
 ## Preços

@@ -24,14 +24,22 @@ final jobsListProvider = FutureProvider.autoDispose<List<Job>>((ref) async {
   final filter = ref.watch(jobFilterProvider);
   final jobs = await repository.getJobs(filter: filter);
   if (filter.sortBy != 'relevance') return jobs;
-  // Compatibilidade com as habilidades de quem está logado (visitante: só
-  // qualidade e data).
-  final skills = ref.watch(authProvider).valueOrNull?.skills ?? const [];
-  return rankByRelevance(jobs, skills: skills);
+  // Compatibilidade com as habilidades e a área de quem está logado
+  // (visitante: só qualidade e data).
+  final user = ref.watch(authProvider).valueOrNull;
+  return rankByRelevance(
+    jobs,
+    skills: user?.skills ?? const [],
+    area: user?.category,
+    subcategory: user?.subcategory,
+  );
 });
 
 /// Single job provider by ID
-final jobDetailProvider = FutureProvider.family.autoDispose<Job?, String>((ref, id) async {
+final jobDetailProvider = FutureProvider.family.autoDispose<Job?, String>((
+  ref,
+  id,
+) async {
   final repository = ref.watch(jobRepositoryProvider);
   return repository.getJobById(id);
 });
