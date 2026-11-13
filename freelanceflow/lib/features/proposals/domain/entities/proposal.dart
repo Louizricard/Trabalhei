@@ -31,6 +31,9 @@ class Proposal {
   final String freelancerId;
   final String freelancerName;
   final double freelancerRating;
+
+  /// Assinatura Pro ativa do freelancer (só para o selo PRO).
+  final bool freelancerIsPro;
   final double bidAmount;
   final int estimatedDays;
   final String coverLetter;
@@ -56,6 +59,7 @@ class Proposal {
     required this.freelancerId,
     required this.freelancerName,
     this.freelancerRating = 0.0,
+    this.freelancerIsPro = false,
     required this.bidAmount,
     required this.estimatedDays,
     required this.coverLetter,
@@ -101,6 +105,7 @@ class Proposal {
       freelancerId: freelancerId ?? this.freelancerId,
       freelancerName: freelancerName ?? this.freelancerName,
       freelancerRating: freelancerRating ?? this.freelancerRating,
+      freelancerIsPro: freelancerIsPro,
       bidAmount: bidAmount ?? this.bidAmount,
       estimatedDays: estimatedDays ?? this.estimatedDays,
       coverLetter: coverLetter ?? this.coverLetter,
@@ -130,11 +135,16 @@ class Proposal {
   factory Proposal.fromJson(Map<String, dynamic> json) {
     String freelancerName = 'Freelancer';
     double freelancerRating = 0.0;
+    bool freelancerIsPro = false;
 
     if (json['profiles'] != null && json['profiles'] is Map) {
       final p = json['profiles'] as Map<String, dynamic>;
       freelancerName = p['full_name'] as String? ?? 'Freelancer';
       freelancerRating = (p['rating'] as num?)?.toDouble() ?? 0.0;
+      final expires = DateTime.tryParse(p['plan_expires_at']?.toString() ?? '');
+      freelancerIsPro =
+          p['plan'] == 'pro' &&
+          (expires == null || expires.isAfter(DateTime.now()));
     }
 
     return Proposal(
@@ -143,6 +153,7 @@ class Proposal {
       freelancerId: json['freelancer_id'] as String? ?? '',
       freelancerName: freelancerName,
       freelancerRating: freelancerRating,
+      freelancerIsPro: freelancerIsPro,
       bidAmount: (json['bid_amount'] as num?)?.toDouble() ?? 0.0,
       estimatedDays: (json['estimated_days'] as num?)?.toInt() ?? 14,
       coverLetter: json['cover_letter'] as String? ?? '',

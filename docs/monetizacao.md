@@ -159,5 +159,10 @@ Revisada em 13/11/2026. Antes de anunciar um benefício novo, inclua uma linha a
 | Busca e mural não favorecem quem paga | Rankings acima; patrocinadas sempre com a etiqueta |
 | Sem comissão; pagamento direto | Não há cobrança sobre contrato no banco nem nas Edge Functions |
 
+No app, todos os textos da página de planos (benefícios, tabela comparativa, regras e FAQ) ficam em
+`freelanceflow/lib/features/billing/domain/plan_benefits.dart` e são montados com o `Pricing` lido do
+servidor; `test/features/billing/plans_screen_test.dart` injeta números diferentes dos padrões e falha se
+algum valor estiver fixo no texto. O selo PRO aparece no perfil público e na lista de propostas recebidas.
+
 Os valores do app (`Pricing.fallback`) e os números fixos de `site/index.html` são comparados com os
 padrões das migrations em `freelanceflow/test/features/billing/pricing_consistency_test.dart`.

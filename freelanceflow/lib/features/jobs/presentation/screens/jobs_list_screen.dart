@@ -366,8 +366,8 @@ class _JobsListScreenState extends ConsumerState<JobsListScreen> {
                                   title: 'Patrocinadas',
                                   onInfo: () => _explainSponsored(
                                     context,
-                                    settings.sponsoredSlots,
-                                    settings.sponsoredRotationMinutes,
+                                    ref.read(pricingProvider).valueOrNull ??
+                                        Pricing.fallback,
                                   ),
                                 ),
                               ),
@@ -437,7 +437,9 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-void _explainSponsored(BuildContext context, int slots, int rotationMinutes) {
+void _explainSponsored(BuildContext context, Pricing pricing) {
+  final slots = pricing.settings.sponsoredSlots;
+  final rotationMinutes = pricing.settings.sponsoredRotationMinutes;
   final every = rotationMinutes % 60 == 0
       ? (rotationMinutes == 60
             ? 'a cada hora'
@@ -448,7 +450,8 @@ void _explainSponsored(BuildContext context, int slots, int rotationMinutes) {
     builder: (ctx) => AlertDialog(
       title: const Text('Vagas patrocinadas'),
       content: Text(
-        'Clientes podem patrocinar uma vaga por 7 dias. Ela aparece neste '
+        'Clientes podem patrocinar uma vaga por '
+        '${pricing.feature.periodDays} dias. Ela aparece neste '
         'espaço, sempre com a etiqueta "Patrocinado".\n\n'
         'O espaço tem $slots lugar${slots == 1 ? '' : 'es'}. Quando há mais '
         'vagas patrocinadas, elas se revezam $every, e todas ficam o mesmo '

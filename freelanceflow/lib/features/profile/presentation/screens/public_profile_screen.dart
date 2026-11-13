@@ -1,5 +1,6 @@
 import 'package:trabalhei/core/utils/rating_formatter.dart';
 import 'package:flutter/material.dart';
+import '../../../billing/presentation/widgets/pro_upsell.dart';
 import '../../../../core/errors/backend_errors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -257,15 +258,23 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen>
                                 const SizedBox(height: 14),
 
                                 // Nome & Cargo
-                                Text(
-                                  profile.fullName,
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.textPrimaryDark,
-                                    letterSpacing: -0.4,
-                                  ),
-                                  textAlign: TextAlign.center,
+                                Wrap(
+                                  alignment: WrapAlignment.center,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 8,
+                                  children: [
+                                    Text(
+                                      profile.fullName,
+                                      style: const TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.textPrimaryDark,
+                                        letterSpacing: -0.4,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    if (profile.isPro) const ProBadge(),
+                                  ],
                                 ),
                                 const SizedBox(height: 4),
 

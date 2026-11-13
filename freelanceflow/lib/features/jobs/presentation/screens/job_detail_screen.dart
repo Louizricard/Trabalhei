@@ -15,6 +15,8 @@ import 'package:trabalhei/features/admin/domain/admin_models.dart';
 import 'package:trabalhei/features/admin/presentation/widgets/report_dialog.dart';
 import 'package:trabalhei/features/auth/presentation/guest_access.dart';
 import 'package:trabalhei/features/auth/presentation/providers/auth_state_provider.dart';
+import 'package:trabalhei/features/billing/domain/entities/pricing.dart';
+import 'package:trabalhei/features/billing/presentation/providers/pricing_provider.dart';
 import 'package:trabalhei/features/billing/presentation/widgets/feature_job_action.dart';
 import 'package:trabalhei/features/jobs/domain/entities/job.dart';
 import 'package:trabalhei/features/jobs/presentation/providers/jobs_provider.dart';
@@ -292,7 +294,7 @@ class JobDetailScreen extends ConsumerWidget {
                       CustomButton(
                         text: job.isFeatured
                             ? 'Vaga em destaque até ${DateFormatter.simpleDate(job.featuredUntil!)}'
-                            : 'Destacar Vaga por 7 dias',
+                            : 'Destacar vaga por ${(ref.watch(pricingProvider).valueOrNull ?? Pricing.fallback).feature.periodDays} dias',
                         icon: Icons.star_rounded,
                         variant: ButtonVariant.secondary,
                         width: double.infinity,
@@ -347,7 +349,8 @@ class JobDetailScreen extends ConsumerWidget {
                       ),
                     ),
                   ] else if (ProposalAction.of(job.status, myProposal)
-                      case final action when !action.canSubmit &&
+                      case final action
+                      when !action.canSubmit &&
                           action != ProposalAction.respondCounterOffer) ...[
                     Text(
                       action.blockedReason!,
