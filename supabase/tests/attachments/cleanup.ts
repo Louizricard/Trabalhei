@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { customer, type Database, reset, sqlFile } from "../webhook/fixtures.ts";
 import { setJobAttachments, stored } from "./fixtures.ts";
 
-export const cleanupMigration = "20261113120200_storage_cleanup_queue";
+export const cleanupMigration = "20261113185537_storage_cleanup_queue";
 
 async function clean(db: Database) {
   await reset(db);

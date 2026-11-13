@@ -7,7 +7,7 @@ import 'package:trabalhei/core/config/work_categories.dart';
 /// mudar sem o outro, o app grava vagas que o banco recusa.
 void main() {
   final sql = File(
-    '../supabase/migrations/20261113120100_generalist_categories.sql',
+    '../supabase/migrations/20261113185511_generalist_categories.sql',
   ).readAsStringSync();
 
   List<String> quoted(String text) =>

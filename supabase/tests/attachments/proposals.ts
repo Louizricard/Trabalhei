@@ -9,7 +9,7 @@ import {
 import { accept, coverLetter, freelancer } from "../hiring/fixtures.ts";
 import { stored } from "./fixtures.ts";
 
-export const portfolioMigration = "20261113120300_proposal_portfolio";
+export const portfolioMigration = "20261113185622_proposal_portfolio";
 const BUCKET = "proposal_attachments";
 
 function submit(

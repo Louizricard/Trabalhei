@@ -1,4 +1,4 @@
--- Desfaz 20261113120300_proposal_portfolio. Recusa rodar se alguma proposta
+-- Desfaz 20261113185622_proposal_portfolio. Recusa rodar se alguma proposta
 -- tiver links ou anexos (seriam perdidos) ou se houver arquivos no bucket.
 do $$
 begin

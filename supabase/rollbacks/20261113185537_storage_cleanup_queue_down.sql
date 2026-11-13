@@ -1,4 +1,4 @@
--- Desfaz 20261113120200_storage_cleanup_queue. Recusa rodar com itens na
+-- Desfaz 20261113185537_storage_cleanup_queue. Recusa rodar com itens na
 -- fila: seriam arquivos órfãos esquecidos (custo de Storage sem dono).
 do $$
 begin

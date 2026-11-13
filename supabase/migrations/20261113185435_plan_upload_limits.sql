@@ -1,5 +1,5 @@
 -- Limite de arquivo por plano validado no servidor.
--- Rollback: supabase/rollbacks/20261113120000_plan_upload_limits_down.sql
+-- Rollback: supabase/rollbacks/20261113185435_plan_upload_limits_down.sql
 --
 -- O app só aceitava arquivos dentro do limite do plano (free_file_mb/pro_file_mb)
 -- no cliente. Agora todo anexo gravado numa vaga, entrega, revisão ou mensagem é

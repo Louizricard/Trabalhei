@@ -1,5 +1,5 @@
 -- Categorias generalistas em dois níveis: área + subcategoria.
--- Rollback: supabase/rollbacks/20261113120100_generalist_categories_down.sql
+-- Rollback: supabase/rollbacks/20261113185511_generalist_categories_down.sql
 --
 -- Antes, jobs.category era texto livre só de tecnologia (Mobile, Frontend,
 -- Backend, Fullstack, DevOps, Design). Agora a categoria é uma área do
