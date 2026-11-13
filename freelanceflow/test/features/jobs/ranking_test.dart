@@ -103,7 +103,11 @@ void main() {
         rotationMinutes: 60,
         now: at,
       ).sponsored.map((j) => j.id).toList();
-      expect(top(_now), top(_now.add(const Duration(minutes: 5))));
+      // Início da rodada de 60 min: +5 min nunca cruza para a próxima.
+      final roundStart = DateTime.fromMillisecondsSinceEpoch(
+        _now.millisecondsSinceEpoch ~/ 3600000 * 3600000,
+      );
+      expect(top(roundStart), top(roundStart.add(const Duration(minutes: 5))));
       // Ao longo de um dia, todas as patrocinadas passam pelo topo.
       final seen = <String>{
         for (var h = 0; h < 24; h++) ...top(_now.add(Duration(hours: h))),
