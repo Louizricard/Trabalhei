@@ -49,6 +49,8 @@ class ProposalRemoteDataSource {
         'p_milestones': proposal.proposedMilestones
             .map((m) => m.toJson())
             .toList(),
+        'p_portfolio_links': proposal.portfolioLinks,
+        'p_attachments': proposal.attachments,
       },
     );
     return Proposal.fromJson(Map<String, dynamic>.from(response as Map));

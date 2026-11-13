@@ -35,6 +35,13 @@ class Proposal {
   final int estimatedDays;
   final String coverLetter;
   final List<ProposedMilestone> proposedMilestones;
+
+  /// Links de trabalhos anteriores (até 10).
+  final List<String> portfolioLinks;
+
+  /// Amostras no bucket privado `proposal_attachments` (até 5), no mesmo
+  /// formato de `Job.attachments`.
+  final List<Map<String, dynamic>> attachments;
   final ProposalStatus status;
   final double? counterPrice;
   final int? counterEstimatedDays;
@@ -53,6 +60,8 @@ class Proposal {
     required this.estimatedDays,
     required this.coverLetter,
     this.proposedMilestones = const [],
+    this.portfolioLinks = const [],
+    this.attachments = const [],
     this.status = ProposalStatus.pending,
     this.counterPrice,
     this.counterEstimatedDays,
@@ -75,6 +84,8 @@ class Proposal {
     int? estimatedDays,
     String? coverLetter,
     List<ProposedMilestone>? proposedMilestones,
+    List<String>? portfolioLinks,
+    List<Map<String, dynamic>>? attachments,
     ProposalStatus? status,
     double? counterPrice,
     int? counterEstimatedDays,
@@ -94,17 +105,24 @@ class Proposal {
       estimatedDays: estimatedDays ?? this.estimatedDays,
       coverLetter: coverLetter ?? this.coverLetter,
       proposedMilestones: proposedMilestones ?? this.proposedMilestones,
+      portfolioLinks: portfolioLinks ?? this.portfolioLinks,
+      attachments: attachments ?? this.attachments,
       status: status ?? this.status,
-      counterPrice: clearCounterOffer ? null : counterPrice ?? this.counterPrice,
+      counterPrice: clearCounterOffer
+          ? null
+          : counterPrice ?? this.counterPrice,
       counterEstimatedDays: clearCounterOffer
           ? null
           : counterEstimatedDays ?? this.counterEstimatedDays,
-      counterMessage:
-          clearCounterOffer ? null : counterMessage ?? this.counterMessage,
-      counterByUserId:
-          clearCounterOffer ? null : counterByUserId ?? this.counterByUserId,
-      counterCreatedAt:
-          clearCounterOffer ? null : counterCreatedAt ?? this.counterCreatedAt,
+      counterMessage: clearCounterOffer
+          ? null
+          : counterMessage ?? this.counterMessage,
+      counterByUserId: clearCounterOffer
+          ? null
+          : counterByUserId ?? this.counterByUserId,
+      counterCreatedAt: clearCounterOffer
+          ? null
+          : counterCreatedAt ?? this.counterCreatedAt,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -118,7 +136,6 @@ class Proposal {
       freelancerName = p['full_name'] as String? ?? 'Freelancer';
       freelancerRating = (p['rating'] as num?)?.toDouble() ?? 0.0;
     }
-
 
     return Proposal(
       id: json['id'] as String,
@@ -136,6 +153,14 @@ class Proposal {
               )
               .toList() ??
           [],
+      portfolioLinks: [
+        for (final link in json['portfolio_links'] as List<dynamic>? ?? [])
+          if (link is String) link,
+      ],
+      attachments: [
+        for (final item in json['attachments'] as List<dynamic>? ?? [])
+          if (item is Map) Map<String, dynamic>.from(item),
+      ],
       status: parseStatus(json['status'] as String?),
       counterPrice: (json['counter_price'] as num?)?.toDouble(),
       counterEstimatedDays: (json['counter_estimated_days'] as num?)?.toInt(),

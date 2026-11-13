@@ -27,7 +27,7 @@ vaga:      open ─(contrato criado)─▶ in_progress ─▶ completed | cancel
 
 | Função | Quem | Regra |
 |---|---|---|
-| `submit_proposal` | freelancer | Vaga `open`, não própria, carta ≥ mínimo. Trava por freelancer (`pg_advisory_xact_lock`) antes de contar as cotas diária/mensal: envios paralelos não furam o limite. Marcos opcionais: array de até 20 objetos `{title, amount, days}`, valor positivo com até 2 casas, prazo inteiro de 1 a 3650 dias, soma igual ao valor da proposta; senão `INVALID_MILESTONES`. Editar só com a proposta `pending`; com contraproposta aberta, `COUNTER_OFFER_PENDING` (responder antes). |
+| `submit_proposal` | freelancer | Vaga `open`, não própria, carta ≥ mínimo. Trava por freelancer (`pg_advisory_xact_lock`) antes de contar as cotas diária/mensal: envios paralelos não furam o limite. Marcos opcionais: array de até 20 objetos `{title, amount, days}`, valor positivo com até 2 casas, prazo inteiro de 1 a 3650 dias, soma igual ao valor da proposta; senão `INVALID_MILESTONES`. Editar só com a proposta `pending`; com contraproposta aberta, `COUNTER_OFFER_PENDING` (responder antes). Portfólio opcional: até 10 links `http(s)` sem repetir (`INVALID_PORTFOLIO_LINKS`) e até 5 arquivos no bucket privado `proposal_attachments`, na pasta `<freelancer>/<job_id>/` e dentro do limite do plano. |
 | `accept_proposal(p_proposal_id, p_expected_amount)` | cliente dono | Proposta `pending` ou `counter_offered`, travada. Se `p_expected_amount` (valor que o cliente viu) diferir do atual, `PROPOSAL_CHANGED`. Com contraproposta do cliente, contrata pelo valor original e registra no chat que a contraproposta foi descartada. `p_expected_amount` nulo mantém compatibilidade com versões antigas do app. |
 | `reject_proposal`, `make_counter_offer` | cliente dono | Proposta travada antes de checar o estado; a atualização só vale se continuar `pending`/`counter_offered` (não sobrescreve aceite concorrente). |
 | `accept_counter_offer` | freelancer | Valor e prazo passam a ser os da contraproposta. Marcos propostos são redimensionados proporcionalmente ao novo valor; o último absorve o arredondamento. |
@@ -49,6 +49,7 @@ Efeitos a conhecer:
 | `PROPOSAL_CHANGED` | O freelancer alterou esta proposta. Confira o novo valor antes de contratar. |
 | `COUNTER_OFFER_PENDING` | Há uma contraproposta aguardando resposta. Aceite ou recuse antes de alterar. |
 | `INVALID_MILESTONES` | Marcos precisam de título, valor e prazo válidos e somar o total. |
+| `INVALID_PORTFOLIO_LINKS` | Confira os links do portfólio: até 10, sem repetir, começando com https://. |
 | `CONTRACT_NOT_FOUND` | Contrato não encontrado. |
 | `CANCEL_REASON_REQUIRED` | Explique o motivo do encerramento (de 10 a 500 caracteres). |
 

@@ -89,7 +89,7 @@ class AppAttachment {
 
 /// Buckets sem leitura pública. O app guarda a URL no formato público como
 /// identificador estável do arquivo e troca por uma URL assinada ao exibir/abrir.
-const privateBuckets = {'chat_attachments', 'resumes'};
+const privateBuckets = {'chat_attachments', 'resumes', 'proposal_attachments'};
 
 /// Validade das URLs assinadas dos buckets privados.
 const signedUrlTtl = Duration(hours: 1);

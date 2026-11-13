@@ -61,6 +61,8 @@ const Map<String, String> databaseCodes = {
   'ATTACHMENT_NOT_OWNED':
       'Só é possível anexar arquivos enviados por você mesmo.',
   'ATTACHMENT_INVALID': 'Um dos anexos é inválido. Remova-o e tente de novo.',
+  'INVALID_PORTFOLIO_LINKS':
+      'Confira os links do portfólio: até 10, sem repetir, começando com https://.',
   'ALERT_LIMIT_REACHED':
       'Você pode ter até 10 alertas. Apague um para criar outro.',
 };

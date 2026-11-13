@@ -2,19 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/errors/backend_errors.dart';
+import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../core/widgets/custom_button.dart';
-import '../../../../core/widgets/custom_text_field.dart';
-import '../../../../core/widgets/glass_card.dart';
+import '../../../../core/widgets/app_back_button.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
-import '../../../chat/presentation/providers/chat_provider.dart';
 import '../../../jobs/domain/entities/job.dart';
 import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../../domain/entities/proposal.dart';
 import '../../domain/entities/proposal_action.dart';
+import '../providers/proposal_submission.dart';
 import '../providers/proposals_provider.dart';
+import '../widgets/apply/apply_job_summary.dart';
+import '../widgets/apply/counter_offer_banner.dart';
+import '../widgets/apply/proposal_form_cards.dart';
+import '../widgets/apply/proposal_quota_banner.dart';
 import 'proposal_templates_screen.dart';
 
 class ApplyJobScreen extends ConsumerStatefulWidget {
@@ -32,47 +35,21 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
   final _daysController = TextEditingController();
   final _coverLetterController = TextEditingController();
   bool _isLoading = false;
-  bool _isEditing = false;
-  String? _existingProposalId;
-  Proposal? _existingProposal;
-  bool _initializedFromExisting = false;
+  Proposal? _existing;
+  List<String> _links = [];
+  List<AppAttachment> _savedFiles = [];
+  List<AppAttachment> _keptFiles = [];
+  List<PickedFileData> _newFiles = [];
 
   // Sem marcos informados, o servidor cria um marco único com o valor total.
   List<ProposedMilestone> _milestones = [];
 
+  bool get _isEditing => _existing != null;
+
   @override
   void initState() {
     super.initState();
-    _checkExistingProposal();
-  }
-
-  Future<void> _checkExistingProposal() async {
-    final user = ref.read(authProvider).value;
-    if (user == null) return;
-
-    try {
-      final repository = ref.read(proposalRepositoryProvider);
-      final list = await repository.getFreelancerProposals(user.id);
-      final match = list.where((p) => p.jobId == widget.jobId).toList();
-
-      if (match.isNotEmpty && mounted && !_initializedFromExisting) {
-        final prop = match.first;
-        setState(() {
-          _isEditing = true;
-          _existingProposal = prop;
-          _existingProposalId = prop.id;
-          _bidController.text = CurrencyFormatter.toInput(prop.bidAmount);
-          _daysController.text = prop.estimatedDays.toString();
-          _coverLetterController.text = prop.coverLetter;
-          if (prop.proposedMilestones.isNotEmpty) {
-            _milestones = List.from(prop.proposedMilestones);
-          }
-          _initializedFromExisting = true;
-        });
-      }
-    } catch (_) {
-      // Caso não consiga carregar previamente, segue com formulário padrão
-    }
+    _loadExisting();
   }
 
   @override
@@ -83,90 +60,35 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
     super.dispose();
   }
 
-  double get _bidAmount => CurrencyFormatter.parse(_bidController.text) ?? 0.0;
-
-  /// Motivo para não oferecer envio/edição, espelhando as regras do servidor.
-  String? _blockedReason(Job? job) =>
-      ProposalAction.of(job?.status ?? JobStatus.open, _existingProposal)
-          .blockedReason;
-
-  Future<void> _handleRejectCounterOffer() async {
-    final proposal = _existingProposal;
-    if (proposal == null) return;
-    setState(() => _isLoading = true);
+  Future<void> _loadExisting() async {
+    final user = ref.read(authProvider).value;
+    if (user == null) return;
     try {
-      await ref.read(proposalRepositoryProvider).rejectCounterOffer(proposal.id);
-      ref.invalidate(jobProposalsProvider(widget.jobId));
-      final user = ref.read(authProvider).value;
-      if (user != null) ref.invalidate(freelancerProposalsProvider(user.id));
-      if (!mounted) return;
+      final list = await ref
+          .read(proposalRepositoryProvider)
+          .getFreelancerProposals(user.id);
+      final prop = list.where((p) => p.jobId == widget.jobId).firstOrNull;
+      if (prop == null || !mounted) return;
+      final files = prop.attachments.map(AppAttachment.fromJson).toList();
       setState(() {
-        _isLoading = false;
-        _existingProposal = proposal.copyWith(
-          status: ProposalStatus.pending,
-          clearCounterOffer: true,
-        );
+        _existing = prop;
+        _bidController.text = CurrencyFormatter.toInput(prop.bidAmount);
+        _daysController.text = prop.estimatedDays.toString();
+        _coverLetterController.text = prop.coverLetter;
+        _milestones = List.of(prop.proposedMilestones);
+        _links = List.of(prop.portfolioLinks);
+        _savedFiles = files;
+        _keptFiles = List.of(files);
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Contraproposta recusada. Sua proposta segue em análise.'),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao recusar contraproposta: ${friendlyError(e)}'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+    } catch (_) {
+      // Sem a proposta anterior, segue com o formulário em branco.
     }
   }
 
-  Future<void> _handleAcceptCounterOffer() async {
-    if (_existingProposalId == null) return;
-
-    setState(() => _isLoading = true);
-    try {
-      final repo = ref.read(proposalRepositoryProvider);
-      final result = await repo.acceptCounterOffer(_existingProposalId!);
-      final conversationId = result['conversation_id'] as String?;
-
-      final user = ref.read(authProvider).value;
-      if (user != null) {
-        ref.invalidate(freelancerProposalsProvider(user.id));
-      }
-      ref.invalidate(jobProposalsProvider(widget.jobId));
-      ref.invalidate(jobDetailProvider(widget.jobId));
-      ref.invalidate(conversationsListProvider);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('🎉 Contraproposta aceita! O contrato foi criado.'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        if (conversationId != null) {
-          context.go('/chat/$conversationId');
-        } else {
-          context.pop();
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Erro ao aceitar contraproposta: ${friendlyError(e)}',
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
+  void _showMessage(String text, {Color? color, SnackBarAction? action}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(text), backgroundColor: color, action: action),
+    );
   }
 
   Future<void> _applyTemplate() async {
@@ -185,444 +107,141 @@ class _ApplyJobScreenState extends ConsumerState<ApplyJobScreen> {
     });
   }
 
-  Future<void> _submitProposal() async {
+  Proposal _proposal() {
+    final user = ref.read(authProvider).value!;
+    return Proposal(
+      id: _existing?.id ?? '',
+      jobId: widget.jobId,
+      freelancerId: user.id,
+      freelancerName: user.fullName,
+      freelancerRating: user.rating,
+      bidAmount: CurrencyFormatter.parse(_bidController.text) ?? 0,
+      estimatedDays: int.parse(_daysController.text),
+      coverLetter: _coverLetterController.text.trim(),
+      proposedMilestones: _milestones,
+      portfolioLinks: _links,
+      createdAt: DateTime.now(),
+    );
+  }
+
+  Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-
-    final user = ref.read(authProvider).value;
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Você precisa estar logado para enviar propostas.'),
-        ),
-      );
-      return;
+    if (ref.read(authProvider).value == null) {
+      return _showMessage('Entre na sua conta para enviar propostas.');
     }
-
     setState(() => _isLoading = true);
-
     try {
-      final proposal = Proposal(
-        id: _existingProposalId ?? '',
-        jobId: widget.jobId,
-        freelancerId: user.id,
-        freelancerName: user.fullName,
-        freelancerRating: user.rating,
-        bidAmount: _bidAmount,
-        estimatedDays: int.tryParse(_daysController.text) ?? 14,
-        coverLetter: _coverLetterController.text.trim(),
-        proposedMilestones: _milestones,
-        createdAt: DateTime.now(),
+      await submitProposalWithFiles(
+        ref,
+        proposal: _proposal(),
+        kept: _keptFiles,
+        removed: _savedFiles.where((f) => !_keptFiles.contains(f)).toList(),
+        newFiles: _newFiles,
       );
-
-      await ref.read(proposalRepositoryProvider).submitProposal(proposal);
-      ref.invalidate(jobProposalsProvider(widget.jobId));
-      ref.invalidate(freelancerProposalsProvider(user.id));
-      ref.invalidate(jobDetailProvider(widget.jobId));
-      ref.invalidate(proposalQuotaProvider);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              _isEditing
-                  ? 'Proposta atualizada com sucesso!'
-                  : 'Proposta enviada com sucesso! O cliente foi notificado.',
-            ),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        context.pop();
-      }
+      if (!mounted) return;
+      _showMessage(
+        _isEditing
+            ? 'Proposta atualizada.'
+            : 'Proposta enviada! O cliente foi notificado.',
+        color: AppColors.success,
+      );
+      context.canPop() ? context.pop() : context.go('/jobs/${widget.jobId}');
     } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        final errText = friendlyError(e);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errText),
-            backgroundColor: AppColors.error,
-            action:
-                e.toString().contains('PROPOSAL_QUOTA_EXCEEDED') &&
-                    !(ref.read(authProvider).valueOrNull?.isPro ?? false)
-                ? SnackBarAction(
-                    label: 'Ver planos',
-                    textColor: AppColors.pureWhite,
-                    onPressed: () => context.push('/plans'),
-                  )
-                : null,
-          ),
-        );
-      }
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      final quota =
+          e.toString().contains('PROPOSAL_QUOTA_EXCEEDED') &&
+          !(ref.read(authProvider).valueOrNull?.isPro ?? false);
+      _showMessage(
+        friendlyError(e),
+        color: AppColors.error,
+        action: quota
+            ? SnackBarAction(
+                label: 'Ver planos',
+                textColor: AppColors.pureWhite,
+                onPressed: () => context.push('/plans'),
+              )
+            : null,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final job = ref.watch(jobDetailProvider(widget.jobId)).value;
-    // Mínimo definido no servidor (platform_settings), para evitar envio em massa.
-    final minCoverLetter =
-        ref.watch(proposalQuotaProvider).valueOrNull?.minCoverLetterChars ?? 50;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Editar Proposta' : 'Enviar Proposta'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
-        ),
+        title: Text(_isEditing ? 'Editar proposta' : 'Enviar proposta'),
+        leading: AppBackButton(fallbackRoute: '/jobs/${widget.jobId}'),
       ),
       body: ResponsiveLayout(
         maxWidth: 700,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Banner de Contraproposta Recebida
-                if (_existingProposal != null &&
-                    _existingProposal!.hasActiveCounterOffer) ...[
-                  GlassCard(
-                    padding: const EdgeInsets.all(16),
-                    backgroundColor: AppColors.warning.withAlpha(25),
-                    borderColor: AppColors.warning.withAlpha(80),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          children: [
-                            Icon(
-                              Icons.handshake_rounded,
-                              color: AppColors.warning,
-                              size: 22,
-                            ),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'O Cliente Enviou uma Contraproposta!',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                  color: AppColors.warning,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Novo Valor Ofertado: ${CurrencyFormatter.format(_existingProposal!.counterPrice!)}'
-                          '${_existingProposal!.counterEstimatedDays != null ? " em ${_existingProposal!.counterEstimatedDays} dias" : ""}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimaryDark,
-                          ),
-                        ),
-                        if (_existingProposal!.counterMessage != null &&
-                            _existingProposal!.counterMessage!.isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          Text(
-                            'Mensagem do Cliente: "${_existingProposal!.counterMessage}"',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontStyle: FontStyle.italic,
-                              color: AppColors.textSecondaryDark,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 14),
-                        CustomButton(
-                          text: 'Aceitar Contraproposta & Iniciar Contrato',
-                          icon: Icons.check_circle_rounded,
-                          isLoading: _isLoading,
-                          width: double.infinity,
-                          onPressed: _handleAcceptCounterOffer,
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed:
-                                _isLoading ? null : _handleRejectCounterOffer,
-                            child: const Text('Recusar contraproposta'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ] else if (_isEditing && _blockedReason(job) == null) ...[
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryDark.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.primaryLight.withValues(alpha: 0.4),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline_rounded,
-                          color: AppColors.primaryLight,
-                          size: 20,
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'Você já enviou uma proposta para esta vaga. Você pode atualizar os valores e condições abaixo.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textPrimaryDark,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                _QuotaBanner(isEditing: _isEditing),
-                if (job != null) ...[
-                  GlassCard(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Candidatando-se para:',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textMutedDark,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          job.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: AppColors.textPrimaryDark,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Orçamento sugerido pelo cliente: ${CurrencyFormatter.formatRange(job.budgetMin, job.budgetMax)}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.success,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-                GlassCard(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Termos da Proposta',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomTextField(
-                              controller: _bidController,
-                              label: 'Valor Total da Proposta (R\$)',
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                    decimal: true,
-                                  ),
-                              onChanged: (_) => setState(() {}),
-                              validator: (v) =>
-                                  (CurrencyFormatter.parse(v) ?? 0) > 0
-                                  ? null
-                                  : 'Valor inválido, ex.: 1.500,00',
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: CustomTextField(
-                              controller: _daysController,
-                              label: 'Prazo Estimado (Dias)',
-                              keyboardType: TextInputType.number,
-                              validator: (v) =>
-                                  v != null && (int.tryParse(v) ?? 0) > 0
-                                  ? null
-                                  : 'Prazo inválido',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                GlassCard(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Expanded(
-                            child: Text(
-                              'Carta de Apresentação',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                          // Modelos reutilizáveis (Pro).
-                          TextButton.icon(
-                            icon: const Icon(
-                              Icons.content_paste_rounded,
-                              size: 18,
-                            ),
-                            label: const Text('Modelos'),
-                            onPressed: _applyTemplate,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      CustomTextField(
-                        controller: _coverLetterController,
-                        label:
-                            'Por que você é a pessoa ideal para este projeto?',
-                        hint:
-                            'Apresente suas experiências relevantes, abordagem técnica e links para projetos similares...',
-                        maxLines: 6,
-                        maxLength: 3000,
-                        validator: (v) =>
-                            v != null && v.trim().length >= minCoverLetter
-                            ? null
-                            : 'Escreva pelo menos $minCoverLetter caracteres: conte por que você é a pessoa certa para esta vaga.',
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                if (_blockedReason(job) case final reason?)
-                  Text(
-                    reason,
-                    key: const Key('proposal-blocked-reason'),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondaryDark,
-                    ),
-                  )
-                else
-                  CustomButton(
-                    text: _isEditing
-                        ? 'Atualizar Minha Proposta'
-                        : 'Confirmar e Enviar Proposta',
-                    icon: _isEditing ? Icons.save_rounded : Icons.send_rounded,
-                    isLoading: _isLoading,
-                    width: double.infinity,
-                    onPressed: _submitProposal,
-                  ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
+          child: Form(key: _formKey, child: _form(job)),
         ),
       ),
     );
   }
-}
 
-/// Saldo de propostas do mês e teto diário (somente para novos envios).
-class _QuotaBanner extends ConsumerWidget {
-  final bool isEditing;
-
-  const _QuotaBanner({required this.isEditing});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (isEditing) return const SizedBox.shrink();
-    final quota = ref.watch(proposalQuotaProvider).value;
-    if (quota == null) return const SizedBox.shrink();
-
-    final blocked = quota.isExhausted || quota.isDailyLimitReached;
-    final color = blocked ? AppColors.error : AppColors.primaryLight;
-    final String text;
-    if (quota.isExhausted) {
-      text = quota.isPro
-          ? 'Você usou as ${quota.monthlyLimit} propostas do Pro neste mês. O saldo renova no dia 1º.'
-          : 'Você usou as ${quota.monthlyLimit} propostas gratuitas deste mês.';
-    } else if (quota.isDailyLimitReached) {
-      text =
-          'Você enviou ${quota.dailyLimit} propostas nas últimas 24 horas. '
-          'Para manter a qualidade do mural, aguarde um pouco para enviar mais.';
-    } else {
-      text =
-          'Propostas restantes este mês: ${quota.remaining} de ${quota.monthlyLimit}'
-          '${quota.refunded > 0 ? ' (${quota.refunded} devolvida${quota.refunded > 1 ? 's' : ''})' : ''}.';
-    }
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: color.withAlpha(25),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withAlpha(90)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            blocked
-                ? Icons.lock_outline_rounded
-                : Icons.local_activity_outlined,
-            color: color,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  text,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textPrimaryDark,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                const Text(
-                  'Propostas para vagas canceladas, removidas pela moderação ou sem resposta do cliente voltam ao saldo.',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textMutedDark,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (!quota.isPro)
-            TextButton(
-              onPressed: () => context.push('/plans'),
-              child: const Text('Conhecer o Pro'),
-            ),
-        ],
-      ),
+  Widget _form(Job? job) {
+    // Mínimo definido no servidor (platform_settings), contra envio em massa.
+    final minCoverLetter =
+        ref.watch(proposalQuotaProvider).valueOrNull?.minCoverLetterChars ?? 50;
+    final blockedReason = ProposalAction.of(
+      job?.status ?? JobStatus.open,
+      _existing,
+    ).blockedReason;
+    const gap = SizedBox(height: 20);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ..._notices(blockedReason),
+        ProposalQuotaBanner(isEditing: _isEditing),
+        if (job != null) ...[ApplyJobSummary(job: job), gap],
+        ProposalTermsCard(
+          bidController: _bidController,
+          daysController: _daysController,
+        ),
+        gap,
+        CoverLetterCard(
+          controller: _coverLetterController,
+          minChars: minCoverLetter,
+          onUseTemplate: _applyTemplate,
+        ),
+        gap,
+        ProposalPortfolioCard(
+          links: _links,
+          onLinksChanged: (v) => setState(() => _links = v),
+          existingFiles: _keptFiles,
+          onExistingFilesChanged: (v) => setState(() => _keptFiles = v),
+          newFiles: _newFiles,
+          onNewFilesChanged: (v) => setState(() => _newFiles = v),
+        ),
+        const SizedBox(height: 24),
+        ProposalSubmitArea(
+          blockedReason: blockedReason,
+          isEditing: _isEditing,
+          isLoading: _isLoading,
+          onSubmit: _submit,
+        ),
+        const SizedBox(height: 20),
+      ],
     );
+  }
+
+  List<Widget> _notices(String? blockedReason) {
+    if (_existing case final p? when p.hasActiveCounterOffer) {
+      return [
+        CounterOfferBanner(
+          proposal: p,
+          onRejected: (updated) => setState(() => _existing = updated),
+        ),
+        const SizedBox(height: 16),
+      ];
+    }
+    return [
+      if (_isEditing && blockedReason == null) const EditingProposalNotice(),
+    ];
   }
 }
