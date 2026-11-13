@@ -5,6 +5,8 @@ import '../../../../core/errors/backend_errors.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../../core/utils/input_formatters.dart';
+import '../../../../core/widgets/field_label.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../domain/entities/billing.dart';
 import '../../domain/entities/checkout.dart';
@@ -270,12 +272,14 @@ class _CheckoutSheetState extends ConsumerState<CheckoutSheet> {
                     CustomTextField(
                       controller: _docController,
                       label: 'CPF ou CNPJ',
-                      hint: 'Somente números',
+                      hint: '000.000.000-00',
+                      helperText:
+                          'Do titular do pagamento. Só números; '
+                          'a pontuação entra sozinha.',
+                      requirement: FieldRequirement.required,
                       prefixIcon: Icons.badge_outlined,
                       keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9.\-/]')),
-                      ],
+                      inputFormatters: const [CpfCnpjInputFormatter()],
                       validator: _validateDoc,
                     ),
                     const SizedBox(height: 8),

@@ -1,10 +1,10 @@
 import 'package:trabalhei/core/errors/backend_errors.dart';
 import '../widgets/chat_system_event_card.dart';
 import '../widgets/chat_delivery_action_banner.dart';
+import '../../../../core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import '../../../billing/presentation/providers/pricing_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -336,10 +336,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
-        ),
+        leading: const AppBackButton(fallbackRoute: '/chat'),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

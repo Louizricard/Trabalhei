@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../../core/widgets/field_label.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
@@ -172,25 +173,21 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                           children: [
                             CustomTextField(
                               controller: _newPasswordController,
-                              label: 'Nova Senha',
-                              hint: 'Mínimo $minPasswordLength caracteres',
+                              label: 'Nova senha',
+                              helperText: passwordHelp,
+                              requirement: FieldRequirement.required,
                               prefixIcon: Icons.lock_outline_rounded,
                               obscureText: true,
-                              validator: (v) {
-                                if (v == null || v.isEmpty) {
-                                  return 'Informe a nova senha';
-                                }
-                                if (v.length < minPasswordLength) {
-                                  return 'Mínimo de $minPasswordLength caracteres';
-                                }
-                                return null;
-                              },
+                              autofillHints: const [AutofillHints.newPassword],
+                              textInputAction: TextInputAction.next,
+                              validator: validateNewPassword,
                             ),
                             const SizedBox(height: 16),
                             CustomTextField(
                               controller: _confirmPasswordController,
-                              label: 'Confirmar Nova Senha',
+                              label: 'Confirme a nova senha',
                               hint: 'Repita a nova senha',
+                              requirement: FieldRequirement.required,
                               prefixIcon: Icons.lock_outline_rounded,
                               obscureText: true,
                               validator: (v) {

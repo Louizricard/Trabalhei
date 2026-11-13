@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/utils/input_formatters.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/custom_text_field.dart';
+import '../../../../core/widgets/field_label.dart';
 import '../../../../core/config/supabase_client.dart';
 import '../../../../core/errors/backend_errors.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -197,6 +200,7 @@ Future<void> editProposalTemplate(
   final days = TextEditingController(
     text: '${template?.estimatedDays ?? initialDays ?? ''}',
   );
+  final formKey = GlobalKey<FormState>();
   final saved = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
@@ -204,38 +208,49 @@ Future<void> editProposalTemplate(
       content: SizedBox(
         width: 520,
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: title,
-                maxLength: 60,
-                decoration: const InputDecoration(
-                  labelText: 'Nome do modelo',
-                  hintText: 'Ex.: Tradução de site',
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const RequiredFieldsNote(),
+                const SizedBox(height: 12),
+                CustomTextField(
+                  controller: title,
+                  label: 'Nome do modelo',
+                  hint: 'Ex.: Tradução de site',
+                  helperText: 'Só você vê. Ajuda a achar o modelo depois.',
+                  requirement: FieldRequirement.required,
+                  maxLength: 60,
+                  validator: Validators.required('o nome do modelo'),
                 ),
-              ),
-              TextField(
-                controller: text,
-                maxLines: 8,
-                maxLength: 3000,
-                decoration: const InputDecoration(
-                  labelText: 'Carta de apresentação',
-                  alignLabelWithHint: true,
+                const SizedBox(height: 12),
+                CustomTextField(
+                  controller: text,
+                  label: 'Carta de apresentação',
+                  helperText: 'Texto base; ajuste para cada vaga ao usar.',
+                  requirement: FieldRequirement.required,
+                  maxLines: 8,
+                  maxLength: 3000,
+                  validator: Validators.required('o texto do modelo'),
                 ),
-              ),
-              TextField(
-                controller: days,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(3),
-                ],
-                decoration: const InputDecoration(
-                  labelText: 'Prazo habitual em dias (opcional)',
+                const SizedBox(height: 12),
+                CustomTextField(
+                  controller: days,
+                  label: 'Prazo habitual',
+                  helperText: 'Em dias. Preenche o prazo da proposta.',
+                  requirement: FieldRequirement.optional,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: const [IntegerInputFormatter(maxDigits: 3)],
+                  validator: Validators.intRange(
+                    1,
+                    365,
+                    unit: 'dias',
+                    optional: true,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -246,8 +261,9 @@ Future<void> editProposalTemplate(
         ),
         FilledButton(
           onPressed: () {
-            if (title.text.trim().isEmpty || text.text.trim().isEmpty) return;
-            Navigator.of(ctx).pop(true);
+            if (formKey.currentState?.validate() ?? false) {
+              Navigator.of(ctx).pop(true);
+            }
           },
           child: const Text('Salvar'),
         ),

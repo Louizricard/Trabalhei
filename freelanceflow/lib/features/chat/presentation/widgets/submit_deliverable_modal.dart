@@ -6,6 +6,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/services/attachment_store.dart';
 import '../../../../core/widgets/attachment_widgets.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/field_label.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
@@ -141,21 +143,25 @@ class _SubmitDeliverableModalState
               const SizedBox(height: 16),
               CustomTextField(
                 controller: _notesController,
-                label: 'Descrição da Entrega & Instruções',
+                label: 'O que foi entregue',
+                requirement: FieldRequirement.required,
                 hint:
-                    'Ex: Concluí a tela conforme solicitado. Links, documentação ou orientações para teste...',
+                    'Ex.: Logotipo final em PDF e PNG, com o manual de uso '
+                    'das cores.',
+                helperText:
+                    'Explique o que está nos arquivos e como o cliente '
+                    'pode conferir.',
                 maxLines: 4,
-                validator: (val) => (val == null || val.trim().isEmpty)
-                    ? 'Informe uma descrição para a entrega'
-                    : null,
+                maxLength: 2000,
+                textCapitalization: TextCapitalization.sentences,
+                validator: Validators.minLength('o que foi entregue', 10),
               ),
               const SizedBox(height: 16),
               AttachmentPickerSection(
                 selectedFiles: _selectedFiles,
                 onChanged: (files) => setState(() => _selectedFiles = files),
-                title: 'Arquivos Entregues (Projetos, ZIPs, PDFs, Telas)',
-                hintText:
-                    'Anexe o código empacotado, prints ou documentos comprobatórios.',
+                title: 'Arquivos da entrega (opcional)',
+                hintText: 'Arquivos finais, prints ou um ZIP com tudo.',
               ),
               const SizedBox(height: 24),
               CustomButton(

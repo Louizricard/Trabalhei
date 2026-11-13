@@ -7,6 +7,8 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/services/attachment_store.dart';
 import '../../../../core/widgets/attachment_widgets.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/field_label.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
@@ -31,6 +33,7 @@ class RequestRevisionModal extends ConsumerStatefulWidget {
 }
 
 class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
+  final _revisionFormKey = GlobalKey<FormState>();
   final _commentController = TextEditingController();
   List<PickedFileData> _selectedFiles = [];
   bool _isRequestingRevision = false;
@@ -112,15 +115,8 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
   }
 
   Future<void> _submitRevision() async {
+    if (!(_revisionFormKey.currentState?.validate() ?? false)) return;
     final text = _commentController.text.trim();
-    if (text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Informe as observações e alterações solicitadas.'),
-        ),
-      );
-      return;
-    }
 
     setState(() => _isRequestingRevision = true);
 
@@ -350,11 +346,26 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                CustomTextField(
-                  controller: _commentController,
-                  label: 'Instruções de Ajuste',
-                  hint: 'Descreva detalhadamente o que deve ser revisado...',
-                  maxLines: 4,
+                Form(
+                  key: _revisionFormKey,
+                  child: CustomTextField(
+                    controller: _commentController,
+                    label: 'O que ajustar',
+                    requirement: FieldRequirement.required,
+                    hint:
+                        'Ex.: Trocar a cor do botão para o verde da marca '
+                        'e corrigir o texto do rodapé.',
+                    helperText:
+                        'Seja específico: o freelancer usa isto para '
+                        'refazer a entrega.',
+                    maxLines: 4,
+                    maxLength: 2000,
+                    textCapitalization: TextCapitalization.sentences,
+                    validator: Validators.minLength(
+                      'o que precisa ser ajustado',
+                      10,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 AttachmentPickerSection(

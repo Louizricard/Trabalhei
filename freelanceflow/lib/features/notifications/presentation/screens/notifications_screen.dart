@@ -34,7 +34,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             color: AppColors.textPrimaryDark,
             size: 20,
           ),
-          onPressed: () => context.pop(),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/jobs'),
         ),
         title: Row(
           children: [
