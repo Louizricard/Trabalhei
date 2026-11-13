@@ -53,6 +53,14 @@ const Map<String, String> databaseCodes = {
   'USER_NOT_FOUND_OR_SUSPENDED': 'Esta conta já está suspensa ou não existe.',
   'USER_NOT_SUSPENDED': 'Esta conta não está suspensa.',
   'REPORT_NOT_FOUND': 'Esta denúncia já foi analisada.',
+  'FILE_TOO_LARGE':
+      'Um dos arquivos passa do limite do seu plano. Remova-o ou envie uma versão menor.',
+  'ATTACHMENT_LIMIT': 'Há mais anexos do que o permitido. Remova alguns.',
+  'ATTACHMENT_NOT_FOUND':
+      'Um anexo não foi encontrado. Remova-o e envie o arquivo de novo.',
+  'ATTACHMENT_NOT_OWNED':
+      'Só é possível anexar arquivos enviados por você mesmo.',
+  'ATTACHMENT_INVALID': 'Um dos anexos é inválido. Remova-o e tente de novo.',
   'ALERT_LIMIT_REACHED':
       'Você pode ter até 10 alertas. Apague um para criar outro.',
 };

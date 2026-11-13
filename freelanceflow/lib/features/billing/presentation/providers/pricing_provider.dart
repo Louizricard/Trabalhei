@@ -36,7 +36,8 @@ final pricingProvider = FutureProvider<Pricing>((ref) async {
 });
 
 /// Tamanho máximo por arquivo enviado (chat, entregas e anexos de vaga), de
-/// acordo com o plano de quem envia. O bucket aceita até o limite do Pro.
+/// acordo com o plano de quem envia. O servidor confere o mesmo limite ao
+/// gravar o anexo (`assert_attachment_refs`); o bucket só guarda o teto do Pro.
 final uploadLimitBytesProvider = Provider<int>((ref) {
   final pricing = ref.watch(pricingProvider).valueOrNull ?? Pricing.fallback;
   final isPro = ref.watch(authProvider).valueOrNull?.isPro ?? false;
