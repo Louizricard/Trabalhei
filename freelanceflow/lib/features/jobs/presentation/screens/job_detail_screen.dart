@@ -103,7 +103,7 @@ class JobDetailScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          job.category,
+                          job.categoryLabel,
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondaryDark,

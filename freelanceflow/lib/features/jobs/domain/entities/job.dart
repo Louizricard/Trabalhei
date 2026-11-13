@@ -10,7 +10,12 @@ class Job {
   final String clientName;
   final double clientRating;
   final String title;
+
+  /// Área do catálogo (`WorkCategories`).
   final String category;
+
+  /// Especialidade dentro da área (opcional).
+  final String? subcategory;
   final String description;
   final ContractType contractType;
   final double budgetMin;
@@ -33,6 +38,7 @@ class Job {
     this.clientRating = 0.0,
     required this.title,
     required this.category,
+    this.subcategory,
     required this.description,
     this.contractType = ContractType.fixed,
     required this.budgetMin,
@@ -48,6 +54,10 @@ class Job {
     this.imageUrl,
     required this.createdAt,
   });
+
+  /// Área e especialidade para exibir, ex.: "Design › UI/UX".
+  String get categoryLabel =>
+      subcategory == null ? category : '$category › $subcategory';
 
   /// Vaga em destaque (pago) enquanto `featured_until` estiver no futuro.
   bool get isFeatured =>
@@ -91,7 +101,8 @@ class Job {
       clientName: clientName,
       clientRating: clientRating,
       title: json['title'] as String? ?? 'Sem título',
-      category: json['category'] as String? ?? 'Mobile',
+      category: json['category'] as String? ?? 'Outros',
+      subcategory: json['subcategory'] as String?,
       description: json['description'] as String? ?? '',
       contractType: json['contract_type'] == 'hourly'
           ? ContractType.hourly
@@ -124,6 +135,7 @@ class Job {
     return {
       'title': title,
       'category': category,
+      'subcategory': subcategory,
       'description': description,
       'contract_type': contractType == ContractType.hourly ? 'hourly' : 'fixed',
       'budget_min': budgetMin,

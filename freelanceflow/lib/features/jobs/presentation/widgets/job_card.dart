@@ -77,20 +77,24 @@ class JobCard extends StatelessWidget {
                         StatusBadge.featured(),
                         const SizedBox(width: 6),
                       ],
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceElevatedDark,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          job.category,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textSecondaryDark,
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceElevatedDark,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            job.categoryLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textSecondaryDark,
+                            ),
                           ),
                         ),
                       ),

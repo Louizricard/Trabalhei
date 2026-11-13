@@ -1,52 +1,14 @@
-import 'dart:typed_data';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trabalhei/core/services/attachment_store.dart';
-import 'package:trabalhei/core/services/storage_service.dart';
 
-class _MemoryStore implements AttachmentStore {
-  final Set<String> files = {};
-  String? failOn;
-
-  @override
-  Future<AppAttachment> uploadFile({
-    required String bucket,
-    required String folder,
-    required PickedFileData file,
-  }) async {
-    if (file.name == failOn) throw Exception('falhou ${file.name}');
-    final url = 'mem://$bucket/$folder/${file.name}';
-    files.add(url);
-    return AppAttachment(
-      id: file.name,
-      name: file.name,
-      url: url,
-      size: file.size,
-      mimeType: file.mimeType,
-    );
-  }
-
-  @override
-  Future<void> deleteFiles(Iterable<String> urls) async =>
-      files.removeAll(urls.toList());
-}
-
-PickedFileData _file(String name) => PickedFileData(
-  name: name,
-  bytes: Uint8List(1),
-  size: 1,
-  mimeType: 'application/pdf',
-);
-
-AppAttachment _existing(String url) =>
-    AppAttachment(id: url, name: url, url: url, size: 1, mimeType: 'x');
+import '../helpers/memory_store.dart';
 
 void main() {
-  late _MemoryStore store;
+  late MemoryStore store;
   late AttachmentSaveFlow flow;
 
   setUp(() {
-    store = _MemoryStore()..files.add('old');
+    store = MemoryStore()..files.add('old');
     flow = AttachmentSaveFlow(store);
   });
 
@@ -54,8 +16,8 @@ void main() {
     final saved = await flow.run(
       bucket: 'b',
       folder: 'f',
-      newFiles: [_file('a.pdf'), _file('b.pdf')],
-      removed: [_existing('old')],
+      newFiles: [pickedFile('a.pdf'), pickedFile('b.pdf')],
+      removed: [savedAttachment('old')],
       save: (uploaded) async => uploaded.length,
     );
     expect(saved, 2);
@@ -69,8 +31,8 @@ void main() {
       flow.run(
         bucket: 'b',
         folder: 'f',
-        newFiles: [_file('a.pdf'), _file('b.pdf')],
-        removed: [_existing('old')],
+        newFiles: [pickedFile('a.pdf'), pickedFile('b.pdf')],
+        removed: [savedAttachment('old')],
         save: (_) async => saved = true,
       ),
       throwsException,
@@ -84,8 +46,8 @@ void main() {
       flow.run<void>(
         bucket: 'b',
         folder: 'f',
-        newFiles: [_file('a.pdf')],
-        removed: [_existing('old')],
+        newFiles: [pickedFile('a.pdf')],
+        removed: [savedAttachment('old')],
         save: (_) async => throw Exception('banco fora'),
       ),
       throwsException,
