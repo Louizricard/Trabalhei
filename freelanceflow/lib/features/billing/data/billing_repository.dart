@@ -26,6 +26,20 @@ class BillingRepository {
     return Subscription.fromJson(Map<String, dynamic>.from(rows.first as Map));
   }
 
+  /// Há assinatura Pro do Google Play com renovação ligada?
+  Future<bool> hasActivePlaySubscription() async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return false;
+    final rows = await _supabase
+        .from('play_purchases')
+        .select('purchase_token')
+        .eq('user_id', userId)
+        .eq('product', 'pro_monthly')
+        .eq('state', 'active')
+        .limit(1);
+    return (rows as List).isNotEmpty;
+  }
+
   /// Cria a assinatura Pro. Pix devolve o QR Code; cartão, a página segura
   /// do Asaas; cupom de 100% libera o Pro na hora.
   Future<CheckoutResult> startProCheckout({

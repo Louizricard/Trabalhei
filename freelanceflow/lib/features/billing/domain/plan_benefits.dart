@@ -80,14 +80,19 @@ List<String> planRules(PlatformSettings s) => [
 ];
 
 /// Perguntas frequentes (pergunta, resposta).
-List<(String, String)> planFaq(Pricing p) => [
+List<(String, String)> planFaq(Pricing p, {bool playStore = false}) => [
   (
     'Posso cancelar o Pro quando quiser?',
-    'Sim. Você mantém os benefícios até o fim do período já pago.',
+    playStore
+        ? 'Sim, em Google Play › Pagamentos e assinaturas. Você mantém os '
+              'benefícios até o fim do período já pago.'
+        : 'Sim. Você mantém os benefícios até o fim do período já pago.',
   ),
   (
     'Como pago?',
-    'Por Pix ou cartão. Com cupom, o desconto vale para o primeiro mês.',
+    playStore
+        ? 'Pela sua conta do Google Play, com as formas de pagamento cadastradas nela.'
+        : 'Por Pix ou cartão. Com cupom, o desconto vale para o primeiro mês.',
   ),
   (
     'A plataforma cobra comissão sobre o trabalho?',

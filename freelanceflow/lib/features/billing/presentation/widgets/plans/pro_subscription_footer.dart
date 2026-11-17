@@ -14,6 +14,10 @@ class ProSubscriptionFooter extends StatelessWidget {
   final VoidCallback onSubscribe;
   final VoidCallback onCancel;
 
+  /// Assinatura do Google Play: cancelar fica na tela de assinaturas do Google.
+  final bool managedByPlay;
+  final VoidCallback? onManagePlay;
+
   const ProSubscriptionFooter({
     super.key,
     required this.isPro,
@@ -22,6 +26,8 @@ class ProSubscriptionFooter extends StatelessWidget {
     required this.busy,
     required this.onSubscribe,
     required this.onCancel,
+    this.managedByPlay = false,
+    this.onManagePlay,
   });
 
   @override
@@ -46,7 +52,17 @@ class ProSubscriptionFooter extends StatelessWidget {
               : 'Pro ativo até ${DateFormatter.simpleDate(expiresAt!)}.',
           style: const TextStyle(color: AppColors.success, fontSize: 13),
         ),
-      if (sub != null && sub.isOpen && !cancelled) ...[
+      if (managedByPlay) ...[
+        const SizedBox(height: 12),
+        CustomButton(
+          key: const Key('plans-manage-play'),
+          text: 'Gerenciar no Google Play',
+          icon: Icons.open_in_new_rounded,
+          variant: ButtonVariant.outline,
+          width: double.infinity,
+          onPressed: onManagePlay,
+        ),
+      ] else if (sub != null && sub.isOpen && !cancelled) ...[
         const SizedBox(height: 12),
         CustomButton(
           text: 'Cancelar assinatura',
