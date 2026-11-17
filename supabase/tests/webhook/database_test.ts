@@ -24,6 +24,8 @@ import { uploadLimitTests } from '../attachments/scenarios.ts';
 import { categoryTests } from '../categories/scenarios.ts';
 import { cleanupTests } from '../attachments/cleanup.ts';
 import { portfolioTests } from '../attachments/proposals.ts';
+import { playTests } from '../play/scenarios.ts';
+import { chatSafetyTests } from '../chat/scenarios.ts';
 
 Deno.test("webhook: transações, recuperação, concorrência e permissões em PostgreSQL", async (t) => {
   const db = testDatabase();
@@ -133,6 +135,8 @@ Deno.test("webhook: transações, recuperação, concorrência e permissões em 
     await categoryTests(t, db);
     await cleanupTests(t, db);
     await portfolioTests(t, db);
+    await playTests(t, db);
+    await chatSafetyTests(t, db);
   } finally {
     await db.end();
   }
