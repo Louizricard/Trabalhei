@@ -21,6 +21,8 @@ Princípios:
 | `notifications` | Somente o dono | `UPDATE is_read` e `DELETE` do dono | Criadas por `notify()` (triggers/RPCs) |
 | `reviews` | Autenticados | `INSERT` pelas partes do contrato, uma por contrato, **só com o contrato `completed`** | Rating do perfil recalculado por trigger |
 | `subscriptions`, `job_featurings` | Somente o dono | Nenhuma | Edge Functions (service_role) |
+| `play_purchases` | Somente o dono | Nenhuma | Edge Functions `play-billing`/`play-rtdn` (service_role) |
+| `user_blocks` | Somente quem bloqueou | Nenhuma | `block_user`/`unblock_user`; bloqueio barra mensagens e conversas novas (ver `moderacao-chat.md`) |
 | `billing_customers`, `billing_events` | Ninguém (cliente) | Nenhuma | Edge Functions (service_role) |
 
 ## Exclusão de conta (LGPD)
