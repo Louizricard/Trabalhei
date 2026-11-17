@@ -321,16 +321,22 @@ class _ReportCard extends ConsumerWidget {
           Row(
             children: [
               Icon(
-                isJob
-                    ? Icons.work_outline_rounded
-                    : Icons.person_outline_rounded,
+                switch (report.target) {
+                  ReportTarget.job => Icons.work_outline_rounded,
+                  ReportTarget.message => Icons.chat_bubble_outline_rounded,
+                  ReportTarget.profile => Icons.person_outline_rounded,
+                },
                 size: 18,
                 color: AppColors.textSecondaryDark,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  '${isJob ? 'Vaga' : 'Perfil'}: ${report.targetLabel ?? '(removido)'}',
+                  '${switch (report.target) {
+                    ReportTarget.job => 'Vaga',
+                    ReportTarget.message => 'Mensagem',
+                    ReportTarget.profile => 'Perfil',
+                  }}: ${report.targetLabel ?? '(removido)'}',
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),

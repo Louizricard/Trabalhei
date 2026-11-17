@@ -1,7 +1,9 @@
 /// Dados do painel de administração (vêm das funções `admin_*` do banco).
 library;
 
-enum ReportTarget { job, profile }
+/// Denúncia de mensagem do chat: na lista da moderação o alvo vira quem
+/// enviou a mensagem (é quem pode ser suspenso).
+enum ReportTarget { job, profile, message }
 
 enum ReportReason {
   spam('spam', 'Spam ou propaganda'),
@@ -75,9 +77,11 @@ class AdminReport {
 
   factory AdminReport.fromJson(Map<String, dynamic> json) => AdminReport(
     id: json['id'] as String,
-    target: json['target_type'] == 'job'
-        ? ReportTarget.job
-        : ReportTarget.profile,
+    target: switch (json['target_type']) {
+      'job' => ReportTarget.job,
+      'message' => ReportTarget.message,
+      _ => ReportTarget.profile,
+    },
     targetId: json['target_id'] as String,
     targetLabel: json['target_label'] as String?,
     reason: ReportReason.fromDb(json['reason'] as String?),

@@ -19,6 +19,8 @@ import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/conversation.dart';
 import '../providers/chat_provider.dart';
 import '../widgets/contract_milestone_sheet.dart';
+import '../widgets/chat_safety.dart';
+import '../../../admin/presentation/providers/admin_provider.dart';
 
 class ChatRoomScreen extends ConsumerStatefulWidget {
   final String conversationId;
@@ -326,6 +328,13 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     );
     final currentUser = ref.watch(authProvider).value;
     final currentUserId = currentUser?.id;
+    final blocked =
+        conversation != null &&
+        (ref
+                .watch(blockedUsersProvider)
+                .valueOrNull
+                ?.contains(conversation.otherParticipantId) ??
+            false);
 
     ref.listen(chatMessagesStreamProvider(widget.conversationId), (prev, next) {
       if (next.hasValue && (prev?.value?.length != next.value?.length)) {
@@ -384,6 +393,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 },
               ),
             ),
+          if (conversation != null) ChatSafetyMenu(conversation: conversation),
         ],
       ),
       body: ResponsiveLayout(
@@ -454,76 +464,107 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   ],
                 ),
               ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: const BoxDecoration(
-                color: AppColors.surfaceDark,
-                border: Border(top: BorderSide(color: AppColors.borderDark)),
-              ),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.add_circle_outline_rounded,
-                      color: AppColors.primaryLight,
-                      size: 24,
-                    ),
-                    tooltip: 'Enviar Anexo ou Imagem',
-                    onPressed: _isUploadingAttachment
-                        ? null
-                        : _showAttachmentOptions,
-                  ),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: TextField(
-                      controller: _messageController,
-                      // Limite do banco; sem contador para não poluir o chat.
-                      maxLength: 5000,
-                      buildCounter:
-                          (
-                            _, {
-                            required currentLength,
-                            required isFocused,
-                            maxLength,
-                          }) => null,
-                      style: const TextStyle(
-                        color: AppColors.textPrimaryDark,
-                        fontSize: 14,
+            if (blocked)
+              BlockedChatNotice(conversation: conversation)
+            else
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: const BoxDecoration(
+                  color: AppColors.surfaceDark,
+                  border: Border(top: BorderSide(color: AppColors.borderDark)),
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.add_circle_outline_rounded,
+                        color: AppColors.primaryLight,
+                        size: 24,
                       ),
-                      decoration: InputDecoration(
-                        hintText: 'Digite sua mensagem...',
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                      tooltip: 'Enviar Anexo ou Imagem',
+                      onPressed: _isUploadingAttachment
+                          ? null
+                          : _showAttachmentOptions,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        // Limite do banco; sem contador para não poluir o chat.
+                        maxLength: 5000,
+                        buildCounter:
+                            (
+                              _, {
+                              required currentLength,
+                              required isFocused,
+                              maxLength,
+                            }) => null,
+                        style: const TextStyle(
+                          color: AppColors.textPrimaryDark,
+                          fontSize: 14,
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: const BorderSide(
-                            color: AppColors.borderDark,
+                        decoration: InputDecoration(
+                          hintText: 'Digite sua mensagem...',
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: const BorderSide(
+                              color: AppColors.borderDark,
+                            ),
                           ),
                         ),
+                        onSubmitted: (_) => _sendMessage(),
                       ),
-                      onSubmitted: (_) => _sendMessage(),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton.filled(
-                    icon: const Icon(Icons.send_rounded, size: 20),
-                    onPressed: _sendMessage,
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    IconButton.filled(
+                      icon: const Icon(Icons.send_rounded, size: 20),
+                      onPressed: _sendMessage,
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
     );
   }
 
+  /// Mensagem da outra pessoa abre "Denunciar mensagem" no toque longo.
   Widget _buildMessageBubble(
+    ChatMessage msg,
+    String? currentUserId,
+    Conversation? conversation,
+    dynamic currentUser,
+  ) {
+    final bubble = _bubbleContent(
+      msg,
+      currentUserId,
+      conversation,
+      currentUser,
+    );
+    final reportable =
+        msg.senderId != currentUserId &&
+        msg.messageType != MessageType.systemEvent &&
+        msg.messageType != MessageType.milestoneUpdate;
+    if (!reportable) return bubble;
+    return GestureDetector(
+      key: Key('message-${msg.id}'),
+      onLongPress: () => showMessageActions(context, ref, msg),
+      child: bubble,
+    );
+  }
+
+  Widget _bubbleContent(
     ChatMessage msg,
     String? currentUserId,
     Conversation? conversation,

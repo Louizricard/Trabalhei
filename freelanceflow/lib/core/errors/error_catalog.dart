@@ -38,6 +38,9 @@ const Map<String, String> databaseCodes = {
   'INVALID_MILESTONES':
       'Os marcos precisam ter título, valor e prazo válidos e somar o valor total da proposta.',
   'CONTRACT_NOT_FOUND': 'Contrato não encontrado.',
+  'USER_BLOCKED': 'Não é possível conversar com esta pessoa (bloqueio ativo).',
+  'MESSAGE_NOT_FOUND': 'Mensagem não encontrada.',
+  'INVALID_BLOCK': 'Não é possível bloquear este usuário.',
   'CANCEL_REASON_REQUIRED':
       'Explique o motivo do encerramento (de 10 a 500 caracteres).',
   'NO_ACTIVE_COUNTER_OFFER': 'Não há contraproposta ativa nesta proposta.',

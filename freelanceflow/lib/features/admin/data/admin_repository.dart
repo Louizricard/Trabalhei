@@ -66,13 +66,25 @@ class AdminRepository {
     params: {'p_job_id': jobId, 'p_reason': reason},
   );
 
-  /// Denúncia de uma vaga ou de um perfil.
+  /// Denúncia de uma vaga, de um perfil ou de uma mensagem do chat (esta
+  /// passa pelo servidor, que confere a participação e guarda o conteúdo).
   Future<void> report({
     required ReportTarget target,
     required String targetId,
     required ReportReason reason,
     String? details,
   }) async {
+    if (target == ReportTarget.message) {
+      await _supabase.rpc(
+        'report_message',
+        params: {
+          'p_message_id': targetId,
+          'p_reason': reason.dbValue,
+          'p_details': details?.trim(),
+        },
+      );
+      return;
+    }
     await _supabase.from('reports').insert({
       'target_type': target.name,
       'target_id': targetId,
@@ -81,6 +93,18 @@ class AdminRepository {
         'details': details.trim(),
     });
   }
+
+  /// Pessoas que o usuário logado bloqueou.
+  Future<Set<String>> blockedUsers() async {
+    final rows = await _supabase.from('user_blocks').select('blocked_id');
+    return {for (final r in rows as List) (r as Map)['blocked_id'] as String};
+  }
+
+  Future<void> blockUser(String userId) =>
+      _supabase.rpc('block_user', params: {'p_user': userId});
+
+  Future<void> unblockUser(String userId) =>
+      _supabase.rpc('unblock_user', params: {'p_user': userId});
 
   Future<List<AdminCoupon>> coupons() async {
     final rows = await _supabase.rpc('admin_list_coupons') as List;

@@ -6,15 +6,19 @@ import '../../../auth/presentation/guest_access.dart';
 import '../../domain/admin_models.dart';
 import '../providers/admin_provider.dart';
 
-/// Abre o formulário de denúncia de uma vaga ou perfil. Visitantes recebem o
-/// aviso para criar conta antes.
+/// Abre o formulário de denúncia de uma vaga, perfil ou mensagem. Visitantes
+/// recebem o aviso para criar conta antes.
 Future<void> showReportDialog(
   BuildContext context,
   WidgetRef ref, {
   required ReportTarget target,
   required String targetId,
 }) async {
-  final what = target == ReportTarget.job ? 'esta vaga' : 'este perfil';
+  final what = switch (target) {
+    ReportTarget.job => 'esta vaga',
+    ReportTarget.profile => 'este perfil',
+    ReportTarget.message => 'esta mensagem',
+  };
   if (!await requireAccount(context, ref, action: 'denunciar $what')) return;
   if (!context.mounted) return;
   final sent = await showDialog<bool>(
@@ -86,9 +90,11 @@ class _ReportDialogState extends ConsumerState<_ReportDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.target == ReportTarget.job
-        ? 'Denunciar vaga'
-        : 'Denunciar perfil';
+    final title = switch (widget.target) {
+      ReportTarget.job => 'Denunciar vaga',
+      ReportTarget.profile => 'Denunciar perfil',
+      ReportTarget.message => 'Denunciar mensagem',
+    };
     return AlertDialog(
       title: Text(title),
       content: SizedBox(
