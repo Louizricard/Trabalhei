@@ -9,6 +9,7 @@ import {
   reportError,
   requireUser,
 } from "../_shared/common.ts";
+import { googlePlay, PlayApiError, PRO_PRODUCT } from "../_shared/google_play.ts";
 import {
   type DeletionDependencies,
   DeletionError,
@@ -67,7 +68,28 @@ async function authorize(req: Request) {
   }
 }
 
+// Assinatura do Google Play: cancela a renovação (o Google não cobra de novo). Sem a conta de
+// serviço configurada, recusa a exclusão em vez de deixar a cobrança correndo.
+async function cancelPlay(admin: Admin, user: string) {
+  const { data, error } = await admin.from("play_purchases").select("purchase_token")
+    .eq("user_id", user).eq("product", PRO_PRODUCT).eq("state", "active");
+  if (error) throw new Error("BILLING_READ_ERROR");
+  if (!data?.length) return;
+  const play = googlePlay(env("GOOGLE_PLAY_SERVICE_ACCOUNT"));
+  for (const row of data) {
+    try {
+      await play.cancelSubscription(PRO_PRODUCT, row.purchase_token);
+    } catch (error) {
+      if (!(error instanceof PlayApiError && [404, 410].includes(error.status))) throw error;
+    }
+    const result = await admin.from("play_purchases").update({ state: "cancelled" })
+      .eq("purchase_token", row.purchase_token).eq("state", "active");
+    if (result.error) throw new Error("BILLING_WRITE_ERROR");
+  }
+}
+
 async function cancelBilling(admin: Admin, user: string) {
+  await cancelPlay(admin, user);
   const { data: sub, error } = await admin.from("subscriptions").select(
     "id,asaas_subscription_id",
   )

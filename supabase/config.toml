@@ -27,6 +27,11 @@ verify_jwt = false
 [functions.dispatch-notification]
 verify_jwt = false
 
+# Notificações do Google Play via Pub/Sub, sem JWT do Supabase; a autenticação é o
+# token na URL de inscrição (PLAY_RTDN_TOKEN), validado dentro da função.
+[functions.play-rtdn]
+verify_jwt = false
+
 # Modelos de e-mail em português (os mesmos textos estão no painel do projeto).
 [auth.email.template.confirmation]
 subject = "Confirme seu cadastro no Trabalhei"
