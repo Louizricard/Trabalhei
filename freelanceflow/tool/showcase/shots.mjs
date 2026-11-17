@@ -9,13 +9,13 @@ export const SHOTS = [
   ['phone-jobs', 'freelancer', '/jobs', phone],
   ['phone-job-detail', 'freelancer', '/jobs/demo-job-1', phone],
   ['phone-apply', 'freelancer', '/jobs/demo-job-1/apply', phone, [
-    [114, 449, '5200'],
-    [275, 438, '28'],
-    [195, 640, 'Já entreguei dois apps de agendamento em Flutter. Posso começar esta semana e validar o fluxo com a recepção antes da publicação.'],
+    [195, 515, '5200'],
+    [195, 620, '28'],
+    [195, 832, 'Já entreguei dois apps de agendamento em Flutter. Posso começar esta semana e validar o fluxo com a recepção antes da publicação.'],
   ]],
   ['phone-create-job', 'client', '/jobs/create', phone, [
     [195, 364, 'App para clínica veterinária'],
-    [195, 580, 'Precisamos de um app para os tutores marcarem consultas e banho e tosa, receberem lembretes e acompanharem o histórico de cada pet.'],
+    [195, 660, 'Precisamos de um app para os tutores marcarem consultas e banho e tosa, receberem lembretes e acompanharem o histórico de cada pet.'],
   ]],
   ['phone-proposals', 'client', '/jobs/demo-job-1/proposals', phone],
   ['phone-chat', 'client', '/chat/demo-conv-1', phone],
@@ -28,12 +28,12 @@ export const SHOTS = [
   ['desktop-proposals', 'client', '/jobs/demo-job-1/proposals', desktop],
   ['desktop-create-job', 'client', '/jobs/create', desktop, [
     [640, 363, 'App para clínica veterinária'],
-    [640, 563, 'Precisamos de um app para os tutores marcarem consultas e banho e tosa, receberem lembretes e acompanharem o histórico de cada pet.'],
+    [640, 630, 'Precisamos de um app para os tutores marcarem consultas e banho e tosa, receberem lembretes e acompanharem o histórico de cada pet.'],
   ]],
   ['desktop-apply', 'freelancer', '/jobs/demo-job-1/apply', desktop, [
-    [480, 384, '5200'],
-    [797, 384, '28'],
-    [640, 589, 'Já entreguei dois apps de agendamento em Flutter. Posso começar esta semana e validar o fluxo com a recepção antes da publicação.'],
+    [480, 424, '5200'],
+    [797, 424, '28'],
+    [640, 660, 'Já entreguei dois apps de agendamento em Flutter. Posso começar esta semana e validar o fluxo com a recepção antes da publicação.'],
   ]],
 ];
 
