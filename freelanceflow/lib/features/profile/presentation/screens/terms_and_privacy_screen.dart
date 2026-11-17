@@ -15,7 +15,9 @@ const _sections = <(String, String)>[
         'suporte e para '
         'assuntos de dados pessoais: ${LegalInfo.contactEmail}.\n\n'
         'Ao criar uma conta, você declara ter 18 anos ou mais e aceita estes '
-        'Termos de Uso e a Política de Privacidade abaixo.',
+        'Termos de Uso e a Política de Privacidade abaixo.\n\n'
+        'Versões públicas: trabalhei.site/termos, trabalhei.site/privacidade '
+        'e, para excluir a conta, trabalhei.site/excluir-conta.',
   ),
   (
     '2. O que a plataforma faz',
@@ -62,10 +64,14 @@ const _sections = <(String, String)>[
         'mensal opcional com mais propostas e ferramentas de organização. '
         'Clientes podem contratar o destaque de projeto por 7 dias. Os preços e '
         'limites atuais aparecem na tela Planos antes de qualquer cobrança.\n\n'
-        'O pagamento é feito pelo Asaas, por Pix (dentro do app) ou cartão (na '
-        'página segura do Asaas). Não vemos nem armazenamos dados de cartão. '
-        'O Plano Pro renova a cada mês e pode ser cancelado a qualquer momento '
-        'no app; os benefícios seguem até o fim do período já pago.\n\n'
+        'No app Android, o pagamento é feito pela Google Play, com as formas '
+        'de pagamento da sua conta Google; a assinatura é cancelada em Google '
+        'Play › Pagamentos e assinaturas. Na versão web, o pagamento é feito '
+        'pelo Asaas, por Pix ou cartão (na página segura do Asaas), e a '
+        'assinatura é cancelada na tela Planos. Não vemos nem armazenamos '
+        'dados de cartão. O Plano Pro renova a cada mês e pode ser cancelado a '
+        'qualquer momento; os benefícios seguem até o fim do período já '
+        'pago.\n\n'
         'Projetos destacados aparecem em um espaço identificado como '
         'patrocinado. Quando há mais projetos destacados que espaços, eles se '
         'revezam, e todos recebem o mesmo tempo. A ordem normal do mural e da '
@@ -112,7 +118,8 @@ const _sections = <(String, String)>[
         'revisão só são acessíveis às partes da conversa ou do contrato.\n\n'
         'Usamos fornecedores que tratam dados em nosso nome: Supabase (banco '
         'de dados, arquivos e login; servidores em São Paulo), Vercel '
-        '(hospedagem do site), Asaas (pagamentos) e Sentry (registro de '
+        '(hospedagem do site), Asaas e Google Play (pagamentos) e Sentry '
+        '(registro de '
         'erros). Alguns têm sede ou servidores fora do Brasil; nesses casos a '
         'transferência segue as salvaguardas do art. 33 da LGPD.',
   ),
