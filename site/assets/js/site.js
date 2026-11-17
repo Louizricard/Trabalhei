@@ -447,13 +447,15 @@ async function setupDownloads() {
   } catch {
     return; // Mantém os links para a página de versões (sempre válidos).
   }
-  const version = release.tag.replace(/^v/, '');
+  // A versão de cada arquivo vem do nome (trabalhei-1.0.5.apk): Android e Windows
+  // podem estar em versões diferentes na mesma release.
+  const versionOf = (asset) => asset.name.match(/(\d+\.\d+\.\d+)/)?.[1] ?? release.tag.replace(/^v/, '');
   const find = (re) => release.assets.find((a) => re.test(a.name));
 
   const apk = find(/\.apk$/i);
   if (apk) {
     setHref('[data-download="android"]', apk.url);
-    setText('[data-android-version]', version);
+    setText('[data-android-version]', versionOf(apk));
     setText('[data-android-size]', formatSize(apk.size));
   }
 
@@ -461,7 +463,7 @@ async function setupDownloads() {
   const zip = find(/windows.*\.zip$/i);
   if (exe || zip) {
     setHref('[data-download="windows"]', (exe ?? zip).url);
-    setText('[data-windows-version]', version);
+    setText('[data-windows-version]', versionOf(exe ?? zip));
     setText('[data-windows-size]', formatSize((exe ?? zip).size));
   }
   if (zip) setHref('[data-download="windows-zip"]', zip.url);
