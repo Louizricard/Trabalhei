@@ -158,10 +158,27 @@ Feita em 24/10/2026: as Edge Functions do modelo antigo (`create-payment-intent`
 ### 7.1 Arquivos órfãos (Storage)
 
 A Edge Function `storage-cleanup` apaga anexos removidos e uploads que nunca viraram registro (ver
-`docs/rls.md`, "Arquivos órfãos"). Depois do deploy, agende uma chamada diária em
-**Integrations › Cron** com `POST /functions/v1/storage-cleanup` e o cabeçalho
-`Authorization: Bearer <service_role>`. Cada chamada apaga até 100 arquivos e devolve
-`{ removed, failed }`; falhas ficam na fila com `attempts` e `last_error` (desistência após 5).
+`docs/rls.md`, "Arquivos órfãos"). O agendamento é feito pela migration
+`20261120145320_storage_cleanup_schedule`:
+
+- `pg_cron` roda `public.run_storage_cleanup()` todo dia às 03:17 UTC (job `storage-cleanup`);
+- a função faz `POST` via `pg_net` para o endereço do segredo `storage_cleanup_url` do Vault, com o
+  cabeçalho `x-cleanup-token` (segredo `storage_cleanup_token`, gerado no próprio banco);
+- a Edge Function confere o token com `storage_cleanup_token_ok` (só `service_role` executa) ou
+  aceita `Authorization: Bearer <service_role>` para uma chamada manual. Por isso é publicada com
+  `verify_jwt` desligado: a autorização é feita dentro dela.
+
+Cada chamada apaga até 100 arquivos e devolve `{ removed, failed }`; falhas ficam na fila com
+`attempts` e `last_error` (desistência após 5). Para conferir as execuções:
+
+```sql
+select status, return_message, start_time from cron.job_run_details
+where jobid = (select jobid from cron.job where jobname = 'storage-cleanup')
+order by start_time desc limit 5;
+```
+
+Para trocar o token, apague o segredo `storage_cleanup_token` no Vault e reaplique o bloco `do $$`
+da migration.
 
 ## 8. Android (APK)
 

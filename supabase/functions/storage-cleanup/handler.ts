@@ -1,6 +1,6 @@
 // Apaga arquivos órfãos do Storage em lotes (ver migration
-// 20261113185537_storage_cleanup_queue). Só aceita a chave service_role:
-// deve ser chamada por um agendamento (Cron do Supabase), nunca pelo app.
+// 20261113185537_storage_cleanup_queue). Só aceita a chave service_role ou o
+// token do agendamento diário (pg_cron), nunca chamadas do app.
 
 export type StoredPath = { bucket: string; path: string };
 
