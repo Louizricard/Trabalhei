@@ -187,30 +187,8 @@ class AppTheme {
         thickness: 1,
         space: 1,
       ),
-      navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.surfaceDark,
-        indicatorColor: AppColors.primaryContainer,
-        labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return const TextStyle(
-              color: AppColors.primary,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            );
-          }
-          return const TextStyle(
-            color: AppColors.textMutedDark,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          );
-        }),
-        iconTheme: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(color: AppColors.primary);
-          }
-          return const IconThemeData(color: AppColors.textMutedDark);
-        }),
-      ),
+      navigationBarTheme: navigationBarTheme,
+      navigationRailTheme: navigationRailTheme,
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.surfaceDark,
         selectedItemColor: AppColors.primary,
@@ -237,4 +215,54 @@ class AppTheme {
       ),
     );
   }
+
+  // Aba ativa: pílula menta translúcida com ícone menta-claro. Antes a barra
+  // lateral caía no `secondaryContainer` (menta opaco) e o ícone, também
+  // menta, sumia. As duas barras usam os mesmos ícones, rótulos e realces.
+  static NavigationBarThemeData get navigationBarTheme =>
+      NavigationBarThemeData(
+        backgroundColor: AppColors.surfaceDark,
+        indicatorColor: AppColors.navIndicator,
+        overlayColor: _navOverlay,
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => _navLabel(states.contains(WidgetState.selected)),
+        ),
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => _navIcon(states.contains(WidgetState.selected)),
+        ),
+      );
+
+  static NavigationRailThemeData get navigationRailTheme =>
+      NavigationRailThemeData(
+        backgroundColor: AppColors.surfaceDark,
+        indicatorColor: AppColors.navIndicator,
+        selectedIconTheme: _navIcon(true),
+        unselectedIconTheme: _navIcon(false),
+        selectedLabelTextStyle: _navLabel(true),
+        unselectedLabelTextStyle: _navLabel(false),
+      );
+
+  /// Ícone da navegação (barra inferior e lateral).
+  static IconThemeData _navIcon(bool selected) => IconThemeData(
+    color: selected ? AppColors.primaryLight : AppColors.textMutedDark,
+    size: 24,
+  );
+
+  /// Rótulo da navegação (barra inferior e lateral).
+  static TextStyle _navLabel(bool selected) => TextStyle(
+    color: selected ? AppColors.primaryLight : AppColors.textMutedDark,
+    fontSize: 12,
+    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+  );
+
+  /// Hover e foco sutis, sem competir com a aba ativa.
+  static final WidgetStateProperty<Color?> _navOverlay =
+      WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.pressed)) return AppColors.navPressed;
+        if (states.contains(WidgetState.focused) ||
+            states.contains(WidgetState.hovered)) {
+          return AppColors.navHover;
+        }
+        return null;
+      });
 }
