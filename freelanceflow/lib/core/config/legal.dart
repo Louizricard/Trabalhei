@@ -5,7 +5,7 @@ class LegalInfo {
   static const String controllerName = 'LouizVolution';
 
   /// E-mail para suporte e pedidos sobre dados pessoais (LGPD).
-  static const String contactEmail = 'luizricardorodrigues0102@gmail.com';
+  static const String contactEmail = 'louizvolution@gmail.com';
 
   /// Versão dos termos. Mude ao publicar alterações relevantes: a versão aceita
   /// fica registrada no cadastro do usuário.

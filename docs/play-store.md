@@ -195,7 +195,7 @@ Quase tudo exige login, então o Google pede credenciais de teste (Conteúdo do 
 
 ## 10. Ficha da loja
 
-**Contato** (obrigatório): e-mail `luizricardorodrigues0102@gmail.com`; site
+**Contato** (obrigatório): e-mail `louizvolution@gmail.com`; site
 `https://trabalhei.site`. Telefone é opcional.
 
 **Imagens**: prontas em [`store-listing/play/`](../store-listing/play/), feitas de telas reais do
