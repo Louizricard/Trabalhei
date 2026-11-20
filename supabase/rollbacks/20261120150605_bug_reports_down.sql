@@ -1,4 +1,4 @@
--- Desfaz 20261120130000_bug_reports. Recusa rodar se já houver relatórios ou
+-- Desfaz 20261120150605_bug_reports. Recusa rodar se já houver relatórios ou
 -- capturas de tela (seriam perdidos).
 do $$
 begin
