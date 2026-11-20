@@ -2,6 +2,8 @@ import 'package:trabalhei/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/config/legal.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/glass_card.dart';
@@ -101,6 +103,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       if (mounted) {
         setState(() => _isUploadingAvatar = false);
       }
+    }
+  }
+
+  /// Abre o convite fora do app (navegador ou app do Discord; nova aba na Web).
+  Future<void> _openDiscord() async {
+    final opened = await launchUrl(
+      Uri.parse(LegalInfo.discordInviteUrl),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Não foi possível abrir o Discord. Acesse ${LegalInfo.discordInviteUrl}',
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 
@@ -351,8 +371,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               const SizedBox(height: 24),
               ProfileSettingsGroup(
-                title: 'Suporte',
+                title: 'Suporte e comunidade',
                 children: [
+                  ProfileSettingsTile(
+                    icon: Icons.forum_outlined,
+                    title: 'Entre para nossa comunidade no Discord',
+                    subtitle: 'Teste o beta, dê sugestões e veja as novidades',
+                    trailing: const Icon(
+                      Icons.open_in_new_rounded,
+                      size: 18,
+                      color: AppColors.textMutedDark,
+                    ),
+                    onTap: _openDiscord,
+                  ),
                   ProfileSettingsTile(
                     icon: Icons.bug_report_outlined,
                     title: 'Reportar um bug',

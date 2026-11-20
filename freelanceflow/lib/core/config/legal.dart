@@ -7,6 +7,9 @@ class LegalInfo {
   /// E-mail para suporte e pedidos sobre dados pessoais (LGPD).
   static const String contactEmail = 'louizvolution@gmail.com';
 
+  /// Convite da comunidade do Trabalhei no Discord (beta, sugestões e avisos).
+  static const String discordInviteUrl = 'https://discord.gg/jeXbNCavnH';
+
   /// Versão dos termos. Mude ao publicar alterações relevantes: a versão aceita
   /// fica registrada no cadastro do usuário.
   static const String termsVersion = '2026-11-17';
