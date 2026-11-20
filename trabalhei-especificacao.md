@@ -127,7 +127,7 @@ Pontos adicionais:
 
 ## 4. Notificações
 
-Canais: in-app (sempre) + e-mail (eventos importantes); push fica pra quando houver app mobile.
+Canais: in-app (sempre) + e-mail e push (Web Push). Em Perfil › Notificações e Alertas a pessoa escolhe os canais e silencia, no e-mail e no push, as categorias mensagens, propostas, contratos, atualizações e novas oportunidades (alertas de vagas, geridos na mesma tela).
 
 Eventos que devem disparar notificação:
 - Nova proposta recebida (cliente)

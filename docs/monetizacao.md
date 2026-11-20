@@ -88,6 +88,9 @@ edita.
 
 ## Pagamento
 
+- **App Android**: Pro e Destaque são comprados pelo Google Play Billing (exigência da Play
+  Store), sem Pix, cartão do Asaas nem cupom. Ver [play-billing.md](play-billing.md). O que segue
+  vale para o web.
 - **Pix dentro do app**: a função devolve o QR Code e o código copia e cola. O app consulta o banco a
   cada 4 s, e o webhook do Asaas confirma o pagamento.
 - **Cartão**: a página segura do Asaas abre no navegador do próprio app. O Trabalhei nunca recebe

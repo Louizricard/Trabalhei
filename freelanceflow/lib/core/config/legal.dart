@@ -5,12 +5,15 @@ class LegalInfo {
   static const String controllerName = 'LouizVolution';
 
   /// E-mail para suporte e pedidos sobre dados pessoais (LGPD).
-  static const String contactEmail = 'luizricardorodrigues0102@gmail.com';
+  static const String contactEmail = 'louizvolution@gmail.com';
+
+  /// Convite da comunidade do Trabalhei no Discord (beta, sugestões e avisos).
+  static const String discordInviteUrl = 'https://discord.gg/jeXbNCavnH';
 
   /// Versão dos termos. Mude ao publicar alterações relevantes: a versão aceita
   /// fica registrada no cadastro do usuário.
-  static const String termsVersion = '2026-10-27';
+  static const String termsVersion = '2026-11-17';
 
   /// Data exibida no topo dos termos.
-  static const String termsUpdatedAt = 'Outubro de 2026';
+  static const String termsUpdatedAt = 'Novembro de 2026';
 }

@@ -7,8 +7,13 @@ import '../../../domain/plan_benefits.dart';
 /// Regras que valem para todos os planos e perguntas frequentes.
 class PlanRulesAndFaq extends StatelessWidget {
   final Pricing pricing;
+  final bool playStore;
 
-  const PlanRulesAndFaq({super.key, required this.pricing});
+  const PlanRulesAndFaq({
+    super.key,
+    required this.pricing,
+    this.playStore = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +40,7 @@ class PlanRulesAndFaq extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(18, 10, 18, 0),
                 child: _Heading('Perguntas frequentes'),
               ),
-              for (final (q, a) in planFaq(pricing))
+              for (final (q, a) in planFaq(pricing, playStore: playStore))
                 ExpansionTile(
                   title: Text(q, style: const TextStyle(fontSize: 14)),
                   childrenPadding: const EdgeInsets.fromLTRB(18, 0, 18, 14),

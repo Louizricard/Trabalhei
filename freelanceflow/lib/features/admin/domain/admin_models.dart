@@ -1,7 +1,9 @@
 /// Dados do painel de administração (vêm das funções `admin_*` do banco).
 library;
 
-enum ReportTarget { job, profile }
+/// Denúncia de mensagem do chat: na lista da moderação o alvo vira quem
+/// enviou a mensagem (é quem pode ser suspenso).
+enum ReportTarget { job, profile, message }
 
 enum ReportReason {
   spam('spam', 'Spam ou propaganda'),
@@ -75,9 +77,11 @@ class AdminReport {
 
   factory AdminReport.fromJson(Map<String, dynamic> json) => AdminReport(
     id: json['id'] as String,
-    target: json['target_type'] == 'job'
-        ? ReportTarget.job
-        : ReportTarget.profile,
+    target: switch (json['target_type']) {
+      'job' => ReportTarget.job,
+      'message' => ReportTarget.message,
+      _ => ReportTarget.profile,
+    },
     targetId: json['target_id'] as String,
     targetLabel: json['target_label'] as String?,
     reason: ReportReason.fromDb(json['reason'] as String?),
@@ -202,5 +206,41 @@ class AdminCoupon {
     redemptions: _int(json['redemptions_count']),
     validUntil: _date(json['valid_until']),
     active: json['active'] as bool? ?? true,
+  );
+}
+
+/// Relatório de bug enviado pelo app (Perfil > Reportar um bug).
+class AdminBugReport {
+  final String id;
+  final String description;
+  final String? screenshotPath;
+  final String platform;
+  final String? appVersion;
+  final String status;
+  final DateTime? createdAt;
+  final String? userName;
+
+  const AdminBugReport({
+    required this.id,
+    required this.description,
+    required this.platform,
+    required this.status,
+    this.screenshotPath,
+    this.appVersion,
+    this.createdAt,
+    this.userName,
+  });
+
+  bool get isOpen => status == 'open';
+
+  factory AdminBugReport.fromJson(Map<String, dynamic> json) => AdminBugReport(
+    id: json['id'] as String,
+    description: json['description'] as String? ?? '',
+    screenshotPath: json['screenshot_path'] as String?,
+    platform: json['platform'] as String? ?? '',
+    appVersion: json['app_version'] as String?,
+    status: json['status'] as String? ?? 'open',
+    createdAt: _date(json['created_at']),
+    userName: json['user_name'] as String?,
   );
 }

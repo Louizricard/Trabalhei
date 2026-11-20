@@ -11,6 +11,11 @@ class AppColors {
   static const Color primaryLight = Color(0xFF4EF3C1);
   static const Color primaryContainer = Color(0x2619E6A7); // 15% opacidade
   static const Color primaryGlow = Color(0x4D19E6A7); // 30% opacidade
+
+  // Navegação: pílula da aba ativa e realces de hover/foco/toque.
+  static const Color navIndicator = Color(0x3319E6A7); // 20% opacidade
+  static const Color navHover = Color(0x14FFFFFF); // 8% branco
+  static const Color navPressed = Color(0x1FFFFFFF); // 12% branco
   static const Color onPrimary = Color(
     0xFF081A2F,
   ); // Alto contraste sobre o verde

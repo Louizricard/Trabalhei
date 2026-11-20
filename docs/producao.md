@@ -41,7 +41,9 @@ Feito em 25/10/2026 com o domínio `trabalhei.site` (registrado na Hostinger, DN
 
 Toda notificação criada no banco chama a Edge Function `dispatch-notification`
 (trigger `notifications_dispatch`, via `pg_net`). Ela envia o e-mail pelo Resend
-e o Web Push para os navegadores inscritos, conforme `notification_settings`.
+e o Web Push para os navegadores inscritos, conforme `notification_settings`
+(e-mail, push e as categorias silenciadas em `muted_categories`; a categoria
+silenciada fica só no sino, e avisos da moderação chegam sempre).
 As chaves ficam no **Vault** do Supabase (Project Settings › Vault), não no código:
 
 | Segredo | Conteúdo |
@@ -60,7 +62,9 @@ As chaves ficam no **Vault** do Supabase (Project Settings › Vault), não no c
 
 Administradores ficam na tabela `public.admins` (só o banco altera):
 `insert into public.admins (user_id) values ('<id do usuário>');`
-O painel fica em Perfil › Moderação. Suspender bloqueia o login (`banned_until`),
+O painel fica em Perfil › Moderação. A aba **Bugs** lista os relatórios enviados
+em Perfil › Reportar um bug (descrição, plataforma, versão, captura), com
+"Marcar resolvido". Suspender bloqueia o login (`banned_until`),
 encerra as sessões, encerra as vagas abertas e registra em `moderation_actions`.
 
 ## 3. Vercel
@@ -180,15 +184,50 @@ order by start_time desc limit 5;
 Para trocar o token, apague o segredo `storage_cleanup_token` no Vault e reaplique o bloco `do $$`
 da migration.
 
-## 8. Android (APK)
+## 8. Android (Play Store e APK)
 
-- O APK de release é assinado com a chave `trabalhei-release.jks`, guardada fora do repositório em
-  `C:\Users\luizr\Documents\trabalhei\android-release-key\`, junto com uma cópia do `key.properties`
-  (senha e alias).
-- **Faça backup desses dois arquivos** (pen drive, cofre de senhas). Sem eles não é possível publicar
-  uma atualização que instale por cima da versão anterior, nem usar o mesmo app na Play Store.
-- Para gerar uma versão nova: suba `version` no `pubspec.yaml`, copie o `key.properties` para
-  `freelanceflow/android/` e rode, dentro de `freelanceflow/`:
-  `flutter build apk --release --dart-define-from-file=dart_defines.json --dart-define=SENTRY_DSN=<DSN do app> --dart-define=SENTRY_ENVIRONMENT=production`
-- Sem o `key.properties`, o build de release usa a chave de debug da máquina (serve para testes,
-  não para publicar).
+Checklist completo do Play Console (formulários, textos da ficha, testes fechados):
+[play-store.md](play-store.md). Cobrança no Android pela Google Play: [play-billing.md](play-billing.md).
+
+**Chave de upload.** O app é assinado com `trabalhei-release.jks`, guardada fora do repositório.
+Nesta máquina (Linux) ela fica em
+`/home/louizricard/Documentos/Projetos/trabalhei/android-release-key/trabalhei-release.jks`, junto
+com uma cópia do `key.properties` (senha e alias). Na Play Store ela é a **chave de upload**: com o
+Play App Signing, o Google assina o app instalado com a chave dele.
+
+- **Faça backup do `.jks` e do `key.properties`** (pen drive, cofre de senhas). Sem eles não é
+  possível enviar atualizações sem pedir a troca da chave de upload ao suporte do Google, nem
+  atualizar o APK distribuído pelo site por cima da versão instalada.
+- Copie o `key.properties` para `freelanceflow/android/key.properties` (fica fora do git) e confira
+  que `storeFile` aponta para o caminho Linux acima. O caminho antigo do Windows
+  (`C:\Users\luizr\...`) não existe nesta máquina, e o Gradle o trata como caminho relativo.
+- Sem o `key.properties`, o build de release usa a chave de debug da máquina: serve para testes,
+  mas a Play Store recusa o envio.
+
+**Antes de cada envio**, suba `version` no `freelanceflow/pubspec.yaml`. O número depois do `+` é o
+`versionCode` e precisa ser maior que o de qualquer envio anterior, em qualquer faixa (teste
+interno, fechado ou produção); a Play Store recusa um número repetido. Ex.: `1.0.4+5` → `1.0.5+6`.
+
+**Pacote para a Play Store (AAB)**, dentro de `freelanceflow/`:
+
+```bash
+flutter build appbundle --release --dart-define-from-file=dart_defines.json --dart-define=SENTRY_DSN=<DSN do app> --dart-define=SENTRY_ENVIRONMENT=production
+```
+
+O arquivo sai em `build/app/outputs/bundle/release/app-release.aab`. Envie esse arquivo no Play
+Console (a Play Store não aceita APK em apps novos).
+
+**APK para o download direto do site** (o mesmo comando com `apk` no lugar de `appbundle`):
+
+```bash
+flutter build apk --release --dart-define-from-file=dart_defines.json --dart-define=SENTRY_DSN=<DSN do app> --dart-define=SENTRY_ENVIRONMENT=production
+```
+
+**Permissões.** O app declara só `INTERNET` e `ACCESS_NETWORK_STATE`
+(`freelanceflow/android/app/src/main/AndroidManifest.xml`); a biblioteca do Google Play Billing
+acrescenta `com.android.vending.BILLING`. Fotos e arquivos vêm do seletor do
+sistema e a câmera abre pelo app de câmera do sistema, sem permissão de câmera nem de armazenamento.
+Ao adicionar um plugin, confira se ele não traz permissões novas no manifesto final
+(`build/app/intermediates/merged_manifests/<variante>/process<Variante>Manifest/AndroidManifest.xml`).
+Uma permissão nova pode exigir atualizar a Segurança dos dados no Play Console e a
+[Política de Privacidade](../site/privacidade/index.html).

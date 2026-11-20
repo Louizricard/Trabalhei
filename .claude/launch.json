@@ -4,8 +4,26 @@
     {
       "name": "site-dist",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8092", "--directory", "dist"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8092",
+        "--directory",
+        "dist"
+      ],
       "port": 8092
+    },
+    {
+      "name": "site-src",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8093",
+        "--directory",
+        "site"
+      ],
+      "port": 8093
     }
   ]
 }

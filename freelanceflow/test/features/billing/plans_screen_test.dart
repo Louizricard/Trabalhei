@@ -5,6 +5,7 @@ import 'package:trabalhei/core/utils/currency_formatter.dart';
 import 'package:trabalhei/features/auth/domain/entities/user_profile.dart';
 import 'package:trabalhei/features/auth/domain/repositories/auth_repository.dart';
 import 'package:trabalhei/features/auth/presentation/providers/auth_state_provider.dart';
+import 'package:trabalhei/features/billing/data/play_billing_service.dart';
 import 'package:trabalhei/features/billing/domain/entities/pricing.dart';
 import 'package:trabalhei/features/billing/presentation/providers/billing_provider.dart';
 import 'package:trabalhei/features/billing/presentation/providers/pricing_provider.dart';
@@ -38,8 +39,10 @@ const _pricing = Pricing(
   ),
 );
 
-UserProfile _user(UserRole role) => UserProfile(
+UserProfile _user(UserRole role, {bool pro = false}) => UserProfile(
   id: 'u1',
+  plan: pro ? 'pro' : 'free',
+  planExpiresAt: pro ? DateTime.now().add(const Duration(days: 20)) : null,
   email: 'pessoa@exemplo.com',
   fullName: 'Pessoa Teste',
   role: role,
@@ -60,16 +63,47 @@ class _Repo implements AuthRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-Future<void> _pump(WidgetTester tester, UserRole role, Size size) async {
+class _Play implements PlayBillingService {
+  final List<String> bought = [];
+
+  @override
+  void start() {}
+
+  @override
+  Future<void> restore(String userId) async {}
+
+  @override
+  Future<PlayPurchaseEvent> buyPro({required String userId}) async {
+    bought.add('pro:$userId');
+    return const PlayPurchaseEvent(PlayProducts.pro, PlayOutcome.pending);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+Future<void> _pump(
+  WidgetTester tester,
+  UserRole role,
+  Size size, {
+  _Play? play,
+  bool playSubscription = false,
+  bool pro = false,
+}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        authRepositoryProvider.overrideWithValue(_Repo(_user(role))),
+        authRepositoryProvider.overrideWithValue(_Repo(_user(role, pro: pro))),
         pricingProvider.overrideWith((ref) async => _pricing),
         subscriptionProvider.overrideWith((ref) async => null),
+        playBillingEnabledProvider.overrideWithValue(play != null),
+        if (play != null) playBillingProvider.overrideWithValue(play),
+        playSubscriptionActiveProvider.overrideWith(
+          (ref) async => playSubscription,
+        ),
       ],
       child: const MaterialApp(home: PlansScreen()),
     ),
@@ -128,5 +162,46 @@ void main() {
     await tester.tap(_text('Prazo urgente'));
     await tester.pumpAndSettle();
     expect(_text('topo do mural por 5 dias'), findsOneWidget);
+  });
+
+  testWidgets('Android: Pro é comprado pelo Google Play, sem Pix nem cupom', (
+    tester,
+  ) async {
+    final play = _Play();
+    await _pump(
+      tester,
+      UserRole.freelancer,
+      const Size(1000, 2400),
+      play: play,
+    );
+
+    await tester.tap(find.byKey(const Key('plans-subscribe')));
+    await tester.pumpAndSettle();
+    expect(play.bought, ['pro:u1']);
+    expect(_text('Pagamento pendente no Google Play'), findsOneWidget);
+    // A folha de checkout do Asaas (Pix/cartão/cupom) não abre no Android.
+    expect(_text('CPF'), findsNothing);
+
+    await tester.tap(_text('Como pago?'));
+    await tester.pumpAndSettle();
+    expect(_text('conta do Google Play'), findsOneWidget);
+    expect(_text('Pix'), findsNothing);
+  });
+
+  testWidgets('Android: assinante do Google Play gerencia pelo Google Play', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      UserRole.freelancer,
+      const Size(1000, 2400),
+      play: _Play(),
+      playSubscription: true,
+      pro: true,
+    );
+    expect(find.byKey(const Key('plans-manage-play')), findsOneWidget);
+    expect(find.byKey(const Key('plans-subscribe')), findsNothing);
+    // Cancelar pelo app (Asaas) não aparece para assinatura do Google.
+    expect(_text('Cancelar assinatura'), findsNothing);
   });
 }

@@ -6,6 +6,8 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../../auth/domain/entities/user_profile.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../data/play_billing_service.dart';
 import '../../domain/entities/pricing.dart';
 import '../providers/pricing_provider.dart';
 import '../providers/billing_provider.dart';
@@ -36,6 +38,12 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    if (ref.read(playBillingEnabledProvider)) {
+      final userId = ref.read(authProvider).valueOrNull?.id;
+      final play = ref.read(playBillingProvider)..start();
+      // Compra que ficou sem confirmação (app fechado no meio) é confirmada agora.
+      if (userId != null) play.restore(userId).catchError((_) {});
+    }
   }
 
   @override
@@ -63,6 +71,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
   }
 
   Future<void> _subscribe() async {
+    if (ref.read(playBillingEnabledProvider)) return _subscribePlay();
     final price = _pricing.pro.price;
     final data = await CheckoutSheet.show(
       context,
@@ -106,6 +115,48 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _subscribePlay() async {
+    final userId = ref.read(authProvider).valueOrNull?.id;
+    if (userId == null) return;
+    setState(() => _busy = true);
+    try {
+      final event = await ref.read(playBillingProvider).buyPro(userId: userId);
+      switch (event.outcome) {
+        case PlayOutcome.granted:
+          await refreshBillingState(ref);
+          _snack('Seu Pro está ativo. Aproveite as ferramentas no Painel.');
+        case PlayOutcome.pending:
+          _snack(
+            'Pagamento pendente no Google Play. O Pro é liberado assim que '
+            'ele for aprovado.',
+          );
+        case PlayOutcome.cancelled:
+          break;
+        case PlayOutcome.failed:
+          _snack(
+            event.message ?? 'Não foi possível concluir a compra.',
+            error: true,
+          );
+      }
+    } catch (e) {
+      _snack(friendlyError(e), error: true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _managePlay() async {
+    final ok = await launchUrl(
+      Uri.parse(PlayProducts.manageUrl),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!ok) {
+      _snack('Abra Google Play › Pagamentos e assinaturas.', error: true);
+    }
+    // Ao voltar, o estado da assinatura (renovação desligada) é recarregado.
+    if (mounted) setState(() => _awaitingPayment = true);
   }
 
   Future<void> _cancel() async {
@@ -195,7 +246,10 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
               else
                 ClientPlansSection(pricing: pricing, isClient: isClient),
               const SizedBox(height: 24),
-              PlanRulesAndFaq(pricing: pricing),
+              PlanRulesAndFaq(
+                pricing: pricing,
+                playStore: ref.watch(playBillingEnabledProvider),
+              ),
             ],
           ),
         ),
@@ -219,6 +273,9 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
             ),
           ),
           data: (sub) => ProSubscriptionFooter(
+            managedByPlay:
+                ref.watch(playSubscriptionActiveProvider).valueOrNull ?? false,
+            onManagePlay: _managePlay,
             isPro: user?.isPro ?? false,
             expiresAt: user?.planExpiresAt,
             subscription: sub,

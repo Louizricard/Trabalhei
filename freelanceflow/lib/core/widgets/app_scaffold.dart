@@ -68,18 +68,6 @@ class AppScaffold extends ConsumerWidget {
                 NavigationRail(
                   selectedIndex: navigationShell.currentIndex,
                   onDestinationSelected: selectTab,
-                  backgroundColor: AppColors.surfaceDark,
-                  selectedIconTheme: const IconThemeData(
-                    color: AppColors.primary,
-                  ),
-                  selectedLabelTextStyle: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  unselectedLabelTextStyle: const TextStyle(
-                    color: AppColors.textMutedDark,
-                    fontWeight: FontWeight.w500,
-                  ),
                   leading: Padding(
                     padding: const EdgeInsets.symmetric(
                       vertical: 24,
@@ -139,8 +127,6 @@ class AppScaffold extends ConsumerWidget {
           bottomNavigationBar: NavigationBar(
             selectedIndex: navigationShell.currentIndex,
             onDestinationSelected: selectTab,
-            backgroundColor: AppColors.surfaceDark,
-            indicatorColor: AppColors.primaryContainer,
             destinations: navItems,
           ),
         );

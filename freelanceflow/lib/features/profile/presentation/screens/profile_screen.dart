@@ -2,6 +2,8 @@ import 'package:trabalhei/core/errors/backend_errors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/config/legal.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/glass_card.dart';
@@ -15,6 +17,7 @@ import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../providers/profile_provider.dart';
 
 import '../../../../core/services/storage_service.dart';
+import '../../../support/presentation/widgets/bug_report_sheet.dart';
 import '../widgets/delete_account_button.dart';
 import '../widgets/profile_links.dart';
 import '../widgets/profile_header_card.dart';
@@ -100,6 +103,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       if (mounted) {
         setState(() => _isUploadingAvatar = false);
       }
+    }
+  }
+
+  /// Abre o convite fora do app (navegador ou app do Discord; nova aba na Web).
+  Future<void> _openDiscord() async {
+    final opened = await launchUrl(
+      Uri.parse(LegalInfo.discordInviteUrl),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Não foi possível abrir o Discord. Acesse ${LegalInfo.discordInviteUrl}',
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 
@@ -315,15 +336,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   ProfileSettingsTile(
                     icon: Icons.notifications_outlined,
-                    title: 'Notificações',
-                    subtitle: 'E-mail e push neste navegador',
+                    title: 'Notificações e Alertas',
+                    subtitle: 'Onde receber, o que avisar e alertas de vagas',
                     onTap: () => context.push('/settings/notifications'),
-                  ),
-                  ProfileSettingsTile(
-                    icon: Icons.travel_explore_rounded,
-                    title: 'Alertas de vagas',
-                    subtitle: 'Avisos quando sair uma vaga do seu jeito',
-                    onTap: () => context.push('/alerts'),
                   ),
                   if (ref.watch(isAdminProvider).valueOrNull == true)
                     ProfileSettingsTile(
@@ -351,6 +366,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       await ref.read(authProvider.notifier).signOut();
                       if (context.mounted) context.go('/login');
                     },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              ProfileSettingsGroup(
+                title: 'Suporte e comunidade',
+                children: [
+                  ProfileSettingsTile(
+                    icon: Icons.forum_outlined,
+                    title: 'Entre para nossa comunidade no Discord',
+                    subtitle: 'Teste o beta, dê sugestões e veja as novidades',
+                    trailing: const Icon(
+                      Icons.open_in_new_rounded,
+                      size: 18,
+                      color: AppColors.textMutedDark,
+                    ),
+                    onTap: _openDiscord,
+                  ),
+                  ProfileSettingsTile(
+                    icon: Icons.bug_report_outlined,
+                    title: 'Reportar um bug',
+                    subtitle: 'Conte o que não funcionou como esperado',
+                    onTap: () => showBugReportSheet(context),
                   ),
                 ],
               ),

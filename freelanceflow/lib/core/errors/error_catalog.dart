@@ -38,6 +38,9 @@ const Map<String, String> databaseCodes = {
   'INVALID_MILESTONES':
       'Os marcos precisam ter título, valor e prazo válidos e somar o valor total da proposta.',
   'CONTRACT_NOT_FOUND': 'Contrato não encontrado.',
+  'USER_BLOCKED': 'Não é possível conversar com esta pessoa (bloqueio ativo).',
+  'MESSAGE_NOT_FOUND': 'Mensagem não encontrada.',
+  'INVALID_BLOCK': 'Não é possível bloquear este usuário.',
   'CANCEL_REASON_REQUIRED':
       'Explique o motivo do encerramento (de 10 a 500 caracteres).',
   'NO_ACTIVE_COUNTER_OFFER': 'Não há contraproposta ativa nesta proposta.',
@@ -63,6 +66,8 @@ const Map<String, String> databaseCodes = {
   'ATTACHMENT_INVALID': 'Um dos anexos é inválido. Remova-o e tente de novo.',
   'INVALID_PORTFOLIO_LINKS':
       'Confira os links do portfólio: até 10, sem repetir, começando com https://.',
+  'BUG_REPORT_RATE_LIMIT':
+      'Você enviou vários relatórios seguidos. Aguarde um pouco e tente de novo.',
   'ALERT_LIMIT_REACHED':
       'Você pode ter até 10 alertas. Apague um para criar outro.',
 };

@@ -457,6 +457,20 @@ p { margin: 0; }
 .faq details p { padding: 0 22px 20px; color: var(--text-2); }
 
 /* ---------- Chamada final e rodapé ---------- */
+/* ---------- Comunidade e contato ---------- */
+.community-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.community-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.community-card h3 { font-size: 1.2rem; }
+.community-card p { color: var(--text-2); }
+.community-card .btn { margin-top: auto; }
+.contact-list { list-style: none; margin: auto 0 0; padding: 0; display: grid; gap: 10px; width: 100%; }
+.contact-link { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; color: var(--text); text-decoration: none; transition: border-color 0.2s, background-color 0.2s; }
+.contact-link svg { flex: none; color: var(--primary-light); }
+.contact-link span { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; font-size: 0.95rem; }
+.contact-link strong { color: var(--text-3); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.contact-link:hover { border-color: var(--border-strong); background: rgba(255, 255, 255, 0.04); }
+@media (max-width: 920px) { .community-grid { grid-template-columns: minmax(0, 1fr); } }
+
 .final-cta { padding: 0 0 clamp(72px, 10vw, 112px); }
 .final-inner { text-align: center; padding: clamp(40px, 6vw, 60px) 24px; border-radius: 26px; background: var(--surface); border: 1px solid var(--border); }
 .final-inner h2 { font-size: clamp(1.55rem, 2.8vw, 2.2rem); font-weight: 800; margin-bottom: 10px; text-wrap: balance; }

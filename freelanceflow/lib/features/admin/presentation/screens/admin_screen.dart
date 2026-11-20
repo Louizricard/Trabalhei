@@ -9,10 +9,11 @@ import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../domain/admin_models.dart';
 import '../providers/admin_provider.dart';
+import '../widgets/bug_reports_tab.dart';
 import '../widgets/coupons_tab.dart';
 
-/// Painel de moderação: denúncias, usuários (suspender/reativar) e vagas
-/// (remover do mural). Só abre para administradores.
+/// Painel de moderação: denúncias, usuários (suspender/reativar), vagas
+/// (remover do mural), cupons e relatórios de bug. Só abre para administradores.
 class AdminScreen extends ConsumerWidget {
   const AdminScreen({super.key});
 
@@ -49,7 +50,7 @@ class _AdminTabs extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final overview = ref.watch(adminOverviewProvider).valueOrNull;
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Moderação'),
@@ -72,6 +73,7 @@ class _AdminTabs extends ConsumerWidget {
               const Tab(text: 'Usuários'),
               const Tab(text: 'Vagas'),
               const Tab(text: 'Cupons'),
+              const Tab(text: 'Bugs'),
             ],
           ),
         ),
@@ -85,6 +87,7 @@ class _AdminTabs extends ConsumerWidget {
                   _UsersTab(),
                   _JobsTab(),
                   CouponsTab(),
+                  BugReportsTab(),
                 ],
               ),
             ),
@@ -100,6 +103,7 @@ void _refreshAll(WidgetRef ref) {
   ref.invalidate(adminReportsProvider);
   ref.invalidate(adminUsersProvider);
   ref.invalidate(adminJobsProvider);
+  ref.invalidate(adminBugReportsProvider);
 }
 
 /// Executa uma ação de moderação com aviso de sucesso ou erro.
@@ -321,16 +325,22 @@ class _ReportCard extends ConsumerWidget {
           Row(
             children: [
               Icon(
-                isJob
-                    ? Icons.work_outline_rounded
-                    : Icons.person_outline_rounded,
+                switch (report.target) {
+                  ReportTarget.job => Icons.work_outline_rounded,
+                  ReportTarget.message => Icons.chat_bubble_outline_rounded,
+                  ReportTarget.profile => Icons.person_outline_rounded,
+                },
                 size: 18,
                 color: AppColors.textSecondaryDark,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  '${isJob ? 'Vaga' : 'Perfil'}: ${report.targetLabel ?? '(removido)'}',
+                  '${switch (report.target) {
+                    ReportTarget.job => 'Vaga',
+                    ReportTarget.message => 'Mensagem',
+                    ReportTarget.profile => 'Perfil',
+                  }}: ${report.targetLabel ?? '(removido)'}',
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),

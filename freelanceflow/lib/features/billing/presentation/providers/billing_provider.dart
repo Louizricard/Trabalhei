@@ -4,10 +4,30 @@ import '../../../auth/presentation/providers/auth_state_provider.dart';
 import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../../../proposals/presentation/providers/proposals_provider.dart';
 import '../../data/billing_repository.dart';
+import '../../data/play_billing_service.dart';
 import '../../domain/entities/billing.dart';
 
 final billingRepositoryProvider = Provider<BillingRepository>((ref) {
   return BillingRepository(ref.watch(supabaseClientProvider));
+});
+
+/// Compras pelo Google Play (Android). Sobrescrito nos testes.
+final playBillingEnabledProvider = Provider<bool>(
+  (ref) => PlayBillingService.platformSupported,
+);
+
+final playBillingProvider = Provider<PlayBillingService>((ref) {
+  final service = PlayBillingService.supabase(
+    ref.watch(supabaseClientProvider),
+  );
+  ref.onDispose(service.dispose);
+  return service;
+});
+
+/// Assinatura Pro do Google Play ativa (renovação ligada) do usuário logado.
+final playSubscriptionActiveProvider = FutureProvider.autoDispose<bool>((ref) {
+  ref.watch(authProvider);
+  return ref.watch(billingRepositoryProvider).hasActivePlaySubscription();
 });
 
 final subscriptionProvider = FutureProvider.autoDispose<Subscription?>((ref) {
@@ -20,6 +40,7 @@ final subscriptionProvider = FutureProvider.autoDispose<Subscription?>((ref) {
 Future<void> refreshBillingState(WidgetRef ref) async {
   await ref.read(authProvider.notifier).refreshProfile();
   ref.invalidate(subscriptionProvider);
+  ref.invalidate(playSubscriptionActiveProvider);
   ref.invalidate(proposalQuotaProvider);
   ref.invalidate(jobsListProvider);
 }

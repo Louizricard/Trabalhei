@@ -8,6 +8,13 @@ final adminRepositoryProvider = Provider<AdminRepository>(
   (ref) => AdminRepository(ref.watch(supabaseClientProvider)),
 );
 
+/// Ids que o usuário logado bloqueou (refaz ao trocar de conta).
+final blockedUsersProvider = FutureProvider<Set<String>>((ref) async {
+  final user = ref.watch(authProvider).valueOrNull;
+  if (user == null) return const {};
+  return ref.watch(adminRepositoryProvider).blockedUsers();
+});
+
 /// O usuário logado é administrador? (Refaz a consulta ao trocar de conta.)
 final isAdminProvider = FutureProvider<bool>((ref) async {
   final user = ref.watch(authProvider).valueOrNull;
@@ -26,6 +33,11 @@ final adminOverviewProvider = FutureProvider.autoDispose<AdminOverview>(
 final adminReportsProvider = FutureProvider.autoDispose
     .family<List<AdminReport>, String>(
       (ref, status) => ref.watch(adminRepositoryProvider).reports(status),
+    );
+
+final adminBugReportsProvider = FutureProvider.autoDispose
+    .family<List<AdminBugReport>, String>(
+      (ref, status) => ref.watch(adminRepositoryProvider).bugReports(status),
     );
 
 final adminUsersProvider = FutureProvider.autoDispose

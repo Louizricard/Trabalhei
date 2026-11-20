@@ -43,7 +43,7 @@ class JobAlertsScreen extends ConsumerWidget {
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, i) => i == list.length
                       ? Text(
-                          'Até 10 alertas. Os avisos chegam no sino do app, por e-mail e por push, conforme Perfil > Notificações.',
+                          'Até 10 alertas. Os avisos chegam no sino do app, por e-mail e por push, conforme Perfil > Notificações e Alertas.',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 12,
