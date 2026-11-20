@@ -41,7 +41,9 @@ Feito em 25/10/2026 com o domínio `trabalhei.site` (registrado na Hostinger, DN
 
 Toda notificação criada no banco chama a Edge Function `dispatch-notification`
 (trigger `notifications_dispatch`, via `pg_net`). Ela envia o e-mail pelo Resend
-e o Web Push para os navegadores inscritos, conforme `notification_settings`.
+e o Web Push para os navegadores inscritos, conforme `notification_settings`
+(e-mail, push e as categorias silenciadas em `muted_categories`; a categoria
+silenciada fica só no sino, e avisos da moderação chegam sempre).
 As chaves ficam no **Vault** do Supabase (Project Settings › Vault), não no código:
 
 | Segredo | Conteúdo |
@@ -60,7 +62,9 @@ As chaves ficam no **Vault** do Supabase (Project Settings › Vault), não no c
 
 Administradores ficam na tabela `public.admins` (só o banco altera):
 `insert into public.admins (user_id) values ('<id do usuário>');`
-O painel fica em Perfil › Moderação. Suspender bloqueia o login (`banned_until`),
+O painel fica em Perfil › Moderação. A aba **Bugs** lista os relatórios enviados
+em Perfil › Reportar um bug (descrição, plataforma, versão, captura), com
+"Marcar resolvido". Suspender bloqueia o login (`banned_until`),
 encerra as sessões, encerra as vagas abertas e registra em `moderation_actions`.
 
 ## 3. Vercel

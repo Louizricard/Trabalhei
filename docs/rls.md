@@ -18,11 +18,13 @@ Princípios:
 | `contracts`, `milestones`, `milestone_revisions` | Apenas as partes do contrato | Nenhuma | `accept_*` cria o contrato; `submit_deliverable`, `request_revision`, `approve_milestone`; `cancel_contract` encerra (ver `docs/contratacao.md`) |
 | `conversations` | Apenas os dois participantes | Nenhuma | `get_or_create_conversation` |
 | `messages` | Apenas os participantes da conversa | `INSERT` como remetente próprio e tipos não-sistema | Mensagens de sistema geradas pelas RPCs; `mark_conversation_read` |
+| `notification_settings` | Somente o dono | `INSERT`/`UPDATE` da própria linha: e-mail, push e `muted_categories` (categorias silenciadas no e-mail e no push; o banco só aceita `messages, proposals, contracts, updates, opportunities`) | `dispatch-notification` respeita as categorias; avisos da moderação chegam sempre |
 | `notifications` | Somente o dono | `UPDATE is_read` e `DELETE` do dono | Criadas por `notify()` (triggers/RPCs) |
 | `reviews` | Autenticados | `INSERT` pelas partes do contrato, uma por contrato, **só com o contrato `completed`** | Rating do perfil recalculado por trigger |
 | `subscriptions`, `job_featurings` | Somente o dono | Nenhuma | Edge Functions (service_role) |
 | `play_purchases` | Somente o dono | Nenhuma | Edge Functions `play-billing`/`play-rtdn` (service_role) |
 | `user_blocks` | Somente quem bloqueou | Nenhuma | `block_user`/`unblock_user`; bloqueio barra mensagens e conversas novas (ver `moderacao-chat.md`) |
+| `bug_reports` | Só administradores (`is_admin`); o autor não lê de volta | `INSERT` só como a própria conta, com status `open`; captura obrigatoriamente na pasta do autor; até 5 por hora (trigger `bug_reports_rate_limit`) | Admin muda `status`/`resolved_at` (grant só nessas colunas); lista via `admin_list_bug_reports`. Some com a conta (cascade em `auth.users`) |
 | `billing_customers`, `billing_events` | Ninguém (cliente) | Nenhuma | Edge Functions (service_role) |
 
 ## Exclusão de conta (LGPD)
@@ -60,6 +62,10 @@ Escrita/remoção apenas na pasta do próprio usuário: o primeiro segmento do c
 referenciar o arquivo (`can_read_proposal_attachment`), em qualquer estado da vaga ou da proposta.
 Se a proposta for reenviada sem o arquivo, ou apagada junto com a vaga, o dono da vaga perde o acesso
 e o arquivo entra na fila de limpeza.
+
+`bug_reports` (capturas de tela dos relatórios de bug) é **privado**: caminho `<autor>/<id>.<ext>`,
+PNG/JPG/WEBP até 5 MB. O autor envia e pode apagar só na própria pasta; só administradores leem
+(a aba Bugs do /admin abre por URL assinada de 10 minutos).
 
 O app guarda a URL no formato público como identificador do arquivo e, ao exibir ou abrir, troca por
 uma URL assinada válida por 1 hora (`StorageService.resolveUrl` e o widget `StorageImage`).

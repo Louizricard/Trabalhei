@@ -112,9 +112,9 @@ compartilhamento**. Por isso todas as linhas abaixo ficam como **coletado, não 
 | Informações pessoais › Outras informações | Sim | Opcional | Funcionalidade do app | Bio, habilidades, empresa, cidade, links, valor por hora |
 | Informações financeiras › Histórico de compras | Sim | Opcional | Funcionalidade do app, Gerenciamento da conta | Compras do Pro e do destaque |
 | Mensagens › Outras mensagens no app | Sim | Opcional | Funcionalidade do app | Chat entre usuários |
-| Fotos e vídeos › Fotos | Sim | Opcional | Funcionalidade do app | Foto de perfil, portfólio, capa de vaga, fotos no chat |
+| Fotos e vídeos › Fotos | Sim | Opcional | Funcionalidade do app | Foto de perfil, portfólio, capa de vaga, fotos no chat, captura em relatório de bug |
 | Arquivos e documentos › Arquivos e documentos | Sim | Opcional | Funcionalidade do app | Currículo, anexos de vaga e do chat, entregas |
-| Atividade no app › Outros conteúdos gerados pelo usuário | Sim | Opcional | Funcionalidade do app | Vagas, propostas, avaliações, denúncias |
+| Atividade no app › Outros conteúdos gerados pelo usuário | Sim | Opcional | Funcionalidade do app | Vagas, propostas, avaliações, denúncias, relatórios de bug |
 | Atividade no app › Outras ações | Sim | Opcional | Funcionalidade do app | Alertas de vagas salvos |
 | Informações e desempenho do app › Registros de falhas | Sim | Obrigatório | Análise | Sentry |
 | Informações e desempenho do app › Diagnóstico | Sim | Obrigatório | Análise | Sentry (aparelho, sistema, versão do app) |
