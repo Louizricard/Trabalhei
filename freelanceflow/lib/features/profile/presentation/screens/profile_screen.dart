@@ -15,6 +15,7 @@ import '../../../jobs/presentation/providers/jobs_provider.dart';
 import '../providers/profile_provider.dart';
 
 import '../../../../core/services/storage_service.dart';
+import '../../../support/presentation/widgets/bug_report_sheet.dart';
 import '../widgets/delete_account_button.dart';
 import '../widgets/profile_links.dart';
 import '../widgets/profile_header_card.dart';
@@ -345,6 +346,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       await ref.read(authProvider.notifier).signOut();
                       if (context.mounted) context.go('/login');
                     },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              ProfileSettingsGroup(
+                title: 'Suporte',
+                children: [
+                  ProfileSettingsTile(
+                    icon: Icons.bug_report_outlined,
+                    title: 'Reportar um bug',
+                    subtitle: 'Conte o que não funcionou como esperado',
+                    onTap: () => showBugReportSheet(context),
                   ),
                 ],
               ),

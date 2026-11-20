@@ -26,6 +26,37 @@ class AdminRepository {
         .toList();
   }
 
+  Future<List<AdminBugReport>> bugReports(String status) async {
+    final rows =
+        await _supabase.rpc(
+              'admin_list_bug_reports',
+              params: {'p_status': status},
+            )
+            as List;
+    return rows
+        .map(
+          (r) => AdminBugReport.fromJson(Map<String, dynamic>.from(r as Map)),
+        )
+        .toList();
+  }
+
+  /// Marca o relatório como resolvido ou reabre (só administradores, via RLS).
+  Future<void> setBugReportResolved(String id, {required bool resolved}) =>
+      _supabase
+          .from('bug_reports')
+          .update({
+            'status': resolved ? 'resolved' : 'open',
+            'resolved_at': resolved
+                ? DateTime.now().toUtc().toIso8601String()
+                : null,
+          })
+          .eq('id', id);
+
+  /// Link temporário para ver a captura de tela (bucket privado).
+  Future<String> bugScreenshotUrl(String path) => _supabase.storage
+      .from('bug_reports')
+      .createSignedUrl(path, const Duration(minutes: 10).inSeconds);
+
   Future<void> resolveReport(String reportId, {required bool dismiss}) =>
       _supabase.rpc(
         'admin_resolve_report',

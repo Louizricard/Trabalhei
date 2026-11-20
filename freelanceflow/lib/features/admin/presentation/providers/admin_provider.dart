@@ -35,6 +35,11 @@ final adminReportsProvider = FutureProvider.autoDispose
       (ref, status) => ref.watch(adminRepositoryProvider).reports(status),
     );
 
+final adminBugReportsProvider = FutureProvider.autoDispose
+    .family<List<AdminBugReport>, String>(
+      (ref, status) => ref.watch(adminRepositoryProvider).bugReports(status),
+    );
+
 final adminUsersProvider = FutureProvider.autoDispose
     .family<List<AdminUser>, String>(
       (ref, query) => ref.watch(adminRepositoryProvider).users(query),
