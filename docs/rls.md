@@ -44,6 +44,11 @@ Buckets públicos para leitura: `avatars`, `portfolio`, `job_attachments`, `job_
 Escrita/remoção apenas na pasta do próprio usuário: o primeiro segmento do caminho deve ser o `auth.uid()`
 (`<bucket>/<user_id>/...`). O app já prefixa uploads com o id do usuário.
 
+Tipos aceitos: `chat_attachments`, `job_attachments` e `proposal_attachments` só recebem PDF, DOC,
+DOCX, PNG, JPEG, WEBP, GIF (exceto propostas), ZIP e TXT (`allowed_mime_types`, migration
+`20261120145624_attachment_mime_allowlist`). Assim um HTML ou SVG enviado direto pela API não fica
+hospedado nos buckets.
+
 `chat_attachments` (arquivos do chat, entregas e revisões) é **privado**. A leitura é liberada ao dono e
 às partes envolvidas, conforme o caminho:
 
@@ -74,7 +79,8 @@ plano enviando direto pela API.
 `storage_cleanup_queue` (sem acesso para `anon`/`authenticated`) recebe os anexos e capas removidos
 de vagas e propostas e os de registros apagados. `storage_cleanup_batch` junta a fila com arquivos sem referência há
 mais de um dia e nunca devolve um caminho que voltou a ser usado. A Edge Function `storage-cleanup`,
-chamada só com a chave `service_role`, apaga pela Storage API. Entregas e revisões não entram: são
+chamada pelo agendamento diário (`pg_cron`, ver `docs/producao.md` 7.1) ou com a chave
+`service_role`, apaga pela Storage API. Entregas e revisões não entram: são
 histórico do contrato.
 
 ## Testando as políticas
