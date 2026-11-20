@@ -1,16 +1,46 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/errors/backend_errors.dart';
 import '../../../core/platform/web_push.dart';
+import '../domain/entities/notification_category.dart';
 
 /// Como a pessoa quer receber os avisos, além do sino do app.
 class NotificationPreferences {
   final bool emailEnabled;
   final bool pushEnabled;
 
+  /// Categorias que não chegam por e-mail nem push (só no sino).
+  final Set<NotificationCategory> mutedCategories;
+
   const NotificationPreferences({
     this.emailEnabled = true,
     this.pushEnabled = true,
+    this.mutedCategories = const {},
   });
+
+  factory NotificationPreferences.fromRow(Map<String, dynamic>? row) {
+    if (row == null) return const NotificationPreferences();
+    final muted = (row['muted_categories'] as List?) ?? const [];
+    return NotificationPreferences(
+      emailEnabled: row['email_enabled'] as bool? ?? true,
+      pushEnabled: row['push_enabled'] as bool? ?? true,
+      mutedCategories: {
+        for (final k in muted) ?NotificationCategory.fromKey(k as String),
+      },
+    );
+  }
+
+  bool isEnabled(NotificationCategory category) =>
+      !mutedCategories.contains(category);
+
+  /// Lista para gravar, com a categoria ligada ou desligada.
+  List<String> mutedKeysWith(NotificationCategory category, bool enabled) {
+    final next = {...mutedCategories};
+    enabled ? next.remove(category) : next.add(category);
+    return [
+      for (final c in NotificationCategory.values)
+        if (next.contains(c)) c.key,
+    ];
+  }
 }
 
 /// Preferências de e-mail/push e inscrições de Web Push deste navegador.
@@ -22,19 +52,28 @@ class NotificationPreferencesRepository {
   Future<NotificationPreferences> load() async {
     final row = await _supabase
         .from('notification_settings')
-        .select('email_enabled, push_enabled')
+        .select('email_enabled, push_enabled, muted_categories')
         .maybeSingle();
-    if (row == null) return const NotificationPreferences();
-    return NotificationPreferences(
-      emailEnabled: row['email_enabled'] as bool? ?? true,
-      pushEnabled: row['push_enabled'] as bool? ?? true,
-    );
+    return NotificationPreferences.fromRow(row);
   }
 
   Future<void> setEmailEnabled(bool enabled) async {
     await _supabase.from('notification_settings').upsert({
       'user_id': _supabase.auth.currentUser!.id,
       'email_enabled': enabled,
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    });
+  }
+
+  /// Liga ou desliga o e-mail e o push de uma categoria.
+  Future<void> setCategoryEnabled(
+    NotificationPreferences current,
+    NotificationCategory category,
+    bool enabled,
+  ) async {
+    await _supabase.from('notification_settings').upsert({
+      'user_id': _supabase.auth.currentUser!.id,
+      'muted_categories': current.mutedKeysWith(category, enabled),
       'updated_at': DateTime.now().toUtc().toIso8601String(),
     });
   }

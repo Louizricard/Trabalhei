@@ -315,15 +315,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   ProfileSettingsTile(
                     icon: Icons.notifications_outlined,
-                    title: 'Notificações',
-                    subtitle: 'E-mail e push neste navegador',
+                    title: 'Notificações e Alertas',
+                    subtitle: 'Onde receber, o que avisar e alertas de vagas',
                     onTap: () => context.push('/settings/notifications'),
-                  ),
-                  ProfileSettingsTile(
-                    icon: Icons.travel_explore_rounded,
-                    title: 'Alertas de vagas',
-                    subtitle: 'Avisos quando sair uma vaga do seu jeito',
-                    onTap: () => context.push('/alerts'),
                   ),
                   if (ref.watch(isAdminProvider).valueOrNull == true)
                     ProfileSettingsTile(

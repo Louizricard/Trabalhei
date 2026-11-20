@@ -4,12 +4,11 @@
 // de novo com o mesmo id não repete o envio. Chaves vêm do Vault
 // (função notification_secrets, só para o service_role).
 import { adminClient, handle, HttpError, json, reportError } from "../_shared/common.ts";
+import { isMuted, MODERATION_TYPES } from "./categories.ts";
 import { sendPush } from "./webpush.ts";
 
 const FRESH_MINUTES = 15;
 const FROM = "Trabalhei <notificacoes@trabalhei.site>";
-// Avisos da moderação chegam mesmo com a conta suspensa.
-const MODERATION_TYPES = new Set(["account_suspended", "account_restored"]);
 
 interface Notification {
   id: string;
@@ -66,7 +65,7 @@ Deno.serve(handle(async (req) => {
 
   const [profileRes, settingsRes, secretsRes, userRes] = await Promise.all([
     admin.from("profiles").select("full_name, deleted_at, suspended_at").eq("id", n.user_id).maybeSingle(),
-    admin.from("notification_settings").select("email_enabled, push_enabled").eq("user_id", n.user_id).maybeSingle(),
+    admin.from("notification_settings").select("email_enabled, push_enabled, muted_categories").eq("user_id", n.user_id).maybeSingle(),
     admin.rpc("notification_secrets"),
     admin.auth.admin.getUserById(n.user_id),
   ]);
@@ -74,7 +73,9 @@ Deno.serve(handle(async (req) => {
   if (!profile || profile.deleted_at) return json({ skipped: true });
   if (profile.suspended_at && !MODERATION_TYPES.has(n.type)) return json({ skipped: true });
 
-  const settings = settingsRes.data ?? { email_enabled: true, push_enabled: true };
+  const settings = settingsRes.data ?? { email_enabled: true, push_enabled: true, muted_categories: [] };
+  // Categoria silenciada: fica só no sino do app.
+  if (isMuted(n.type, settings.muted_categories)) return json({ skipped: "categoria silenciada" });
   const secrets = (secretsRes.data ?? {}) as Record<string, string>;
   const appUrl = (secrets.app_url ?? "").replace(/\/$/, "");
   const route = n.data?.route ?? "/notifications";
