@@ -1,7 +1,7 @@
 -- Compras pelo Google Play Billing (app Android): Pro mensal (assinatura) e Destaque (produto
 -- consumível). A Edge Function play-billing confere cada compra na API do Google Play e chama as
 -- funções abaixo com a service_role. Detalhes: docs/play-billing.md.
--- Volta: rollbacks/20261117120000_play_billing_down.sql.
+-- Volta: rollbacks/20261120172358_play_billing_down.sql.
 
 create table public.play_purchases(
   purchase_token text primary key,

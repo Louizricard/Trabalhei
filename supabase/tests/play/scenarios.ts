@@ -7,7 +7,7 @@ import {
   sqlFile,
 } from "../webhook/fixtures.ts";
 
-export const playMigration = "20261117120000_play_billing";
+export const playMigration = "20261120172358_play_billing";
 
 const days = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString();
 

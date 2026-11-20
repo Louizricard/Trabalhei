@@ -31,7 +31,7 @@ app Android                         Google Play                  Supabase
 - Excluir a conta cancela a renovação da assinatura do Google (`delete-account`).
 - Cupons não valem no Android. Para promoções use os códigos promocionais do Play Console.
 
-Código: `supabase/migrations/20261117120000_play_billing.sql` (tabela `play_purchases` e funções),
+Código: `supabase/migrations/20261120172358_play_billing.sql` (tabela `play_purchases` e funções),
 `supabase/functions/_shared/google_play.ts`, `_shared/play_purchases.ts`, `play-billing/`,
 `play-rtdn/`, `freelanceflow/lib/features/billing/data/play_billing_service.dart`. Testes:
 `supabase/tests/play/` (banco e regras) e `freelanceflow/test/features/billing/`.

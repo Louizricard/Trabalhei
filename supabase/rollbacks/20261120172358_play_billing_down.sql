@@ -1,4 +1,4 @@
--- Volta de 20261117120000_play_billing. Recusa se já houver compra do Google Play registrada:
+-- Volta de 20261120172358_play_billing. Recusa se já houver compra do Google Play registrada:
 -- apagar a tabela perderia o vínculo entre o que o Google cobrou e o benefício concedido.
 do $$ begin
   if exists(select 1 from public.play_purchases) then raise exception 'PLAY_PURCHASES_PRESENT'; end if;
