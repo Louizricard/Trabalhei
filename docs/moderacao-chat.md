@@ -2,7 +2,7 @@
 
 Exigência da política de conteúdo gerado por usuários do Google Play: quem conversa precisa poder
 denunciar conteúdo e bloquear outra pessoa dentro do app. Migration:
-`supabase/migrations/20261117130000_chat_safety.sql` (volta em `supabase/rollbacks/`).
+`supabase/migrations/20261120172423_chat_safety.sql` (volta em `supabase/rollbacks/`).
 
 ## No app
 

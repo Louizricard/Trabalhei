@@ -7,7 +7,7 @@ import {
   sqlFile,
 } from "../webhook/fixtures.ts";
 
-export const chatSafetyMigration = "20261117130000_chat_safety";
+export const chatSafetyMigration = "20261120172423_chat_safety";
 
 async function pair(db: Database) {
   const client = await customer(db);

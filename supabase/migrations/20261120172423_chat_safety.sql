@@ -1,6 +1,6 @@
 -- Segurança no chat: bloquear usuário e denunciar mensagem. Bloqueio vale nos dois sentidos para
 -- mensagens e para abrir conversa nova; mensagens de sistema do contrato continuam passando.
--- Detalhes: docs/moderacao-chat.md. Volta: rollbacks/20261117130000_chat_safety_down.sql.
+-- Detalhes: docs/moderacao-chat.md. Volta: rollbacks/20261120172423_chat_safety_down.sql.
 
 create table public.user_blocks(
   blocker_id uuid not null references public.profiles(id) on delete cascade,

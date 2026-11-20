@@ -1,4 +1,4 @@
--- Volta de 20261117130000_chat_safety. Recusa se já houver denúncia de mensagem (perderia a
+-- Volta de 20261120172423_chat_safety. Recusa se já houver denúncia de mensagem (perderia a
 -- evidência guardada); bloqueios existentes são descartados.
 do $$ begin
   if exists(select 1 from public.reports where target_type='message') then
