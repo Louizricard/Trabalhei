@@ -1,0 +1,87 @@
+name: Windows release
+
+# Compila o app para Windows, gera o instalador .exe e o ZIP portátil
+# (scripts/windows-installer/build.ps1) e anexa os dois ao release do GitHub.
+# O site (trabalhei.site) lê versão, tamanho e links do release mais recente.
+#
+# Roda sozinho quando um release é publicado, ou à mão em Actions >
+# Windows release > Run workflow, informando a tag (ex.: v1.0.5).
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag do release que vai receber os arquivos, por exemplo v1.0.5'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: windows-release-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Conferir versão do pubspec com a tag
+        shell: powershell
+        run: |
+          $version = (Select-String -Path freelanceflow\pubspec.yaml -Pattern '^version:\s*([0-9.]+)').Matches[0].Groups[1].Value
+          if ("v$version" -ne $env:TAG) { throw "pubspec.yaml está em $version, mas a tag é $env:TAG" }
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          # Mesma versão do CI (ver ci.yml).
+          flutter-version: 3.47.9
+          cache: true
+
+      - name: Gerar dart_defines.json
+        shell: powershell
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if (-not $env:SUPABASE_URL -or -not $env:SUPABASE_ANON_KEY) { throw 'Faltam os secrets SUPABASE_URL e SUPABASE_ANON_KEY.' }
+          @{ SUPABASE_URL = $env:SUPABASE_URL; SUPABASE_ANON_KEY = $env:SUPABASE_ANON_KEY } |
+            ConvertTo-Json | Out-File -FilePath freelanceflow\dart_defines.json -Encoding ascii
+
+      - name: flutter build windows
+        working-directory: freelanceflow
+        run: |
+          flutter pub get
+          flutter build windows --release --dart-define-from-file=dart_defines.json
+
+      # Windows PowerShell 5.1 (shell: powershell): o build.ps1 grava o .sed do
+      # IExpress com [Text.Encoding]::Default, que só é ANSI nessa versão.
+      - name: Gerar instalador e ZIP
+        shell: powershell
+        run: powershell -ExecutionPolicy Bypass -File scripts\windows-installer\build.ps1
+
+      - name: Anexar ao release
+        shell: powershell
+        run: |
+          $files = Get-ChildItem release -Filter "trabalhei-$env:VERSION-windows-x64*" | ForEach-Object FullName
+          if ($files.Count -ne 2) { throw "Esperava 2 arquivos em release/, achei $($files.Count)." }
+          gh release upload $env:TAG @files --clobber
+          if ($LASTEXITCODE) { throw 'Falha ao anexar ao release.' }
+          # Tira arquivos Windows de outras versões que tenham ficado no release:
+          # o site pega o primeiro .exe/.zip que encontrar.
+          $old = gh release view $env:TAG --json assets -q '.assets[].name' |
+            Where-Object { $_ -match 'windows' -and $_ -notmatch [regex]::Escape("-$env:VERSION-") }
+          foreach ($name in $old) {
+            gh release delete-asset $env:TAG $name --yes
+            if ($LASTEXITCODE) { throw "Falha ao remover $name." }
+          }
