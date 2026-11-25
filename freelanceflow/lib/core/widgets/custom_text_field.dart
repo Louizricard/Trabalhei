@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_colors.dart';
+import '../utils/currency_formatter.dart';
+import '../utils/input_formatters.dart';
 import 'field_label.dart';
 
 /// Campo de texto padrão dos formulários.
@@ -22,7 +24,6 @@ class CustomTextField extends StatefulWidget {
   final FieldRequirement requirement;
   final IconData? prefixIcon;
   final Widget? suffixIcon;
-  final String? prefixText;
   final bool obscureText;
   final bool enabled;
   final TextInputType keyboardType;
@@ -35,6 +36,11 @@ class CustomTextField extends StatefulWidget {
 
   /// Limite de caracteres (o mesmo do banco); mostra o contador abaixo.
   final int? maxLength;
+
+  /// Campo de valor em reais: mostra "R$" fixo, abre o teclado numérico,
+  /// agrupa os milhares enquanto a pessoa digita e completa os centavos ao
+  /// sair do campo ("1500" vira "1.500,00").
+  final bool money;
 
   /// Dicas para o preenchimento automático e gerenciadores de senha.
   final Iterable<String>? autofillHints;
@@ -50,7 +56,6 @@ class CustomTextField extends StatefulWidget {
     this.requirement = FieldRequirement.none,
     this.prefixIcon,
     this.suffixIcon,
-    this.prefixText,
     this.obscureText = false,
     this.enabled = true,
     this.keyboardType = TextInputType.text,
@@ -61,6 +66,7 @@ class CustomTextField extends StatefulWidget {
     this.inputFormatters,
     this.textCapitalization = TextCapitalization.none,
     this.maxLength,
+    this.money = false,
     this.autofillHints,
     this.textInputAction,
     this.onFieldSubmitted,
@@ -81,9 +87,20 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 
   void _onFocusChange() {
-    if (!_focus.hasFocus && !_touched && mounted) {
-      setState(() => _touched = true);
-    }
+    if (_focus.hasFocus || !mounted) return;
+    if (widget.money) _normalizeMoney();
+    if (!_touched) setState(() => _touched = true);
+  }
+
+  void _normalizeMoney() {
+    final controller = widget.controller;
+    final formatted = CurrencyFormatter.normalizeInput(controller.text);
+    if (formatted == controller.text) return;
+    controller.value = TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+    widget.onChanged?.call(formatted);
   }
 
   @override
@@ -107,7 +124,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
           focusNode: _focus,
           enabled: w.enabled,
           obscureText: w.obscureText,
-          keyboardType: w.keyboardType,
+          keyboardType: w.money
+              ? const TextInputType.numberWithOptions(decimal: true)
+              : w.keyboardType,
           validator: w.validator,
           autovalidateMode: _touched
               ? AutovalidateMode.onUserInteraction
@@ -115,7 +134,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
           maxLines: w.obscureText ? 1 : w.maxLines,
           minLines: w.minLines,
           onChanged: w.onChanged,
-          inputFormatters: w.inputFormatters,
+          inputFormatters: w.money
+              ? const [CurrencyInputFormatter()]
+              : w.inputFormatters,
           textCapitalization: w.textCapitalization,
           maxLength: w.maxLength,
           autofillHints: w.autofillHints,
@@ -128,16 +149,47 @@ class _CustomTextFieldState extends State<CustomTextField> {
             fontSize: 14,
           ),
           decoration: InputDecoration(
-            hintText: w.hint,
+            hintText: w.hint ?? (w.money ? '0,00' : null),
             helperText: w.helperText,
-            prefixText: w.prefixText,
             prefixIcon: w.prefixIcon != null
                 ? Icon(w.prefixIcon, color: AppColors.textMutedDark, size: 20)
+                : w.money
+                ? _CurrencyPrefix(enabled: w.enabled)
+                : null,
+            prefixIconConstraints: w.money ? const BoxConstraints() : null,
+            // O "R\$" já abre o campo; o valor começa logo depois dele.
+            contentPadding: w.money
+                ? const EdgeInsetsDirectional.fromSTEB(6, 16, 18, 16)
                 : null,
             suffixIcon: w.suffixIcon,
           ),
         ),
       ],
+    );
+  }
+}
+
+/// "R\$" fixo, visível mesmo com o campo vazio: o `prefixText` do Flutter
+/// some até o campo ganhar foco, e a pessoa não sabe em que unidade digitar.
+class _CurrencyPrefix extends StatelessWidget {
+  final bool enabled;
+
+  const _CurrencyPrefix({required this.enabled});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(start: 18),
+      child: Text(
+        'R\$',
+        style: TextStyle(
+          color: enabled
+              ? AppColors.textSecondaryDark
+              : AppColors.textDisabledDark,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 }

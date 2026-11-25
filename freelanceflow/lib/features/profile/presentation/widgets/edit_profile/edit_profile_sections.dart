@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/config/work_categories.dart';
-import '../../../../../core/utils/input_formatters.dart';
 import '../../../../../core/utils/validators.dart';
 import '../../../../../core/widgets/category_picker.dart';
 import '../../../../../core/widgets/field_label.dart';
@@ -118,9 +117,7 @@ class ProfessionalSection extends StatelessWidget {
           helperText:
               'Uma referência para clientes. Cada proposta tem o '
               'seu valor.',
-          prefixText: r'R$ ',
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: const [CurrencyInputFormatter()],
+          money: true,
           validator: Validators.money(optional: true, max: 100000),
         ),
         SkillsInputWidget(

@@ -42,4 +42,24 @@ void main() {
     }
     test('null → null', () => expect(CurrencyFormatter.parse(null), isNull));
   });
+
+  group('CurrencyFormatter.normalizeInput completa o formato de reais', () {
+    for (final (input, expected) in [
+      ('1500', '1.500,00'),
+      ('1.500', '1.500,00'),
+      ('1500,5', '1.500,50'),
+      ('01', '1,00'),
+      ('0,99', '0,99'),
+      ('abc', 'abc'),
+      ('', ''),
+    ]) {
+      test('"$input" → "$expected"', () {
+        expect(CurrencyFormatter.normalizeInput(input), expected);
+      });
+    }
+    test('toInput volta a ser lido por parse', () {
+      expect(CurrencyFormatter.toInput(1234567.8), '1.234.567,80');
+      expect(CurrencyFormatter.parse(CurrencyFormatter.toInput(40)), 40);
+    });
+  });
 }

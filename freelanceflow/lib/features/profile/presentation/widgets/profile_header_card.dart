@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/rating_formatter.dart';
+import '../../../../core/widgets/adaptive_pair.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../auth/domain/entities/user_profile.dart';
@@ -122,34 +123,22 @@ class ProfileHeaderCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final edit = CustomButton(
-                text: 'Editar perfil',
-                icon: Icons.edit_rounded,
-                onPressed: onEditProfile,
-              );
-              final viewPublic = CustomButton(
-                text: 'Ver perfil público',
-                variant: ButtonVariant.outline,
-                icon: Icons.visibility_outlined,
-                onPressed: onViewPublicProfile,
-              );
-              // Telas estreitas: um botão por linha, sem cortar o texto.
-              if (constraints.maxWidth < 360) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [edit, const SizedBox(height: 10), viewPublic],
-                );
-              }
-              return Row(
-                children: [
-                  Expanded(child: edit),
-                  const SizedBox(width: 10),
-                  Expanded(child: viewPublic),
-                ],
-              );
-            },
+          // Telas estreitas ou letra grande: um botão por linha.
+          AdaptivePair(
+            minRowWidth: 360,
+            spacing: 10,
+            rowAlignment: CrossAxisAlignment.center,
+            first: CustomButton(
+              text: 'Editar perfil',
+              icon: Icons.edit_rounded,
+              onPressed: onEditProfile,
+            ),
+            second: CustomButton(
+              text: 'Ver perfil público',
+              variant: ButtonVariant.outline,
+              icon: Icons.visibility_outlined,
+              onPressed: onViewPublicProfile,
+            ),
           ),
         ],
       ),

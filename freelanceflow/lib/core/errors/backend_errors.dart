@@ -10,7 +10,8 @@ String friendlyError(Object error, [StackTrace? stackTrace]) {
   final raw = _rawMessage(error);
   final lower = raw.toLowerCase();
 
-  final known = _match(raw, databaseCodes) ??
+  final known =
+      _match(raw, databaseCodes) ??
       (error is PostgrestException ? _postgrest(error, lower) : null) ??
       (error is AuthException ? _auth(error, lower) : null) ??
       (error is StorageException ? _match(lower, storageErrors) : null) ??
@@ -27,7 +28,10 @@ String friendlyError(Object error, [StackTrace? stackTrace]) {
   }
   if (error is FunctionException) {
     final details = error.details;
-    if (details is Map && details['error'] is String) return details['error'] as String;
+    if (details is Map && details['error'] is String) {
+      final message = details['error'] as String;
+      if (_looksFriendly(message)) return message;
+    }
   }
   reportError(error, stackTrace, 'erro não mapeado');
   return unexpectedError;
@@ -64,7 +68,8 @@ String? _postgrest(PostgrestException e, String lower) {
     case '22001':
       return 'Um dos textos passou do tamanho permitido. Encurte e tente de novo.';
   }
-  if (lower.contains('row-level security') || lower.contains('permission denied')) {
+  if (lower.contains('row-level security') ||
+      lower.contains('permission denied')) {
     return 'Você não tem permissão para esta ação.';
   }
   return null;
@@ -89,8 +94,22 @@ bool _looksFriendly(String raw) {
   final text = raw.replaceFirst('Exception: ', '').trim();
   return text.isNotEmpty &&
       text.length < 220 &&
-      !RegExp(r'[{}<>]|Exception\(|Error:|code:|\b(null|undefined)\b').hasMatch(text);
+      !RegExp(
+        r'[{}<>]|Exception\(|Error:|code:|\b(null|undefined)\b',
+      ).hasMatch(text) &&
+      !_technicalCode.hasMatch(text) &&
+      !_httpReason.hasMatch(text);
 }
+
+/// Códigos internos como `COVER_LETTER_TOO_SHORT`: nunca vão para a tela.
+final _technicalCode = RegExp(r'\b[A-Z][A-Z0-9]*_[A-Z0-9_]+\b');
+
+/// Frases de status HTTP ("Bad Request", "Internal Server Error"...).
+final _httpReason = RegExp(
+  r'\b(Bad Request|Unauthorized|Forbidden|Not Found|Conflict|'
+  r'Unprocessable Entity|Too Many Requests|Internal Server Error|'
+  r'Bad Gateway|Service Unavailable|Gateway Timeout)\b',
+);
 
 /// Erro com mensagem pronta para o usuário, lançado pelo próprio app.
 class AppMessageException implements Exception {

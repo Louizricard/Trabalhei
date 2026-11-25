@@ -4,6 +4,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/utils/currency_formatter.dart';
 import '../../../../../core/utils/input_formatters.dart';
 import '../../../../../core/utils/validators.dart';
+import '../../../../../core/widgets/adaptive_pair.dart';
 import '../../../../../core/widgets/category_picker.dart';
 import '../../../../../core/widgets/category_search_sheet.dart';
 import '../../../../../core/widgets/custom_text_field.dart';
@@ -105,11 +106,9 @@ class JobBudgetCard extends StatelessWidget {
     return CustomTextField(
       controller: c,
       label: label,
-      prefixText: 'R\$ ',
+      money: true,
       hint: '1.500,00',
       requirement: FieldRequirement.required,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: const [CurrencyInputFormatter()],
       textInputAction: TextInputAction.next,
       validator: validator,
     );
@@ -135,18 +134,7 @@ class JobBudgetCard extends StatelessWidget {
             style: TextStyle(fontSize: 12, color: AppColors.textMutedDark),
           ),
           const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, c) => c.maxWidth < 420
-                ? Column(children: [min, const SizedBox(height: 12), max])
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: min),
-                      const SizedBox(width: 12),
-                      Expanded(child: max),
-                    ],
-                  ),
-          ),
+          AdaptivePair(first: min, second: max),
           const SizedBox(height: 16),
           CustomTextField(
             controller: daysController,

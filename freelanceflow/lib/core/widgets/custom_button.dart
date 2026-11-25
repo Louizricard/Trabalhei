@@ -43,28 +43,28 @@ class CustomButton extends StatelessWidget {
               valueColor: AlwaysStoppedAnimation<Color>(loadingColor),
             ),
           )
-        : Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 19),
-                const SizedBox(width: 8),
-              ],
-              // Em botões estreitos o rótulo encurta em vez de transbordar.
-              Flexible(
-                child: Text(
+        // Em botões estreitos o rótulo inteiro diminui um pouco em vez de
+        // ser cortado ou transbordar a borda.
+        : FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 19),
+                  const SizedBox(width: 8),
+                ],
+                Text(
                   text,
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
                     letterSpacing: -0.1,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
 
     return SizedBox(

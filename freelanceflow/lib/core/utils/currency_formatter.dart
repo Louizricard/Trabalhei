@@ -15,15 +15,25 @@ class CurrencyFormatter {
     return '${_formatBRL.format(min)} - ${_formatBRL.format(max)}';
   }
 
-  /// Texto para preencher um campo de valor ("1500" ou "1500,50"), lido de
-  /// volta por [parse].
-  static String toInput(double amount) => amount == amount.roundToDouble()
-      ? amount.toStringAsFixed(0)
-      : amount.toStringAsFixed(2).replaceAll('.', ',');
+  static final NumberFormat _input = NumberFormat('#,##0.00', 'pt_BR');
+
+  /// Texto para preencher um campo de valor ("1.500,00"), no mesmo formato
+  /// que o campo mostra depois de digitado e lido de volta por [parse].
+  static String toInput(double amount) => _input.format(amount);
+
+  /// Completa o que foi digitado no formato de reais ("1500" vira
+  /// "1.500,00"). Entradas que não são um valor ficam como estão, para o
+  /// validador explicar o problema.
+  static String normalizeInput(String text) {
+    final amount = parse(text);
+    return amount == null ? text : toInput(amount);
+  }
 
   static final RegExp _thousands = RegExp(r'^\d{1,3}(\.\d{3})+$');
   static final RegExp _plain = RegExp(r'^\d+$');
-  static final RegExp _commaDecimal = RegExp(r'^(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$');
+  static final RegExp _commaDecimal = RegExp(
+    r'^(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$',
+  );
   static final RegExp _dotDecimal = RegExp(r'^\d+\.\d{1,2}$');
 
   /// Lê um valor digitado em reais ("1.500,50", "1500,50", "1.500",
