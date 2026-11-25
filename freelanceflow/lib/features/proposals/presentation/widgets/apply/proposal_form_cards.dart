@@ -3,6 +3,7 @@ import '../../../../../core/services/storage_service.dart';
 import '../../../../../core/utils/input_formatters.dart';
 import '../../../../../core/utils/validators.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/widgets/adaptive_pair.dart';
 import '../../../../../core/widgets/attachment_picker_section.dart';
 import '../../../../../core/widgets/custom_button.dart';
 import '../../../../../core/widgets/custom_text_field.dart';
@@ -28,12 +29,10 @@ class ProposalTermsCard extends StatelessWidget {
     final bid = CustomTextField(
       controller: bidController,
       label: 'Valor total',
-      prefixText: 'R\$ ',
+      money: true,
       hint: '1.500,00',
       helperText: 'Quanto você cobra pelo projeto inteiro.',
       requirement: FieldRequirement.required,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: const [CurrencyInputFormatter()],
       textInputAction: TextInputAction.next,
       validator: Validators.money(),
     );
@@ -57,18 +56,7 @@ class ProposalTermsCard extends StatelessWidget {
           const SizedBox(height: 4),
           const RequiredFieldsNote(),
           const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) => constraints.maxWidth < 420
-                ? Column(children: [bid, const SizedBox(height: 12), days])
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: bid),
-                      const SizedBox(width: 12),
-                      Expanded(child: days),
-                    ],
-                  ),
-          ),
+          AdaptivePair(first: bid, second: days),
         ],
       ),
     );
@@ -109,25 +97,37 @@ class CoverLetterCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          CustomTextField(
-            controller: controller,
-            label: 'Por que você é a pessoa certa para este trabalho?',
-            requirement: FieldRequirement.required,
-            hint:
-                'Conte experiências parecidas, como vai conduzir o trabalho '
-                'e o que o cliente recebe ao final.',
-            helperText: 'Mínimo de $minChars caracteres.',
-            maxLines: 6,
-            maxLength: 3000,
-            textCapitalization: TextCapitalization.sentences,
-            validator: Validators.minLength(
-              'a carta de apresentação',
-              minChars,
+          // O que falta para o mínimo aparece enquanto a pessoa digita, para
+          // ninguém descobrir o limite só ao tentar enviar.
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: controller,
+            builder: (context, value, _) => CustomTextField(
+              controller: controller,
+              label: 'Por que você é a pessoa certa para este trabalho?',
+              requirement: FieldRequirement.required,
+              hint:
+                  'Conte experiências parecidas, como vai conduzir o trabalho '
+                  'e o que o cliente recebe ao final.',
+              helperText: _coverLetterHint(value.text.trim().length),
+              maxLines: 6,
+              maxLength: 3000,
+              textCapitalization: TextCapitalization.sentences,
+              validator: Validators.minLength(
+                'a carta de apresentação',
+                minChars,
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _coverLetterHint(int length) {
+    final missing = minChars - length;
+    if (missing <= 0) return 'Mínimo de $minChars caracteres atingido.';
+    if (length == 0) return 'Mínimo de $minChars caracteres.';
+    return 'Faltam $missing caracteres para o mínimo de $minChars.';
   }
 }
 

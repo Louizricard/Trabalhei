@@ -781,7 +781,7 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
               children: [
                 Expanded(
                   flex: 3,
-                  child: ElevatedButton.icon(
+                  child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.success,
                       foregroundColor: AppColors.pureWhite,
@@ -790,18 +790,11 @@ class _JobProposalsScreenState extends ConsumerState<JobProposalsScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    icon: const Icon(
-                      Icons.check_circle_outline_rounded,
-                      size: 18,
-                    ),
-                    label: Text(
-                      proposal.status == ProposalStatus.counterOffered
+                    child: _CompactButtonLabel(
+                      icon: Icons.check_circle_outline_rounded,
+                      text: proposal.status == ProposalStatus.counterOffered
                           ? 'Contratar'
-                          : 'Aceitar & Contratar',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
+                          : 'Aceitar e contratar',
                     ),
                     onPressed: () => _handleAcceptProposal(proposal),
                   ),

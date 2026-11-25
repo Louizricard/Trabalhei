@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/adaptive_pair.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/glass_card.dart';
@@ -121,26 +122,21 @@ class ClientDashboardScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
 
                   // Ações principais: buscar talentos e publicar vaga
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomButton(
-                          text: 'Buscar Talentos',
-                          icon: Icons.people_outline_rounded,
-                          variant: ButtonVariant.primary,
-                          onPressed: () => context.push('/freelancers'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: CustomButton(
-                          text: 'Publicar Vaga',
-                          icon: Icons.add_circle_outline_rounded,
-                          variant: ButtonVariant.secondary,
-                          onPressed: () => context.push('/jobs/create'),
-                        ),
-                      ),
-                    ],
+                  AdaptivePair(
+                    minRowWidth: 340,
+                    rowAlignment: CrossAxisAlignment.center,
+                    first: CustomButton(
+                      text: 'Buscar Talentos',
+                      icon: Icons.people_outline_rounded,
+                      variant: ButtonVariant.primary,
+                      onPressed: () => context.push('/freelancers'),
+                    ),
+                    second: CustomButton(
+                      text: 'Publicar Vaga',
+                      icon: Icons.add_circle_outline_rounded,
+                      variant: ButtonVariant.secondary,
+                      onPressed: () => context.push('/jobs/create'),
+                    ),
                   ),
                   const SizedBox(height: 20),
 

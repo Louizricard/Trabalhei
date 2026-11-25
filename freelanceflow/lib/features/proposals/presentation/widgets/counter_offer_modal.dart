@@ -215,13 +215,9 @@ class _CounterOfferModalState extends ConsumerState<CounterOfferModal> {
               CustomTextField(
                 controller: _priceController,
                 label: 'Novo valor',
-                prefixText: 'R\$ ',
+                money: true,
                 helperText: 'O valor total que você aceita pagar.',
                 requirement: FieldRequirement.required,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                inputFormatters: const [CurrencyInputFormatter()],
                 textInputAction: TextInputAction.next,
                 validator: Validators.money(),
               ),

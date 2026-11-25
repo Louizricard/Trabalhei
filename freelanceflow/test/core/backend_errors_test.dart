@@ -7,7 +7,10 @@ void main() {
   group('friendlyError', () {
     test('traduz códigos levantados pelo banco', () {
       final err = const PostgrestException(message: 'PROPOSAL_QUOTA_EXCEEDED');
-      expect(friendlyError(err), contains('Você usou todas as propostas deste mês'));
+      expect(
+        friendlyError(err),
+        contains('Você usou todas as propostas deste mês'),
+      );
     });
 
     test('traduz violação de RLS', () {
@@ -30,6 +33,27 @@ void main() {
         details: {'error': 'CPF/CNPJ inválido.'},
       );
       expect(friendlyError(err), 'CPF/CNPJ inválido.');
+    });
+
+    test('traduz código do banco vindo com a frase HTTP', () {
+      final err = const PostgrestException(
+        message: 'COVER_LETTER_TOO_SHORT',
+        code: 'P0001',
+        details: 'Bad Request',
+      );
+      expect(friendlyError(err), contains('carta de apresentação está curta'));
+    });
+
+    test('nunca mostra código interno ou frase HTTP desconhecidos', () {
+      expect(
+        friendlyError(Exception('ALGUM_CODIGO_NOVO Bad Request')),
+        isNot(contains('ALGUM_CODIGO_NOVO')),
+      );
+      final fn = const FunctionException(
+        status: 400,
+        details: {'error': 'INVALID_PAYLOAD'},
+      );
+      expect(friendlyError(fn), isNot(contains('INVALID_PAYLOAD')));
     });
 
     test('mantém mensagens desconhecidas sem o prefixo Exception', () {

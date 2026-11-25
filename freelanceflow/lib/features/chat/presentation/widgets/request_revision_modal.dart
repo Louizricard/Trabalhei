@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/services/attachment_store.dart';
 import '../../../../core/widgets/attachment_widgets.dart';
+import '../../../../core/widgets/adaptive_pair.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/field_label.dart';
@@ -376,31 +377,20 @@ class _RequestRevisionModalState extends ConsumerState<RequestRevisionModal> {
                       'Anexe capturas ou documentos apontando o que ajustar.',
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.borderDark),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: () =>
-                            setState(() => _showRevisionForm = false),
-                        child: const Text('Voltar'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: CustomButton(
-                        text: 'Enviar Revisão',
-                        icon: Icons.send_rounded,
-                        isLoading: _isRequestingRevision,
-                        onPressed: _submitRevision,
-                      ),
-                    ),
-                  ],
+                AdaptivePair(
+                  minRowWidth: 320,
+                  rowAlignment: CrossAxisAlignment.center,
+                  first: CustomButton(
+                    text: 'Voltar',
+                    variant: ButtonVariant.secondary,
+                    onPressed: () => setState(() => _showRevisionForm = false),
+                  ),
+                  second: CustomButton(
+                    text: 'Enviar Revisão',
+                    icon: Icons.send_rounded,
+                    isLoading: _isRequestingRevision,
+                    onPressed: _submitRevision,
+                  ),
                 ),
               ],
             ] else ...[

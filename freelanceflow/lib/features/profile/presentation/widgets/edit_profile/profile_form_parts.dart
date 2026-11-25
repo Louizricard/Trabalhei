@@ -76,7 +76,7 @@ class DraftTextField extends StatefulWidget {
   final String? helperText;
   final FieldRequirement requirement;
   final IconData? prefixIcon;
-  final String? prefixText;
+  final bool money;
   final int? maxLength;
   final int maxLines;
   final TextInputType keyboardType;
@@ -92,7 +92,7 @@ class DraftTextField extends StatefulWidget {
     this.helperText,
     this.requirement = FieldRequirement.optional,
     this.prefixIcon,
-    this.prefixText,
+    this.money = false,
     this.maxLength,
     this.maxLines = 1,
     this.keyboardType = TextInputType.text,
@@ -123,7 +123,7 @@ class _DraftTextFieldState extends State<DraftTextField> {
       helperText: widget.helperText,
       requirement: widget.requirement,
       prefixIcon: widget.prefixIcon,
-      prefixText: widget.prefixText,
+      money: widget.money,
       maxLength: widget.maxLength,
       maxLines: widget.maxLines,
       keyboardType: multiline ? TextInputType.multiline : widget.keyboardType,
